@@ -173,27 +173,26 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
     if (ROWS(OF) != 1 || COLS(OF) != N)
     	mexErrMsgTxt("Input OF must be a 1xN array.");
 
-	unsigned int count = 0;
 	double c = 0;
-    while (ROWS(X) - count > 0) {
-        CREATE_REAL_DOUBLE_ARRAY(B, 1, block_size);
-        array_range(ARRAY_PROPERTIES(B), count + 1, 1);
-        count += block_size;
-        const unsigned int sizeB = (count <= ROWS(X)) ? block_size : ROWS(X) - (count - block_size);
+	unsigned int begin;
+	unsigned int actual_block_size;
+    for (begin = 1; begin <= ROWS(X); begin += actual_block_size) {
+    	const unsigned int end = MIN(begin + block_size - 1, ROWS(X));
+    	actual_block_size = end - begin + 1;
         
-		/* Arrays to store the k nearest neighbours for each node. */
-        CREATE_REAL_DOUBLE_ARRAY(neighbours,      sizeB, k); 
-        CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, sizeB, k);
+        /* Arrays to store the k nearest neighbours for each node. */
+        CREATE_REAL_DOUBLE_ARRAY(neighbours, actual_block_size, k); 
+        CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
         
-        CREATE_REAL_DOUBLE_ARRAY(score,           1,     sizeB);
+        CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
 
         unsigned int l = 1;	/* how many nearest neighbours we have found */
         unsigned int vector1;
         unsigned int vector2;
         unsigned int col;
         for (vector1 = 1; vector1 <= ROWS(X); vector1++) {
-            for (vector2 = 1; vector2 <= sizeB; vector2++) {
-            	const unsigned int B_vector2 = (unsigned int) ARRAY_ELEMENT(B, 1, vector2);
+            for (vector2 = 1; vector2 <= actual_block_size; vector2++) {
+            	const unsigned int B_vector2 = begin + vector2 - 1;
 
                 if (vector1 != B_vector2 && B_vector2 != 0) { 
                 	/* calculate the distance between the two vectors (vector1 and vector2) */
@@ -234,7 +233,7 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
                     }
 
                     if (l >= k && ARRAY_ELEMENT(score, 1, vector2) < c) {
-                        ARRAY_ELEMENT(B,     1, vector2) = 0;
+                        /* ARRAY_ELEMENT(B,     1, vector2) = 0; */
                         ARRAY_ELEMENT(score, 1, vector2) = 0;
                     }
                 }
@@ -243,9 +242,9 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
             l++;
         }
 
-        CREATE_REAL_DOUBLE_ARRAY(BO, 1, sizeB + 1);
-        for (col = 1; col <= sizeB; col++)
-            ARRAY_ELEMENT(BO, 1, col) = ARRAY_ELEMENT(B, 1, col);
+        CREATE_REAL_DOUBLE_ARRAY(BO, 1, actual_block_size + 1);
+        for (col = 1; col <= actual_block_size; col++)
+            ARRAY_ELEMENT(BO, 1, col) = begin - 1 + col;
 
         CREATE_REAL_DOUBLE_ARRAY(BOF, 1, COLS(score) + COLS(OF));
         for (col = 1; col <= COLS(score); col++)
@@ -274,7 +273,6 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
         /* c = weakest outlier */
         c = ARRAY_ELEMENT(OF, 1, N);
         
-        FREE_ARRAY(B);
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
         FREE_ARRAY(score);
