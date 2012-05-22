@@ -3,7 +3,7 @@
 #include "limits.h" /* for DBL_MIN */
 
 /* Input and output arguments */
-#define X_IN            prhs[0]
+#define DATA_IN         prhs[0]
 #define K_IN            prhs[1]
 #define N_IN            prhs[2]
 #define BLOCKSIZE_IN    prhs[3]
@@ -35,7 +35,7 @@
 #define RETRIEVE_REAL_DOUBLE_ARRAY(arrayname, location) \
 	const mwSize ROWS(arrayname) = mxGetM(location); \
     const mwSize COLS(arrayname) = mxGetN(location); \
-    mxArray * arrayname##_matlab = location; \
+    mxArray * arrayname##_matlab = (mxArray *) location; \
     double * arrayname = mxGetData(arrayname##_matlab)
 #define FREE_ARRAY(arrayname) \
 	mxDestroyArray(arrayname##_matlab)
@@ -51,7 +51,7 @@
 #define ARRAY_SIZE_PARAMS(array) \
 	const unsigned int ROWS(array), const unsigned int COLS(array)
 #define ARRAY_PROPERTIES(array) \
-	array, array##_rows, array##_cols
+	array, ROWS(array), COLS(array)
 
 /*
  * Utility function to set the values of an array to an incremental range. The 
@@ -158,26 +158,26 @@ static double distance(double * array, ARRAY_SIZE_PARAMS(array), const unsigned 
  * ???
  *
  * Parameters:
- *     - X: An X_rows-by-X_cols array of doubles.
- *     - X_rows: Number of rows of X
- *     - X_cols: Number of columns of X
+ *     - data: A matrix consisting of data_rows vector of size data_cols.
+ *     - data_rows: Number of vectors contained in the data matrix.
+ *     - data_cols: Size of each vector contained in the data matrix.
  *     - k: number of k-nearest neighbours for outlier detection
  *     - N: return the top N outliers
  *     - block_size:
  *     - O: A 1xN array of unsigned integers. This is an output of the function.
  *     - OF: A 1xN array of doubles. This is an output of the function.
  */
-static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const unsigned int k, const unsigned int N, const unsigned int block_size, double * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
+static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, double * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
 	if (ROWS(O) != 1 || COLS(O) != N)
     	mexErrMsgTxt("Input O must be a 1xN array.");
     if (ROWS(OF) != 1 || COLS(OF) != N)
     	mexErrMsgTxt("Input OF must be a 1xN array.");
 
-	double c = 0;
+	double cutoff = 0;
 	unsigned int begin;
 	unsigned int actual_block_size;
-    for (begin = 1; begin <= ROWS(X); begin += actual_block_size) {
-    	const unsigned int end = MIN(begin + block_size - 1, ROWS(X));
+    for (begin = 1; begin <= ROWS(data); begin += actual_block_size) {
+    	const unsigned int end = MIN(begin + block_size - 1, ROWS(data));
     	actual_block_size = end - begin + 1;
         
         /* Arrays to store the k nearest neighbours for each node. */
@@ -190,13 +190,13 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
         unsigned int vector1;
         unsigned int vector2;
         unsigned int col;
-        for (vector1 = 1; vector1 <= ROWS(X); vector1++) {
+        for (vector1 = 1; vector1 <= ROWS(data); vector1++) {
             for (vector2 = 1; vector2 <= actual_block_size; vector2++) {
             	const unsigned int B_vector2 = begin + vector2 - 1;
 
-                if (vector1 != B_vector2 && B_vector2 != 0) { 
+                if (vector1 != B_vector2 && B_vector2 != 0) {
                 	/* calculate the distance between the two vectors (vector1 and vector2) */
-                    const double dist = pow(distance(ARRAY_PROPERTIES(X), vector1, B_vector2), 2);
+                    const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, B_vector2), 2);
 
 					if (l > 1 && l <= (k + 1) && ARRAY_ELEMENT(neighbours, vector2, l - 1) == 0)
                         l--;
@@ -232,7 +232,7 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
                         }
                     }
 
-                    if (l >= k && ARRAY_ELEMENT(score, 1, vector2) < c) {
+                    if (l >= k && ARRAY_ELEMENT(score, 1, vector2) < cutoff) {
                         /* ARRAY_ELEMENT(B,     1, vector2) = 0; */
                         ARRAY_ELEMENT(score, 1, vector2) = 0;
                     }
@@ -270,8 +270,8 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
         for (col = 1; col <= COLS(OF); col++)
             ARRAY_ELEMENT(OF, 1, col) = ARRAY_ELEMENT(newBOF, 1, col);
 
-        /* c = weakest outlier */
-        c = ARRAY_ELEMENT(OF, 1, N);
+        /* cutoff = weakest outlier */
+        cutoff = ARRAY_ELEMENT(OF, 1, N);
         
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
@@ -296,10 +296,10 @@ static void top_n_outlier_pruning_block(double * X, ARRAY_SIZE_PARAMS(X), const 
  *             type const mxArray.
  *
  * Calling syntax:
- *     [O, OF] = top_n_outlier_pruning_block(X, k, N, block_size);
+ *     [O, OF] = top_n_outlier_pruning_block(data, k, N, block_size);
  *
  * NOTES
- *     - X is a real full 2D double array.
+ *     - data is a real full 2D double array.
  *     - k is an integer-valued scalar.
  *     - N is an integer-valued scalar.
  *     - block_size is an integer-valued scalar.
@@ -312,11 +312,9 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         mexErrMsgTxt("Two outputs required.");
 
     /* make sure the first input argument is a real 2D full (non-sparse) double array */
-    if (!IS_REAL_2D_FULL_DOUBLE(X_IN))
-        mexErrMsgTxt("Input X must be a real full 2D double array.");
-    double * X           = mxGetData(X_IN);
-    const mwSize ROWS(X) = mxGetM(X_IN);
-    const mwSize COLS(X) = mxGetN(X_IN);
+    if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN))
+        mexErrMsgTxt("Input data must be a real full 2D double array.");
+	RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
 
     /* make sure the second input argument is an integer */
     if(!IS_REAL_SCALAR(K_IN))
@@ -340,5 +338,5 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     OF_OUT = MATLAB_ARRAY(OF);
 
     /* call the function */
-    top_n_outlier_pruning_block(ARRAY_PROPERTIES(X), k, N, block_size, ARRAY_PROPERTIES(O), ARRAY_PROPERTIES(OF));
+    top_n_outlier_pruning_block(ARRAY_PROPERTIES(data), k, N, block_size, ARRAY_PROPERTIES(O), ARRAY_PROPERTIES(OF));
 }
