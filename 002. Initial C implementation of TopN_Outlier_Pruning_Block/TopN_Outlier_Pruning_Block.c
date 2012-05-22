@@ -54,29 +54,6 @@
 	array, ROWS(array), COLS(array)
 
 /*
- * Utility function to set the values of an array to an incremental range. The 
- * range will start at "val", and each element of the array will be "incr" 
- * larger than the previous element.
- *
- * Parameters:
- *     - array: The array to be set to an incremental range.
- *     - array_rows: The number of rows of the array.
- *     - array_cols: The number of columns of the array.
- *     - val: The value for the first element of the array.
- *     - incr: The increment for each cell in the array.
- */
-static void array_range(double * array, ARRAY_SIZE_PARAMS(array), int val, const int incr) {
-    unsigned int row;
-    unsigned int col;
-    for (row = 1; row <= ROWS(array); row++) {
-        for (col = 1; col <= COLS(array); col++) {
-            ARRAY_ELEMENT(array, row, col) = (double) val;
-            val += incr;
-        }
-    }
-}
-
-/*
  * Calculate the mean of all values within a single row of an array.
  *
  * Parameters:
