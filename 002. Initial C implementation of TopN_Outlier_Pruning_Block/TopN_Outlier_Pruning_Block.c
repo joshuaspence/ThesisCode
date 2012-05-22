@@ -95,17 +95,18 @@ static double average_over_row(double * array, ARRAY_SIZE_PARAMS(array), const u
  *     - array: The array of which to calculate the max over a row.
  *     - array_rows: The number of rows of the array.
  *     - array_cols: The number of columns of the array.
- *     - row: The row number of the row to be averaged. Note that the row index 
- *            follows the MATLAB convention of beginning at 1.
+ *     - row: The row number of the row over which to calculate the maximum 
+ *            value. Note that the row index follows the MATLAB convention of 
+ *            beginning at 1.
  *     - max_value: A pointer to the return value storing the maximum value.
  *     - max_index: A pointer to the return value storing the index of the  
- *                  element containing the maximum value.
+ *                  column containing the maximum value.
  */
 static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * max_value, unsigned int * max_index) {
-    unsigned int col;
 	*max_value = DBL_MIN;
 	*max_index = -1;
 
+	unsigned int col;
     for (col = 1; col <= COLS(array); col++) {
         const double val = ARRAY_ELEMENT(array, row, col);
         if (val > *max_value) {
@@ -119,9 +120,10 @@ static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigne
  * Calculate the Euclidean distance between two vectors.
  *
  * Parameters:
- *     - array: The array of which to calculate the distance over a row.
- *     - array_rows: The number of rows of the array.
- *     - array_cols: The number of columns of the array.
+ *     - vectors: The array containg the vectors between which to calculate the 
+ *                distance.
+ *     - vectors_rows: The number of vectors contained within the array.
+ *     - vectors_cols: The size of each vector within the array.
  *     - vector1: The row index of one of the vectors. Note that the row index 
  *                follows the MATLAB convention of beginning at 1.
  *     - vector2: The row index of the other vector. Note that the row index 
@@ -130,12 +132,12 @@ static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigne
  * Return:
  *    The sum of the distance between values of the rows.
  */
-static double distance(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int vector1, const unsigned int vector2) {
+static double distance(double * vectors, ARRAY_SIZE_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
     double sum_of_squares = 0;
     
     unsigned int col;
-    for (col = 1; col <= COLS(array); col++)
-        sum_of_squares += pow(ARRAY_ELEMENT(array, vector1, col) - ARRAY_ELEMENT(array, vector2, col), 2);
+    for (col = 1; col <= COLS(vectors); col++)
+        sum_of_squares += pow(ARRAY_ELEMENT(vectors, vector1, col) - ARRAY_ELEMENT(vectors, vector2, col), 2);
         
     return sqrt(sum_of_squares);
 }
