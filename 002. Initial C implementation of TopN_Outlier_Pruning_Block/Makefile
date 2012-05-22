@@ -2,13 +2,20 @@
 #                                                                              #
 #                              COMPILER FLAGS                                  #
 #                                                                              #
-# CPPONLY flag removes mex-portions (includes and MEX iterface function) to    #
-# allow C++ independent testing                                                #
 #------------------------------------------------------------------------------#
-# --- RELEASE --- #
-CXXFLAGS = -O2 -Wall -fmessage-length=0
-# --- DEBUG   --- #
-# CXXFLAGS = -j2 -O2 -Wall -fmessage-length=0 -D DEBUG
+
+# Default flags
+CFLAGS   := -ansi -D_GNU_SOURCE  -fexceptions -fPIC -fno-omit-frame-pointer -pthread
+CXXFLAGS := -ansi -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread
+MXXFLAGS :=
+LDFLAGS  :=
+
+# Additional flags
+
+CFLAGS   += -O3 -W -Wall -pedantic -fmessage-length=0
+CXXFLAGS += -O3 -W -Wall -pedantic -fmessage-length=0
+MXXFLAGS += 
+LDFLAGS  += 
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -16,20 +23,22 @@ CXXFLAGS = -O2 -Wall -fmessage-length=0
 #                                                                              #
 # add these to your user profile in order to specify your own.                 #
 #------------------------------------------------------------------------------#
-MATLAB_DIR = MATLAB/R2012a
+MATLAB_DIR := MATLAB/R2012a
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX = /Applications/$(MATLAB_DIR)/bin/mex
-		MEXEXT = $(shell /Applications/$(MATLAB_DIR)/bin/mexext)
-		MXXFLAGS = -I/Applications/$(MATLAB_DIR)/extern/include
+		MXX      := /Applications/$(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell /Applications/$(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS += -I/Applications/$(MATLAB_DIR)/extern/include
+		LDFLAGS  += -pthread -shared -Wl,--version-script,/Applications/$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX = /usr/local/$(MATLAB_DIR)/bin/mex
-		MEXEXT = $(shell /usr/local/$(MATLAB_DIR)/bin/mexext) 
-		MXXFLAGS = -I/usr/local/$(MATLAB_DIR)/extern/include
+		MXX      := /usr/local/$(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell /usr/local/$(MATLAB_DIR)/bin/mexext) 
+		MXXFLAGS += -I/usr/local/$(MATLAB_DIR)/extern/include
+		LDFLAGS  += -pthread -shared -Wl,--version-script,/usr/local/$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 else
-	MEXEXT = $(shell MEXEXT) 
+	MEXEXT := $(shell MEXEXT) 
 endif
 
 #------------------------------------------------------------------------------#
@@ -37,7 +46,7 @@ endif
 #                              OTHER VARIABLES                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-ARCHIVENAME = TopN_Outlier_Pruning_Block
+ARCHIVENAME := TopN_Outlier_Pruning_Block
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -57,21 +66,24 @@ ARCHIVENAME = TopN_Outlier_Pruning_Block
 # produces an output with filename expressed by the "first" of elements from   #
 # which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
-HDRS = 
-TARGET =  TopN_Outlier_Pruning_Block
-#BINTARGET = $(TARGET:%=%.bin)
-MEXTARGET = $(TARGET:%=%.$(MEXEXT))
+HDRS       := 
+TARGET     :=  TopN_Outlier_Pruning_Block
+#BINTARGET := $(TARGET:%=%.bin)
+MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
 all: $(BINTARGET) $(MEXTARGET)
 
-debug: CXXFLAGS += -D DEBUG -g
+debug: CFLAGS   += -DDEBUG -g
+debug: CXXFLAGS += -DDEBUG -g
+debug: MXXFLAGS += -DDEBUG -g
 debug: all
 
 %.bin: %.c
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 %.mexa64: %.c
-	$(MXX) $(MXXFLAGS) -o $@ $<
+	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $<
+	#$(MXX) $(MXXFLAGS) -o $@ $<
 	
 clean:
 	@rm -f $(OBJS) $(BINTARGET) $(MEXTARGET)
