@@ -32,9 +32,7 @@
 /* Code-saving macros */
 #define CREATE_REAL_DOUBLE_ARRAY(array, rows, cols) \
 	const unsigned int ROWS(array) = rows; \
-	UNUSED_VARIABLE(ROWS(array)); \
 	const unsigned int COLS(array) = cols; \
-	UNUSED_VARIABLE(COLS(array)); \
 	mxArray * MATLAB_ARRAY(array) = mxCreateDoubleMatrix(ROWS(array), COLS(array), mxREAL); \
 	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
 	double * array = mxGetData(MATLAB_ARRAY(array))
@@ -170,7 +168,8 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
     
     	/* 
     	 * Process actual_block_size blocks, beginning at vector "begin" and 
-    	 * ending at vector "end" inclusive. In this iteration
+    	 * ending at vector "end" inclusive. In this iteration, we find the top
+    	 * N outliers based on distances from points in the current block.
     	 */
         
         /* Arrays to store the k nearest neighbours for each node. */
@@ -179,60 +178,60 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
         
         CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
 
-        unsigned int l = 1;	/* how many nearest neighbours we have found */
+        unsigned int found = 0; /* how many nearest neighbours we have found */
         unsigned int vector1;
         unsigned int vector2;
         unsigned int col;
         for (vector1 = 1; vector1 <= ROWS(data); vector1++) {
-            for (vector2 = 1; vector2 <= actual_block_size; vector2++) {
-            	const unsigned int B_vector2 = begin + vector2 - 1;
+            for (vector2 = begin; vector2 <= end; vector2++) {
+            	const unsigned int vector2_index = vector2 - begin + 1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
-                if (vector1 != B_vector2 && B_vector2 != 0) {
-                	/* calculate the distance between the two vectors (vector1 and vector2) */
-                    const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, B_vector2), 2);
+                if (vector1 != vector2) {
+                	/* calculate the square of the distance between the two vectors (indexed by "vector1" and "vector2") */
+                    const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
-					if (l > 1 && l <= (k + 1) && ARRAY_ELEMENT(neighbours, vector2, l - 1) == 0)
-                        l--;
-                    else if (l < k && ARRAY_ELEMENT(neighbours, vector2, l) != 0)
-                        l++;
+					if (found > 0 && found <= k && ARRAY_ELEMENT(neighbours, vector2_index, found) == 0)
+                        found--;
+                    else if (found < k && ARRAY_ELEMENT(neighbours, vector2_index, found) != 0)
+                        found++;
 
-                    if (l <= k) {
+                    if (found <= k) {
                     	/* if we haven't yet found k neighbours, then store the distance as a k-nearest neighbour */
-                        ARRAY_ELEMENT(neighbours,      vector2, l) = vector1;
-                        ARRAY_ELEMENT(neighbours_dist, vector2, l) = dist;
+                        ARRAY_ELEMENT(neighbours,      vector2_index, found) = vector1;
+                        ARRAY_ELEMENT(neighbours_dist, vector2_index, found) = dist;
                         
                         /* calculate the score */
-                        if (l == k)
-                            ARRAY_ELEMENT(score, 1, vector2) = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
+                        if (found == k)
+                            ARRAY_ELEMENT(score, 1, vector2_index) = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
                         /* retrieve the furthest nearest neighbour from the neighbours array */
                         double max_dist;
                         unsigned int max_index;
-                        max_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2, &max_dist, &max_index);
+                        max_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index, &max_dist, &max_index);
 
                         /* replace the furthest neighbour if the new distance is less than the furthest distance */
                         if (dist < max_dist) {
-                            ARRAY_ELEMENT(neighbours,      vector2, max_index) = vector1;
-                            ARRAY_ELEMENT(neighbours_dist, vector2, max_index) = dist;
+                            ARRAY_ELEMENT(neighbours,      vector2_index, max_index) = vector1;
+                            ARRAY_ELEMENT(neighbours_dist, vector2_index, max_index) = dist;
 
                             /* update the score */
-                            ARRAY_ELEMENT(score, 1, vector2) = (ARRAY_ELEMENT(score, 1, vector2) * (double) k - max_dist + dist) / (double) k;
-                            if (ARRAY_ELEMENT(score, 1, vector2) <= 0) {
+                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_ELEMENT(score, 1, vector2_index) * (double) k - max_dist + dist) / (double) k;
+                            if (ARRAY_ELEMENT(score, 1, vector2_index) <= 0) {
                                 /* avoid round off error */
-                                const double average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
-                                ARRAY_ELEMENT(score, 1, vector2) = MAX(average, 0);
+                                const double average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
+                                ARRAY_ELEMENT(score, 1, vector2_index) = MAX(average, 0);
                             }
                         }
                     }
 
-                    if (l >= k && ARRAY_ELEMENT(score, 1, vector2) < cutoff) {
-                        /* ARRAY_ELEMENT(B,     1, vector2) = 0; */
-                        ARRAY_ELEMENT(score, 1, vector2) = 0;
+                    if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff) {
+                        /* ARRAY_ELEMENT(B,     1, vector2_index) = 0; */
+                        ARRAY_ELEMENT(score, 1, vector2_index) = 0;
                     }
                 }
             }
 
-            l++;
+            found++;
         }
 
         CREATE_REAL_DOUBLE_ARRAY(BO, 1, actual_block_size + 1);
