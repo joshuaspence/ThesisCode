@@ -11,8 +11,8 @@ MXXFLAGS :=
 LDFLAGS  :=
 
 # Additional flags
-CFLAGS   += -std=c99 -O3 -W -Wall -pedantic -fmessage-length=0
-CXXFLAGS += -std=c++0x -O3 -W -Wall -pedantic -fmessage-length=0
+CFLAGS   += -std=c99   -W -Wall -pedantic -fmessage-length=0
+CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
 MXXFLAGS += 
 LDFLAGS  += 
 
@@ -70,12 +70,16 @@ TARGET     :=  TopN_Outlier_Pruning_Block
 #BINTARGET := $(TARGET:%=%.bin)
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
-all: $(BINTARGET) $(MEXTARGET)
+release: CFLAGS   += -O3
+release: CXXFLAGS += -O3
+release: all
 
-debug: CFLAGS   += -DDEBUG -g
-debug: CXXFLAGS += -DDEBUG -g
+debug: CFLAGS   += -DDEBUG -g -O0
+debug: CXXFLAGS += -DDEBUG -g -O0
 debug: MXXFLAGS += -DDEBUG -g
 debug: all
+
+all: $(BINTARGET) $(MEXTARGET)
 
 %.bin: %.c
 	$(CXX) $(CXXFLAGS) -o $@ $<
@@ -84,9 +88,7 @@ debug: all
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $<
 	
 clean:
-	@rm -f $(OBJS) $(BINTARGET) $(MEXTARGET)
-	@rm -rf  *.dSYM
-	@rm -rf *.bin
+	@rm -f $(BINTARGET) $(MEXTARGET)
 	@echo "clean completed"
 	
 #------------------------------------------------------------------------------#
