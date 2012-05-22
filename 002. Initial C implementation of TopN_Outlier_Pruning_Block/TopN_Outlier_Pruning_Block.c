@@ -63,19 +63,19 @@
 	array, ROWS(array), COLS(array)
 
 /*
- * Calculate the mean of all values within a single row of an array.
+ * Calculate the average of all values within a single row of an array.
  *
  * Parameters:
- *     - array: The array of which to calculate the mean over a row.
+ *     - array: The array of which to calculate the average over a row.
  *     - array_rows: The number of rows of the array.
  *     - array_cols: The number of columns of the array.
  *     - row: The row number of the row to be averaged. Note that the row index 
  *            follows the MATLAB convention of beginning at 1.
  *
  * Return:
- *    The mean of all values within the single row of the array.
+ *    The average of all values within the single row of the array.
  */
-static double mean_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
+static double average_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
     unsigned int count = 0;
     double sum = 0;
     
@@ -92,7 +92,7 @@ static double mean_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsi
  * Calculate the maximum value of all values within a single row of an array.
  *
  * Parameters:
- *     - array: The array of which to calculate the mean over a row.
+ *     - array: The array of which to calculate the max over a row.
  *     - array_rows: The number of rows of the array.
  *     - array_cols: The number of columns of the array.
  *     - row: The row number of the row to be averaged. Note that the row index 
@@ -119,7 +119,7 @@ static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigne
  * Calculate the Euclidean distance between two vectors.
  *
  * Parameters:
- *     - array: The array of which to calculate the mean over a row.
+ *     - array: The array of which to calculate the distance over a row.
  *     - array_rows: The number of rows of the array.
  *     - array_cols: The number of columns of the array.
  *     - vector1: The row index of one of the vectors. Note that the row index 
@@ -196,7 +196,7 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
                         
                         /* calculate the score */
                         if (l == k)
-                            ARRAY_ELEMENT(score, 1, vector2) = mean_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
+                            ARRAY_ELEMENT(score, 1, vector2) = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
                         /* retrieve the furthest nearest neighbour from the neighbours array */
                         double max_dist;
@@ -212,7 +212,7 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
                             ARRAY_ELEMENT(score, 1, vector2) = (ARRAY_ELEMENT(score, 1, vector2) * (double) k - max_dist + dist) / (double) k;
                             if (ARRAY_ELEMENT(score, 1, vector2) <= 0) {
                                 /* avoid round off error */
-                                const double average = mean_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
+                                const double average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2);
                                 ARRAY_ELEMENT(score, 1, vector2) = MAX(average, 0);
                             }
                         }
