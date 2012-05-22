@@ -1,0 +1,43 @@
+#===============================================================================
+# GLOBALS
+#===============================================================================
+# Temporary files
+*~
+*.swp
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# OS generated files
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+#===============================================================================
+# PROJECT SPECIFIC
+#===============================================================================
+
+# Mex outputs
+*.mexa64
