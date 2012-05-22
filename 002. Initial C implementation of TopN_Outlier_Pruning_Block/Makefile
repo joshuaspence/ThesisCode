@@ -5,15 +5,14 @@
 #------------------------------------------------------------------------------#
 
 # Default flags
-CFLAGS   := -ansi -D_GNU_SOURCE  -fexceptions -fPIC -fno-omit-frame-pointer -pthread
-CXXFLAGS := -ansi -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread
+CFLAGS   := -D_GNU_SOURCE -fexceptions -fPIC -fno-omit-frame-pointer -pthread
+CXXFLAGS := -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread
 MXXFLAGS :=
 LDFLAGS  :=
 
 # Additional flags
-
-CFLAGS   += -O3 -W -Wall -pedantic -fmessage-length=0
-CXXFLAGS += -O3 -W -Wall -pedantic -fmessage-length=0
+CFLAGS   += -std=c99 -O3 -W -Wall -pedantic -fmessage-length=0
+CXXFLAGS += -std=c++0x -O3 -W -Wall -pedantic -fmessage-length=0
 MXXFLAGS += 
 LDFLAGS  += 
 
@@ -83,7 +82,6 @@ debug: all
 
 %.mexa64: %.c
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $<
-	#$(MXX) $(MXXFLAGS) -o $@ $<
 	
 clean:
 	@rm -f $(OBJS) $(BINTARGET) $(MEXTARGET)
