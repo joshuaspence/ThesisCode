@@ -163,10 +163,15 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
 
 	double cutoff = 0;
 	unsigned int begin;
-	unsigned int actual_block_size;
+	unsigned int actual_block_size; /* actual_block_size may be smaller than block_size if ROWS(data) % block_size != 0 */
     for (begin = 1; begin <= ROWS(data); begin += actual_block_size) {
     	const unsigned int end = MIN(begin + block_size - 1, ROWS(data));
     	actual_block_size = end - begin + 1;
+    
+    	/* 
+    	 * Process actual_block_size blocks, beginning at vector "begin" and 
+    	 * ending at vector "end" inclusive. In this iteration
+    	 */
         
         /* Arrays to store the k nearest neighbours for each node. */
         CREATE_REAL_DOUBLE_ARRAY(neighbours, actual_block_size, k); 
