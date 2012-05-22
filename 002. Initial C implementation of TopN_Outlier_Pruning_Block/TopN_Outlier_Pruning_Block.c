@@ -23,31 +23,40 @@
     (IS_REAL_2D_INTEGER(P) && !mxIsSparse(P))
 #define IS_REAL_INTEGER(P) \
     (IS_REAL_2D_FULL_INTEGER(P) && mxGetNumberOfElements(P) == 1)
-#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+   
+/* General purpose utility macros */
+#define MIN(X,Y) 			((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y) 			((X) > (Y) ? (X) : (Y))
+#define UNUSED_VARIABLE(X)	(void) X
 
 /* Code-saving macros */
-#define CREATE_REAL_DOUBLE_ARRAY(arrayname, rows, cols) \
-	const mwSize arrayname##_rows = rows; \
-	const mwSize arrayname##_cols = cols; \
-	mxArray * arrayname##_matlab = mxCreateDoubleMatrix(arrayname##_rows, arrayname##_cols, mxREAL); \
-	double * arrayname = mxGetData(arrayname##_matlab)
-#define RETRIEVE_REAL_DOUBLE_ARRAY(arrayname, location) \
-	const mwSize ROWS(arrayname) = mxGetM(location); \
-    const mwSize COLS(arrayname) = mxGetN(location); \
-    mxArray * arrayname##_matlab = (mxArray *) location; \
-    double * arrayname = mxGetData(arrayname##_matlab)
-#define FREE_ARRAY(arrayname) \
-	mxDestroyArray(arrayname##_matlab)
+#define CREATE_REAL_DOUBLE_ARRAY(array, rows, cols) \
+	const unsigned int ROWS(array) = rows; \
+	UNUSED_VARIABLE(ROWS(array)); \
+	const unsigned int COLS(array) = cols; \
+	UNUSED_VARIABLE(COLS(array)); \
+	mxArray * MATLAB_ARRAY(array) = mxCreateDoubleMatrix(ROWS(array), COLS(array), mxREAL); \
+	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
+	double * array = mxGetData(MATLAB_ARRAY(array))
+#define RETRIEVE_REAL_DOUBLE_ARRAY(array, location) \
+	const unsigned int ROWS(array) = mxGetM(location); \
+	UNUSED_VARIABLE(ROWS(array)); \
+    const unsigned int COLS(array) = mxGetN(location); \
+    UNUSED_VARIABLE(COLS(array)); \
+    mxArray * MATLAB_ARRAY(array) = (mxArray *) location; \
+    UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
+    double * array = mxGetData(MATLAB_ARRAY(array))
+#define FREE_ARRAY(array) \
+	mxDestroyArray(MATLAB_ARRAY(array))
+
+/* Variable naming */
+#define ROWS(array)				array##_rows
+#define COLS(array) 			array##_cols
+#define MATLAB_ARRAY(array)		array##_matlab
+
+/* Array properties */
 #define ARRAY_ELEMENT(array, row, column) \
 	array[((row) - 1) + ROWS(array) * ((column) - 1)]
-
-#define ROWS(array) \
-	array##_rows
-#define COLS(array) \
-	array##_cols
-#define MATLAB_ARRAY(array)	\
-	array##_matlab
 #define ARRAY_SIZE_PARAMS(array) \
 	const unsigned int ROWS(array), const unsigned int COLS(array)
 #define ARRAY_PROPERTIES(array) \
