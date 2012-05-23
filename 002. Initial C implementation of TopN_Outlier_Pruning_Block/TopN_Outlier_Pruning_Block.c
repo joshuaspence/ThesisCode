@@ -183,14 +183,16 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
         unsigned int vector2;
         unsigned int col;
         for (vector1 = 1; vector1 <= ROWS(data); vector1++) {
+            found++;
+            
             for (vector2 = begin; vector2 <= end; vector2++) {
             	const unsigned int vector2_index = vector2 - begin + 1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
-                if (vector1 != vector2) {
+                if (vector1 != vector2) {                
                 	/* calculate the square of the distance between the two vectors (indexed by "vector1" and "vector2") */
                     const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
-					if (found > 0 && found <= k && ARRAY_ELEMENT(neighbours, vector2_index, found) == 0)
+					if (found > 1 && found <= (k - 1) && ARRAY_ELEMENT(neighbours, vector2_index, found - 1) == 0)
                         found--;
                     else if (found < k && ARRAY_ELEMENT(neighbours, vector2_index, found) != 0)
                         found++;
@@ -230,8 +232,6 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
                     }
                 }
             }
-
-            found++;
         }
 
         CREATE_REAL_DOUBLE_ARRAY(BO, 1, actual_block_size + 1);
