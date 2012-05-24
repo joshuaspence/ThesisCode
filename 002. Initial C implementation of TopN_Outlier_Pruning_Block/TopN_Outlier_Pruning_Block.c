@@ -1,3 +1,4 @@
+#include "TopN_Outlier_Pruning_Block.h"
 #include "mex.h"
 #include "math.h" /* for sqrt, pow */
 #include "limits.h" /* for DBL_MIN */
@@ -9,56 +10,6 @@
 #define BLOCKSIZE_IN    prhs[3]
 #define O_OUT           plhs[0]
 #define OF_OUT          plhs[1]
-
-/* Utility macros */
-#define IS_REAL_2D_DOUBLE(P) \
-    (!mxIsComplex(P) && mxGetNumberOfDimensions(P) == 2 && mxIsDouble(P))
-#define IS_REAL_2D_FULL_DOUBLE(P) \
-    (IS_REAL_2D_DOUBLE(P) && !mxIsSparse(P))
-#define IS_REAL_SCALAR(P) \
-    (IS_REAL_2D_FULL_DOUBLE(P) && mxGetNumberOfElements(P) == 1)
-#define IS_REAL_2D_INTEGER(P) \
-    (!mxIsComplex(P) && mxGetNumberOfDimensions(P) == 2 && !mxIsDouble(P))
-#define IS_REAL_2D_FULL_INTEGER(P) \
-    (IS_REAL_2D_INTEGER(P) && !mxIsSparse(P))
-#define IS_REAL_INTEGER(P) \
-    (IS_REAL_2D_FULL_INTEGER(P) && mxGetNumberOfElements(P) == 1)
-   
-/* General purpose utility macros */
-#define MIN(X,Y) 			((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y) 			((X) > (Y) ? (X) : (Y))
-#define UNUSED_VARIABLE(X)	(void) X
-
-/* Code-saving macros */
-#define CREATE_REAL_DOUBLE_ARRAY(array, rows, cols) \
-	const unsigned int ROWS(array) = rows; \
-	const unsigned int COLS(array) = cols; \
-	mxArray * MATLAB_ARRAY(array) = mxCreateDoubleMatrix(ROWS(array), COLS(array), mxREAL); \
-	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
-	double * array = mxGetData(MATLAB_ARRAY(array))
-#define RETRIEVE_REAL_DOUBLE_ARRAY(array, location) \
-	const unsigned int ROWS(array) = mxGetM(location); \
-	UNUSED_VARIABLE(ROWS(array)); \
-    const unsigned int COLS(array) = mxGetN(location); \
-    UNUSED_VARIABLE(COLS(array)); \
-    mxArray * MATLAB_ARRAY(array) = (mxArray *) location; \
-    UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
-    double * array = mxGetData(MATLAB_ARRAY(array))
-#define FREE_ARRAY(array) \
-	mxDestroyArray(MATLAB_ARRAY(array))
-
-/* Variable naming */
-#define ROWS(array)				array##_rows
-#define COLS(array) 			array##_cols
-#define MATLAB_ARRAY(array)		array##_matlab
-
-/* Array properties */
-#define ARRAY_ELEMENT(array, row, column) \
-	array[((row) - 1) + ROWS(array) * ((column) - 1)]
-#define ARRAY_SIZE_PARAMS(array) \
-	const unsigned int ROWS(array), const unsigned int COLS(array)
-#define ARRAY_PROPERTIES(array) \
-	array, ROWS(array), COLS(array)
 
 /*
  * Calculate the average of all values within a single row of an array.
@@ -153,7 +104,7 @@ static double distance(double * vectors, ARRAY_SIZE_PARAMS(vectors), const unsig
  *     - O: A 1xN array of unsigned integers. This is an output of the function.
  *     - OF: A 1xN array of doubles. This is an output of the function.
  */
-static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, double * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
+static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, unsigned int * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
 	if (ROWS(O) != 1 || COLS(O) != N)
     	mexErrMsgTxt("Input O must be a 1xN array.");
     if (ROWS(OF) != 1 || COLS(OF) != N)
@@ -173,7 +124,7 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
     	 */
         
         /* Arrays to store the k nearest neighbours for each node. */
-        CREATE_REAL_DOUBLE_ARRAY(neighbours, actual_block_size, k); 
+        CREATE_REAL_UINT_ARRAY(neighbours, actual_block_size, k); 
         CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
         
         CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
@@ -324,7 +275,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const unsigned int block_size = (unsigned int) mxGetScalar(BLOCKSIZE_IN);
 
     /* create the output matrixes */
-    CREATE_REAL_DOUBLE_ARRAY(O, 1, N);
+    CREATE_REAL_UINT_ARRAY(O, 1, N);
     CREATE_REAL_DOUBLE_ARRAY(OF, 1, N);
     O_OUT  = MATLAB_ARRAY(O);
     OF_OUT = MATLAB_ARRAY(OF);
