@@ -5,8 +5,8 @@
 #------------------------------------------------------------------------------#
 
 # Default flags
-CFLAGS   := -D_GNU_SOURCE -fexceptions -fPIC -fno-omit-frame-pointer -pthread
-CXXFLAGS := -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread
+CFLAGS   := -D_GNU_SOURCE -fexceptions -fPIC -fno-omit-frame-pointer -pthread -DMX_COMPAT_32
+CXXFLAGS := -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread -DMX_COMPAT_32
 MXXFLAGS :=
 LDFLAGS  :=
 
@@ -15,6 +15,18 @@ CFLAGS   += -std=c99   -W -Wall -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
 MXXFLAGS += 
 LDFLAGS  += 
+
+# Debug flags
+CFLAGS_DEBUG   := -g -O0 -DDEBUG
+CXXFLAGS_DEBUG := -g -O0 -DDEBUG
+MXXFLAGS_DEBUG := 
+LDFLAGS_DEBUG  := -g
+
+# Optimization flags
+CFLAGS_OPT   := -O3 -DNDEBUG
+CXXFLAGS_OPT := -O3 -DNDEBUG
+MXXFLAGS_OPT := 
+LDFLAGS_OPT  := -O3
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -70,13 +82,16 @@ TARGET     :=  TopN_Outlier_Pruning_Block
 #BINTARGET := $(TARGET:%=%.bin)
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
-release: CFLAGS   += -O3
-release: CXXFLAGS += -O3
+release: CFLAGS   += $(CFLAGS_OPT)
+release: CXXFLAGS += $(CXXFLAGS_OPT)
+release: MXXFLAGS += $(MXXFLAGS_OPT)
+release: LDFLAGS  += $(LDFLAGS_OPT)
 release: all
 
-debug: CFLAGS   += -DDEBUG -g -O0
-debug: CXXFLAGS += -DDEBUG -g -O0
-debug: MXXFLAGS += -DDEBUG -g
+debug: CFLAGS   += $(CFLAGS_DEBUG)
+debug: CXXFLAGS += $(CXXFLAGS_DEBUG)
+debug: MXXFLAGS += $(MXXFLAGS_DEBUG)
+debug: LDFLAGS  += $(LDFLAGS_DEBUG)
 debug: all
 
 all: $(BINTARGET) $(MEXTARGET)
