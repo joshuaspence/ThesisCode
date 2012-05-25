@@ -139,7 +139,7 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
         unsigned int vector1;
         unsigned int vector2;
         unsigned int col;
-        for (vector1 = 1; vetor1 <= ROWS(data); vector1++) {
+        for (vector1 = begin; vetor1 <= ROWS(data); vector1++) {
         	/*
         	 * Within this loop, we would benefit from having all vectors with 
         	 * the current block in the cache.
