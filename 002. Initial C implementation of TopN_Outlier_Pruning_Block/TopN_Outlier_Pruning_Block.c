@@ -1,4 +1,4 @@
-#include "TopN_Outlier_Pruning_Block.h"
+#include "Macros.h"
 #include "mex.h"
 #include "math.h" /* for sqrt, pow */
 #include "limits.h" /* for DBL_MIN */
@@ -24,7 +24,7 @@
  * Return:
  *    The average of all values within the single row of the array.
  */
-static double average_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
+static double average_over_row(const double * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
     unsigned int count = 0;
     double sum = 0;
     
@@ -51,7 +51,7 @@ static double average_over_row(double * array, ARRAY_SIZE_PARAMS(array), const u
  *     - max_index: A pointer to the return value storing the index of the  
  *                  column containing the maximum value.
  */
-static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * max_value, unsigned int * max_index) {
+static void max_over_row(const double * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * max_value, unsigned int * max_index) {
 	*max_value = DBL_MIN;
 	*max_index = -1;
 
@@ -81,7 +81,7 @@ static void max_over_row(double * array, ARRAY_SIZE_PARAMS(array), const unsigne
  * Return:
  *    The sum of the distance between values of the rows.
  */
-static double distance(double * vectors, ARRAY_SIZE_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
+static double distance(const double * const vectors, ARRAY_SIZE_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
     double sum_of_squares = 0;
     
     unsigned int col;
@@ -90,6 +90,7 @@ static double distance(double * vectors, ARRAY_SIZE_PARAMS(vectors), const unsig
         
     return sqrt(sum_of_squares);
 }
+
 
 /*
  * ???
@@ -102,9 +103,13 @@ static double distance(double * vectors, ARRAY_SIZE_PARAMS(vectors), const unsig
  *     - N: return the top N outliers
  *     - block_size:
  *     - O: A 1xN array of unsigned integers. This is an output of the function.
+ *     - O_rows:
+ *     - O_cols:
  *     - OF: A 1xN array of doubles. This is an output of the function.
+ *     - OF_rows:
+ *     - OF_cols:
  */
-static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, unsigned int * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
+static void top_n_outlier_pruning_block(const double * const data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, unsigned int * O, ARRAY_SIZE_PARAMS(O), double * OF, ARRAY_SIZE_PARAMS(OF)) {
 	if (ROWS(O) != 1 || COLS(O) != N)
     	mexErrMsgTxt("Input O must be a 1xN array.");
     if (ROWS(OF) != 1 || COLS(OF) != N)
@@ -151,7 +156,10 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
             	const unsigned int vector2_index = vector2 - begin + 1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
                 if (vector1 != vector2) {                
-                	/* calculate the square of the distance between the two vectors (indexed by "vector1" and "vector2") */
+                	/* 
+                	 * Calculate the square of the distance between the two 
+                	 * vectors (indexed by "vector1" and "vector2")
+                	 */
                     const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
 					if (found > 1 && found <= (k - 1) && ARRAY_ELEMENT(neighbours, vector2_index, found - 1) == 0)
@@ -160,25 +168,37 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
                         found++;
 
                     if (found <= k) {
-                    	/* if we haven't yet found k neighbours, then store the distance as a k-nearest neighbour */
+                    	/* 
+                    	 * If we haven't yet found k neighbours, then store the 
+                    	 * distance as a k-nearest neighbour.
+                    	 */
                         ARRAY_ELEMENT(neighbours,      vector2_index, found) = vector1;
                         ARRAY_ELEMENT(neighbours_dist, vector2_index, found) = dist;
                         
-                        /* calculate the score */
+                        /* 
+                         * Calculate the score as the average distance to the k 
+                         * nearest neighbours.
+                         */
                         if (found == k)
                             ARRAY_ELEMENT(score, 1, vector2_index) = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
-                        /* retrieve the furthest nearest neighbour from the neighbours array */
+                        /* 
+                         * Retrieve the furthest nearest neighbour from the 
+                         * neighbours array.
+                         */
                         double max_dist;
                         unsigned int max_index;
                         max_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index, &max_dist, &max_index);
 
-                        /* replace the furthest neighbour if the new distance is less than the furthest distance */
+                        /* 
+                         * Replace the furthest neighbour if the new distance is
+                         * less than the furthest distance.
+                         */
                         if (dist < max_dist) {
                             ARRAY_ELEMENT(neighbours,      vector2_index, max_index) = vector1;
                             ARRAY_ELEMENT(neighbours_dist, vector2_index, max_index) = dist;
 
-                            /* update the score */
+                            /* Update the score */
                             ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_ELEMENT(score, 1, vector2_index) * (double) k - max_dist + dist) / (double) k;
                             if (ARRAY_ELEMENT(score, 1, vector2_index) <= 0) {
                                 /* avoid round off error */
@@ -188,51 +208,63 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
                         }
                     }
 
-                    if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff) {
-                        /* ARRAY_ELEMENT(B,     1, vector2_index) = 0; */
+                    if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff)
                         ARRAY_ELEMENT(score, 1, vector2_index) = 0;
-                    }
                 }
             }
         }
+        
+        /*
+		 * Compare the new scores with the outliers stored in output arrays "O" 
+		 * and "OF". Sort this array and keep the top "N" outliers.
+		 */
 
-        CREATE_REAL_DOUBLE_ARRAY(BO, 1, actual_block_size + 1);
+        CREATE_REAL_DOUBLE_ARRAY(newO, 1, actual_block_size + 1);
         for (col = 1; col <= actual_block_size; col++)
-            ARRAY_ELEMENT(BO, 1, col) = begin - 1 + col;
-
-        CREATE_REAL_DOUBLE_ARRAY(BOF, 1, COLS(score) + COLS(OF));
+            ARRAY_ELEMENT(newO, 1, col) = begin - 1 + col;
+		 
+        CREATE_REAL_DOUBLE_ARRAY(newOF, 1, COLS(score) + COLS(OF));
         for (col = 1; col <= COLS(score); col++)
-            ARRAY_ELEMENT(BOF, 1, col) = ARRAY_ELEMENT(score, 1, col);
+            ARRAY_ELEMENT(newOF, 1, col) = ARRAY_ELEMENT(score, 1, col);
         for (col = 1; col <= COLS(OF); col++)
-            ARRAY_ELEMENT(BOF, 1, col + COLS(score)) = ARRAY_ELEMENT(OF, 1, col);
+            ARRAY_ELEMENT(newOF, 1, col + COLS(score)) = ARRAY_ELEMENT(OF, 1, col);
         
         /* Call the MATLAB sort function. */
         mxArray * sort_outputs[2];
-        mxArray * sort_inputs[] = { MATLAB_ARRAY(BOF), mxCreateString("descend") };
+        mxArray * sort_inputs[] = { MATLAB_ARRAY(newOF), mxCreateString("descend") };
         mexCallMATLAB(2, sort_outputs, 2, sort_inputs, "sort");
 
-		RETRIEVE_REAL_DOUBLE_ARRAY(newBOF, sort_outputs[0]);
+		RETRIEVE_REAL_DOUBLE_ARRAY(newOF_sorted, sort_outputs[0]);
 		RETRIEVE_REAL_DOUBLE_ARRAY(index, sort_outputs[1]);
 
-        CREATE_REAL_DOUBLE_ARRAY(newBO, ROWS(BO), COLS(BO));
-        for (col = 1; col <= COLS(newBO); col++)
-            ARRAY_ELEMENT(newBO, 1, col) = ARRAY_ELEMENT(BO, 1, (unsigned int) ARRAY_ELEMENT(index, 1, col));
+        CREATE_REAL_DOUBLE_ARRAY(newO_sorted, ROWS(newO), COLS(newO));
+        for (col = 1; col <= COLS(newO_sorted); col++)
+            ARRAY_ELEMENT(newO_sorted, 1, col) = ARRAY_ELEMENT(newO, 1, (unsigned int) ARRAY_ELEMENT(index, 1, col));
 
+		/*
+		 * Copy the top "N" outliers (from the global top "N" outliers as well 
+		 * as the top "N" outliers discovered in this block) to the output 
+		 * arrays "O" and "OF".
+		 */
         for (col = 1; col <= COLS(O); col++)
-            ARRAY_ELEMENT(O, 1, col) = ARRAY_ELEMENT(newBO, 1, col);
-
+            ARRAY_ELEMENT(O, 1, col) = ARRAY_ELEMENT(newO_sorted, 1, col);
         for (col = 1; col <= COLS(OF); col++)
-            ARRAY_ELEMENT(OF, 1, col) = ARRAY_ELEMENT(newBOF, 1, col);
+            ARRAY_ELEMENT(OF, 1, col) = ARRAY_ELEMENT(newOF_sorted, 1, col);
 
-        /* cutoff = weakest outlier */
+        /*
+         * Set "cutoff" to the score of the weakest outlier. There is no need to
+         * store an outlier in future iterations if its score is better than the
+         * cutoff.
+         */
         cutoff = ARRAY_ELEMENT(OF, 1, N);
         
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
         FREE_ARRAY(score);
-        FREE_ARRAY(BO);
-        FREE_ARRAY(BOF);
-        FREE_ARRAY(newBO);
+        FREE_ARRAY(newO);
+        FREE_ARRAY(newOF);
+        FREE_ARRAY(newO_sorted);
+        FREE_ARRAY(newOF_sorted);
     }
 }
  
@@ -259,38 +291,41 @@ static void top_n_outlier_pruning_block(double * data, ARRAY_SIZE_PARAMS(data), 
  *     - block_size is an integer-valued scalar.
  */
 void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
-    /* check for proper number of arguments */
+    /* Check for proper number of arguments. */
     if (nrhs != 4)
         mexErrMsgTxt("Four inputs required.");
     if (nlhs != 2)
         mexErrMsgTxt("Two outputs required.");
 
-    /* make sure the first input argument is a real 2D full (non-sparse) double array */
+    /*
+     * Make sure the first input argument is a real 2D full (non-sparse) double 
+     * array.
+     */
     if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN))
         mexErrMsgTxt("Input data must be a real full 2D double array.");
 	RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
 
-    /* make sure the second input argument is an integer */
+    /* Make sure the second input argument is an integer. */
     if(!IS_REAL_SCALAR(K_IN))
         mexErrMsgTxt("Input k must be a scalar.");
     const unsigned int k = (unsigned int) mxGetScalar(K_IN);
 
-    /* make sure the third input argument is an integer */
+    /* Make sure the third input argument is an integer. */
     if(!IS_REAL_SCALAR(N_IN))
         mexErrMsgTxt("Input N must be a scalar.");
     const unsigned int N = (unsigned int) mxGetScalar(N_IN);
 
-    /* make sure the fourth input argument is an integer */
+    /* Make sure the fourth input argument is an integer. */
     if(!IS_REAL_SCALAR(BLOCKSIZE_IN))
         mexErrMsgTxt("Input block_size must be a scalar.");
     const unsigned int block_size = (unsigned int) mxGetScalar(BLOCKSIZE_IN);
 
-    /* create the output matrixes */
+    /* Create the output matrixes. */
     CREATE_REAL_UINT_ARRAY(O, 1, N);
     CREATE_REAL_DOUBLE_ARRAY(OF, 1, N);
     O_OUT  = MATLAB_ARRAY(O);
     OF_OUT = MATLAB_ARRAY(OF);
 
-    /* call the function */
+    /* Call the function. */
     top_n_outlier_pruning_block(ARRAY_PROPERTIES(data), k, N, block_size, ARRAY_PROPERTIES(O), ARRAY_PROPERTIES(OF));
 }
