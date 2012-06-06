@@ -10,10 +10,6 @@
 #	--all-data		Outputs all iteration data. Without this flag, only the 
 #					average for each data set (across all iterations) will be 
 #					output.
-#	-c
-#	-cutoff			Groups together all functions with a self time of less than 
-#					the cutoff (expressed as a ratio of the total self time). 
-#					NOTE: 0.001 seems to work fairly well.
 #
 # Input:	Base directory where the profiler output is found. Should contain 
 #			subdirectories named after the data sets that the data pertains to.
@@ -38,11 +34,12 @@ use constant OUTPUT_HEADER => "Data set,Iteration,Function Name,Calls,Total Time
 # Get command line options
 Getopt::Long::Configure('bundling');
 my $all_data;
-my $cutoff_ratio = 0;
-GetOptions('a|all-data' => \$all_data, 'c|cutoff=s' => \$cutoff_ratio);
+GetOptions('a|all-data' => \$all_data);
 
 # The argument should be the base directory for the profiling data
+scalar(@ARGV) >= 1 || die("No directory specified!\n");
 my $base_dir = $ARGV[0];
+-d $base_dir || die("Directory doesn't exist: $base_dir\n");
 
 # File::Util used to traverse directories
 my $fu = File::Util->new;
@@ -59,9 +56,6 @@ my %alldata_total_time = ();
 my %alldata_self_time = ();
 my $alldata_iterations = 0;
 
-# For comparing execution time of a function with total execution time
-my $alldata_total_self_time = 0;
-
 # Loop through each data set
 for my $dataset (@datasets) {
 	# String to appear in output data (note: strip out directory name)
@@ -77,14 +71,8 @@ for my $dataset (@datasets) {
 	my %thisdata_self_time = ();
 	my $thisdata_iterations = 0;
 	
-	# For comparing execution time of a function with total execution time
-	my $thisdata_total_self_time = 0;
-	
 	# Loop through each iteration subdirectory
 	for my $iteration (@dataset_iterations) {
-		# For comparing execution time of a function with total execution time
-		my $total_self_time = 0;
-	
 		# String to appear in output data (note: strip out directory name)
 		my $iteration_string = $iteration;
 		$iteration_string =~ s/\/.*\///g;
@@ -126,9 +114,6 @@ for my $dataset (@datasets) {
 				$self_time =~ s/\s*s//;
 				$thisdata_self_time{$function_name} += $self_time;
 				$alldata_self_time{$function_name} += $self_time;
-				$total_self_time += $self_time;
-				$thisdata_total_self_time += $self_time;
-				$alldata_total_self_time += $self_time;
 				
 				# Output the data
 				my $this_output = [$function_name, $calls, $total_time, $self_time];
@@ -138,89 +123,34 @@ for my $dataset (@datasets) {
 		
 		# Output data for this iteration
 		if ($all_data) {
-			# Functions with a self time lower than the cutoff will be lumped 
-			# together as the "Other" function
-			my $cutoff = $cutoff_ratio * $total_self_time;
-			my $other_calls = 0;
-			my $other_total_time = 0;
-			my $other_self_time = 0;
-		
+			# Sort output on function name
+			@output = sort {@$a[0] cmp @$b[0]} @output;
+			
 			foreach my $this_output (@output) {
-				my $function_name = (@$this_output)[0];
+				my $function_name = @$this_output[0];
 				my $calls = @$this_output[1];
 				my $total_time = @$this_output[2];
 				my $self_time = @$this_output[3];
-				
-				if ($self_time >= $cutoff) {
-					print("\"$dataset_string\",\"$iteration_string\",\"$function_name\",$calls,$total_time,$self_time\n");
-				} else {
-					# Add to "Other"
-					$other_calls += $calls;
-					$other_total_time += $total_time;
-					$other_self_time += $self_time;
-				}
-			}
-			
-			# Output the "Other" data (if exists)
-			if ($other_self_time > 0) {
-				print("\"$dataset_string\",\"$iteration_string\",\"Other\",$other_calls,$other_total_time,$other_self_time\n");
+				print("\"$dataset_string\",\"$iteration_string\",\"$function_name\",$calls,$total_time,$self_time\n");
 			}
 		}
 	}
 	
-	# Functions with a self time lower than the cutoff will be lumped together 
-	# as the "Other" function
-	my $cutoff = $cutoff_ratio * $thisdata_total_self_time / $thisdata_iterations;
-	my $other_calls = 0;
-	my $other_total_time = 0;
-	my $other_self_time = 0;
-	
 	# Output averages over this data set
-	foreach my $function (keys %thisdata_calls) {
+	my @thisdata_functions = sort(keys(%thisdata_calls));
+	foreach my $function (@thisdata_functions) {
 		my $calls_average = $thisdata_calls{$function} / $thisdata_iterations;
 		my $total_time_average = $thisdata_total_time{$function} / $thisdata_iterations;
 		my $self_time_average = $thisdata_self_time{$function} / $thisdata_iterations;
-	
-		if ($self_time_average >= $cutoff) {
-			print("\"$dataset_string\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
-		} else {
-			# Add to "Other"
-			$other_calls += $calls_average;
-			$other_total_time += $total_time_average;
-			$other_self_time += $self_time_average;
-		}
-	}
-	
-	# Output the "Other" data (if exists)
-	if ($other_self_time > 0) {
-		print("\"$dataset_string\",\"average\",\"Other\",$other_calls,$other_total_time,$other_self_time\n");
+		print("\"$dataset_string\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
 	}
 }
 
-# Functions with a self time lower than the cutoff will be lumped together as 
-# the "Other" function
-my $cutoff = $cutoff_ratio * $alldata_total_self_time / $alldata_iterations;
-my $other_calls = 0;
-my $other_total_time = 0;
-my $other_self_time = 0;
-
 # Output averages over all data sets
-foreach my $function (keys %alldata_calls) {
+my @alldata_functions = sort(keys(%alldata_calls));
+foreach my $function (@alldata_functions) {
 	my $calls_average = $alldata_calls{$function} / $alldata_iterations;
 	my $total_time_average = $alldata_total_time{$function} / $alldata_iterations;
 	my $self_time_average = $alldata_self_time{$function} / $alldata_iterations;
-
-	if ($self_time_average >= $cutoff) {
-		print("\"average\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
-	} else {
-		# Add to "Other"
-		$other_calls += $calls_average;
-		$other_total_time += $total_time_average;
-		$other_self_time += $self_time_average;
-	}
-}
-
-# Output the "Other" data (if exists)
-if ($other_self_time > 0) {
-	print("\"average\",\"average\",\"Other\",$other_calls,$other_total_time,$other_self_time\n");
+	print("\"average\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
 }
