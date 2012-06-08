@@ -44,20 +44,30 @@
 /*============================================================================*/
 /* Code-saving macros                                                         */
 /*============================================================================*/
+#ifdef DEBUG
+	#define EXPORT_TO_MATLAB(name, array) \
+		do { mexPutVariable("caller", #name, array); } while (0)
+#else
+	#define EXPORT_TO_MATLAB(name, array) \
+		do {} while (0)
+#endif
+
 #define CREATE_REAL_DOUBLE_ARRAY(array, rows, cols) \
 	const unsigned int ROWS(array) = rows; \
 	const unsigned int COLS(array) = cols; \
 	mxArray * const MATLAB_ARRAY(array) = mxCreateDoubleMatrix(ROWS(array), COLS(array), mxREAL); \
 	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
-	double * const array = mxGetData(MATLAB_ARRAY(array))
-	
+	double * const array = mxGetData(MATLAB_ARRAY(array)); \
+	EXPORT_TO_MATLAB(array, MATLAB_ARRAY(array))
+
 #define CREATE_REAL_UINT_ARRAY(array, rows, cols) \
 	const unsigned int ROWS(array) = rows; \
 	const unsigned int COLS(array) = cols; \
 	mxArray * const MATLAB_ARRAY(array) = mxCreateDoubleMatrix(ROWS(array), COLS(array), mxREAL); \
 	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
-	unsigned int * const array = mxGetData(MATLAB_ARRAY(array))
-	
+	unsigned int * const array = mxGetData(MATLAB_ARRAY(array)); \
+	EXPORT_TO_MATLAB(array, MATLAB_ARRAY(array))
+
 #define RETRIEVE_REAL_DOUBLE_ARRAY(array, location) \
 	const unsigned int ROWS(array) = mxGetM(location); \
 	UNUSED_VARIABLE(ROWS(array)); \
@@ -65,8 +75,9 @@
 	UNUSED_VARIABLE(COLS(array)); \
 	mxArray * const MATLAB_ARRAY(array) = (mxArray *) location; \
 	UNUSED_VARIABLE(MATLAB_ARRAY(array)); \
-	double * const array = mxGetData(MATLAB_ARRAY(array))
-	
+	double * const array = mxGetData(MATLAB_ARRAY(array)); \
+	EXPORT_TO_MATLAB(array, MATLAB_ARRAY(array))
+
 #define FREE_ARRAY(array) \
 	mxDestroyArray(MATLAB_ARRAY(array))
 /*----------------------------------------------------------------------------*/
