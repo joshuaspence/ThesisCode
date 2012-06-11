@@ -62,12 +62,15 @@
 		do {} while (0)
 #endif
 
+#define ARRAY_UINT_T		double
+#define ARRAY_DOUBLE_T		double
+
 /* Create a matrix of doubles. */
 #define CREATE_REAL_DOUBLE_ARRAY(_array, _rows, _cols) \
 	const unsigned int ROWS(_array) = _rows; \
 	const unsigned int COLS(_array) = _cols; \
 	mxArray * const UNUSED MATLAB_ARRAY(_array) = mxCreateDoubleMatrix(ROWS(_array), COLS(_array), mxREAL); \
-	double * const _array = mxGetData(MATLAB_ARRAY(_array)); \
+	ARRAY_DOUBLE_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
 	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
 	do {} while (0)
 
@@ -76,7 +79,7 @@
 	const unsigned int ROWS(_array) = _rows; \
 	const unsigned int COLS(_array) = _cols; \
 	mxArray * const UNUSED MATLAB_ARRAY(_array) = mxCreateDoubleMatrix(ROWS(_array), COLS(_array), mxREAL); \
-	unsigned int * const _array = mxGetData(MATLAB_ARRAY(_array)); \
+	ARRAY_UINT_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
 	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
 	do {} while (0)
 
@@ -85,7 +88,16 @@
 	const unsigned int UNUSED ROWS(_array) = mxGetM(_location); \
 	const unsigned int UNUSED COLS(_array) = mxGetN(_location); \
 	mxArray * const UNUSED MATLAB_ARRAY(_array) = (mxArray *) _location; \
-	double * const _array = mxGetData(MATLAB_ARRAY(_array)); \
+	ARRAY_DOUBLE_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
+	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
+	do {} while (0)
+
+/* Retrieve a matrix of doubles from a specified location. */
+#define RETRIEVE_REAL_UINT_ARRAY(_array, _location) \
+	const unsigned int UNUSED ROWS(_array) = mxGetM(_location); \
+	const unsigned int UNUSED COLS(_array) = mxGetN(_location); \
+	mxArray * const UNUSED MATLAB_ARRAY(_array) = (mxArray *) _location; \
+	ARRAY_UINT_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
 	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
 	do {} while (0)
 
