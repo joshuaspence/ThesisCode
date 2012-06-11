@@ -142,15 +142,13 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
          */
         CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
 
-        unsigned int found = 0; /* how many nearest neighbours we have found */
+        unsigned int found = 1; /* how many nearest neighbours we have found */
         unsigned int vector1;
         for (vector1 = begin; vector1 <= ROWS(data); vector1++) {
         	/*
         	 * Within this loop, we would benefit from having all vectors with 
         	 * the current block in the cache.
         	 */
-            
-            found++;
             
             unsigned int vector2;
             for (vector2 = begin; vector2 <= end; vector2++) {
@@ -163,7 +161,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                 	 */
                     const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
-					if (found > 1 && found <= k-1 && ARRAY_ELEMENT(neighbours, vector2_index, found-1) == 0)
+					if (found > 1 && found <= k+1 && ARRAY_ELEMENT(neighbours, vector2_index, found-1) == 0)
                         found--;
                     else if (found < k && ARRAY_ELEMENT(neighbours, vector2_index, found) != 0)
                         found++;
@@ -213,6 +211,8 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                         ARRAY_ELEMENT(score, 1, vector2_index) = 0;
                 }
             }
+            
+            found++;
         }
         
         /*
@@ -223,7 +223,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
         CREATE_REAL_UINT_ARRAY(newO, 1, actual_block_size+1);
         unsigned int col;
         for (col = 1; col <= actual_block_size; col++)
-            ARRAY_ELEMENT(newO, 1, col) = begin-1+col;
+            ARRAY_ELEMENT(newO, 1, col) = begin - 1 + col;
 		 
         CREATE_REAL_DOUBLE_ARRAY(newOF, 1, COLS(score) + COLS(OF));
         for (col = 1; col <= COLS(score); col++)
