@@ -127,7 +127,7 @@ typedef int boolean;
 	_array[((_row) - 1) + ROWS(_array) * ((_column) - 1)]
 	
 #define ARRAY_SIZE_PARAMS(_array) \
-	const unsigned int ROWS(_array), const unsigned int COLS(_array)
+	const unsigned int UNUSED ROWS(_array), const unsigned int UNUSED COLS(_array)
 
 #define ARRAY_PROPERTIES(_array) \
 	_array, ROWS(_array), COLS(_array)

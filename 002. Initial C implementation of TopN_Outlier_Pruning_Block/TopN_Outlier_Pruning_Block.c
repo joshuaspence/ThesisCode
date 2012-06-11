@@ -105,6 +105,57 @@ static ARRAY_DOUBLE_T distance(const ARRAY_DOUBLE_T * const vectors, ARRAY_SIZE_
     return sqrt(sum_of_squares);
 }
 
+/* TODO
+ * Insert "index" into "index_array" and "value" into "value_array", whilst 
+ * maintaining the sorted property of "value_array". Updates the "score" array
+ * as necessary.
+ *
+ * Parameters:
+ *	   - vector:
+ *     - k:
+ *     - index_array: The index array.
+ *     - index_array_rows: The number of vectors contained within index_array.
+ *     - index_array_cols: The size of each vector within index_array.
+ *     - index: The value to be inserted into index_array.
+ *     - value_array: The value array.
+ *     - value_array_rows: The number of vectors contained within value_array.
+ *     - value_array_cols: The size of each vector within value_array.
+ *     - value: The value to be inserted into value_array.
+ *     - score_array:
+ *     - score_array_rows:
+ *     - score_array_cols:
+ */
+static void sorted_insert(const unsigned int vector, const unsigned int k, ARRAY_UINT_T * const index_array, ARRAY_SIZE_PARAMS(index_array), const ARRAY_UINT_T index, ARRAY_DOUBLE_T * const value_array, ARRAY_SIZE_PARAMS(value_array), const ARRAY_DOUBLE_T value, ARRAY_DOUBLE_T * const score_array, ARRAY_SIZE_PARAMS(score_array)) {
+	if (value > ARRAY_ELEMENT(value_array, 1, COLS(value_array)))
+		/* No need to insert. */
+		return;
+	
+	const ARRAY_DOUBLE_T removed_value = ARRAY_ELEMENT(value_array, vector, COLS(value_array));
+	
+	unsigned int insert_index = COLS(value_array);
+	unsigned int col;
+    for (col = COLS(value_array); col >= 1; col--) {
+        if (value < ARRAY_ELEMENT(value_array, vector, col)) {
+        	if (col > 1) {
+        		ARRAY_ELEMENT(index_array, vector, col) = ARRAY_ELEMENT(index_array, vector, col - 1);
+	        	ARRAY_ELEMENT(value_array, vector, col) = ARRAY_ELEMENT(value_array, vector, col - 1);
+    	    }
+        	insert_index = col;
+        }
+    }
+    
+    /* Insert the new values. */
+    ARRAY_ELEMENT(index_array, vector, insert_index) = index;
+    ARRAY_ELEMENT(value_array, vector, insert_index) = value;
+    
+    /* Recalculate the score. */
+    ARRAY_ELEMENT(score_array, 1, vector) = (ARRAY_DOUBLE_T) (ARRAY_ELEMENT(score_array, 1, vector) * (ARRAY_DOUBLE_T) k - removed_value + value) / (ARRAY_DOUBLE_T) k;
+    if (equals_zero(ARRAY_ELEMENT(score_array, 1, vector))) {
+        /* avoid round off error */
+        const ARRAY_DOUBLE_T average = average_over_row(ARRAY_PROPERTIES(value_array), vector);
+        ARRAY_ELEMENT(score_array, 1, vector) = MAX(average, 0.0);
+    }
+}
 
 /*
  * Examine a data set and find the top "N" outliers. Performs operations on the 
@@ -195,30 +246,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                         if (found == k)
                             ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
-                        /* 
-                         * Retrieve the furthest nearest neighbour from the 
-                         * neighbours array.
-                         */
-                        double max_dist;
-                        int max_index;
-                        max_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index, &max_dist, &max_index);
-
-                        /* 
-                         * Replace the furthest neighbour if the new distance is
-                         * less than the furthest distance.
-                         */
-                        if (dist < max_dist) {
-                            ARRAY_ELEMENT(neighbours,      vector2_index, max_index) = (ARRAY_UINT_T) vector1;
-                            ARRAY_ELEMENT(neighbours_dist, vector2_index, max_index) = (ARRAY_DOUBLE_T) dist;
-
-                            /* Update the score */
-                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) (ARRAY_ELEMENT(score, 1, vector2_index) * (ARRAY_DOUBLE_T) k - max_dist + dist) / (ARRAY_DOUBLE_T) k;
-                            if (equals_zero(ARRAY_ELEMENT(score, 1, vector2_index))) {
-                                /* avoid round off error */
-                                const ARRAY_DOUBLE_T average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
-                                ARRAY_ELEMENT(score, 1, vector2_index) = MAX(average, 0.0);
-                            }
-                        }
+                        sorted_insert(vector2_index, k, ARRAY_PROPERTIES(neighbours), vector1, ARRAY_PROPERTIES(neighbours_dist), dist, ARRAY_PROPERTIES(score));
                     }
 
                     if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff)
