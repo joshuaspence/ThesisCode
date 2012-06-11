@@ -4,7 +4,7 @@
 #include "mex.h"
 
 /*============================================================================*/
-/* General purpose utility macros                                             */
+/* Boolean type                                                               */
 /*============================================================================*/
 typedef int boolean;
 
@@ -65,6 +65,13 @@ typedef int boolean;
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
+/* Types                                                                      */
+/*============================================================================*/
+#define ARRAY_UINT_T		double
+#define ARRAY_DOUBLE_T		double
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* Code-saving macros                                                         */
 /*============================================================================*/
 /* Export a variable to the MATLAB environment. */
@@ -75,9 +82,6 @@ typedef int boolean;
 	#define EXPORT_TO_MATLAB(_name, _array) \
 		do {} while (0)
 #endif /* #ifdef DEBUG */
-
-#define ARRAY_UINT_T		double
-#define ARRAY_DOUBLE_T		double
 
 /* Create a matrix of doubles. */
 #define CREATE_REAL_DOUBLE_ARRAY(_array, _rows, _cols) \
@@ -125,10 +129,12 @@ typedef int boolean;
 /*============================================================================*/
 #define ARRAY_ELEMENT(_array, _row, _column) \
 	_array[((_row) - 1) + ROWS(_array) * ((_column) - 1)]
-	
+
+/* To declare the dimensions of an array in a function signature. */
 #define ARRAY_SIZE_PARAMS(_array) \
 	const unsigned int UNUSED ROWS(_array), const unsigned int UNUSED COLS(_array)
 
+/* To call a function that requires an array as well as the array dimensions. */
 #define ARRAY_PROPERTIES(_array) \
 	_array, ROWS(_array), COLS(_array)
 /*----------------------------------------------------------------------------*/
