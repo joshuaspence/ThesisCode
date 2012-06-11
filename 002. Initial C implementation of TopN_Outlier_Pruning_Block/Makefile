@@ -34,19 +34,19 @@ LDFLAGS_OPT  := -O3
 #                                                                              #
 # add these to your user profile in order to specify your own.                 #
 #------------------------------------------------------------------------------#
-MATLAB_DIR := MATLAB/R2012a
+MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX      := /Applications/$(MATLAB_DIR)/bin/mex
-		MEXEXT   := $(shell /Applications/$(MATLAB_DIR)/bin/mexext)
-		MXXFLAGS += -I/Applications/$(MATLAB_DIR)/extern/include
-		LDFLAGS  += -pthread -shared -Wl,--version-script,/Applications/$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
+		MXX      := $(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
+		LDFLAGS  += -pthread -shared -Wl,--version-script,$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX      := /usr/local/$(MATLAB_DIR)/bin/mex
-		MEXEXT   := $(shell /usr/local/$(MATLAB_DIR)/bin/mexext) 
-		MXXFLAGS += -I/usr/local/$(MATLAB_DIR)/extern/include
-		LDFLAGS  += -pthread -shared -Wl,--version-script,/usr/local/$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
+		MXX      := $(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
+		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
+		LDFLAGS  += -pthread -shared -Wl,--version-script,$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 else
 	MEXEXT := $(shell MEXEXT) 
@@ -105,26 +105,3 @@ all: $(BINTARGET) $(MEXTARGET)
 clean:
 	@rm -f $(BINTARGET) $(MEXTARGET)
 	@echo "clean completed"
-	
-#------------------------------------------------------------------------------#
-#                                                                              #
-#                   CREATE A DISTRIBUTION IN A ZIP FILE                        #
-#                                                                              #
-# move resources to a kdtree folder, tar them, then remove the temp directory  # 
-# and its content completely                                                   #
-#------------------------------------------------------------------------------#
-dist:   
-	rm -rf $(ARCHIVENAME)
-	mkdir $(ARCHIVENAME)
-	cp *.mexmaci $(ARCHIVENAME)
-	cp *.m $(ARCHIVENAME)
-	cp -L *.h $(ARCHIVENAME) #follow symlinks
-	cp *.cpp $(ARCHIVENAME)
-	cp CHANGES $(ARCHIVENAME)
-	cp TODO $(ARCHIVENAME)
-	cp README $(ARCHIVENAME)
-	cp Makefile $(ARCHIVENAME)
-	#tar -cvf $(ARCHIVENAME).tar.gz $(ARCHIVENAME)
-	zip -r -v ${ARCHIVENAME}.zip ${ARCHIVENAME}
-	rm -rf $(ARCHIVENAME)
-	echo $(VAR)
