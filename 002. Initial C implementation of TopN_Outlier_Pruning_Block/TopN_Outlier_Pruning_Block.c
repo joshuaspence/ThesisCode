@@ -107,7 +107,8 @@ static ARRAY_DOUBLE_T distance(const ARRAY_DOUBLE_T * const vectors, ARRAY_SIZE_
 
 
 /*
- * ???
+ * Examine a data set and find the top "N" outliers. Performs operations on the 
+ * input array in "blocks" of size "block_size".
  *
  * Parameters:
  *     - data: A matrix consisting of data_rows vector of size data_cols.
@@ -211,7 +212,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                             ARRAY_ELEMENT(neighbours_dist, vector2_index, max_index) = (ARRAY_DOUBLE_T) dist;
 
                             /* Update the score */
-                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) (ARRAY_ELEMENT(score, 1, vector2_index) * (double) k - max_dist + dist) / (double) k;
+                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) (ARRAY_ELEMENT(score, 1, vector2_index) * (ARRAY_DOUBLE_T) k - max_dist + dist) / (ARRAY_DOUBLE_T) k;
                             if (equals_zero(ARRAY_ELEMENT(score, 1, vector2_index))) {
                                 /* avoid round off error */
                                 const ARRAY_DOUBLE_T average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
@@ -233,10 +234,12 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
 		 * and "OF". Sort this array and keep the top "N" outliers.
 		 */
 
-        CREATE_REAL_UINT_ARRAY(newO, 1, actual_block_size+1);
+        CREATE_REAL_UINT_ARRAY(newO, ROWS(O), actual_block_size + COLS(O));
         unsigned int col;
         for (col = 1; col <= actual_block_size; col++)
             ARRAY_ELEMENT(newO, 1, col) = (ARRAY_UINT_T) begin - 1 + col;
+        for (col = 1; col <= COLS(O); col++)
+            ARRAY_ELEMENT(newO, 1, col + actual_block_size) = ARRAY_ELEMENT(O, 1, col);
 		 
         CREATE_REAL_DOUBLE_ARRAY(newOF, 1, COLS(score) + COLS(OF));
         for (col = 1; col <= COLS(score); col++)
@@ -321,17 +324,17 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 	RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
 
     /* Make sure the second input argument is an integer. */
-    if(!IS_REAL_SCALAR(K_IN))
+    if (!IS_REAL_SCALAR(K_IN))
         mexErrMsgTxt("Input k must be a scalar.");
     const unsigned int k = (unsigned int) mxGetScalar(K_IN);
 
     /* Make sure the third input argument is an integer. */
-    if(!IS_REAL_SCALAR(N_IN))
+    if (!IS_REAL_SCALAR(N_IN))
         mexErrMsgTxt("Input N must be a scalar.");
     const unsigned int N = (unsigned int) mxGetScalar(N_IN);
 
     /* Make sure the fourth input argument is an integer. */
-    if(!IS_REAL_SCALAR(BLOCKSIZE_IN))
+    if (!IS_REAL_SCALAR(BLOCKSIZE_IN))
         mexErrMsgTxt("Input block_size must be a scalar.");
     const unsigned int block_size = (unsigned int) mxGetScalar(BLOCKSIZE_IN);
 

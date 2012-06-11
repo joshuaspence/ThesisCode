@@ -1,17 +1,28 @@
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                                FIND MATLAB                                   #
+#                                                                              #
+#------------------------------------------------------------------------------#
+MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                              COMPILER FLAGS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
 
 # Default flags
-CFLAGS   := -D_GNU_SOURCE -fexceptions -fPIC -fno-omit-frame-pointer -pthread -DMX_COMPAT_32
-CXXFLAGS := -D_GNU_SOURCE -fPIC -fno-omit-frame-pointer -pthread -DMX_COMPAT_32
+CFLAGS   := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*CFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+CXXFLAGS := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*CXXFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
 MXXFLAGS :=
-LDFLAGS  :=
+LDFLAGS  := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*LDFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+
+# Remove 'ANSI standard' flags
+CFLAGS   := $(shell echo -n $(CFLAGS) | sed 's/-ansi\s\+//')
+CXXFLAGS := $(shell echo -n $(CXXFLAGS) | sed 's/-ansi\s\+//')
 
 # Additional flags
-CFLAGS   += -std=c99   -W -Wall -pedantic -fmessage-length=0
+CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
 MXXFLAGS += 
 LDFLAGS  += 
@@ -25,7 +36,7 @@ LDFLAGS_DEBUG  := -g
 # Optimization flags
 CFLAGS_OPT   := -O3 -DNDEBUG
 CXXFLAGS_OPT := -O3 -DNDEBUG
-MXXFLAGS_OPT := 
+MXXFLAGS_OPT := -O
 LDFLAGS_OPT  := -O3
 
 #------------------------------------------------------------------------------#
@@ -34,19 +45,16 @@ LDFLAGS_OPT  := -O3
 #                                                                              #
 # add these to your user profile in order to specify your own.                 #
 #------------------------------------------------------------------------------#
-MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
 		MXX      := $(MATLAB_DIR)/bin/mex
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
-		LDFLAGS  += -pthread -shared -Wl,--version-script,$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 	ifeq ($(shell uname),Linux)
 		MXX      := $(MATLAB_DIR)/bin/mex
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
-		LDFLAGS  += -pthread -shared -Wl,--version-script,$(MATLAB_DIR)/extern/lib/glnxa64/mexFunction.map -Wl,--no-undefined
 	endif
 else
 	MEXEXT := $(shell MEXEXT) 
@@ -88,11 +96,11 @@ release: MXXFLAGS += $(MXXFLAGS_OPT)
 release: LDFLAGS  += $(LDFLAGS_OPT)
 release: all
 
-debug: CFLAGS   += $(CFLAGS_DEBUG)
-debug: CXXFLAGS += $(CXXFLAGS_DEBUG)
-debug: MXXFLAGS += $(MXXFLAGS_DEBUG)
-debug: LDFLAGS  += $(LDFLAGS_DEBUG)
-debug: all
+debug:   CFLAGS   += $(CFLAGS_DEBUG)
+debug:   CXXFLAGS += $(CXXFLAGS_DEBUG)
+debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
+debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
+debug:   all
 
 all: $(BINTARGET) $(MEXTARGET)
 
