@@ -6,8 +6,22 @@
 /*============================================================================*/
 /* General purpose utility macros                                             */
 /*============================================================================*/
-#define MIN(X,Y) 			((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y) 			((X) > (Y) ? (X) : (Y))
+typedef int boolean;
+
+#ifndef true
+	#define true 1
+#endif /* #ifndef true */
+
+#ifndef false
+	#define false 0
+#endif /* #ifndef false */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* General purpose utility macros                                             */
+/*============================================================================*/
+#define MIN(X,Y)			((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y)			((X) > (Y) ? (X) : (Y))
 
 /* Declare an unused variable. */
 #ifdef UNUSED
@@ -16,8 +30,8 @@
 #elif defined(__LCLINT__)
 	#define UNUSED 			/*@unused@*/
 #else
-	#define UNUSED			
-#endif
+	#define UNUSED
+#endif /* #ifdef UNUSED */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -60,7 +74,7 @@
 #else
 	#define EXPORT_TO_MATLAB(_name, _array) \
 		do {} while (0)
-#endif
+#endif /* #ifdef DEBUG */
 
 #define ARRAY_UINT_T		double
 #define ARRAY_DOUBLE_T		double

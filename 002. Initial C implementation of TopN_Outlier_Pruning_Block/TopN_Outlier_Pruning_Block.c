@@ -1,15 +1,28 @@
 #include "Macros.h"
 #include "mex.h"
-#include "math.h" /* for sqrt, pow */
+#include "math.h" /* for sqrt, pow, fabs */
 #include "limits.h" /* for DBL_MIN */
 
-/* Input and output arguments */
+/* Input and output arguments. */
 #define DATA_IN         prhs[0]
 #define K_IN            prhs[1]
 #define N_IN            prhs[2]
 #define BLOCKSIZE_IN    prhs[3]
 #define O_OUT           plhs[0]
 #define OF_OUT          plhs[1]
+
+/* For comparing floating point numbers to zero. */
+#define EPSILON			0.0000001
+
+/*
+ * Check if a double is equal to zero (within a small tolerance).
+ */
+static boolean equals_zero(const double x) {
+	if (x <= EPSILON)
+		return true;
+	else
+		return false;
+}
 
 /*
  * Calculate the average of all values within a single row of an array.
@@ -24,9 +37,9 @@
  * Return:
  *    The average of all values within the single row of the array.
  */
-static double average_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
+static ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row) {
     unsigned int count = 0;
-    double sum = 0;
+    ARRAY_DOUBLE_T sum = 0;
     
     unsigned int col;
     for (col = 1; col <= COLS(array); col++) {
@@ -51,14 +64,14 @@ static double average_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PA
  *     - max_index: A pointer to the return value storing the index of the  
  *                  column containing the maximum value.
  */
-static void max_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * const max_value, int * const max_index) {
+static void max_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, ARRAY_DOUBLE_T * const max_value, int * const max_index) {
 	/* Initialise return values to be some "nonsense" values. */
 	*max_value = DBL_MIN;
 	*max_index = -1;
 
 	unsigned int col;
     for (col = 1; col <= COLS(array); col++) {
-        const double val = ARRAY_ELEMENT(array, row, col);
+        const ARRAY_DOUBLE_T val = ARRAY_ELEMENT(array, row, col);
         if (val > *max_value) {
             *max_value = val;
             *max_index = col;
@@ -82,8 +95,8 @@ static void max_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(a
  * Return:
  *    The sum of the distance between values of the rows.
  */
-static double distance(const ARRAY_DOUBLE_T * const vectors, ARRAY_SIZE_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
-    double sum_of_squares = 0;
+static ARRAY_DOUBLE_T distance(const ARRAY_DOUBLE_T * const vectors, ARRAY_SIZE_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
+    ARRAY_DOUBLE_T sum_of_squares = 0;
     
     unsigned int col;
     for (col = 1; col <= COLS(vectors); col++)
@@ -159,11 +172,11 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                 	 * Calculate the square of the distance between the two 
                 	 * vectors (indexed by "vector1" and "vector2")
                 	 */
-                    const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
+                    const ARRAY_DOUBLE_T dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
-					if (found > 1 && found <= k+1 && ARRAY_ELEMENT(neighbours, vector2_index, found-1) == 0)
+					if (found > 1 && found <= k+1 && equals_zero(ARRAY_ELEMENT(neighbours, vector2_index, found-1)))
                         found--;
-                    else if (found < k && ARRAY_ELEMENT(neighbours, vector2_index, found) != 0)
+                    else if (found < k && !equals_zero(ARRAY_ELEMENT(neighbours, vector2_index, found)))
                         found++;
 
                     if (found <= k) {
@@ -179,7 +192,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                          * nearest neighbours.
                          */
                         if (found == k)
-                            ARRAY_ELEMENT(score, 1, vector2_index) = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
+                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
                         /* 
                          * Retrieve the furthest nearest neighbour from the 
@@ -198,17 +211,17 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
                             ARRAY_ELEMENT(neighbours_dist, vector2_index, max_index) = (ARRAY_DOUBLE_T) dist;
 
                             /* Update the score */
-                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_ELEMENT(score, 1, vector2_index) * (double) k - max_dist + dist) / (double) k;
-                            if (ARRAY_ELEMENT(score, 1, vector2_index) <= 0) {
+                            ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) (ARRAY_ELEMENT(score, 1, vector2_index) * (double) k - max_dist + dist) / (double) k;
+                            if (equals_zero(ARRAY_ELEMENT(score, 1, vector2_index))) {
                                 /* avoid round off error */
-                                const double average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
-                                ARRAY_ELEMENT(score, 1, vector2_index) = MAX(average, 0);
+                                const ARRAY_DOUBLE_T average = average_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index);
+                                ARRAY_ELEMENT(score, 1, vector2_index) = MAX(average, 0.0);
                             }
                         }
                     }
 
                     if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff)
-                        ARRAY_ELEMENT(score, 1, vector2_index) = 0;
+                        ARRAY_ELEMENT(score, 1, vector2_index) = (ARRAY_DOUBLE_T) 0.0;
                 }
             }
             
@@ -223,7 +236,7 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
         CREATE_REAL_UINT_ARRAY(newO, 1, actual_block_size+1);
         unsigned int col;
         for (col = 1; col <= actual_block_size; col++)
-            ARRAY_ELEMENT(newO, 1, col) = begin - 1 + col;
+            ARRAY_ELEMENT(newO, 1, col) = (ARRAY_UINT_T) begin - 1 + col;
 		 
         CREATE_REAL_DOUBLE_ARRAY(newOF, 1, COLS(score) + COLS(OF));
         for (col = 1; col <= COLS(score); col++)
