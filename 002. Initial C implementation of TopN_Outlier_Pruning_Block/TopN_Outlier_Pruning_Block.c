@@ -16,8 +16,8 @@
  *
  * Parameters:
  *     - array: The array of which to calculate the average over a row.
- *     - array_rows: The number of rows of the array.
- *     - array_cols: The number of columns of the array.
+ *     - array_rows: The number of rows in the array.
+ *     - array_cols: The number of columns in the array.
  *     - row: The row number of the row to be averaged. Note that the row index 
  *            follows the MATLAB convention of beginning at 1.
  *
@@ -42,8 +42,8 @@ static double average_over_row(const double * const array, ARRAY_SIZE_PARAMS(arr
  *
  * Parameters:
  *     - array: The array of which to calculate the max over a row.
- *     - array_rows: The number of rows of the array.
- *     - array_cols: The number of columns of the array.
+ *     - array_rows: The number of rows in the array.
+ *     - array_cols: The number of columns in the array.
  *     - row: The row number of the row over which to calculate the maximum 
  *            value. Note that the row index follows the MATLAB convention of 
  *            beginning at 1.
@@ -51,7 +51,8 @@ static double average_over_row(const double * const array, ARRAY_SIZE_PARAMS(arr
  *     - max_index: A pointer to the return value storing the index of the  
  *                  column containing the maximum value.
  */
-static void max_over_row(const double * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * max_value, unsigned int * max_index) {
+static void max_over_row(const double * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, double * const max_value, int * const max_index) {
+	/* Initialise return values to be some "nonsense" values. */
 	*max_value = DBL_MIN;
 	*max_index = -1;
 
@@ -116,21 +117,22 @@ static void top_n_outlier_pruning_block(const double * const data, ARRAY_SIZE_PA
     	mexErrMsgTxt("Input OF must be a 1xN array.");
 
 	double cutoff = 0;
-	unsigned int begin; /* the index of the first vector in the block */
+	unsigned int begin; /* the index of the first vector in the block currently being processed */
 	unsigned int actual_block_size; /* actual_block_size may be smaller than block_size if "ROWS(data) % block_size != 0" */
 	
     for (begin = 1; begin <= ROWS(data); begin += actual_block_size) { /* while there are still blocks to process */
     	const unsigned int end = MIN(begin + block_size - 1, ROWS(data)); /* the index of the last vector in the block */
-    	actual_block_size = end - begin + 1;
+    	actual_block_size = end - begin + 1; /* the number of vectors in the current block */
     
     	/* 
-    	 * Process actual_block_size blocks, beginning at vector "begin" and 
+    	 * Process actual_block_size vector, beginning at vector "begin" and 
     	 * ending at vector "end" inclusive. In this iteration, we find the top
-    	 * "N" outliers based on distances from points in the current block.
+    	 * "N" outliers based on distances from vectors in the current block.
     	 */
         
         /* Arrays to store the "k" nearest neighbours for each node. */
-        CREATE_REAL_UINT_ARRAY(neighbours, actual_block_size, k); 
+        /* TODO: maybe these should be sorted. */
+        CREATE_REAL_UINT_ARRAY(  neighbours,      actual_block_size, k); 
         CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
         
         /* 
@@ -140,29 +142,26 @@ static void top_n_outlier_pruning_block(const double * const data, ARRAY_SIZE_PA
          */
         CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
 
-        unsigned int found = 0; /* how many nearest neighbours we have found */
+        unsigned int found = 1; /* how many nearest neighbours we have found (+1 to index into the "neighbours" and "neighbours_dist" arrays */
         unsigned int vector1;
-        unsigned int vector2;
-        unsigned int col;
         for (vector1 = begin; vector1 <= ROWS(data); vector1++) {
         	/*
         	 * Within this loop, we would benefit from having all vectors with 
         	 * the current block in the cache.
         	 */
-        
-            found++;
             
+            unsigned int vector2;
             for (vector2 = begin; vector2 <= end; vector2++) {
             	const unsigned int vector2_index = vector2 - begin + 1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
-                if (vector1 != vector2) {                
+                if (vector1 != vector2) {
                 	/* 
                 	 * Calculate the square of the distance between the two 
                 	 * vectors (indexed by "vector1" and "vector2")
                 	 */
                     const double dist = pow(distance(ARRAY_PROPERTIES(data), vector1, vector2), 2);
 
-					if (found > 1 && found <= (k - 1) && ARRAY_ELEMENT(neighbours, vector2_index, found - 1) == 0)
+					if (found > 1 && found <= k+1 && ARRAY_ELEMENT(neighbours, vector2_index, found-1) == 0)
                         found--;
                     else if (found < k && ARRAY_ELEMENT(neighbours, vector2_index, found) != 0)
                         found++;
@@ -187,7 +186,7 @@ static void top_n_outlier_pruning_block(const double * const data, ARRAY_SIZE_PA
                          * neighbours array.
                          */
                         double max_dist;
-                        unsigned int max_index;
+                        int max_index;
                         max_over_row(ARRAY_PROPERTIES(neighbours_dist), vector2_index, &max_dist, &max_index);
 
                         /* 
@@ -220,6 +219,7 @@ static void top_n_outlier_pruning_block(const double * const data, ARRAY_SIZE_PA
 		 */
 
         CREATE_REAL_DOUBLE_ARRAY(newO, 1, actual_block_size + 1);
+        unsigned int col;
         for (col = 1; col <= actual_block_size; col++)
             ARRAY_ELEMENT(newO, 1, col) = begin - 1 + col;
 		 
