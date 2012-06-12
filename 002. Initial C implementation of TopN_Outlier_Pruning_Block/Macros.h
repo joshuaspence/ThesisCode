@@ -130,12 +130,12 @@ typedef int boolean;
 #define ARRAY_ELEMENT(_array, _row, _column) \
 	_array[((_row) - 1) + ROWS(_array) * ((_column) - 1)]
 
-/* To declare the dimensions of an array in a function signature. */
-#define ARRAY_SIZE_PARAMS(_array) \
-	const unsigned int UNUSED ROWS(_array), const unsigned int UNUSED COLS(_array)
+/* To declare an array and the dimensions of the array in a function signature. */
+#define ARRAY_PARAMS(_array) \
+	_array, const unsigned int UNUSED ROWS(_array), const unsigned int UNUSED COLS(_array)
 
 /* To call a function that requires an array as well as the array dimensions. */
-#define ARRAY_PROPERTIES(_array) \
+#define ARRAY_ARG(_array) \
 	_array, ROWS(_array), COLS(_array)
 /*----------------------------------------------------------------------------*/
 
