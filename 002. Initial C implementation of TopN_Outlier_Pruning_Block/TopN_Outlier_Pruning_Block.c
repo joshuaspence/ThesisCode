@@ -15,7 +15,13 @@
 #define EPSILON			0.0000001
 
 /*
- * Check if a double is equal to zero (within a small tolerance).
+ * Check if a double is equal to zero (within a small tolerance epsilon).
+ *
+ * Parameters:
+ *     - x: The value to be compared with zero.
+ *
+ * Return:
+ *    True if the input x is within epsilon of zero, otherwise false.
  */
 static boolean equals_zero(const double x) {
 	if (x <= EPSILON)
@@ -48,35 +54,6 @@ static ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const array, ARRAY
     }
 
     return sum / count;
-}
-
-/*
- * Calculate the maximum value of all values within a single row of an array.
- *
- * Parameters:
- *     - array: The array of which to calculate the max over a row.
- *     - array_rows: The number of rows in the array.
- *     - array_cols: The number of columns in the array.
- *     - row: The row number of the row over which to calculate the maximum 
- *            value. Note that the row index follows the MATLAB convention of 
- *            beginning at 1.
- *     - max_value: A pointer to the return value storing the maximum value.
- *     - max_index: A pointer to the return value storing the index of the  
- *                  column containing the maximum value.
- */
-static void max_over_row(const ARRAY_DOUBLE_T * const array, ARRAY_SIZE_PARAMS(array), const unsigned int row, ARRAY_DOUBLE_T * const max_value, int * const max_index) {
-	/* Initialise return values to be some "nonsense" values. */
-	*max_value = DBL_MIN;
-	*max_index = -1;
-
-	unsigned int col;
-    for (col = 1; col <= COLS(array); col++) {
-        const ARRAY_DOUBLE_T val = ARRAY_ELEMENT(array, row, col);
-        if (val > *max_value) {
-            *max_value = val;
-            *max_index = col;
-        }
-    }
 }
 
 /*
