@@ -4,12 +4,12 @@
 #include "limits.h" /* for DBL_MIN */
 
 /* Input and output arguments. */
-#define DATA_IN         prhs[0]
-#define K_IN            prhs[1]
-#define N_IN            prhs[2]
-#define BLOCKSIZE_IN    prhs[3]
-#define O_OUT           plhs[0]
-#define OF_OUT          plhs[1]
+#define DATA_IN         	prhs[0]
+#define K_IN            	prhs[1]
+#define N_IN            	prhs[2]
+#define BLOCKSIZE_IN    	prhs[3]
+#define OUTLIERS_OUT        plhs[0]
+#define OUTLIERSCORES_OUT	plhs[1]
 
 /* For comparing floating point numbers to zero. */
 #define EPSILON			0.0000001
@@ -57,7 +57,8 @@ static ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const array, ARRAY
 }
 
 /*
- * Calculate the Euclidean distance between two vectors.
+ * Calculate the Euclidean distance between two vectors (square root of the sum 
+ * of the squares of the distance in each dimension).
  *
  * Parameters:
  *     - vectors: The array containg the vectors between which to calculate the 
@@ -146,17 +147,17 @@ static void sorted_insert(const unsigned int vector, const unsigned int k, ARRAY
  *     - N: return the top N outliers
  *     - block_size:
  *     - O: A 1xN array of unsigned integers. This is an output of the function.
- *     - O_rows:
+ *     - O_rows: Number of rows contained in the O
  *     - O_cols:
  *     - OF: A 1xN array of doubles. This is an output of the function.
  *     - OF_rows:
  *     - OF_cols:
  */
-static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, ARRAY_UINT_T * O, ARRAY_SIZE_PARAMS(O), ARRAY_DOUBLE_T * OF, ARRAY_SIZE_PARAMS(OF)) {
-	if (ROWS(O) != 1 || COLS(O) != N)
-    	mexErrMsgTxt("Input O must be a 1xN array.");
-    if (ROWS(OF) != 1 || COLS(OF) != N)
-    	mexErrMsgTxt("Input OF must be a 1xN array.");
+static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY_SIZE_PARAMS(data), const unsigned int k, const unsigned int N, const unsigned int block_size, ARRAY_UINT_T * outliers, ARRAY_SIZE_PARAMS(outliers), ARRAY_DOUBLE_T * outlier_scores, ARRAY_SIZE_PARAMS(outlier_scores)) {
+	if (ROWS(outliers) != 1 || COLS(outliers) != N)
+    	mexErrMsgTxt("Input 'outliers' must be a 1xN array.");
+    if (ROWS(outlier_scores) != 1 || COLS(outlier_scores) != N)
+    	mexErrMsgTxt("Input 'outlier_scores' must be a 1xN array.");
 
 	double cutoff = 0;
 	unsigned int begin; /* the index of the first vector in the block currently being processed */
@@ -239,55 +240,55 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
 		 * and "OF". Sort this array and keep the top "N" outliers.
 		 */
 
-        CREATE_REAL_UINT_ARRAY(newO, ROWS(O), actual_block_size + COLS(O));
+        CREATE_REAL_UINT_ARRAY(new_outliers, ROWS(outliers), actual_block_size + COLS(outliers));
         unsigned int col;
         for (col = 1; col <= actual_block_size; col++)
-            ARRAY_ELEMENT(newO, 1, col) = (ARRAY_UINT_T) begin - 1 + col;
-        for (col = 1; col <= COLS(O); col++)
-            ARRAY_ELEMENT(newO, 1, col + actual_block_size) = ARRAY_ELEMENT(O, 1, col);
+            ARRAY_ELEMENT(new_outliers, 1, col) = (ARRAY_UINT_T) begin - 1 + col;
+        for (col = 1; col <= COLS(outliers); col++)
+            ARRAY_ELEMENT(new_outliers, 1, col + actual_block_size) = ARRAY_ELEMENT(outliers, 1, col);
 		 
-        CREATE_REAL_DOUBLE_ARRAY(newOF, 1, COLS(score) + COLS(OF));
+        CREATE_REAL_DOUBLE_ARRAY(new_outlier_scores, 1, COLS(score) + COLS(outlier_scores));
         for (col = 1; col <= COLS(score); col++)
-            ARRAY_ELEMENT(newOF, 1, col) = ARRAY_ELEMENT(score, 1, col);
-        for (col = 1; col <= COLS(OF); col++)
-            ARRAY_ELEMENT(newOF, 1, col + COLS(score)) = ARRAY_ELEMENT(OF, 1, col);
+            ARRAY_ELEMENT(new_outlier_scores, 1, col) = ARRAY_ELEMENT(score, 1, col);
+        for (col = 1; col <= COLS(outlier_scores); col++)
+            ARRAY_ELEMENT(new_outlier_scores, 1, col + COLS(score)) = ARRAY_ELEMENT(outlier_scores, 1, col);
         
         /* Call the MATLAB sort function. */
         mxArray * sort_outputs[2];
-        mxArray * sort_inputs[] = { MATLAB_ARRAY(newOF), mxCreateString("descend") };
+        mxArray * sort_inputs[] = { MATLAB_ARRAY(new_outlier_scores), mxCreateString("descend") };
         mexCallMATLAB(2, sort_outputs, 2, sort_inputs, "sort");
 
-		RETRIEVE_REAL_DOUBLE_ARRAY(newOF_sorted, sort_outputs[0]);
+		RETRIEVE_REAL_DOUBLE_ARRAY(new_outlier_scores_sorted, sort_outputs[0]);
 		RETRIEVE_REAL_UINT_ARRAY(index, sort_outputs[1]);
 
-        CREATE_REAL_UINT_ARRAY(newO_sorted, ROWS(newO), COLS(newO));
-        for (col = 1; col <= COLS(newO_sorted); col++)
-            ARRAY_ELEMENT(newO_sorted, 1, col) = ARRAY_ELEMENT(newO, 1, (unsigned int) ARRAY_ELEMENT(index, 1, col));
+        CREATE_REAL_UINT_ARRAY(new_outliers_sorted, ROWS(new_outliers), COLS(new_outliers));
+        for (col = 1; col <= COLS(new_outliers_sorted); col++)
+            ARRAY_ELEMENT(new_outliers_sorted, 1, col) = ARRAY_ELEMENT(new_outliers, 1, (unsigned int) ARRAY_ELEMENT(index, 1, col));
 
 		/*
 		 * Copy the top "N" outliers (from the global top "N" outliers as well 
 		 * as the top "N" outliers discovered in this block) to the output 
 		 * arrays "O" and "OF".
 		 */
-        for (col = 1; col <= COLS(O); col++)
-            ARRAY_ELEMENT(O, 1, col) = ARRAY_ELEMENT(newO_sorted, 1, col);
-        for (col = 1; col <= COLS(OF); col++)
-            ARRAY_ELEMENT(OF, 1, col) = ARRAY_ELEMENT(newOF_sorted, 1, col);
+        for (col = 1; col <= COLS(outliers); col++)
+            ARRAY_ELEMENT(outliers, 1, col) = ARRAY_ELEMENT(new_outliers_sorted, 1, col);
+        for (col = 1; col <= COLS(outlier_scores); col++)
+            ARRAY_ELEMENT(outlier_scores, 1, col) = ARRAY_ELEMENT(new_outlier_scores_sorted, 1, col);
 
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
          * store an outlier in future iterations if its score is better than the
          * cutoff.
          */
-        cutoff = ARRAY_ELEMENT(OF, 1, N);
+        cutoff = ARRAY_ELEMENT(outlier_scores, 1, N);
         
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
         FREE_ARRAY(score);
-        FREE_ARRAY(newO);
-        FREE_ARRAY(newOF);
-        FREE_ARRAY(newO_sorted);
-        FREE_ARRAY(newOF_sorted);
+        FREE_ARRAY(new_outliers);
+        FREE_ARRAY(new_outlier_scores);
+        FREE_ARRAY(new_outliers_sorted);
+        FREE_ARRAY(new_outlier_scores_sorted);
     }
 }
  
@@ -305,9 +306,9 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const data, ARRAY
  *             type const mxArray.
  *
  * Calling syntax:
- *     [O, OF] = top_n_outlier_pruning_block(data, k, N, block_size);
+ *     [Outliers, OutlierScores] = top_n_outlier_pruning_block(data, k, N, block_size);
  *
- * NOTES
+ * Notes:
  *     - data is a real full 2D double array.
  *     - k is an integer-valued scalar.
  *     - N is an integer-valued scalar.
@@ -344,11 +345,11 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const unsigned int block_size = (unsigned int) mxGetScalar(BLOCKSIZE_IN);
 
     /* Create the output matrixes. */
-    CREATE_REAL_UINT_ARRAY(O, 1, N);
-    CREATE_REAL_DOUBLE_ARRAY(OF, 1, N);
-    O_OUT  = MATLAB_ARRAY(O);
-    OF_OUT = MATLAB_ARRAY(OF);
+    CREATE_REAL_UINT_ARRAY  (outliers,       1, N);
+    CREATE_REAL_DOUBLE_ARRAY(outlier_scores, 1, N);
+    OUTLIERS_OUT      = MATLAB_ARRAY(outliers);
+    OUTLIERSCORES_OUT = MATLAB_ARRAY(outlier_scores);
 
     /* Call the function. */
-    top_n_outlier_pruning_block(ARRAY_PROPERTIES(data), k, N, block_size, ARRAY_PROPERTIES(O), ARRAY_PROPERTIES(OF));
+    top_n_outlier_pruning_block(ARRAY_PROPERTIES(data), k, N, block_size, ARRAY_PROPERTIES(outliers), ARRAY_PROPERTIES(outlier_scores));
 }
