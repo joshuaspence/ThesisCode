@@ -1,7 +1,16 @@
-#include "Macros.h"
-#include "mex.h"
-#include "math.h" /* for sqrt, pow, fabs */
-#include "limits.h" /* for DBL_MIN */
+#include "macros.h" /* 
+				* for ARRAY_UINT_T, ARRAY_DOUBLE_T, ARRAY_PARAMS, ARRAY_ELEMENT,
+				* ROWS, COLS, ARRAY_ARG, MIN, MAX, CREATE_REAL_UINT_ARRAY, 
+				* CREATE_REAL_DOUBLE_ARRAY, MATLAB_ARRAY, 
+				* RETRIEVE_REAL_UINT_ARRAY, RETRIEVE_REAL_DOUBLE_ARRAY, 
+				* FREE_ARRAY, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR
+				*/
+#include "utility.h" /* for equals_zero, average_over_row, distance */
+#include "mex.h" /* 
+				* for mexErrMsgTxt, mxCreateString, mxArray, mexCallMATLAB,
+				* mxGetScalar
+				*/
+#include <math.h> /* for pow */
 
 /* Input and output arguments. */
 #define DATA_IN         	prhs[0]
@@ -10,78 +19,6 @@
 #define BLOCKSIZE_IN    	prhs[3]
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT	plhs[1]
-
-/* For comparing floating point numbers to zero. */
-#define EPSILON			0.0000001
-
-/*
- * Check if a double is equal to zero (within a small tolerance epsilon).
- *
- * Parameters:
- *     - x: The value to be compared with zero.
- *
- * Return:
- *    True if the input x is within epsilon of zero, otherwise false.
- */
-static boolean equals_zero(const double x) {
-	if (x <= EPSILON)
-		return true;
-	else
-		return false;
-}
-
-/*
- * Calculate the average of all values within a single row of an array.
- *
- * Parameters:
- *     - array: The array of which to calculate the average over a row.
- *     - array_rows: The number of rows in the array.
- *     - array_cols: The number of columns in the array.
- *     - row: The row number of the row to be averaged. Note that the row index 
- *           follows the MATLAB convention of beginning at 1.
- *
- * Return:
- *    The average of all values within the single row of the array.
- */
-static ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const ARRAY_PARAMS(array), const unsigned int row) {
-    unsigned int count = 0;
-    ARRAY_DOUBLE_T sum = 0;
-    
-    unsigned int col;
-    for (col = 1; col <= COLS(array); col++) {
-        sum += ARRAY_ELEMENT(array, row, col);
-        count++;
-    }
-
-    return sum / count;
-}
-
-/*
- * Calculate the Euclidean distance between two vectors (square root of the sum 
- * of the squares of the distance in each dimension).
- *
- * Parameters:
- *     - vectors: The array containg the vectors between which to calculate the 
- *           distance.
- *     - vectors_rows: The number of vectors contained within the array.
- *     - vectors_cols: The size of each vector within the array.
- *     - vector1: The row index of one of the vectors. Note that the row index 
- *           follows the MATLAB convention of beginning at 1.
- *     - vector2: The row index of the other vector. Note that the row index 
- *           follows the MATLAB convention of beginning at 1.
- *
- * Return:
- *    The sum of the distance between values of the rows.
- */
-static ARRAY_DOUBLE_T distance(const ARRAY_DOUBLE_T * const ARRAY_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2) {
-    ARRAY_DOUBLE_T sum_of_squares = 0;
-    
-    unsigned int col;
-    for (col = 1; col <= COLS(vectors); col++)
-        sum_of_squares += pow(ARRAY_ELEMENT(vectors, vector1, col) - ARRAY_ELEMENT(vectors, vector2, col), 2);
-        
-    return sqrt(sum_of_squares);
-}
 
 /* TODO
  * Insert "index" into "index_array" and "value" into "value_array", whilst 

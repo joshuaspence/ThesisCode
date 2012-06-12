@@ -1,7 +1,11 @@
 #ifndef MACROS_H_
 #define MACROS_H_
 
-#include "mex.h"
+#include "mex.h" /* 
+				* for mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, 
+				* mxIsSparse, mexPutVariable, mxArray, mxCreateDoubleMatrix, 
+			 	* mxGetData, mxGetM, mxGetN, mxDestroyArray
+				*/
 
 /*============================================================================*/
 /* Boolean type                                                               */
