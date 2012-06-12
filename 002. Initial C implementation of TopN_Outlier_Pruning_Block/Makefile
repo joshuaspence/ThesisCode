@@ -86,8 +86,8 @@ ARCHIVENAME := TopN_Outlier_Pruning_Block
 # which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
 HDRS       := 
-TARGET     :=  TopN_Outlier_Pruning_Block
-#BINTARGET := $(TARGET:%=%.bin)
+TARGET     := TopN_Outlier_Pruning_Block
+UTILITY    := utility.c
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
 release: CFLAGS   += $(CFLAGS_OPT)
@@ -104,11 +104,8 @@ debug:   all
 
 all: $(BINTARGET) $(MEXTARGET)
 
-%.bin: %.c
-	$(CXX) $(CXXFLAGS) -o $@ $<
-
-%.mexa64: %.c
-	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $<
+%.mexa64: %.c $(UTILITY)
+	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $^
 	
 clean:
 	@rm -f $(BINTARGET) $(MEXTARGET)
