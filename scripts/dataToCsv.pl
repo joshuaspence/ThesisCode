@@ -60,7 +60,7 @@ my $alldata_iterations = 0;
 for my $dataset (@datasets) {
 	# String to appear in output data (note: strip out directory name)
 	my $dataset_string = $dataset;
-	$dataset_string =~ s/\/.*\///g;
+	$dataset_string =~ s/.*\///g;
 	
 	# Get dataset iterations from subdirectories below base directory
 	my @dataset_iterations = $fu->list_dir($dataset, '--dirs-only', '--no-fsdots', '--with-paths');
