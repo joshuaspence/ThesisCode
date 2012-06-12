@@ -181,7 +181,6 @@ static void top_n_outlier_pruning_block(const ARRAY_DOUBLE_T * const ARRAY_PARAM
     	 */
         
         /* Arrays to store the "k" nearest neighbours for each node. */
-        /* TODO: maybe these should be sorted. */
         CREATE_REAL_UINT_ARRAY  (neighbours,      actual_block_size, k); 
         CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
         
