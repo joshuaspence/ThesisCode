@@ -19,20 +19,14 @@
 use strict;
 use warnings;
 
-use Getopt::Std;
-use Getopt::Long;
 use Set::Scalar;
-
-# Get command line options
-Getopt::Long::Configure('bundling');
-#GetOptions('a|all-data' => \$all_data);
 
 # The argument should be the input file
 scalar(@ARGV) >= 1 || die("No file specified!\n");
 open FILE, "<", $ARGV[0] or die $!;
 
-# A hash of hashes, hashing a function name to a hash containing each dataset 
-# and the self-time of this function for that dataset
+# A hash of hashes, hashing a function name to a hash containing each dataset,
+# mapping to the self-time of this function for that dataset
 my %functions = ();
 
 # A set containing all data sets
@@ -47,10 +41,7 @@ while(<FILE>) {
 	chomp; # remove newline characters
 	my @fields = split(/,/);
 	my $dataset = $fields[0];
-	#my $iteration = $fields[1];
 	my $function = $fields[2];
-	#my $calls = $fields[3];
-	#my $total_time = $fields[4];
 	my $self_time = $fields[5];
 	
 	# Add data set to list
@@ -60,10 +51,9 @@ while(<FILE>) {
 	if (!exists($functions{$function})) {
 		%{$functions{$function}} = ();
 	}
-	my $function_hash = $functions{$function};
 	
 	# Add this function to the hash of hashes
-	$$function_hash{$dataset} = $self_time;
+	$functions{$function}{$dataset} = $self_time;
 }
 
 # Print the header
@@ -83,9 +73,9 @@ foreach my $function (sort keys %functions) {
 			my $data = $function_hash{$dataset};
 			print(",$data");
 		} else {
+			# If this dataset didn't use this function, print 0.
 			print(",0");
 		}
 	}
-	
 	print("\n");
 }

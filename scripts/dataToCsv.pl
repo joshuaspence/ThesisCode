@@ -75,7 +75,7 @@ for my $dataset (@datasets) {
 	for my $iteration (@dataset_iterations) {
 		# String to appear in output data (note: strip out directory name)
 		my $iteration_string = $iteration;
-		$iteration_string =~ s/\/.*\///g;
+		$iteration_string =~ s/.*\///g;
 	
 		# Retrieve the input HTML file
 		my $html_table_extract = HTML::TableExtract->new();
