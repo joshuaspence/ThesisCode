@@ -20,10 +20,12 @@ use strict;
 use warnings;
 
 use Set::Scalar;
+use Text::CSV;
 
 # The argument should be the input file
 scalar(@ARGV) >= 1 || die("No file specified!\n");
 open FILE, "<", $ARGV[0] or die $!;
+my $csv = Text::CSV->new();
 
 # A hash of hashes, hashing a function name to a hash containing each dataset,
 # mapping to the self-time of this function for that dataset
@@ -36,10 +38,16 @@ my $datasets = new Set::Scalar->new;
 while(<FILE>) {
 	# Skip the first line (which is a header)
 	next if 1 .. 1;
-
-	# Extract data from the file line
+	
+	# Extract data from this line
 	chomp; # remove newline characters
-	my @fields = split(/,/);
+	my @fields;
+	if ($csv->parse($_)) {
+        @fields = $csv->fields();
+    } else {
+        my $err = $csv->error_input;
+        die("Failed to parse line: $err");
+    }
 	my $dataset = $fields[0];
 	my $function = $fields[2];
 	my $self_time = $fields[5];
@@ -56,16 +64,19 @@ while(<FILE>) {
 	$functions{$function}{$dataset} = $self_time;
 }
 
+# Close the file
+close(FILE);
+
 # Print the header
-print("Function");
+print("\"Function\"");
 foreach my $dataset (sort $datasets->elements) {
-	print(",$dataset");
+	print(",\"$dataset\"");
 }
 print("\n");
 
 # Print the data
 foreach my $function (sort keys %functions) {
-	print("$function");
+	print("\"$function\"");
 
 	my %function_hash = %{$functions{$function}};
 	foreach my $dataset (sort $datasets->elements) {
