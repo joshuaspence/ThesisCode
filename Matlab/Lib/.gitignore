@@ -1,0 +1,13 @@
+# Mex outputs
+*.mexa64
+*.mexw32
+*.mexw64
+*.mexmac
+*.mexmaci
+*.mexglx
+*.bin
+*.dll
+
+# GCC output
+*.o
+*.a
