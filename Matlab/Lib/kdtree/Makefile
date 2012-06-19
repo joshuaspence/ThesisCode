@@ -1,5 +1,12 @@
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                                FIND MATLAB                                   #
+#                                                                              #
+#------------------------------------------------------------------------------#
+MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                              COMPILER FLAGS                                  #
 #                                                                              #
 # CPPONLY flag removes mex-portions (includes and MEX iterface function) to    #
@@ -18,17 +25,17 @@ CXXFLAGS = -O2 -Wall -fmessage-length=0 -D CPPONLY
 #------------------------------------------------------------------------------#
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX = /Applications/matlab/bin/mex
-		MEXEXT = $(shell /Applications/matlab/bin/mexext)
-		MXXFLAGS = -I/Applications/matlab/extern/include
+		MXX      := $(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX = /usr/local/matlab/bin/mex
-		MEXEXT = $(shell /usr/local/matlab/bin/mexext) 
-		MXXFLAGS = -I/usr/local/matlab/extern/include
+		MXX      := $(MATLAB_DIR)/bin/mex
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
+		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
 else
-	MEXEXT = $(shell MEXEXT) 
+	MEXEXT := $(shell MEXEXT) 
 endif
 
 #------------------------------------------------------------------------------#
@@ -75,7 +82,13 @@ debug: all
 
 %.mexmaci : %.cpp
 	$(MXX) $(MXXFLAGS) -o $@ $<
-	
+
+%.mexmac : %.cpp
+	$(MXX) $(MXXFLAGS) -o $@ $<
+
+%.mexa64 : %.cpp
+	$(MXX) $(MXXFLAGS) -o $@ $<
+
 clean:
 	@rm -f $(OBJS) $(BINTARGET) $(MEXTARGET)
 	@rm -rf  *.dSYM
