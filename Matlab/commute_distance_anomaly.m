@@ -1,4 +1,4 @@
-function commute_distance()
+function commute_distance_anomaly(dataset)
 % commute distances from knn graph derived from data
 tic
 k1 = 10; % number of k nearest neighbours of graph
@@ -16,14 +16,14 @@ graph_type = 2; % knn graph type, mutual knn
 similarity = 'euclidean'; % knn similarity metric
 sigma = 0;
 
-filename = 'Datasets/runningex1k.csv'
+filename = char(strcat('Datasets/', dataset));
 
-lastState = load('random_KDD2011.mat','randnState','randState');
-rand('state',lastState.randState)
-randn('state',lastState.randnState)
+%lastState = load('random_KDD2011.mat','randnState','randState');
+%rand('state',lastState.randState)
+%randn('state',lastState.randnState)
 
-% randnState = randn('state');
-% randState = rand('state');
+randnState = randn('state');
+randState = rand('state');
 % save('random_KDD2011.mat','randnState','randState');
 
  
@@ -2195,7 +2195,7 @@ total_time = toc(t)
 
 % find top N outliers  by comparing average 
 % distances to knn with pruning technique
-function [O,OF] = TopN_Outlier_Pruning_BlockORIGINAL(X,k,N,block_size)
+function [O,OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X,k,N,block_size)
 	n = size(X,1);
 	OF = zeros(1,N);
 	O = OF;
