@@ -16,7 +16,7 @@ graph_type = 2; % knn graph type, mutual knn
 similarity = 'euclidean'; % knn similarity metric
 sigma = 0;
 
-filename = 'Datasets/testCD.txt'
+filename = 'Datasets/runningex1k.csv'
 
 lastState = load('random_KDD2011.mat','randnState','randState');
 rand('state',lastState.randState)
