@@ -8,7 +8,7 @@ CC = g++
 OPTFLAGS = -O2 -fPIC
 
 # What options to be used by the compiler
-COPTIONS = -DNUMBITS=32
+COPTIONS = -DNUMBITS=32 -w
 
 # What options to be used by the loader
 LDOPTIONS = 

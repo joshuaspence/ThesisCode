@@ -80,13 +80,7 @@ debug: all
 %.bin : %.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-%.mexmaci : %.cpp
-	$(MXX) $(MXXFLAGS) -o $@ $<
-
-%.mexmac : %.cpp
-	$(MXX) $(MXXFLAGS) -o $@ $<
-
-%.mexa64 : %.cpp
+%.$(MEXEXT) : %.cpp
 	$(MXX) $(MXXFLAGS) -o $@ $<
 
 clean:
@@ -94,6 +88,8 @@ clean:
 	@rm -rf  *.dSYM
 	@rm -rf *.bin
 	@echo "clean completed"
+
+distclean: clean
 	
 #------------------------------------------------------------------------------#
 #                                                                              #

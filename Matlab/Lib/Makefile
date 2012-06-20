@@ -14,7 +14,7 @@ VERYSILENT		:= 1>/dev/null 2>/dev/null
 ################################################################################
 # Folders to recursively make
 ################################################################################
-SUBDIRS := $(shell $(FIND) . -mindepth 1 -maxdepth 1 -type d)
+SUBDIRS := $(shell $(FIND) . -mindepth 1 -maxdepth 1 -type d -o -type l)
 
 ################################################################################
 # Targets
@@ -25,4 +25,8 @@ all:
 
 .PHONY: clean
 clean:
+	$(MUTE)for d in $(SUBDIRS); do ($(CHANGE_DIR) $$d && $(MAKE) $@) done
+
+.PHONY: distclean
+distclean:
 	$(MUTE)for d in $(SUBDIRS); do ($(CHANGE_DIR) $$d && $(MAKE) $@) done
