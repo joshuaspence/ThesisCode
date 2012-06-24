@@ -61,12 +61,13 @@ for d = 1 : length(data)
         %clear(p);
 
         % save variables
-        %save(char(strcat(output_dir, 'variables.mat')));
+        copyfile('variables.mat', output_dir);
+        copyfile('variables.txt', output_dir);
         
         % save the graph
         print('-dpng', strcat(output_dir, 'output.png'));
         
         % delete the output CSV file
-        delete('output.csv');
+        delete('output.csv', 'variables.mat', 'variables.txt');
     end
 end

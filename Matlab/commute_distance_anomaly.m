@@ -2189,6 +2189,11 @@ Z_time = toc(tZ);
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
 [O,OF] = TopN_Outlier_Pruning_Block_ORIGINAL(Y, k, N, block_size);
+
+% save variables
+save('variables.mat', 'Y', 'k', 'N', 'block_size', 'O', 'OF');
+save('variables.txt', 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
+
 knn_time = toc(tknn);
 
 total_time = toc(t)
