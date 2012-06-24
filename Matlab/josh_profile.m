@@ -89,12 +89,30 @@ for d = 1 : length(data)
 
             % Save variables
             disp('Copying output files.');
-            copyfile('output.csv', output_dir);
-            copyfile('random.mat', output_dir);
-            copyfile('graph.mat', output_dir);
-            copyfile('graph.txt', output_dir);
-            copyfile('TopN_Outlier_Pruning_Block.mat', output_dir);
-            copyfile('TopN_Outlier_Pruning_Block.txt', output_dir);
+            [status, message] = copyfile('output.csv', output_dir);
+            if status == 0
+            	disp(message);
+            end
+            [status, message] = copyfile('random.mat', output_dir);
+            if status == 0
+            	disp(message);
+            end
+            [status, message] = copyfile('graph.mat', output_dir);
+            if status == 0
+            	disp(message);
+            end
+            [status, message] = copyfile('graph.txt', output_dir);
+            if status == 0
+            	disp(message);
+            end
+            [status, message] = copyfile('TopN_Outlier_Pruning_Block.mat', output_dir);
+            if status == 0
+            	disp(message);
+            end
+            [status, message] = copyfile('TopN_Outlier_Pruning_Block.txt', output_dir);
+            if status == 0
+            	disp(message);
+            end
 
             % save the graph
             disp('Saving the graph.');
