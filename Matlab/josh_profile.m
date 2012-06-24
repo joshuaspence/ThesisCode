@@ -34,12 +34,15 @@ profiles_name = {
 iterations = 10;
 profiling_root_dir = 'Profiling';
 
+% Iterate over all data sets
 for d = 1 : length(data)
     dataset = data(d);
     
+    % Iterate over all iterations
     for j = 1 : iterations
         rerandomize = true;
         
+        % Iterate over all profiler profiles
         for k = 1 : length(profiles_func)
             profile_name = profiles_name(k);
             profile_func = profiles_func(k);
@@ -58,24 +61,25 @@ for d = 1 : length(data)
 
             % profile execution
             profile on;
-            commute_distance_anomaly(strcat(dataset, '.csv'), rerandomize, profile_func);
+            evalc(commute_distance_anomaly(strcat(dataset, '.csv'), rerandomize, profile_func));
             profile off;
 
             rerandomize = false;
             
-            % save profiler report
-            % this throws an error for some reason
+            % Save profiler report
+            % NOTE: This throws an error for some reason
             try
                 profsave(profile('info'), output_dir);
             catch exception
             end
 
-            % save profile data to a MAT file
+            % Save profile data to a MAT file
             %p = profile('info');
             %save(char(strcat(output_dir, 'profiledata.mat')), p);
             %clear(p);
 
             % save variables
+            copyfile('output.csv', output_dir);
             copyfile('random.mat', output_dir);
             copyfile('variables.mat', output_dir);
             copyfile('variables.txt', output_dir);
