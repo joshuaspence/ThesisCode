@@ -1,39 +1,47 @@
+% All data sets are assumed to have a CSV extension
 data = { 
-	'testCD.csv',
-	'testCDST.csv',
-	'testCDST2.csv',
-	'testCDST3.csv',
-	'testoutrank.csv
-	'spam.csv',
-	'connect4.csv',
-	'pendigits.csv',
-	'musk.csv',
-	'ball1.csv',
-	'letter-recognition.csv',
-	'magicgamma.csv',
-	'mesh_network.csv',
-	'outrank.csv',
-	'runningex1k.csv',
-	'runningex10k.csv',
-	'runningex20k.csv',
-	'runningex30k.csv',
-	'runningex40k.csv',
-	'runningex50k.csv',
-	'segmentation.csv',
-	'spam_train.csv'
+	'testCD',
+	'testCDST',
+	'testCDST2',
+	'testCDST3',
+	'testoutrank',
+	'spam',
+	'connect4',
+	'pendigits',
+	'musk',
+	'ball1',
+	'letter-recognition',
+	'magicgamma',
+	'mesh_network',
+	'outrank',
+	'runningex1k',
+	'runningex10k',
+	'runningex20k',
+	'runningex30k',
+	'runningex40k',
+	'runningex50k',
+	'segmentation',
+	'spam_train'
 	};
 iterations = 10;
+profiling_root_dir = 'Profiling';
+profiling_name = 'initial_C';
 
-
-for d=1:length(data),
+for d = 1 : length(data)
     dataset = data(d);
     
-    for j=1:iterations,
-        output_dir = char(strcat('Profiling/initial_C/', dataset, '/', int2str(j), '/'));
+    for j = 1 : iterations,
+        output_dir = char(strcat(profiling_root_dir, filesep, profiling_name, filesep, dataset, filesep, int2str(j), filesep));
+        
+        % if output_dir already exists, then we don't need to profile
+        % anything
+        if exists(output_dir, 'dir') ~= 0
+            continue;
+        end
         
         % profile execution
         profile on;
-        commute_distance_anomaly(dataset);
+        commute_distance_anomaly(strcat(dataset, '.csv'));
         profile off;
 
         % save profiler report
@@ -53,5 +61,8 @@ for d=1:length(data),
         
         % save the graph
         print('-dpng', strcat(output_dir, 'output.png'));
+        
+        % delete the output CSV file
+        delete('output.csv');
     end
 end
