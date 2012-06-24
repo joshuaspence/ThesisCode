@@ -1,4 +1,4 @@
-function commute_distance_anomaly(dataset)
+function commute_distance_anomaly(dataset, rerandomize, func_name)
 % commute distances from knn graph derived from data
 tic
 k1 = 10; % number of k nearest neighbours of graph
@@ -18,15 +18,21 @@ sigma = 0;
 
 filename = char(strcat('Datasets/', dataset));
 
-%lastState = load('random_KDD2011.mat','randnState','randState');
-%rand('state',lastState.randState)
-%randn('state',lastState.randnState)
+if rerandomize == true
+    disp 'Rerandomizing...'
+    rng('shuffle');
+    randnState = randn('state');
+    randState = rand('state');
+    save('random.mat','randnState','randState');
+else
+    lastState = load('random.mat','randnState','randState');
+    rand('state',lastState.randState);
+    randn('state',lastState.randnState);
+end
 
-randnState = randn('state');
-randState = rand('state');
-% save('random_KDD2011.mat','randnState','randState');
+global TopN_Outlier_Pruning_Block_FuncName;
+TopN_Outlier_Pruning_Block_FuncName = func_name;
 
- 
 tic
 disp 'Test effectiveness'
 %k1=10; k2=20; kRP=200; N=50;
@@ -182,7 +188,6 @@ disp 'Writing the result to file output.csv';
 csvwrite('output.csv',[O' OF']);
 
 'aaa'
-
 
 %------------------------------------------------------------------
 function DBLP_graph_creation()
@@ -2188,7 +2193,9 @@ Z_time = toc(tZ);
 
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
-[O,OF] = TopN_Outlier_Pruning_Block_ORIGINAL(Y, k, N, block_size);
+global TopN_Outlier_Pruning_Block_FuncName;
+TopN_Outlier_Pruning_Block_FH = str2func(char(TopN_Outlier_Pruning_Block_FuncName));
+[O,OF] = TopN_Outlier_Pruning_Block_FH(Y, k, N, block_size);
 
 % save variables
 save('variables.mat', 'Y', 'k', 'N', 'block_size', 'O', 'OF');
