@@ -20,7 +20,6 @@ filename = char(strcat('Datasets/', dataset));
 
 if rerandomize == true
     disp 'Rerandomizing...'
-    rng('shuffle');
     randnState = randn('state');
     randState = rand('state');
     save('random.mat','randnState','randState');
