@@ -47,7 +47,7 @@ for d = 1 : length(data)
         for k = 1 : length(profiles_func)
             profile_name = char(profiles_name(k));
             profile_func = char(profiles_func(k));
-            output_dir   = strcat(profiling_root_dir, filesep, profile_name, filesep, dataset, filesep, int2str(j), filesep);
+            output_dir   = strcat(profiling_root_dir, filesep, profile_name, filesep, dataset, filesep, int2str(j));
             
             disp('');
             str = sprintf('Processing iteration %d of data set "%s" for profile "%s".\nFunction = "%s"\nOutput directory = "%s"', j, dataset, profile_name, profile_func, output_dir);
@@ -62,7 +62,7 @@ for d = 1 : length(data)
             % profile execution
             disp('Running MATLAB command.');
             profile on;
-            matlab_command = sprintf('commute_distance_anomaly(''%s'', %d, ''%s'')', dataset_file, rerandomize, profile_func);
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', %d, ''%s'', ''%s'')', dataset_file, rerandomize, profile_func, output_dir);
             matlab_output = evalc(matlab_command);
             profile off;
 
@@ -87,44 +87,9 @@ for d = 1 : length(data)
             fprintf(fid, '%s', matlab_output);
             fclose(fid);
 
-            % Save variables
-            disp('Copying output files.');
-            [status, message] = copyfile('output.csv', output_dir);
-            if status == 0
-            	disp(message);
-            end
-            [status, message] = copyfile('random.mat', output_dir);
-            if status == 0
-            	disp(message);
-            end
-            [status, message] = copyfile('graph.mat', output_dir);
-            if status == 0
-            	disp(message);
-            end
-            [status, message] = copyfile('graph.txt', output_dir);
-            if status == 0
-            	disp(message);
-            end
-            [status, message] = copyfile('TopN_Outlier_Pruning_Block.mat', output_dir);
-            if status == 0
-            	disp(message);
-            end
-            [status, message] = copyfile('TopN_Outlier_Pruning_Block.txt', output_dir);
-            if status == 0
-            	disp(message);
-            end
-
             % save the graph
             disp('Saving the graph.');
             print('-dpng', strcat(output_dir, 'output.png'));
-
-            % Delete the output CSV file
-            disp('Deleting output files.');
-            delete('output.csv');
-            delete('graph.mat');
-            delete('graph.txt');
-            delete('TopN_Outlier_Pruning_Block.mat');
-            delete('TopN_Outlier_Pruning_Block.txt');
         end
     end
 end

@@ -1,4 +1,4 @@
-function commute_distance_anomaly(dataset, rerandomize, func_name)
+function commute_distance_anomaly(dataset, rerandomize = true, func_name = 'TopN_Outlier_Pruning_Block', base_dir = '.')
 % commute distances from knn graph derived from data
 tic
 k1 = 10; % number of k nearest neighbours of graph
@@ -19,22 +19,28 @@ sigma = 0;
 % Extrapolate filename of data set for input
 filename = char(strcat('Datasets/', dataset));
 
+% Global variable used for the name of the TopN_Outlier_Pruning_Block function
+% Used to allow a profile script
+global TopN_Outlier_Pruning_Block_FuncName;
+TopN_Outlier_Pruning_Block_FuncName = func_name;
+
+% The base directory for output files
+global base_output_dir;
+base_output_dir = base_dir;
+
 % Rerandomize state
 if rerandomize == true
     disp 'Rerandomizing...'
     randnState = randn('state');
     randState = rand('state');
     save('random.mat','randnState','randState');
+    save(strcat(base_output_dir, filesep, 'random.mat', 'randnState', 'randState');
 else
     lastState = load('random.mat','randnState','randState');
     rand('state',lastState.randState);
     randn('state',lastState.randnState);
+    copyfile('random.mat', strcat(base_output_dir, filesep, 'random.mat'));
 end
-
-% Global variable used for the name of the TopN_Outlier_Pruning_Block function
-% Used to allow a profile script
-global TopN_Outlier_Pruning_Block_FuncName;
-TopN_Outlier_Pruning_Block_FuncName = func_name;
 
 disp 'Reading data file ...';
 tRead = tic ;
@@ -77,8 +83,8 @@ end
 sprintf('No. of sampled vertices = %d', size(sampled_vertices))
 t0 = toc(tGraph)
 disp 'Writing the graph to file graph.mat';
-save('graph.mat', 'G');
-save('graph.txt', 'G', '-ASCII');
+save(strcat(base_output_dir, filesep, 'graph.mat'), 'G');
+save(strcat(base_output_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
 % disp 'Calculating distance based CTD ...';
 % tCDOF = tic;
@@ -97,7 +103,7 @@ O = sampled_vertices(O3a);
 OF = OF3a;
 
 disp 'Writing the result to file output.csv';
-csvwrite('output.csv',[O' OF']);
+csvwrite(strcat(base_output_dir, filesep, 'output.csv'),[O' OF']);
 
 'aaa'
 
@@ -526,8 +532,8 @@ TopN_Outlier_Pruning_Block_FH = str2func(char(TopN_Outlier_Pruning_Block_FuncNam
 [O,OF] = TopN_Outlier_Pruning_Block_FH(Y, k, N, block_size);
 
 % save variables
-save('TopN_Outlier_Pruning_Block.mat', 'Y', 'k', 'N', 'block_size', 'O', 'OF');
-save('TopN_Outlier_Pruning_Block.txt', 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
+save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF');
+save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
 
 knn_time = toc(tknn);
 
