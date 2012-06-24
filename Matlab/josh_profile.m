@@ -50,6 +50,7 @@ for d = 1 : length(data)
             output_dir   = strcat(profiling_root_dir, filesep, profile_name, filesep, dataset, filesep, int2str(j));
             
             disp('');
+            disp(datestr(now));
             str = sprintf('Processing iteration %d of data set "%s" for profile "%s".\nFunction = "%s"\nOutput directory = "%s"', j, dataset, profile_name, profile_func, output_dir);
             disp(str);
 
@@ -57,6 +58,8 @@ for d = 1 : length(data)
             if exist(output_dir, 'dir') ~= 0
                 disp('Skipping as it appears that this data set has been profiled previously.');
                 continue;
+            else
+                mkdir(output_dir);
             end
 
             % profile execution

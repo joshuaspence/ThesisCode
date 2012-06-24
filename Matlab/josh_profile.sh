@@ -10,7 +10,7 @@ OLD_DISPLAY=$DISPLAY
 unset DISPLAY
 
 echo "Running MATLAB..."
-nohup matlab -nodesktop -nosplash -r josh_profile &
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_profile" 1>josh_profile.log 2>josh_profile.err &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY

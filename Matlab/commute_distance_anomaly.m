@@ -1,4 +1,4 @@
-function commute_distance_anomaly(dataset, rerandomize = true, func_name = 'TopN_Outlier_Pruning_Block', base_dir = '.')
+function commute_distance_anomaly(dataset, rerandomize, func_name, base_dir)
 % commute distances from knn graph derived from data
 tic
 k1 = 10; % number of k nearest neighbours of graph
@@ -34,7 +34,7 @@ if rerandomize == true
     randnState = randn('state');
     randState = rand('state');
     save('random.mat','randnState','randState');
-    save(strcat(base_output_dir, filesep, 'random.mat', 'randnState', 'randState');
+    save(strcat(base_output_dir, filesep, 'random.mat'), 'randnState', 'randState');
 else
     lastState = load('random.mat','randnState','randState');
     rand('state',lastState.randState);
@@ -532,6 +532,7 @@ TopN_Outlier_Pruning_Block_FH = str2func(char(TopN_Outlier_Pruning_Block_FuncNam
 [O,OF] = TopN_Outlier_Pruning_Block_FH(Y, k, N, block_size);
 
 % save variables
+global base_output_dir;
 save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF');
 save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
 
