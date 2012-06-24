@@ -36,7 +36,7 @@ profiling_root_dir = 'Profiling';
 
 % Iterate over all data sets
 for d = 1 : length(data)
-    dataset = data(d);
+    dataset      = char(data(d));
     dataset_file = strcat(dataset, '.csv');
     
     % Iterate over all iterations
@@ -45,12 +45,12 @@ for d = 1 : length(data)
         
         % Iterate over all profiler profiles
         for k = 1 : length(profiles_func)
-            profile_name = profiles_name(k);
-            profile_func = profiles_func(k);
-            output_dir = char(strcat(profiling_root_dir, filesep, profile_name, filesep, dataset, filesep, int2str(j), filesep));
+            profile_name = char(profiles_name(k));
+            profile_func = char(profiles_func(k));
+            output_dir   = strcat(profiling_root_dir, filesep, profile_name, filesep, dataset, filesep, int2str(j), filesep);
             
-            disp();
-            str = sprintf('Processing iteration %d of data set "%s" for profile "%s".\nFunction = "%s"\nOutput directory = "%s"', j, char(dataset), char(profile_name), char(profile_func), output_dir);
+            disp('');
+            str = sprintf('Processing iteration %d of data set "%s" for profile "%s".\nFunction = "%s"\nOutput directory = "%s"', j, dataset, profile_name, profile_func, output_dir);
             disp(str);
 
             % If output_dir already exists, then we don't need to profile anything
@@ -62,7 +62,8 @@ for d = 1 : length(data)
             % profile execution
             disp('Running MATLAB command.');
             profile on;
-            matlab_output = evalc(commute_distance_anomaly(dataset_file, rerandomize, profile_func));
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', %d, ''%s'')', dataset_file, rerandomize, profile_func);
+            matlab_output = evalc(matlab_command);
             profile off;
 
             rerandomize = false;
@@ -82,7 +83,9 @@ for d = 1 : length(data)
             
             % Save MATLAB output
             disp('Saving MATLAB output.');
-            save(strcat(output_dir, filesep, 'matlab_output.log'), 'matlab_output', '-ASCII');
+            fid = fopen(strcat(output_dir, filesep, 'matlab_output.log'), 'w');
+            fprintf(fid, '%s', matlab_output);
+            fclose(fid);
 
             % Save variables
             disp('Copying output files.');
@@ -100,7 +103,6 @@ for d = 1 : length(data)
             % Delete the output CSV file
             disp('Deleting output files.');
             delete('output.csv');
-            delete('random.mat');
             delete('graph.mat');
             delete('graph.txt');
             delete('TopN_Outlier_Pruning_Block.mat');
