@@ -1,10 +1,11 @@
 # Mex outputs
+*.mexglx
 *.mexa64
-*.mexw32
-*.mexw64
 *.mexmac
 *.mexmaci
-*.mexglx
+*.mexmaci64
+*.mexw32
+*.mexw64
 *.bin
 *.dll
 

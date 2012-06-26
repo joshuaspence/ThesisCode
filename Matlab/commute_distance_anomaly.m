@@ -1,5 +1,24 @@
-function commute_distance_anomaly(dataset, rerandomize, func_name, base_dir)
 % commute distances from knn graph derived from data
+function commute_distance_anomaly(dataset, varargin)
+
+% only want 3 optional inputs at most
+numvarargs = length(varargin);
+if numvarargs > 4
+    error('commute_distance_anomaly:TooManyInputs', 'requires at most 3 optional inputs');
+end
+
+% Set defaults for optional inputs
+optargs = {'' 'TopN_Outlier_Pruning_Block', '.'};
+
+% Now put these defaults into the valuesToUse cell array, 
+% and overwrite the ones specified in varargin.
+optargs(1 : numvarargs) = varargin;
+
+% Place optional args in memorable variable names
+global func_name;
+global base_dir;
+[randomness, func_name, base_dir] = optargs{:};
+
 tic
 k1 = 10; % number of k nearest neighbours of graph
 k2 = 15; % number of k nearest neighbours for outlier detection
@@ -19,27 +38,16 @@ sigma = 0;
 % Extrapolate filename of data set for input
 filename = char(strcat('Datasets/', dataset));
 
-% Global variable used for the name of the TopN_Outlier_Pruning_Block function
-% Used to allow a profile script
-global TopN_Outlier_Pruning_Block_FuncName;
-TopN_Outlier_Pruning_Block_FuncName = func_name;
-
-% The base directory for output files
-global base_output_dir;
-base_output_dir = base_dir;
-
 % Rerandomize state
-if rerandomize == true
+if strcmp(randomness, '') == true
     disp 'Rerandomizing...'
     randnState = randn('state');
     randState = rand('state');
-    save('random.mat','randnState','randState');
-    save(strcat(base_output_dir, filesep, 'random.mat'), 'randnState', 'randState');
+    save(strcat(base_dir, filesep, 'random.mat'), 'randnState', 'randState');
 else
-    lastState = load('random.mat','randnState','randState');
+    lastState = load(randomness,'randnState','randState');
     rand('state',lastState.randState);
     randn('state',lastState.randnState);
-    copyfile('random.mat', strcat(base_output_dir, filesep, 'random.mat'));
 end
 
 disp 'Reading data file ...';
@@ -83,8 +91,8 @@ end
 sprintf('No. of sampled vertices = %d', size(sampled_vertices))
 t0 = toc(tGraph)
 disp 'Writing the graph to file graph.mat';
-save(strcat(base_output_dir, filesep, 'graph.mat'), 'G');
-save(strcat(base_output_dir, filesep, 'graph.txt'), 'G', '-ASCII');
+save(strcat(base_dir, filesep, 'graph.mat'), 'G');
+save(strcat(base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
 % disp 'Calculating distance based CTD ...';
 % tCDOF = tic;
@@ -103,7 +111,7 @@ O = sampled_vertices(O3a);
 OF = OF3a;
 
 disp 'Writing the result to file output.csv';
-csvwrite(strcat(base_output_dir, filesep, 'output.csv'),[O' OF']);
+csvwrite(strcat(base_dir, filesep, 'output.csv'),[O' OF']);
 
 'aaa'
 
@@ -527,14 +535,14 @@ Z_time = toc(tZ);
 
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
-global TopN_Outlier_Pruning_Block_FuncName;
-TopN_Outlier_Pruning_Block_FH = str2func(char(TopN_Outlier_Pruning_Block_FuncName));
-[O,OF] = TopN_Outlier_Pruning_Block_FH(Y, k, N, block_size);
+global func_name;
+func_handle = str2func(char(func_name));
+[O,OF] = func_handle(Y, k, N, block_size);
 
 % save variables
-global base_output_dir;
-save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF');
-save(strcat(base_output_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
+global base_dir;
+save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF');
+save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
 
 knn_time = toc(tknn);
 

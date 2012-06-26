@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ "$(pwd)" != "$(readlink -f `$0`)" ]; then
-    echo "This script must be run from the directory '$(readlink -f `$0`)'." >&2
+if [ "$(readlink -f `pwd`)" != "$(readlink -f `dirname $0`)" ]; then
+    echo "This script must be run from the directory '$(readlink -f `dirname $0`)'." >&2
     exit 1
 fi
 
@@ -10,7 +10,8 @@ OLD_DISPLAY=$DISPLAY
 unset DISPLAY
 
 echo "Running MATLAB..."
-nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_profile" 1>josh_profile.log 2>josh_profile.err &
+LOGFILE="josh_profile.$(date +%Y-%m-%d).$$.log"
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_profile" 1>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY
