@@ -24,11 +24,11 @@ data = {
 	'musk', ...
 	};
 	
-% Each data set will be profiled with each of the following profiles	
-profiles = {
+% Each data set will be profiled with each of the following profiles
+profiles = [
 	struct('name', 'original',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL'), ...
-    struct('name', 'initial_C', 'func', 'TopN_Outlier_Pruning_Block')
-    };
+    struct('name', 'initial_C', 'func', 'TopN_Outlier_Pruning_Block'), ...
+    ];
 
 % Number of iterations for each data set
 iterations = 10;
@@ -41,14 +41,18 @@ theDate = datestr(now, 'yyyy-mm-dd');
 
 % Root output directory
 profiling_root_dir = strcat('Profiling', filesep, hostname, filesep, theDate);
+if exist(profiling_root_dir, 'dir') == 7
+	rmdir(profiling_root_dir, 's');
+end
+mkdir(profiling_root_dir);
 
 % Iterate over all data sets
 for d = 1 : length(data)
     dataset      = char(data(d));
     dataset_file = strcat(dataset, '.csv');
     output_dir   = strcat(profiling_root_dir, filesep, dataset);
-    if exist(output_dir, 'dir') ~= 7;
-    	mkdir(output_dir)
+    if exist(output_dir, 'dir') ~= 7
+    	mkdir(output_dir);
     end
     
     % Iterate over all iterations
@@ -69,11 +73,11 @@ for d = 1 : length(data)
         	fprintf('\nUsing randomness from file...\n');
         end
         
-        % Iterate over all profiler profiles
+        % Iterate over all profiles
         for k = 1 : length(profiles)
-            profile_name = profiles{1,k}.name;
-            profile_func = profiles{1,k}.func;
-            output_dir   = strcat(profiling_root_dir, filesep, dataset, filesep, int2str(j), filesep, profile_name);
+            profile_name       = profiles(k).name;
+            profile_func       = profiles(k).func;
+            profile_output_dir = strcat(output_dir, filesep, profile_name);
             
             fprintf('\nDate: %s\n', datestr(now));
             fprintf('Data set: "%s"\n', dataset);
@@ -84,16 +88,16 @@ for d = 1 : length(data)
             fprintf('Randomness: "%s"\n', randomness_file);
 
             % If output_dir already exists, then we don't need to profile anything
-            if exist(output_dir, 'dir') == 7
+            if exist(profile_output_dir, 'dir') == 7
                 fprintf('Skipping as it appears that this data set has been profiled previously.\n');
                 continue;
             else
-                mkdir(output_dir);
+                mkdir(profile_output_dir);
             end
 
-            % profile execution
+            % Profile execution
             fprintf('Running MATLAB command.\n');
-            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, output_dir);
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
             profile on;
             matlab_output = evalc(matlab_command);
             profile off;
@@ -102,24 +106,24 @@ for d = 1 : length(data)
             % NOTE: This throws an error for some reason
             disp('Saving profiler data.');
             try
-                profsave(profile('info'), output_dir);
+                profsave(profile('info'), profile_output_dir);
             catch exception
             end
 
             % Save profile data to a MAT file
             %p = profile('info');
-            %save(char(strcat(output_dir, 'profiledata.mat')), p);
+            %save(char(strcat(profile_output_dir, 'profiledata.mat')), p);
             %clear(p);
             
             % Save MATLAB output
             fprintf('Saving MATLAB output.\n');
-            fid = fopen(strcat(output_dir, filesep, 'matlab_output.log'), 'w');
+            fid = fopen(strcat(profile_output_dir, filesep, 'matlab_output.log'), 'w');
             fprintf(fid, '%s', matlab_output);
             fclose(fid);
 
             % Save the graph
             fprintf('Saving the graph.\n');
-            print('-dpng', strcat(output_dir, filesep, 'output.png'));
+            print('-dpng', strcat(profile_output_dir, filesep, 'output.png'));
         end
     end
 end
