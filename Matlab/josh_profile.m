@@ -40,7 +40,7 @@ iterations = 10;
 theDate = datestr(now, 'yyyy-mm-dd');
 
 % Root output directory
-profiling_root_dir = strcat('Profiling', filesep, hostname, filesep, theDate);
+profiling_root_dir = strcat('.', filesep, 'Profiling', filesep, hostname, filesep, theDate);
 if exist(profiling_root_dir, 'dir') == 7
 	rmdir(profiling_root_dir, 's');
 end
@@ -97,7 +97,7 @@ for d = 1 : length(data)
 
             % Profile execution
             fprintf('Running MATLAB command.\n');
-            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'', true)', dataset_file, randomness_file, profile_func, profile_output_dir);
             profile on;
             matlab_output = evalc(matlab_command);
             profile off;
@@ -120,10 +120,6 @@ for d = 1 : length(data)
             fid = fopen(strcat(profile_output_dir, filesep, 'matlab_output.log'), 'w');
             fprintf(fid, '%s', matlab_output);
             fclose(fid);
-
-            % Save the graph
-            fprintf('Saving the graph.\n');
-            print('-dpng', strcat(profile_output_dir, filesep, 'output.png'));
         end
     end
 end

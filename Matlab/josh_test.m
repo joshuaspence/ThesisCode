@@ -13,10 +13,11 @@ data = {
 %	'runningex50k', ...
 %	'segmentation', ...
 %	'spam_train', ...
-	'testCD', ...
-	'testCDST', ...
-	'testCDST2', ...
-	'testCDST3', ...
+    'test', ...
+%	'testCD', ...
+%	'testCDST', ...
+%	'testCDST2', ...
+%	'testCDST3', ...
 %	'testoutrank', ...
 %	'spam', ...
 %	'connect4', ...
@@ -24,8 +25,8 @@ data = {
 %	'musk', ...
 	};
 
-% The name of the file that the "commute_distance_anomaly" script saves output 
-% variables to
+% The name of the file that the "commute_distance_anomaly" script saves  
+% output variables to
 results_file_name = 'TopN_Outlier_Pruning_Block.mat';
 
 % To variables to check for equality
@@ -44,7 +45,7 @@ profiles = [
 iterations = 1;
 
 % Root output directory
-testing_root_dir = strcat('test');
+testing_root_dir = strcat('.', filesep, 'test');
 if exist(testing_root_dir, 'dir') == 7
 	rmdir(testing_root_dir, 's');
 end
@@ -98,7 +99,7 @@ for d = 1 : length(data)
 
             % Run command
             fprintf('Running MATLAB command.\n');
-            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'', true)', dataset_file, randomness_file, profile_func, profile_output_dir);
             matlab_output = evalc(matlab_command);
             
             % Save MATLAB output
@@ -106,10 +107,6 @@ for d = 1 : length(data)
             fid = fopen(strcat(profile_output_dir, filesep, 'matlab_output.log'), 'w');
             fprintf(fid, '%s', matlab_output);
             fclose(fid);
-
-            % Save the graph
-            fprintf('Saving the graph.\n');
-            print('-dpng', strcat(profile_output_dir, filesep, 'output.png'));
         end
         
         % Compare results
