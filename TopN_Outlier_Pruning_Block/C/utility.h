@@ -1,7 +1,12 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#include "macros.h" /* for ARRAY_DOUBLE_T, ARRAY_PARAMS */
+/*============================================================================*/
+/* Includes                                                                   */
+/*============================================================================*/
+/* For boolean, array_double_t, array_index_t, ARRAY_PARAMS */
+#include "macros.h"
+/*----------------------------------------------------------------------------*/
 
 /* For comparing floating point numbers to zero. */
 #define EPSILON			0.0000001
@@ -15,7 +20,7 @@
  * Return:
  *    True if the input x is within epsilon of zero, otherwise false.
  */
-boolean equals_zero(const double x);
+boolean equals_zero(const array_double_t x);
 
 /*
  * Calculate the average of all values within a single row of an array.
@@ -30,7 +35,7 @@ boolean equals_zero(const double x);
  * Return:
  *    The average of all values within the single row of the array.
  */
-ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const ARRAY_PARAMS(array), const unsigned int row);
+array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array), const array_index_t row);
 
 /*
  * Calculate the Euclidean distance between two vectors (square root of the sum 
@@ -49,6 +54,18 @@ ARRAY_DOUBLE_T average_over_row(const ARRAY_DOUBLE_T * const ARRAY_PARAMS(array)
  * Return:
  *    The sum of the distance between values of the rows.
  */
-ARRAY_DOUBLE_T distance(const ARRAY_DOUBLE_T * const ARRAY_PARAMS(vectors), const unsigned int vector1, const unsigned int vector2);
+array_double_t distance(const array_double_t * const ARRAY_PARAMS(vectors), const array_index_t vector1, const array_index_t vector2);
+
+/*
+ * Round a double to a specified number of digits.
+ *
+ * Parameters:
+ *     - num: The decimal number to be rounded.
+ *     - num_dp: The number of decimals places to be rounded to.
+ *
+ * Return:
+ *    The rounded decimal number.
+ */
+array_double_t round_dp(const array_double_t num, const unsigned int num_dp);
 
 #endif /* #ifndef UTILITY_H_ */

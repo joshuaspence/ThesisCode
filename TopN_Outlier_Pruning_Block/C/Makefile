@@ -85,7 +85,7 @@ ARCHIVENAME := TopN_Outlier_Pruning_Block
 # produces an output with filename expressed by the "first" of elements from   #
 # which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
-HDRS       := 
+HEADERS    := utility.h macros.h
 TARGET     := TopN_Outlier_Pruning_Block
 UTILITY    := utility.c
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
@@ -104,6 +104,7 @@ debug:   all
 
 all: $(BINTARGET) $(MEXTARGET)
 
+%.mexa64: $(HEADERS)
 %.mexa64: %.c $(UTILITY)
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $^
 	
