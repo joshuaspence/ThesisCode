@@ -2,7 +2,7 @@
 #                                                                              #
 #                                FIND MATLAB                                   #
 #                                                                              #
-#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
 #------------------------------------------------------------------------------#
@@ -10,6 +10,11 @@ MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 #                              COMPILER FLAGS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
+
+# makedepend
+MAKEDEPEND       := makedepend
+MAKEDEPEND_FLAGS := -Y
+MAKEDEPEND_TOKEN := '\# MAKEDEPENDS'
 
 # Default flags
 CFLAGS   := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*CFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
@@ -62,13 +67,6 @@ endif
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                              OTHER VARIABLES                                 #
-#                                                                              #
-#------------------------------------------------------------------------------#
-ARCHIVENAME := TopN_Outlier_Pruning_Block
-
-#------------------------------------------------------------------------------#
-#                                                                              #
 #                              DEPENDENCY RULES                                # 
 #                                                                              #
 # USAGE OF RELEASE AND DEBUG MODE                                              #
@@ -85,29 +83,55 @@ ARCHIVENAME := TopN_Outlier_Pruning_Block
 # produces an output with filename expressed by the "first" of elements from   #
 # which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
-HEADERS    := utility.h macros.h
+# Default build configuration
+.DEFAULT: release
+
 TARGET     := TopN_Outlier_Pruning_Block
-UTILITY    := utility.c
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
+FILES      := $(TARGET) utility
+SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
+DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
+OBJS       := $(foreach f,$(FILES),$(addsuffix .o,$f))
+
+# Release build
 release: CFLAGS   += $(CFLAGS_OPT)
 release: CXXFLAGS += $(CXXFLAGS_OPT)
 release: MXXFLAGS += $(MXXFLAGS_OPT)
 release: LDFLAGS  += $(LDFLAGS_OPT)
 release: all
 
+# Debug build
 debug:   CFLAGS   += $(CFLAGS_DEBUG)
 debug:   CXXFLAGS += $(CXXFLAGS_DEBUG)
 debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
 debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
 debug:   all
 
-all: $(BINTARGET) $(MEXTARGET)
+all: depend $(MEXTARGET)
 
-%.mexa64: $(HEADERS)
-%.mexa64: %.c $(UTILITY)
-	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $^
+%.mexa64: %.c $(SOURCES)
+	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
 	
 clean:
-	@rm -f $(BINTARGET) $(MEXTARGET)
+	@rm -f $(MEXTARGET) $(DEPS) $(foreach d,$(DEPS),$(addsuffix .bak,$d))
 	@echo "clean completed"
+
+# Dependency generation
+depend: $(SOURCES)
+depend: $(DEPS)
+
+# Generate a dependency for a C file
+%.c.d: %.c
+	@echo $(MAKEDEPEND_TOKEN) > $@
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@  -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
+
+# Generate a dependency for a C++ file
+%.cpp.d: %.c
+	@echo $(MAKEDEPEND_TOKEN) > $@
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@  -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
+
+# Include generated dependency files
+include $(wildcard *.d)
