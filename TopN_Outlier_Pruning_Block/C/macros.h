@@ -116,7 +116,7 @@ static const array_double_t array_double_zero = 0.0;
 	const array_index_t COLS(_array_) = _cols_; \
 	mxArray * const UNUSED MATLAB_ARRAY(_array_) = mxCreateDoubleMatrix(ROWS(_array_), COLS(_array_), mxREAL); \
 	array_uint_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
-	EXPORT_TO_MATLAB(_array, _MATLAB_ARRAY(_array_)); \
+	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array_)); \
 	EMPTY_STATEMENT()
 
 /* Retrieve a matrix of doubles from a specified location. */

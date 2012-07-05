@@ -26,7 +26,7 @@ array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array)
   	
     array_index_t col;
     for (col = begin_index; col <= COLS(array); col++)
-    	average += round_dp(ARRAY_ELEMENT(array, row, col), 4) / (array_double_t) COLS(array);
+    	average += round_dp(ARRAY_ELEMENT(array, row, col), 6) / (array_double_t) COLS(array);
 	
 	return average;
 #else
