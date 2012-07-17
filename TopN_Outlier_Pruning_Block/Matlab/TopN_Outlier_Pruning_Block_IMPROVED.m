@@ -1,14 +1,23 @@
-% find top N outliers  by comparing average 
-% distances to knn with pruning technique
+% This is an improved implementation, based on the code provided by Nguyen Lu 
+% Dang Khoa for the thesis titled "Large Scale Anomaly Detection and Clustering 
+% Using Random Walks"
+%-------------------------------------------------------------------------------
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Find top N outliers by comparing average distances to k nearest neighbours 
+% with pruning technique.
 function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k, N, block_size)
-	data_size = size(data,1);
-	outliers = zeros(1,N);          % keep these in sorted 
+	data_size      = size(data,1);
+	
+	outliers       = zeros(1,N);    % keep these in sorted 
 	outlier_scores = zeros(1,N);    % (descending) order
 
 	cutoff = 0;
 	count = 0;
+	
 	while (data_size - count > 0) % load a block of examples from D
-	    if count <= data_size
+	    if (count <= data_size)
 			actual_block_size = block_size;
 		else
 			actual_block_size = data_size - count;
@@ -27,42 +36,33 @@ function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k
 			for block_index = 1 : actual_block_size % for each b in B
 			    vector2_index = block(block_index);
 			    
-				if vector1_index ~= vector2_index && vector2_index ~= 0
-					d = euclidean_distance(data(vector1_index,:), data(vector2_index,:));
-					d = d^2;
+				if (vector1_index ~= vector2_index && vector2_index ~= 0)
+					d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
 		            
-		            [neighbours, neighbours_dist, maxd] = sorted_insert(neighbours, neighbours_dist, vector1_index, d, 'ascend');
+		            old_found = found;
+		            [neighbours, neighbours_dist, maxd, found] = sorted_insert(neighbours, neighbours_dist, found, vector1_index, d, 'ascend');
 		            
-					% Update the score
-					score(block_index) = (score(block_index)*k - maxd + d)/k;
-					if score(block_index) <= 0
-						% avoid round off error
-						score(block_index) = max(mean(neighbours_dist(block_index,:),2), 0);
-					end
-					
-					if score(block_index) < cutoff
-					    block(block_index) = 0;             
-					    score(block_index) = 0;         
+		            if (found ~= old_found)
+					    % Update the score
+					    score(block_index) = (score(block_index)*k - maxd + d)/k;
+					    
+					    % Set new cutoff
+					    if score(block_index) < cutoff
+					        block(block_index) = 0;             
+					        score(block_index) = 0;         
+				        end
 				    end
 				end
 			end
 		end
 		
 		% outliers = Top(B U outliers,N)
-		BO = [block(1:actual_block_size) outliers];
-		BOF = [score outlier_scores];
-		[BOF, index] = sort(BOF, 'descend');
-		BO = BO(index);
-		
-		outliers = BO(1:N);
-		outlier_scores = BOF(1:N);
-		
-		% cutoff = weakest outlier
-		cutoff = outlier_scores(N);
+		[outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block(1:actual_block_size), score);
 	end
+%-------------------------------------------------------------------------------
 
 % Add a (index,value)-pair into a pair of sorted arrays.
-function [index_array, value_array, removed_value] = sorted_insert(index_array, value_array, new_index, new_value, sorting)
+function [index_array, value_array, removed_value, found] = sorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
     if size(index_array) ~= size(value_array)
         error('index_array and value_array are not suitable pairs.');
     end
@@ -106,9 +106,23 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
         index_array(index) = new_index;
         value_array(index) = new_value;
     end
+%-------------------------------------------------------------------------------
 
-% Merge two sorted arrays
-% Takes two pairs of 1xN arrays and returns a pair of 1xN arrays.
+% Note that the (outliers, outlier_scores) arrays should already be sorted.
+function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block, scores)
+    % Sort the (block, scores) arrays.
+	[scores, index] = sort(scores, 'descend');
+	block = block(index);
+		
+    % Merge the two arrays.
+    [outliers, outlier_scores] = merge(outliers, outlier_scores, block, scores, 'descend');
+    
+    % Update the cutoff
+    cutoff = outlier_scores(size(outlier_scores,1));
+%-------------------------------------------------------------------------------
+
+% Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair of 
+% 1xN arrays.
 function [index_array, value_array] = merge(index_array1, value_array1, index_array2, value_array2, sorting)
     if size(index_array1) ~= size(value_array1)
         error('index_array1 and value_array1 are not suitable pairs.');
@@ -163,7 +177,9 @@ function [index_array, value_array] = merge(index_array1, value_array1, index_ar
             end
         end
     end
+%-------------------------------------------------------------------------------
 
-function dist = euclidean_distance(X1,X2)
+function dist = euclidean_dist(X1,X2)
     V = X1 - X2;
     dist = sqrt(V * V');
+%-------------------------------------------------------------------------------
