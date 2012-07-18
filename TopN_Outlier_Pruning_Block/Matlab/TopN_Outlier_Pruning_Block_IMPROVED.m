@@ -8,57 +8,56 @@
 % Find top N outliers by comparing average distances to k nearest neighbours 
 % with pruning technique.
 function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k, N, block_size)
-	data_size      = size(data,1);
-	
-	outliers       = zeros(1,N);    % keep these in sorted 
-	outlier_scores = zeros(1,N);    % (descending) order
+    data_size      = size(data,1);
 
-	cutoff = 0;
-	count = 0;
+    outliers       = zeros(1,N);    % keep these in sorted 
+    outlier_scores = zeros(1,N);    % (descending) order
+
+    cutoff = 0;
+    count = 0;
 	
-	while (data_size - count > 0) % load a block of examples from D
-	    if (count <= data_size)
-			actual_block_size = block_size;
-		else
-			actual_block_size = data_size - count;
-		end
-		block = zeros(1, actual_block_size);
-		block = (count+1 : count+actual_block_size);
-		count = count + actual_block_size;
+    while (data_size - count > 0) % load a block of examples from D
+        if count <= data_size
+            actual_block_size = block_size;
+        else
+            actual_block_size = data_size - count;
+        end
+        block = (count+1 : count+actual_block_size);
+        count = count + actual_block_size;
+
+        neighbours      = zeros(actual_block_size, k);  % keep these in sorted
+        neighbours_dist = zeros(actual_block_size, k);  % (ascending) order
+
+        score           = zeros(1, actual_block_size);
+        found           = zeros(1, actual_block_size);
 		
-		neighbours      = zeros(actual_block_size, k);  % keep these in sorted
-		neighbours_dist = zeros(actual_block_size, k);  % (ascending) order
-		
-		score           = zeros(1, actual_block_size);
-		found           = zeros(1, actual_block_size);
-		
-		for vector1_index = 1 : data_size % for each d in D
-			for block_index = 1 : actual_block_size % for each b in B
-			    vector2_index = block(block_index);
+        for vector1_index = 1 : data_size % for each d in D
+            for block_index = 1 : actual_block_size % for each b in B
+                vector2_index = block(block_index);
 			    
-				if (vector1_index ~= vector2_index && vector2_index ~= 0)
-					d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
+                if vector1_index ~= vector2_index && vector2_index ~= 0
+                    d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
+
+                    old_found = found;
+                    [neighbours(block_index,:), neighbours_dist(block_index,:), maxd, found(block_index)] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d, 'ascend');
 		            
-		            old_found = found;
-		            [neighbours, neighbours_dist, maxd, found] = sorted_insert(neighbours, neighbours_dist, found, vector1_index, d, 'ascend');
-		            
-		            if (found ~= old_found)
+                    if found ~= old_found
 					    % Update the score
 					    score(block_index) = (score(block_index)*k - maxd + d)/k;
 					    
 					    % Set new cutoff
-					    if score(block_index) < cutoff
-					        block(block_index) = 0;             
-					        score(block_index) = 0;         
-				        end
-				    end
-				end
-			end
-		end
+                        if score(block_index) < cutoff
+                            block(block_index) = 0;             
+                            score(block_index) = 0;         
+                        end
+                    end
+                end
+            end
+        end
 		
-		% outliers = Top(B U outliers,N)
-		[outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block(1:actual_block_size), score);
-	end
+        % outliers = Top(B U outliers,N)
+        [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block(1:actual_block_size), score);
+    end
 %-------------------------------------------------------------------------------
 
 % Add a (index,value)-pair into a pair of sorted arrays. Assumes that the 
@@ -70,7 +69,7 @@ function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k
 % The array can be sorted in ascending ('ascend') or descending ('descend') 
 % order.
 function [index_array, value_array, removed_value, curr_size] = sorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
-    % Error checking
+    % Error checking.
     if (size(index_array) ~= size(value_array))
         error('index_array and value_array are not suitable pairs.');
     end
@@ -121,7 +120,7 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
             % Special handling required if the array is incomplete.
             
             for i = size(value_array,2)-curr_size : 1 : size(value_array,2)
-                if (new_value > value_array(i) || i == size(value_array,2)-curr_size)
+                if or(new_value > value_array(i), i == size(value_array,2)-curr_size)
                     % Shuffle values down the array.
                     if (i ~= 1)
                         index_array(i-1) = index_array(i);
@@ -164,6 +163,92 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
         
         if (curr_size < size(value_array,2))
             curr_size = curr_size + 1;
+        end
+    end
+%-------------------------------------------------------------------------------
+
+% Take the top N outliers based on the current outliers (identified by the 
+% (outliers-outlier_scores) pairs) and the new outliers from the current block 
+% (identified by the (block-scores) pairs).
+
+% Note that the (outliers, outlier_scores) arrays should already be sorted. The 
+% (block-scores) arrays need not be sorted.
+%
+% This function uses merge sort.
+function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block, scores)
+    % Error checking.
+    if (size(outliers) ~= size(outlier_scores))
+        error('outliers and outlier_scores are not suitable pairs.');
+    end
+    if (size(block) ~= size(scores))
+        error('block and scores are not suitable pairs.');
+    end
+
+    % Sort the (block, scores) arrays.
+	[scores, index] = sort(scores, 'descend');
+	block = block(index);
+		
+    % Merge the two arrays.
+    [outliers, outlier_scores] = merge(outliers, outlier_scores, block, scores, 'descend');
+    
+    % Update the cutoff
+    cutoff = outlier_scores(size(outlier_scores,1));
+%-------------------------------------------------------------------------------
+
+% Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair of 
+% 1xN arrays.
+function [index_array, value_array] = merge(index_array1, value_array1, index_array2, value_array2, sorting)
+    % Error checking.
+    if size(index_array1) ~= size(value_array1)
+        error('index_array1 and value_array1 are not suitable pairs.');
+    end
+    if size(index_array2) ~= size(value_array2)
+        error('index_array1 and value_array1 are not suitable pairs.');
+    end
+    if size(index_array1) ~= size(index_array1)
+        error('Array-pair 1 and array-pair 2 are not the same dimensions.');
+    end
+    if not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend'))
+        error('Sorting mode must be either "ascend" or "descend".');
+    end
+    
+    %index_array = index_array1;
+    %value_array = value_array1;
+    
+    iter1 = 1;  % iterator through array1
+    iter2 = 1;  % iterator through array2
+    for i = 1 : size(index_array1,2)
+        if value_array1(iter1) == value_array2(iter2)
+            index_array(i) = index_array1(iter1);
+            value_array(i) = value_array1(iter1);
+            iter1 = iter1+1;
+            i     = i+1;
+            
+            if i <= size(index_array1)
+                index_array(i) = index_array2(iter2);
+                value_array(i) = value_array2(iter2);
+                iter2 = iter2+1;
+            end
+        elseif value_array1(iter1) > value_array2(iter2)
+            if strcmpi(sorting, 'descend')
+                index_array(i) = index_array1(iter1);
+                value_array(i) = value_array1(iter1);
+                iter1 = iter1+1;
+            elseif strcmpi(sorting, 'ascend')
+                index_array(i) = index_array2(iter2);
+                value_array(i) = value_array2(iter2);
+                iter2 = iter2+1;
+            end
+        elseif value_array1(iter1) < value_array2(iter2)
+            if strcmpi(sorting, 'descend')
+                index_array(i) = index_array2(iter2);
+                value_array(i) = value_array2(iter2);
+                iter2 = iter2+1;
+            elseif strcmpi(sorting, 'ascend')
+                index_array(i) = index_array1(iter1);
+                value_array(i) = value_array1(iter1);
+                iter1 = iter1+1;
+            end
         end
     end
 %-------------------------------------------------------------------------------
