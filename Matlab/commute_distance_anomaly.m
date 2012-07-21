@@ -1,14 +1,27 @@
-% commute distances from knn graph derived from data
+% Commute distances from knn graph derived from data
+%
+% USAGE
+%   commute_distance_anomaly dataset [randomness [func_name [base_dir]]]
+%
+% ARGUMENTS
+%   dataset         The path to the input data set.
+%   randomness      The path to the randomness file. If blank then a new 
+%                   randomness file will be created in the 'base_dir' directory.
+%   func_name       The name of the "TopN_Outlier_Pruning_Block" function to 
+%                   use. Defaults to 'TopN_Outlier_Pruning_Block'.
+%   base_dir        The base directory for output files. Defaults to the current
+%                   directory.
+%
 function commute_distance_anomaly(dataset, varargin)
 
-% only want 4 optional inputs at most
+% only want 3 optional inputs at most
 numvarargs = length(varargin);
-if numvarargs > 4
-    error('commute_distance_anomaly:TooManyInputs', 'requires at most 4 optional inputs');
+if numvarargs > 3
+    error('commute_distance_anomaly:TooManyInputs', 'requires at most 3 optional inputs');
 end
 
 % Set defaults for optional inputs
-optargs = {'' 'TopN_Outlier_Pruning_Block', '.', false};
+optargs = {'' 'TopN_Outlier_Pruning_Block', '.'};
 
 % Now put these defaults into the valuesToUse cell array, 
 % and overwrite the ones specified in varargin.
@@ -17,7 +30,7 @@ optargs(1 : numvarargs) = varargin;
 % Place optional args in memorable variable names
 global func_name;
 global base_dir;
-[randomness, func_name, base_dir, close_graph] = optargs{:};
+[randomness, func_name, base_dir] = optargs{:};
 
 tic
 k1 = 10;        % number of k nearest neighbours of graph
@@ -35,9 +48,6 @@ graph_type = 2; % knn graph type, mutual knn
 similarity = 'euclidean'; % knn similarity metric
 sigma = 0;
 
-% Extrapolate filename of data set for input
-filename = char(strcat('Datasets/', dataset));
-
 % Rerandomize state
 if strcmp(randomness, '') == true
     disp 'Rerandomizing...'
@@ -52,7 +62,7 @@ end
 
 disp 'Reading data file ...';
 tRead = tic;
-X = csvread(filename);
+X = csvread(dataset);
 toc(tRead);
 
 n = size(X, 1)
@@ -73,8 +83,6 @@ toc(tPre);
 [Y, variances] = PCADR(Z,2);
 variances
 
-%result = checkk2(Z, 5, 100, 5, k1, 'euclidean', kRP, 40);
-
 if sigma == 0 && strcmp(similarity, 'RBF') % self tune
     sigma = kernel_bandwidth(Z, k1);
 end
@@ -92,7 +100,7 @@ sprintf('No. of sampled vertices = %d', size(sampled_vertices))
 t0 = toc(tGraph)
 disp 'Writing the graph to file graph.mat';
 save(strcat(base_dir, filesep, 'graph.mat'), 'G');
-save(strcat(base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
+%save(strcat(base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
 % disp 'Calculating distance based CTD ...';
 % tCDOF = tic;
@@ -107,9 +115,6 @@ t3a = toc(tCDOFa)
 label = O3a(1:N);
 graph = drawGraph('PCA plot', G, Y(sampled_vertices,:), true, label);
 print(graph, strcat(base_dir, filesep, 'output.png'), '-dpng');
-if close_graph
-	close(graph);
-end
 
 O = sampled_vertices(O3a);
 OF = OF3a;
@@ -542,11 +547,12 @@ disp 'Detecting outliers in the commute time embedding ...'
 global func_name;
 func_handle = str2func(char(func_name));
 [O,OF] = func_handle(Y, k, N, block_size);
+OF_sum = sum(OF);
 
 % save variables
 global base_dir;
-save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF');
-save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', '-ASCII');
+save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum');
+%save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum', '-ASCII');
 
 knn_time = toc(tknn);
 

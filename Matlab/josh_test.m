@@ -1,4 +1,5 @@
 % All data sets are assumed to have a CSV extension
+data_dir = 'Datasets';
 data = {
 %    'ball1', ...
 %	'letter-recognition', ...
@@ -13,12 +14,11 @@ data = {
 %	'runningex50k', ...
 %	'segmentation', ...
 %	'spam_train', ...
-%    'test', ...
-	'testCD', ...
+%	'testCD', ...
 %	'testCDST', ...
 %	'testCDST2', ...
 %	'testCDST3', ...
-%	'testoutrank', ...
+	'testoutrank', ...
 %	'spam', ...
 %	'connect4', ...
 %	'pendigits', ...
@@ -26,20 +26,14 @@ data = {
 	};
 
 % The name of the file that the "commute_distance_anomaly" script saves  
-% output variables to
+% output variables to... from commute_distance_anomaly.m
 results_file_name = 'TopN_Outlier_Pruning_Block.mat';
-
-% To variables to check for equality
-variables_to_check = {
-	'O', ...
-	'OF', ...
-	};
 
 % Each data set will be profiled with each of the following profiles
 base_profile = struct('name', 'original',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL');
 profiles = [
 	struct('name', 'improved',  'func', 'TopN_Outlier_Pruning_Block_IMPROVED'), ...
-    struct('name', 'initial_C', 'func', 'TopN_Outlier_Pruning_Block'), ...
+ %   struct('name', 'initial_C', 'func', 'TopN_Outlier_Pruning_Block'), ...
     ];
 
 % Number of iterations for each data set
@@ -58,7 +52,7 @@ num_failures = 0;
 % Iterate over all data sets
 for d = 1 : length(data)
     dataset      = char(data(d));
-    dataset_file = strcat(dataset, '.csv');
+    dataset_file = strcat(data_dir, filesep, dataset, '.csv');
     output_dir   = strcat(testing_root_dir, filesep, dataset);
     if exist(output_dir, 'dir') ~= 7;
     	mkdir(output_dir);
@@ -100,7 +94,7 @@ for d = 1 : length(data)
 
             % Run command
             fprintf('Running MATLAB command.\n');
-            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'', true)', dataset_file, randomness_file, profile_func, profile_output_dir);
+            matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
             matlab_output = evalc(matlab_command);
             
             % Save MATLAB output
@@ -120,16 +114,15 @@ for d = 1 : length(data)
             results_file = strcat(output_dir, filesep, profile_name, filesep, results_file_name);
             results = load(results_file);
             
-            for l = 1 : length(variables_to_check)
-            	var = char(variables_to_check(l));
-            	fprintf('Checking variable "%s"... ', var);
-	            if isequal(base_results.(var), results.(var))
-	            	fprintf('YES\n');
-	           	else
-	           		fprintf('NO\n');
-	           		num_failures = num_failures + 1;
-	           	end
-            end
+            % A larger value for OF_sum is better
+        	var = char('OF_sum');
+        	fprintf('Checking variable "%s"... ', var);
+            if base_results.(var) <= results.(var)
+            	fprintf('YES\n');
+           	else
+           		fprintf('NO\n');
+           		num_failures = num_failures + 1;
+           	end
         end
     end
 end
