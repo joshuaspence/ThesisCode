@@ -188,7 +188,7 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
 	block = block(index);
 		
     % Merge the two arrays.
-    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, 'descend');
+    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, 'descend', size(outliers,2));
     
     % Update the cutoff
     cutoff = outlier_scores(size(outlier_scores,1));
@@ -196,7 +196,7 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
 
 % Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
 % of 1xN arrays.
-function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, sorting)
+function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, sorting, N)
     % Error checking.
     if size(index_array1) ~= size(value_array1)
         error('index_array1 and value_array1 are not suitable pairs.');
@@ -204,65 +204,80 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
     if size(index_array2) ~= size(value_array2)
         error('index_array1 and value_array1 are not suitable pairs.');
     end
-    if size(index_array1) ~= size(index_array1)
-        error('Array-pair 1 and array-pair 2 are not the same dimensions.');
-    end
     if not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend'))
         error('Sorting mode must be either "ascend" or "descend".');
     end
     
-    index_array = zeros(size(index_array1));
-    value_array = zeros(size(value_array1));
+    index_array = zeros(1,N);
+    value_array = zeros(1,N);
     array_size = 0;
     
+    iter  = 1;  % iterator through output array
     iter1 = 1;  % iterator through array1
     iter2 = 1;  % iterator through array2
-    for i = 1 : size(index_array1,2)
-        if (iter1 > array1_size)
-            index_array(i) = index_array2(iter2);
-            value_array(i) = value_array2(iter2);
+    while iter <= N && (iter1 <= size(index_array1,2) || iter2 <= size(index_array2,2))
+        if (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 <= size(index_array2,2) && index_array2(iter2) ~= 0)
+            index_array(iter) = index_array2(iter2);
+            value_array(iter) = value_array2(iter2);
+            iter1             = iter1+1;
+            iter2             = iter2+1;
+            array_size        = array_size + 1;
+        elseif (iter1 <= size(index_array1,2) && index_array1(iter1) ~= 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
+            index_array(iter) = index_array1(iter1);
+            value_array(iter) = value_array1(iter1);
+            iter1             = iter1+1;
+            iter2             = iter2+1;
+            array_size        = array_size + 1;
+        elseif (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
+            iter1             = iter1+1;
+            iter2             = iter2+1;
+        elseif (iter1 > array1_size)
+            index_array(iter) = index_array2(iter2);
+            value_array(iter) = value_array2(iter2);
             
             iter1          = iter1+1;
             iter2          = iter2+1;
             array_size     = array_size + 1;
         elseif value_array1(iter1) == value_array2(iter2)
-            index_array(i) = index_array1(iter1);
-            value_array(i) = value_array1(iter1);
+            index_array(iter) = index_array1(iter1);
+            value_array(iter) = value_array1(iter1);
             iter1          = iter1+1;
-            i              = i+1;
+            iter              = iter+1;
             array_size     = array_size+1;
             
-            if i <= size(index_array1)
-                index_array(i) = index_array2(iter2);
-                value_array(i) = value_array2(iter2);
+            if iter <= size(index_array1)
+                index_array(iter) = index_array2(iter2);
+                value_array(iter) = value_array2(iter2);
                 iter2          = iter2+1;
                 array_size     = array_size+1;
             end
         elseif value_array1(iter1) > value_array2(iter2)
             if strcmpi(sorting, 'descend')
-                index_array(i) = index_array1(iter1);
-                value_array(i) = value_array1(iter1);
+                index_array(iter) = index_array1(iter1);
+                value_array(iter) = value_array1(iter1);
                 iter1          = iter1+1;
                 array_size     = array_size + 1;
             elseif strcmpi(sorting, 'ascend')
-                index_array(i) = index_array2(iter2);
-                value_array(i) = value_array2(iter2);
+                index_array(iter) = index_array2(iter2);
+                value_array(iter) = value_array2(iter2);
                 iter2          = iter2+1;
                 array_size     = array_size + 1;
             end
         elseif value_array1(iter1) < value_array2(iter2)
             if strcmpi(sorting, 'descend')
-                index_array(i) = index_array2(iter2);
-                value_array(i) = value_array2(iter2);
+                index_array(iter) = index_array2(iter2);
+                value_array(iter) = value_array2(iter2);
                 iter2          = iter2+1;
                 array_size     = array_size + 1;
             elseif strcmpi(sorting, 'ascend')
-                index_array(i) = index_array1(iter1);
-                value_array(i) = value_array1(iter1);
+                index_array(iter) = index_array1(iter1);
+                value_array(iter) = value_array1(iter1);
                 iter1          = iter1+1;
                 array_size     = array_size + 1;
             end
         end
+        
+        iter = iter+1;
     end
 %--------------------------------------------------------------------------
 
