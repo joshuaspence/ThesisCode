@@ -18,13 +18,9 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
     count = 0;
 	
     while (data_size - count > 0) % load a block of examples from D
-        if count <= data_size
-            actual_block_size = block_size;
-        else
-            actual_block_size = data_size - count;
-        end
-        block = (count+1 : count+actual_block_size);
-        count = count + actual_block_size;
+        actual_block_size = min(block_size, data_size-count);
+        block             = (count+1 : count+actual_block_size);
+        count             = count + actual_block_size;
 
         neighbours      = zeros(actual_block_size, k);  % keep these in sorted
         neighbours_dist = zeros(actual_block_size, k);  % (ascending) order
