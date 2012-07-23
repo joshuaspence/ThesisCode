@@ -12,7 +12,6 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 
     outliers       = zeros(1,N);    % keep these in sorted
     outlier_scores = zeros(1,N);    % (descending) order
-    outliers_size  = 0;             % the number of initialised elements in the outliers array
 
     cutoff = 0;
     count = 0;
@@ -48,7 +47,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
         end
 		
         % outliers = Top(B U outliers,N)
-        [outliers, outlier_scores, ~, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
+        [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block(1:actual_block_size), score);
         end
 %-------------------------------------------------------------------------------
 
@@ -192,7 +191,7 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
 % The (block-scores) arrays need not be sorted.
 %
 % This function uses merge sort.
-function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
+function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block, scores)
     % Error checking.
     if (size(outliers) ~= size(outlier_scores))
         error('outliers and outlier_scores are not suitable pairs.');
@@ -206,7 +205,7 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
 	block = block(index);
 		
     % Merge the two arrays.
-    [outliers, outlier_scores] = merge(outliers, outlier_scores, outliers_size, block, scores, 'descend', size(outliers,2));
+    [outliers, outlier_scores] = merge(outliers, outlier_scores, block, scores, 'descend', size(outliers,2));
     
     % Update the cutoff
     cutoff = outlier_scores(size(outlier_scores,2));
@@ -214,7 +213,7 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
 
 % Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
 % of 1xN arrays.
-function [index_array, value_array] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, sorting, N)
+function [index_array, value_array] = merge(index_array1, value_array1, index_array2, value_array2, sorting, N)
     % Error checking.
     if size(index_array1) ~= size(value_array1)
         error('index_array1 and value_array1 are not suitable pairs.');
@@ -244,12 +243,6 @@ function [index_array, value_array] = merge(index_array1, value_array1, array1_s
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
-            iter1                 = iter1+1;
-            iter2                 = iter2+1;
-        elseif (iter1 > array1_size)
-            index_array(iter)     = index_array2(iter2);
-            value_array(iter)     = value_array2(iter2);
-            
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif value_array1(iter1) >= value_array2(iter2)
