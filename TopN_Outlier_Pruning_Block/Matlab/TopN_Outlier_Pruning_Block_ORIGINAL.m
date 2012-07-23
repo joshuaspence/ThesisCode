@@ -1,16 +1,17 @@
-% This is the original implementation as provided by Nguyen Lu Dang Khoa for the
-% thesis titled "Large Scale Anomaly Detection and Clustering Using Random 
-% Walks"
-%-------------------------------------------------------------------------------
-% Note that the "dist" function was substituted with a "euclidean_dist" function
-% as it seems that a strange implementation of "dist" was causing some issues.
+% This is the original implementation as provided by Nguyen Lu Dang Khoa 
+% or the thesis titled "Large Scale Anomaly Detection and Clustering Using 
+% Random Walks"
+%--------------------------------------------------------------------------
+% Note that the "dist" function was substituted with a "euclidean_dist" 
+% function as it seems that a strange implementation of "dist" was causing 
+% some issues.
 %
 % The code was also modified for readability purposes.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Find the top N outliers by comparing average distances to the k nearest 
 % neighbours with pruning technique.
-function [O,OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
+function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 	n  = size (X,1);
 	OF = zeros(1,N);
 	O  = OF;
@@ -91,10 +92,10 @@ function [O,OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 		% c = weakest outlier
 		c = OF(N);
 	end
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
 % Calculate the Euclidean distance between two vectors.
-function dist = euclidean_dist(X1,X2)
-    V = X1 - X2;
+function dist = euclidean_dist(X, Y)
+    V = X - Y;
     dist = sqrt(V * V');
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------

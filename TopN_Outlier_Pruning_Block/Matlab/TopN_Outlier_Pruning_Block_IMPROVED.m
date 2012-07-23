@@ -1,13 +1,13 @@
-% This is an improved implementation, based on the code provided by Nguyen Lu 
-% Dang Khoa for the thesis titled "Large Scale Anomaly Detection and Clustering 
-% Using Random Walks"
-%-------------------------------------------------------------------------------
+% This is an improved implementation, based on the code provided by Nguyen 
+% Lu Dang Khoa for the thesis titled "Large Scale Anomaly Detection and 
+% Clustering Using Random Walks"
+%--------------------------------------------------------------------------
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Find top N outliers by comparing average distances to k nearest neighbours 
 % with pruning technique.
-function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k, N, block_size)
+function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k, N, block_size)
     data_size      = size(data,1);
 
     outliers       = zeros(1,N);    % keep these in sorted
@@ -49,7 +49,6 @@ function [outliers,outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k
 					    % Update the score
 					    score(block_index) = (score(block_index)*k - maxd + d)/k;
 					    
-					    % Set new cutoff
                         if score(block_index) < cutoff
                             block(block_index) = 0;             
                             score(block_index) = 0;         
@@ -85,20 +84,20 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
     removed_value = 0;  % the value that was removed from the value_array
     
     if strcmpi(sorting, 'descend')
-        % Shuffle array elements from front to back. Elements less than the new
-        % value will be right-shifted by one index in the array.
+        % Shuffle array elements from front to back. Elements less than the
+        % new value will be right-shifted by one index in the array.
         %
-        % Note that uninitialised values in the array will appear on the right. 
-        % That is, if the array is incomplete (has a size n < N) then the data 
-        % in the array is stored in the leftmost n indexes.
+        % Note that uninitialised values in the array will appear on the 
+        % right. That is, if the array is incomplete (has a size n < N) 
+        % then the data in the array is stored in the leftmost n indexes.
         for i = min(curr_size+1, size(value_array,2)) : -1 : 1
-            % If the array is incomplete, then we ignore the last value (as it 
-            % represents the uninitialised value, regardless of its actual 
-            % value).
+            % If the array is incomplete, then we ignore the last value (as
+            % it represents the uninitialised value, regardless of its 
+            % actual value).
             if (new_value > value_array(i)) || (i == curr_size + 1 && curr_size < size(value_array,2))
                 if i == size(value_array,2) && curr_size >= size(value_array,2)
-                    % The removed value is the value of the last element in the 
-                    % array.
+                    % The removed value is the value of the last element in
+                    % the array.
                     removed_value = index_array(i);
                 end
 
@@ -114,12 +113,12 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
             end
         end
     elseif strcmpi(sorting, 'ascend')
-        % Shuffle array elements from front to back. Elements greater than the 
-        % new value will be right-shifted by one index in the array.
+        % Shuffle array elements from front to back. Elements greater than 
+        % the new value will be right-shifted by one index in the array.
         %
-        % Note that uninitialised values in the array will appear on the left. 
-        % That is, if the array is incomplete (has a size n < N) then the data 
-        % in the array is stored in the rightmost n indexes.
+        % Note that uninitialised values in the array will appear on the 
+        % left. That is, if the array is incomplete (has a size n < N) then
+        % the data in the array is stored in the rightmost n indexes.
         if curr_size < size(value_array,2)
             % Special handling required if the array is incomplete.
             
@@ -140,8 +139,8 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
             for i = size(value_array,2) : -1 : 1
                 if new_value < value_array(i)
                     if i == size(value_array,2)
-                        % The removed value is the value of the last element in 
-                        % the array.
+                        % The removed value is the value of the last 
+                        % element in the array.
                         removed_value = index_array(i);
                     end
                 
@@ -169,14 +168,14 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
             curr_size = curr_size + 1;
         end
     end
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
 % Take the top N outliers based on the current outliers (identified by the 
-% (outliers-outlier_scores) pairs) and the new outliers from the current block 
-% (identified by the (block-scores) pairs).
+% (outliers-outlier_scores) pairs) and the new outliers from the current 
+% block (identified by the (block-scores) pairs).
 
-% Note that the (outliers, outlier_scores) arrays should already be sorted. The 
-% (block-scores) arrays need not be sorted.
+% Note that the (outliers, outlier_scores) arrays should already be sorted.
+% The (block-scores) arrays need not be sorted.
 %
 % This function uses merge sort.
 function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
@@ -197,10 +196,10 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
     
     % Update the cutoff
     cutoff = outlier_scores(size(outlier_scores,1));
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
-% Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair of 
-% 1xN arrays.
+% Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
+% of 1xN arrays.
 function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, sorting)
     % Error checking.
     if size(index_array1) ~= size(value_array1)
@@ -216,8 +215,8 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
         error('Sorting mode must be either "ascend" or "descend".');
     end
     
-    %index_array = index_array1;
-    %value_array = value_array1;
+    index_array = zeros(size(index_array1));
+    value_array = zeros(size(value_array1));
     array_size = 0;
     
     iter1 = 1;  % iterator through array1
@@ -269,10 +268,10 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
             end
         end
     end
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
 
 % Calculate the Euclidean distance between two vectors.
-function dist = euclidean_dist(X1,X2)
-    V = X1 - X2;
+function dist = euclidean_dist(X, Y)
+    V = X - Y;
     dist = sqrt(V * V');
-%-------------------------------------------------------------------------------
+%--------------------------------------------------------------------------
