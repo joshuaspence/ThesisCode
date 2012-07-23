@@ -33,29 +33,23 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
                 vector2_index = block(block_index);
 			    
                 if vector1_index ~= vector2_index && vector2_index ~= 0
-                    v1=data(vector1_index,:);
-                    v2=data(vector2_index,:);
-                    
-                    d = euclidean_dist(v1,v2)^2;
+                    d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
 
-                    old_found = found;
                     [neighbours(block_index,:),  neighbours_dist(block_index,:), maxd, found(block_index)] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d, 'ascend');
                     
-                    if found(block_index) ~= old_found(block_index)
-					    % Update the score
-					    score(block_index) = (score(block_index)*k - maxd + d)/k;
-					    
-                        if score(block_index) < cutoff
-                            block(block_index) = 0;             
-                            score(block_index) = 0;         
-                        end
-                    end
+                    % Update the score
+                    score(block_index) = (score(block_index)*k - maxd + d)/k;
                 end
             end
         end
+        
+        if found(block_index) == k && score(block_index) < cutoff
+            block(block_index) = 0;             
+            score(block_index) = 0;         
+        end
 		
         % outliers = Top(B U outliers,N)
-        [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
+        [outliers, outlier_scores, ~, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
     end
 %-------------------------------------------------------------------------------
 
@@ -94,7 +88,7 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
                 if i == size(value_array,2) && curr_size >= size(value_array,2)
                     % The removed value is the value of the last element in
                     % the array.
-                    removed_value = index_array(i);
+                    removed_value = value_array(i);
                 end
 
                 % Shuffle values down the array.            
@@ -137,7 +131,7 @@ function [index_array, value_array, removed_value, curr_size] = sorted_insert(in
                     if i == size(value_array,2)
                         % The removed value is the value of the last 
                         % element in the array.
-                        removed_value = index_array(i);
+                        removed_value = value_array(i);
                     end
                 
                     % Shuffle values down the array.
@@ -191,7 +185,7 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
     [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, 'descend', size(outliers,2));
     
     % Update the cutoff
-    cutoff = outlier_scores(size(outlier_scores,1));
+    cutoff = outlier_scores(size(outlier_scores,2));
 %--------------------------------------------------------------------------
 
 % Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
