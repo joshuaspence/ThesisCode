@@ -67,8 +67,8 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 		                        score(j) = max(mean(neighbours_dist(j,:),2),0);
 		                    end
 		                end                    
-		            end
-		            
+                    end
+                    
 		            if l >= k && score(j) < c % prune B(j)
 		                B(j) = 0;
 		                %neighbours     (j,:) = 0;

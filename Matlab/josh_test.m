@@ -130,7 +130,7 @@ end
 % Done. Delete testing files.
 if num_failures == 0
 	fprintf('\nAll tests passed successfully.\n');
-	rmdir(testing_root_dir, 's');
+	%rmdir(testing_root_dir, 's');
 else
 	fprintf('\n%d tests failed.\n', num_failures);
 end
