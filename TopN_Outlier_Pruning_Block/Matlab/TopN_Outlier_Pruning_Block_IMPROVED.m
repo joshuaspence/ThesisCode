@@ -210,54 +210,43 @@ function [index_array, value_array] = merge(index_array1, value_array1, array1_s
     iter2 = 1;  % iterator through array2
     while iter <= N && (iter1 <= size(index_array1,2) || iter2 <= size(index_array2,2))
         if (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 <= size(index_array2,2) && index_array2(iter2) ~= 0)
-            index_array(iter) = index_array2(iter2);
-            value_array(iter) = value_array2(iter2);
-            iter1             = iter1+1;
-            iter2             = iter2+1;
+            index_array(iter)     = index_array2(iter2);
+            value_array(iter)     = value_array2(iter2);
+            iter1                 = iter1+1;
+            iter2                 = iter2+1;
         elseif (iter1 <= size(index_array1,2) && index_array1(iter1) ~= 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
-            index_array(iter) = index_array1(iter1);
-            value_array(iter) = value_array1(iter1);
-            iter1             = iter1+1;
-            iter2             = iter2+1;
+            index_array(iter)     = index_array1(iter1);
+            value_array(iter)     = value_array1(iter1);
+            iter1                 = iter1+1;
+            iter2                 = iter2+1;
         elseif (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
-            iter1             = iter1+1;
-            iter2             = iter2+1;
+            iter1                 = iter1+1;
+            iter2                 = iter2+1;
         elseif (iter1 > array1_size)
-            index_array(iter) = index_array2(iter2);
-            value_array(iter) = value_array2(iter2);
+            index_array(iter)     = index_array2(iter2);
+            value_array(iter)     = value_array2(iter2);
             
-            iter1          = iter1+1;
-            iter2          = iter2+1;
-        elseif value_array1(iter1) == value_array2(iter2)
-            index_array(iter) = index_array1(iter1);
-            value_array(iter) = value_array1(iter1);
-            iter1          = iter1+1;
-            iter              = iter+1;
-            
-            if iter <= size(index_array1)
-                index_array(iter) = index_array2(iter2);
-                value_array(iter) = value_array2(iter2);
-                iter2          = iter2+1;
-            end
-        elseif value_array1(iter1) > value_array2(iter2)
+            iter1                 = iter1+1;
+            iter2                 = iter2+1;
+        elseif value_array1(iter1) >= value_array2(iter2)
             if strcmpi(sorting, 'descend')
                 index_array(iter) = index_array1(iter1);
                 value_array(iter) = value_array1(iter1);
-                iter1          = iter1+1;
+                iter1             = iter1+1;
             elseif strcmpi(sorting, 'ascend')
                 index_array(iter) = index_array2(iter2);
                 value_array(iter) = value_array2(iter2);
-                iter2          = iter2+1;
+                iter2             = iter2+1;
             end
-        elseif value_array1(iter1) < value_array2(iter2)
+        elseif value_array1(iter1) <= value_array2(iter2)
             if strcmpi(sorting, 'descend')
                 index_array(iter) = index_array2(iter2);
                 value_array(iter) = value_array2(iter2);
-                iter2          = iter2+1;
+                iter2             = iter2+1;
             elseif strcmpi(sorting, 'ascend')
                 index_array(iter) = index_array1(iter1);
                 value_array(iter) = value_array1(iter1);
-                iter1          = iter1+1;
+                iter1             = iter1+1;
             end
         end
         
