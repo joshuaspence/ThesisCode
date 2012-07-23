@@ -35,12 +35,14 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
                     [neighbours(block_index,:), neighbours_dist(block_index,:), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), vector1_index, d, 'ascend');
                     
                     % Update the score
-                    %score(block_index) = (score(block_index)*k - maxd + d)/k;
-                    score(block_index) = mean(neighbours_dist(block_index,:), 2);
-                    
-                    if score(block_index) < cutoff
-                        block(block_index) = 0;
-                        score(block_index) = 0;         
+                    if (maxd ~= -1)
+                        %score(block_index) = (score(block_index)*k - maxd + d)/k;
+                        score(block_index) = mean(neighbours_dist(block_index,:), 2);
+                        
+                        if score(block_index) < cutoff
+                            block(block_index) = 0;
+                            score(block_index) = 0;         
+                        end
                     end
                 end
             end
