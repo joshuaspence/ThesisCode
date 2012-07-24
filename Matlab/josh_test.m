@@ -49,6 +49,9 @@ mkdir(testing_root_dir);
 % Number of failed tests.
 num_failures = 0;
 
+% A small value for comparing doubles.
+eps = 1e-6;
+
 % Iterate over all data sets.
 for d = 1 : length(data)
     dataset      = char(data(d));
@@ -118,7 +121,7 @@ for d = 1 : length(data)
             % A larger value for OF_sum is better...
         	var = char('OF_sum');
         	fprintf('Checking variable "%s"... ', var);
-            if base_results.(var) <= results.(var)
+            if (base_results.(var) - eps) <= results.(var)
             	fprintf('YES\n');
            	else
            		fprintf('NO\n');
@@ -131,8 +134,8 @@ for d = 1 : length(data)
         	var = char('O');
         	fprintf('Checking variable "%s"... ', var);
             similarity = sum(ismember(base_results.(var), results.(var)));
-            size = size(base_results.(var),2);
-            fprintf('%d out of %d similar\n', similarity, size);
+            theSize = size(base_results.(var),2);
+            fprintf('%d out of %d similar\n', similarity, theSize);
             
              % Compare range of OF.
         	var = char('OF');
@@ -142,7 +145,7 @@ for d = 1 : length(data)
             base_lower    = base_results.(var)(size(base_results.(var),2));
             results_lower = results.(var)(size(results.(var),2));
             
-            if (base_upper <= results_upper) && (base_lower <= results_lower)
+            if (base_upper - eps <= results_upper) && (base_lower - eps <= results_lower)
             	fprintf('YES\n');
            	else
            		fprintf('NO\n');
