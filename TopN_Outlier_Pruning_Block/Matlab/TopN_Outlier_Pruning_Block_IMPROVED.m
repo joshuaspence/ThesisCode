@@ -12,7 +12,8 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 
     outliers       = zeros(1,N);    % keep these in sorted
     outlier_scores = zeros(1,N);    % (descending) order
-
+    outliers_size  = 0;             % the number of initialised elements in the outliers array
+    
     cutoff = 0;
     count = 0;
 	
@@ -23,8 +24,9 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 
         neighbours      = zeros(actual_block_size, k);  % keep these in sorted
         neighbours_dist = zeros(actual_block_size, k);  % (ascending) order
-
+        
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
+		found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current bloc
 		
         for vector1_index = 1 : data_size % for each d in D
             for block_index = 1 : actual_block_size % for each b in B
@@ -32,14 +34,30 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 			    
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
-                    [neighbours(block_index,:), neighbours_dist(block_index,:), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), vector1_index, d, 'ascend');
+                    %[neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d, 'ascend');
+                    maxd = -1; % the value that was removed from the value_array
+                    if found(block_index) < k
+                        neighbours(block_index,found(block_index)+1)      = vector1_index;
+                        neighbours_dist(block_index,found(block_index)+1) = d;
+                        found(block_index) = found(block_index)+1;
+                    else
+                        % Find the maximum value.
+                        [max_value,max_index] = max(neighbours_dist(block_index,:));
+
+                        if (d < max_value)
+                            % Replace the maximum value.
+                            neighbours(max_index) = vector1_index;
+                            neighbours_dist(max_index) = d;
+                            maxd = max_value;
+                        end
+                    end
                     
                     % Update the score
                     if (maxd ~= -1)
                         %score(block_index) = (score(block_index)*k - maxd + d)/k;
                         score(block_index) = mean(neighbours_dist(block_index,:), 2);
                         
-                        if score(block_index) < cutoff
+                        if found(block_index) == k && score(block_index) < cutoff
                             block(block_index) = 0;
                             score(block_index) = 0;         
                         end
@@ -49,7 +67,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
         end
 		
         % outliers = Top(B U outliers,N)
-        [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block(1:actual_block_size), score);
+        [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
         end
 %-------------------------------------------------------------------------------
 
@@ -59,7 +77,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 %
 % This function assumes that an array element with a zero index is 
 % uninitialised.
-function [index_array, value_array, removed_value] = sorted_insert(index_array, value_array, new_index, new_value, sorting)
+function [index_array, value_array, curr_size, removed_value] = sorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
     % Error checking.
     if (size(index_array) ~= size(value_array))
         error('index_array and value_array are not suitable pairs.');
@@ -78,16 +96,6 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
         % Note that uninitialised values in the array will appear on the 
         % right. That is, if the array is incomplete (has a size n < N) 
         % then the data in the array is stored in the leftmost n indexes.
-        
-        % find the size of the array
-        curr_size = 0;
-        for i = size(index_array,2) : -1 : 1
-           if index_array(i) == 0
-               break;
-           else
-              curr_size = curr_size+1; 
-           end
-        end
         
         for i = min(curr_size, size(value_array,2)) : -1 : 1
             % If the array is incomplete, then we ignore the last value (as
@@ -118,16 +126,6 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
         % Note that uninitialised values in the array will appear on the 
         % left. That is, if the array is incomplete (has a size n < N) then
         % the data in the array is stored in the rightmost n indexes.
-        
-        % find the size of the array
-        curr_size = 0;
-        for i = size(index_array,2) : -1 : 1
-           if index_array(i) == 0
-               break;
-           else
-              curr_size = curr_size+1; 
-           end
-        end
         
         if curr_size < size(value_array,2)
             % Special handling required if the array is incomplete.
@@ -173,21 +171,22 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
     if index ~= 0
         index_array(index) = new_index;
         value_array(index) = new_value;
+        
+        if (curr_size < size(value_array,2))
+            curr_size = curr_size + 1;
+        end
     end
 %--------------------------------------------------------------------------
 
 % Add a (index,value)-pair into a pair of unsorted arrays. The arrays can 
 % be "sorted" in ascending ('ascend') or descending ('descend') order.
 %
-% This function assumes that an array element with a zero index is 
-% uninitialised.
-function [index_array, value_array, removed_value] = unsorted_insert(index_array, value_array, new_index, new_value, sorting)
+% The curr_size argument is used to indicate that some values in the array 
+% represent uninitialised values.
+function [index_array, value_array, curr_size, removed_value] = unsorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
     % Error checking.
     if (size(index_array) ~= size(value_array))
         error('index_array and value_array are not suitable pairs.');
-    end
-    if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
-        error('Sorting mode must be either "ascend" or "descend".');
     end
     if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
         error('Sorting mode must be either "ascend" or "descend".');
@@ -196,30 +195,14 @@ function [index_array, value_array, removed_value] = unsorted_insert(index_array
     index = 0;          % the index at which the new pair will be inserted
     removed_value = -1; % the value that was removed from the value_array
     
-    % Calculate the the size of the array.
-    curr_size = 0;
-    for i = 1 : size(index_array,2)
-       if index_array(i) == 0
-           break;
-       else
-          curr_size = curr_size+1; 
-       end
-    end
-    
     if curr_size < size(index_array,2)
-       index_array(curr_size+1) = new_index; 
-       value_array(curr_size+1) = new_value;
+        index_array(curr_size+1) = new_index; 
+        value_array(curr_size+1) = new_value;
+        curr_size                = curr_size+1;
     else
         if strcmpi(sorting, 'descend')
             % Find the minimum value.
-            min_index = 0;
-            min_value = 0;        
-            for i = 1 : size(index_array,2)
-               if min_index == 0 || value_array(i) < min_value
-                   min_index = i;
-                   min_value = value_array(i);
-               end
-            end
+            [min_value,min_index] = min(value_array);
 
             if (new_value > min_value)
                 % Replace the minimum value.
@@ -229,14 +212,7 @@ function [index_array, value_array, removed_value] = unsorted_insert(index_array
             end
         elseif strcmpi(sorting, 'ascend')
             % Find the maximum value.
-            max_index = 0;
-            max_value = 0;        
-            for i = 1 : size(index_array,2)
-               if max_index == 0 || value_array(i) > max_value
-                   max_index = i;
-                   max_value = value_array(i);
-               end
-            end
+            [max_value,max_index] = max(value_array);
 
             if (new_value < max_value)
                 % Replace the maximum value.
@@ -256,7 +232,7 @@ function [index_array, value_array, removed_value] = unsorted_insert(index_array
 % The (block-scores) arrays need not be sorted.
 %
 % This function uses merge sort.
-function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_scores, block, scores)
+function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
     % Error checking.
     if (size(outliers) ~= size(outlier_scores))
         error('outliers and outlier_scores are not suitable pairs.');
@@ -266,11 +242,11 @@ function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_sc
     end
 
     % Sort the (block, scores) arrays.
-	[scores, index] = sort(scores, 'descend');
-	block = block(index);
+    [scores, index] = sort(scores, 'descend');
+    block = block(index);
 		
     % Merge the two arrays.
-    [outliers, outlier_scores] = merge(outliers, outlier_scores, block, scores, 'descend', size(outliers,2));
+    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, size(block,2), 'descend', size(outliers,2));
     
     % Update the cutoff
     cutoff = outlier_scores(size(outlier_scores,2));
@@ -278,7 +254,7 @@ function [outliers, outlier_scores, cutoff] = best_outliers(outliers, outlier_sc
 
 % Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
 % of 1xN arrays.
-function [index_array, value_array] = merge(index_array1, value_array1, index_array2, value_array2, sorting, N)
+function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, array2_size, sorting, N)
     % Error checking.
     if size(index_array1) ~= size(value_array1)
         error('index_array1 and value_array1 are not suitable pairs.');
@@ -292,22 +268,23 @@ function [index_array, value_array] = merge(index_array1, value_array1, index_ar
     
     index_array = zeros(1,N);
     value_array = zeros(1,N);
+    array_size = 0;
     
     iter  = 1;  % iterator through output array
     iter1 = 1;  % iterator through array1
     iter2 = 1;  % iterator through array2
-    while iter <= N && (iter1 <= size(index_array1,2) || iter2 <= size(index_array2,2))        
-        if (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 <= size(index_array2,2) && index_array2(iter2) ~= 0)
+    while iter <= N && (iter1 <= array1_size || iter2 <= array2_size)        
+        if iter1 > array1_size && iter2 <= array2_size
             index_array(iter)     = index_array2(iter2);
             value_array(iter)     = value_array2(iter2);
             iter1                 = iter1+1;
             iter2                 = iter2+1;
-        elseif (iter1 <= size(index_array1,2) && index_array1(iter1) ~= 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
+        elseif iter1 <= array1_size && iter2 > array2_size
             index_array(iter)     = index_array1(iter1);
             value_array(iter)     = value_array1(iter1);
             iter1                 = iter1+1;
             iter2                 = iter2+1;
-        elseif (iter1 > size(index_array1,2) || index_array1(iter1) == 0) && (iter2 > size(index_array2,2) || index_array2(iter2) == 0)
+        elseif iter1 > array1_size && iter2 > array2_size
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif value_array1(iter1) >= value_array2(iter2)
@@ -332,7 +309,8 @@ function [index_array, value_array] = merge(index_array1, value_array1, index_ar
             end
         end
         
-        iter = iter+1;
+        iter       = iter+1;
+        array_size = array_size+1;
     end
 %--------------------------------------------------------------------------
 
