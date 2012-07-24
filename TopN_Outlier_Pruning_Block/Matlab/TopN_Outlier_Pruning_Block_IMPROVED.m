@@ -12,8 +12,8 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
     outliers       = zeros(1,N);    % /- keep these in sorted
     outlier_scores = zeros(1,N);    % \- (descending) order
     outliers_size  = 0;             % the number of initialised elements in the outliers array
-    cutoff = 0;
-    count = 0;
+    cutoff = 0;                     % 
+    count = 0;                      % the number of vectors processed in a block
 	
     while (data_size - count > 0) % load a block of examples from D
         actual_block_size = min(block_size, data_size-count);
@@ -24,7 +24,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
         neighbours_dist = zeros(actual_block_size, k);  % \- (ascending) order
         
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
-		found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current bloc
+		found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
 		
         for vector1_index = 1 : data_size % for each d in D
             for block_index = 1 : actual_block_size % for each b in B

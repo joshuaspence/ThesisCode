@@ -1,6 +1,6 @@
 % This is the original implementation as provided by Nguyen Lu Dang Khoa 
 % or the thesis titled "Large Scale Anomaly Detection and Clustering Using 
-% Random Walks"
+% Random Walks".
 %--------------------------------------------------------------------------
 % Note that the "dist" function was substituted with a "euclidean_dist" 
 % function as it seems that a strange implementation of "dist" was causing 
@@ -39,13 +39,13 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 		        if i ~= B(j) && B(j) ~= 0 % pruning B(j)<>0
 		            d = euclidean_dist_squared(X(i,:), X(B(j),:));
                     
-		            if l>1 && l<=k+1 && neighbours(j,l-1) == 0
+                    if l>1 && l<=k+1 && neighbours(j,l-1) == 0
 		                l = l-1;
 		            elseif l<k && neighbours(j,l) ~= 0
 		                l = l+1;
-		            end
+                    end
 		            
-		            if l <= k
+                    if l <= k
 		                neighbours     (j,l) = i;   
 		                neighbours_dist(j,l) = d;
 		                if l == k
