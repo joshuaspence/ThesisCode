@@ -169,21 +169,21 @@ function [index_array, value_array, curr_size, removed_value] = unsorted_insert(
 % The (block-scores) arrays need not be sorted.
 %
 % This function uses merge sort.
-function [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
+function [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, current_block, scores)
     % Error checking.
     if (size(outliers) ~= size(outlier_scores))
         error('outliers and outlier_scores are not suitable pairs.');
     end
-    if (size(block) ~= size(scores))
+    if (size(current_block) ~= size(scores))
         error('block and scores are not suitable pairs.');
     end
 
-    % Sort the (block, scores) arrays.
+    % Sort the (current_block, scores) arrays.
     [scores, index] = sort(scores, 'descend');
-    block = block(index);
+    current_block = current_block(index);
 		
     % Merge the two arrays.
-    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, size(block,2), size(outliers,2));
+    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, current_block, scores, size(current_block,2), size(outliers,2));
 %--------------------------------------------------------------------------
 
 % Merge two sorted arrays in descending order. Takes two pairs of 1xN arrays and
@@ -199,7 +199,7 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
     
     index_array = zeros(1,N);
     value_array = zeros(1,N);
-    array_size = 0;
+    array_size  = 0;
     
     iter  = 1;  % iterator through output array
     iter1 = 1;  % iterator through array1

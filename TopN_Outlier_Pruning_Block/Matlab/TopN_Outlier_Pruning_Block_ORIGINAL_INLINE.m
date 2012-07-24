@@ -41,8 +41,10 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL_INLINE(X, k, N, block_siz
 		        if i ~= B(j) && B(j) ~= 0 % pruning B(j)<>0
 		            % d = euclidean_dist_squared(X(i,:), X(B(j),:));
 		            % Inline {
-		                V = X(i,:) - X(B(j),:);
+                        V = X(i,:) - X(B(j),:);
                         dist_squared = V * V';
+                        
+                        % Output argument setup
                         d = dist_squared;
                     % }
                     
