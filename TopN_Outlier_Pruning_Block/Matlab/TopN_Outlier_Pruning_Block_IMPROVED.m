@@ -32,7 +32,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 			    
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
-                    [neighbours(block_index,:), neighbours_dist(block_index,:), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), vector1_index, d, 'ascend');
+                    [neighbours(block_index,:), neighbours_dist(block_index,:), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), vector1_index, d, 'ascend');
                     
                     % Update the score
                     if (maxd ~= -1)
@@ -54,13 +54,8 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
 %-------------------------------------------------------------------------------
 
 % Add a (index,value)-pair into a pair of sorted arrays. Assumes that the 
-% (index,value) array pair is already in sorted order.
-%
-% The curr_size argument is used to indicate that some values in the array 
-% represent uninitialised values.
-%
-% The array can be sorted in ascending ('ascend') or descending ('descend') 
-% order.
+% (index,value) array pair is already in sorted order. The array can be 
+% sorted in ascending ('ascend') or descending ('descend') order.
 %
 % This function assumes that an array element with a zero index is 
 % uninitialised.
@@ -178,9 +173,77 @@ function [index_array, value_array, removed_value] = sorted_insert(index_array, 
     if index ~= 0
         index_array(index) = new_index;
         value_array(index) = new_value;
-        
-        if (curr_size < size(value_array,2))
-            curr_size = curr_size + 1;
+    end
+%--------------------------------------------------------------------------
+
+% Add a (index,value)-pair into a pair of unsorted arrays. The arrays can 
+% be "sorted" in ascending ('ascend') or descending ('descend') order.
+%
+% This function assumes that an array element with a zero index is 
+% uninitialised.
+function [index_array, value_array, removed_value] = unsorted_insert(index_array, value_array, new_index, new_value, sorting)
+    % Error checking.
+    if (size(index_array) ~= size(value_array))
+        error('index_array and value_array are not suitable pairs.');
+    end
+    if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
+        error('Sorting mode must be either "ascend" or "descend".');
+    end
+    if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
+        error('Sorting mode must be either "ascend" or "descend".');
+    end
+    
+    index = 0;          % the index at which the new pair will be inserted
+    removed_value = -1; % the value that was removed from the value_array
+    
+    % Calculate the the size of the array.
+    curr_size = 0;
+    for i = 1 : size(index_array,2)
+       if index_array(i) == 0
+           break;
+       else
+          curr_size = curr_size+1; 
+       end
+    end
+    
+    if curr_size < size(index_array,2)
+       index_array(curr_size+1) = new_index; 
+       value_array(curr_size+1) = new_value;
+    else
+        if strcmpi(sorting, 'descend')
+            % Find the minimum value.
+            min_index = 0;
+            min_value = 0;        
+            for i = 1 : size(index_array,2)
+               if min_index == 0 || value_array(i) < min_value
+                   min_index = i;
+                   min_value = value_array(i);
+               end
+            end
+
+            if (new_value > min_value)
+                % Replace the minimum value.
+                index_array(min_index) = new_index;
+                value_array(min_index) = new_value;
+                removed_value = min_value;
+            end
+        elseif strcmpi(sorting, 'ascend')
+            % Find the maximum value.
+            max_index = 0;
+            max_value = 0;        
+            for i = 1 : size(index_array,2)
+               if max_index == 0 || value_array(i) > max_value
+                   max_index = i;
+                   max_value = value_array(i);
+               end
+            end
+
+            if (new_value < max_value)
+                % Replace the maximum value.
+                index_array(max_index) = new_index;
+                value_array(max_index) = new_value;
+                removed_value = max_value;
+            end
         end
     end
 %--------------------------------------------------------------------------
