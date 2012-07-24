@@ -1,11 +1,16 @@
 #ifndef MACROS_H_
 #define MACROS_H_
 
-#include "mex.h" /* 
-				* for mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, 
-				* mxIsSparse, mexPutVariable, mxArray, mxCreateDoubleMatrix, 
-			 	* mxGetData, mxGetM, mxGetN, mxDestroyArray
-				*/
+/*============================================================================*/
+/* Includes                                                                   */
+/*============================================================================*/
+/* 
+ * For mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, mxIsSparse, 
+ * mexPutVariable, mxArray, mxCreateDoubleMatrix, mxGetData, mxGetM, mxGetN, 
+ * mxDestroyArray
+ */
+#include <mex.h>
+/*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Boolean type                                                               */
@@ -24,18 +29,21 @@ typedef int boolean;
 /*============================================================================*/
 /* General purpose utility macros                                             */
 /*============================================================================*/
-#define MIN(X,Y)			((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y)			((X) > (Y) ? (X) : (Y))
+#define MIN(X,Y)				((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y)				((X) > (Y) ? (X) : (Y))
 
 /* Declare an unused variable. */
-#ifdef UNUSED
-#elif defined(__GNUC__)
-	#define UNUSED			__attribute__ ((unused))
-#elif defined(__LCLINT__)
-	#define UNUSED 			/*@unused@*/
-#else
-	#define UNUSED
-#endif /* #ifdef UNUSED */
+#ifndef UNUSED
+	#if defined(__GNUC__)
+		#define UNUSED			__attribute__((unused))
+	#elif defined(__LCLINT__)
+		#define UNUSED 			/*@unused@*/
+	#else
+		#define UNUSED
+	#endif /* #if defined(__GNUC__) */
+#endif /* #ifndef UNUSED */
+
+#define EMPTY_STATEMENT() 		do {} while (false)
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -71,8 +79,14 @@ typedef int boolean;
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
-#define ARRAY_UINT_T		double
-#define ARRAY_DOUBLE_T		double
+typedef unsigned int array_index_t;
+static const array_index_t begin_index = 1;
+
+typedef double array_uint_t;
+static const array_uint_t array_uint_zero = 0.0;
+
+typedef double array_double_t;
+static const array_double_t array_double_zero = 0.0;
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -80,67 +94,68 @@ typedef int boolean;
 /*============================================================================*/
 /* Export a variable to the MATLAB environment. */
 #ifdef DEBUG
-	#define EXPORT_TO_MATLAB(_name, _array) \
-		do { mexPutVariable("caller", #_name, _array); } while (0)
+	#define EXPORT_TO_MATLAB(_name_, _array_) \
+		do { mexPutVariable("caller", #_name_, _array_); } while (false)
 #else
-	#define EXPORT_TO_MATLAB(_name, _array) \
-		do {} while (0)
+	#define EXPORT_TO_MATLAB(_name_, _array_) \
+		EMPTY_STATEMENT()
 #endif /* #ifdef DEBUG */
 
 /* Create a matrix of doubles. */
-#define CREATE_REAL_DOUBLE_ARRAY(_array, _rows, _cols) \
-	const unsigned int ROWS(_array) = _rows; \
-	const unsigned int COLS(_array) = _cols; \
-	mxArray * const UNUSED MATLAB_ARRAY(_array) = mxCreateDoubleMatrix(ROWS(_array), COLS(_array), mxREAL); \
-	ARRAY_DOUBLE_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
-	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
-	do {} while (0)
+#define CREATE_REAL_DOUBLE_ARRAY(_array_, _rows_, _cols_) \
+	const array_index_t ROWS(_array_) = _rows_; \
+	const array_index_t COLS(_array_) = _cols_; \
+	mxArray * const UNUSED MATLAB_ARRAY(_array_) = mxCreateDoubleMatrix(ROWS(_array_), COLS(_array_), mxREAL); \
+	array_double_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
+	EXPORT_TO_MATLAB(_array_, MATLAB_ARRAY(_array_)); \
+	EMPTY_STATEMENT()
 
 /* Create a matrix of unsigned integers. */
-#define CREATE_REAL_UINT_ARRAY(_array, _rows, _cols) \
-	const unsigned int ROWS(_array) = _rows; \
-	const unsigned int COLS(_array) = _cols; \
-	mxArray * const UNUSED MATLAB_ARRAY(_array) = mxCreateDoubleMatrix(ROWS(_array), COLS(_array), mxREAL); \
-	ARRAY_UINT_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
-	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
-	do {} while (0)
+#define CREATE_REAL_UINT_ARRAY(_array_, _rows_, _cols_) \
+	const array_index_t ROWS(_array_) = _rows_; \
+	const array_index_t COLS(_array_) = _cols_; \
+	mxArray * const UNUSED MATLAB_ARRAY(_array_) = mxCreateDoubleMatrix(ROWS(_array_), COLS(_array_), mxREAL); \
+	array_uint_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
+	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array_)); \
+	EMPTY_STATEMENT()
 
 /* Retrieve a matrix of doubles from a specified location. */
-#define RETRIEVE_REAL_DOUBLE_ARRAY(_array, _location) \
-	const unsigned int UNUSED ROWS(_array) = mxGetM(_location); \
-	const unsigned int UNUSED COLS(_array) = mxGetN(_location); \
-	mxArray * const UNUSED MATLAB_ARRAY(_array) = (mxArray *) _location; \
-	ARRAY_DOUBLE_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
-	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
-	do {} while (0)
+#define RETRIEVE_REAL_DOUBLE_ARRAY(_array_, _location_) \
+	const array_index_t UNUSED ROWS(_array_) = mxGetM(_location_); \
+	const array_index_t UNUSED COLS(_array_) = mxGetN(_location_); \
+	mxArray * const UNUSED MATLAB_ARRAY(_array_) = (mxArray *) _location_; \
+	array_double_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
+	EXPORT_TO_MATLAB(_array_, MATLAB_ARRAY(_array_)); \
+	EMPTY_STATEMENT()
 
 /* Retrieve a matrix of doubles from a specified location. */
-#define RETRIEVE_REAL_UINT_ARRAY(_array, _location) \
-	const unsigned int UNUSED ROWS(_array) = mxGetM(_location); \
-	const unsigned int UNUSED COLS(_array) = mxGetN(_location); \
-	mxArray * const UNUSED MATLAB_ARRAY(_array) = (mxArray *) _location; \
-	ARRAY_UINT_T * const _array = mxGetData(MATLAB_ARRAY(_array)); \
-	EXPORT_TO_MATLAB(_array, MATLAB_ARRAY(_array)); \
-	do {} while (0)
+#define RETRIEVE_REAL_UINT_ARRAY(_array_, _location_) \
+	const array_index_t UNUSED ROWS(_array_) = mxGetM(_location_); \
+	const array_index_t UNUSED COLS(_array_) = mxGetN(_location_); \
+	mxArray * const UNUSED MATLAB_ARRAY(_array_) = (mxArray *) _location_; \
+	array_uint_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
+	EXPORT_TO_MATLAB(_array_, MATLAB_ARRAY(_array_)); \
+	EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
-#define FREE_ARRAY(array) \
-	do { mxDestroyArray(MATLAB_ARRAY(array)); } while (0)
+#define FREE_ARRAY(_array_) \
+	do { mxDestroyArray(MATLAB_ARRAY(_array_)); } while (false)
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Array properties                                                           */
 /*============================================================================*/
-#define ARRAY_ELEMENT(_array, _row, _column) \
-	_array[((_row) - 1) + ROWS(_array) * ((_column) - 1)]
+/* To access an array element. */
+#define ARRAY_ELEMENT(_array_, _row_, _column_) \
+	_array_[((_row_) - 1) + ROWS(_array_) * ((_column_) - 1)]
 
 /* To declare an array and the dimensions of the array in a function signature. */
-#define ARRAY_PARAMS(_array) \
-	_array, const unsigned int UNUSED ROWS(_array), const unsigned int UNUSED COLS(_array)
+#define ARRAY_PARAMS(_array_) \
+	_array_, const array_index_t UNUSED ROWS(_array_), const array_index_t UNUSED COLS(_array_)
 
 /* To call a function that requires an array as well as the array dimensions. */
-#define ARRAY_ARG(_array) \
-	_array, ROWS(_array), COLS(_array)
+#define ARRAY_ARG(_array_) \
+	_array_, ROWS(_array_), COLS(_array_)
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef MACROS_H_ */
