@@ -33,7 +33,7 @@ profiles = [
     ];
 
 % Number of iterations for each data set
-iterations = 10;
+iterations = 3;
 
 % The hostname of this machine
 [~, hostname] = system('hostname');
@@ -59,13 +59,13 @@ for d = 1 : length(data)
     
     % Iterate over all iterations
     for j = 1 : iterations
-    	output_dir = strcat(output_dir, filesep, int2str(j));
+    	iter_output_dir = strcat(output_dir, filesep, int2str(j));
     	if exist(output_dir, 'dir') ~= 7
     		mkdir(output_dir);
     	end
     
     	% Randomize data
-    	randomness_file = strcat(output_dir, filesep, 'random.mat');
+    	randomness_file = strcat(iter_output_dir, filesep, 'random.mat');
     	if exist(randomness_file, 'file') ~= 2
 			fprintf('\nRandomizing...\n');
 			randnState = randn('state');
@@ -79,7 +79,7 @@ for d = 1 : length(data)
         for k = 1 : length(profiles)
             profile_name       = profiles(k).name;
             profile_func       = profiles(k).func;
-            profile_output_dir = strcat(output_dir, filesep, profile_name);
+            profile_output_dir = strcat(iter_output_dir, filesep, profile_name);
             
             fprintf('\nDate: %s\n', datestr(now));
             fprintf('Data set: "%s"\n', dataset);
