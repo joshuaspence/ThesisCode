@@ -37,8 +37,14 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 		for i = 1 : n
 		    for j = 1 : sizeB
 		        if i ~= B(j) && B(j) ~= 0 % pruning B(j)<>0
-		            d = euclidean_dist(X(i,:), X(B(j),:))^2; % modified to use "euclidean_distance" instead of "dist"
-		            
+		            %----------------------------
+		            % d = euclidean_dist(X(i,:), X(B(j),:))^2;
+		            % {
+		            V = X(i,:) - X(B(j),:);
+                    d = V * V';
+		            % }
+                    %----------------------------
+                    
 		            if l>1 && l<=k+1 && neighbours(j,l-1) == 0
 		                l = l-1;
 		            elseif l<k && neighbours(j,l) ~= 0

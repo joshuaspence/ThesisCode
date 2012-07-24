@@ -33,8 +33,15 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
                 vector2_index = block(block_index);
 			    
                 if vector1_index ~= vector2_index && vector2_index ~= 0
-                    d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
-                    %[neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d, 'ascend');
+                    %----------------------------
+                    % d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
+                    % {
+                    V = data(vector1_index,:) - data(vector2_index,:);
+                    d = V * V';
+                    % }
+                    %----------------------------
+                    
+                    %[neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
                     maxd = -1; % the value that was removed from the value_array
                     if found(block_index) < k
                         neighbours(block_index,found(block_index)+1)      = vector1_index;
@@ -66,52 +73,44 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
             end
         end
 		
-        % outliers = Top(B U outliers,N)
-        [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
-        end
+        % Keep track of the best outliers so far.
+        [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
+        
+        % Update the cutoff.
+        cutoff = outlier_scores(size(outlier_scores,2));
+    end
 %-------------------------------------------------------------------------------
 
 % Add a (index,value)-pair into a pair of sorted arrays. Assumes that the 
-% (index,value) array pair is already in sorted order. The array can be 
-% sorted in ascending ('ascend') or descending ('descend') order.
+% (index,value) array pair is already in ascending order.
 %
 % This function assumes that an array element with a zero index is 
 % uninitialised.
-function [index_array, value_array, curr_size, removed_value] = sorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
+function [index_array, value_array, curr_size, removed_value] = sorted_insert(index_array, value_array, curr_size, new_index, new_value)
     % Error checking.
     if (size(index_array) ~= size(value_array))
         error('index_array and value_array are not suitable pairs.');
-    end
-    if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
-        error('Sorting mode must be either "ascend" or "descend".');
     end
 
     index = 0;          % the index at which the new pair will be inserted
     removed_value = -1; % the value that was removed from the value_array
     
-    if strcmpi(sorting, 'descend')
-        % Shuffle array elements from front to back. Elements less than the
-        % new value will be right-shifted by one index in the array.
-        %
-        % Note that uninitialised values in the array will appear on the 
-        % right. That is, if the array is incomplete (has a size n < N) 
-        % then the data in the array is stored in the leftmost n indexes.
+    % Shuffle array elements from front to back. Elements greater than 
+    % the new value will be right-shifted by one index in the array.
+    %
+    % Note that uninitialised values in the array will appear on the 
+    % left. That is, if the array is incomplete (has a size n < N) then
+    % the data in the array is stored in the rightmost n indexes.
+    
+    if curr_size < size(value_array,2)
+        % Special handling required if the array is incomplete.
         
-        for i = min(curr_size, size(value_array,2)) : -1 : 1
-            % If the array is incomplete, then we ignore the last value (as
-            % it represents the uninitialised value, regardless of its 
-            % actual value).
-            if (new_value > value_array(i)) || (i == curr_size + 1 && curr_size < size(value_array,2))
-                if i == size(value_array,2) && curr_size >= size(value_array,2)
-                    % The removed value is the value of the last element in
-                    % the array.
-                    removed_value = value_array(i);
-                end
-
-                % Shuffle values down the array.            
-                if (i > 1)
-                    index_array(i) = index_array(i-1);
-                    value_array(i) = value_array(i-1);
+        for i = size(value_array,2)-curr_size : 1 : size(value_array,2)
+            if or(new_value > value_array(i), i == size(value_array,2)-curr_size)
+                % Shuffle values down the array.
+                if (i ~= 1)
+                    index_array(i-1) = index_array(i);
+                    value_array(i-1) = value_array(i);
                 end
                 index = i;
             else
@@ -119,49 +118,24 @@ function [index_array, value_array, curr_size, removed_value] = sorted_insert(in
                 break;
             end
         end
-    elseif strcmpi(sorting, 'ascend')
-        % Shuffle array elements from front to back. Elements greater than 
-        % the new value will be right-shifted by one index in the array.
-        %
-        % Note that uninitialised values in the array will appear on the 
-        % left. That is, if the array is incomplete (has a size n < N) then
-        % the data in the array is stored in the rightmost n indexes.
-        
-        if curr_size < size(value_array,2)
-            % Special handling required if the array is incomplete.
+    else
+        for i = size(value_array,2) : -1 : 1
+            if new_value < value_array(i)
+                if i == size(value_array,2)
+                    % The removed value is the value of the last 
+                    % element in the array.
+                    removed_value = value_array(i);
+                end
             
-            for i = size(value_array,2)-curr_size : 1 : size(value_array,2)
-                if or(new_value > value_array(i), i == size(value_array,2)-curr_size)
-                    % Shuffle values down the array.
-                    if (i ~= 1)
-                        index_array(i-1) = index_array(i);
-                        value_array(i-1) = value_array(i);
-                    end
-                    index = i;
-                else
-                    % We have found the insertion point.
-                    break;
+                % Shuffle values down the array.
+                if (i ~= 1)
+                    index_array(i) = index_array(i-1);
+                    value_array(i) = value_array(i-1);
                 end
-            end
-        else
-            for i = size(value_array,2) : -1 : 1
-                if new_value < value_array(i)
-                    if i == size(value_array,2)
-                        % The removed value is the value of the last 
-                        % element in the array.
-                        removed_value = value_array(i);
-                    end
-                
-                    % Shuffle values down the array.
-                    if (i ~= 1)
-                        index_array(i) = index_array(i-1);
-                        value_array(i) = value_array(i-1);
-                    end
-                    index = i;
-                else
-                    % We have found the insertion point.
-                    break;
-                end
+                index = i;
+            else
+                % We have found the insertion point.
+                break;
             end
         end
     end
@@ -178,18 +152,14 @@ function [index_array, value_array, curr_size, removed_value] = sorted_insert(in
     end
 %--------------------------------------------------------------------------
 
-% Add a (index,value)-pair into a pair of unsorted arrays. The arrays can 
-% be "sorted" in ascending ('ascend') or descending ('descend') order.
+% Add a (index,value)-pair into a pair of unsorted arrays.
 %
 % The curr_size argument is used to indicate that some values in the array 
 % represent uninitialised values.
-function [index_array, value_array, curr_size, removed_value] = unsorted_insert(index_array, value_array, curr_size, new_index, new_value, sorting)
+function [index_array, value_array, curr_size, removed_value] = unsorted_insert(index_array, value_array, curr_size, new_index, new_value)
     % Error checking.
     if (size(index_array) ~= size(value_array))
         error('index_array and value_array are not suitable pairs.');
-    end
-    if (not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend')))
-        error('Sorting mode must be either "ascend" or "descend".');
     end
     
     index = 0;          % the index at which the new pair will be inserted
@@ -200,26 +170,14 @@ function [index_array, value_array, curr_size, removed_value] = unsorted_insert(
         value_array(curr_size+1) = new_value;
         curr_size                = curr_size+1;
     else
-        if strcmpi(sorting, 'descend')
-            % Find the minimum value.
-            [min_value,min_index] = min(value_array);
+        % Find the maximum value.
+        [max_value,max_index] = max(value_array);
 
-            if (new_value > min_value)
-                % Replace the minimum value.
-                index_array(min_index) = new_index;
-                value_array(min_index) = new_value;
-                removed_value = min_value;
-            end
-        elseif strcmpi(sorting, 'ascend')
-            % Find the maximum value.
-            [max_value,max_index] = max(value_array);
-
-            if (new_value < max_value)
-                % Replace the maximum value.
-                index_array(max_index) = new_index;
-                value_array(max_index) = new_value;
-                removed_value = max_value;
-            end
+        if (new_value < max_value)
+            % Replace the maximum value.
+            index_array(max_index) = new_index;
+            value_array(max_index) = new_value;
+            removed_value = max_value;
         end
     end
 %--------------------------------------------------------------------------
@@ -232,7 +190,7 @@ function [index_array, value_array, curr_size, removed_value] = unsorted_insert(
 % The (block-scores) arrays need not be sorted.
 %
 % This function uses merge sort.
-function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
+function [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block, scores)
     % Error checking.
     if (size(outliers) ~= size(outlier_scores))
         error('outliers and outlier_scores are not suitable pairs.');
@@ -246,24 +204,18 @@ function [outliers, outlier_scores, outliers_size, cutoff] = best_outliers(outli
     block = block(index);
 		
     % Merge the two arrays.
-    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, size(block,2), 'descend', size(outliers,2));
-    
-    % Update the cutoff
-    cutoff = outlier_scores(size(outlier_scores,2));
+    [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, block, scores, size(block,2), size(outliers,2));
 %--------------------------------------------------------------------------
 
-% Merge two sorted arrays. Takes two pairs of 1xN arrays and returns a pair
-% of 1xN arrays.
-function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, array2_size, sorting, N)
+% Merge two sorted arrays in descending order. Takes two pairs of 1xN arrays and
+% returns a pair of 1xN arrays.
+function [index_array, value_array, array_size] = merge(index_array1, value_array1, array1_size, index_array2, value_array2, array2_size, N)
     % Error checking.
     if size(index_array1) ~= size(value_array1)
         error('index_array1 and value_array1 are not suitable pairs.');
     end
     if size(index_array2) ~= size(value_array2)
         error('index_array1 and value_array1 are not suitable pairs.');
-    end
-    if not(strcmpi(sorting, 'descend')) && not(strcmpi(sorting, 'ascend'))
-        error('Sorting mode must be either "ascend" or "descend".');
     end
     
     index_array = zeros(1,N);
@@ -288,25 +240,13 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif value_array1(iter1) >= value_array2(iter2)
-            if strcmpi(sorting, 'descend')
-                index_array(iter) = index_array1(iter1);
-                value_array(iter) = value_array1(iter1);
-                iter1             = iter1+1;
-            elseif strcmpi(sorting, 'ascend')
-                index_array(iter) = index_array2(iter2);
-                value_array(iter) = value_array2(iter2);
-                iter2             = iter2+1;
-            end
+            index_array(iter) = index_array1(iter1);
+            value_array(iter) = value_array1(iter1);
+            iter1             = iter1+1;
         elseif value_array1(iter1) <= value_array2(iter2)
-            if strcmpi(sorting, 'descend')
-                index_array(iter) = index_array2(iter2);
-                value_array(iter) = value_array2(iter2);
-                iter2             = iter2+1;
-            elseif strcmpi(sorting, 'ascend')
-                index_array(iter) = index_array1(iter1);
-                value_array(iter) = value_array1(iter1);
-                iter1             = iter1+1;
-            end
+            index_array(iter) = index_array2(iter2);
+            value_array(iter) = value_array2(iter2);
+            iter2             = iter2+1;
         end
         
         iter       = iter+1;
