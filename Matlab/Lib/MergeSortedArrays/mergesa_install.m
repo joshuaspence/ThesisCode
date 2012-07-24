@@ -1,4 +1,4 @@
-function mergesa_install
+dfunction mergesa_install
 % function mergesa_install
 % installation of the package merge-sorted-arrays (mergesa)
 

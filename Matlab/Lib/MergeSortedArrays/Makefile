@@ -96,7 +96,7 @@ debug:   all
 
 all: depend $(MEXTARGET)
 
-%.mexa64: %.c $(SOURCES)
+%.$(MEXEXT): %.c
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
 	
 clean:

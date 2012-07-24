@@ -28,6 +28,7 @@
 
 #include "mex.h"
 #include "matrix.h"
+#include <string.h>
 
 /* Define correct type depending on platform
  * You might have to modify here depending on your compiler */

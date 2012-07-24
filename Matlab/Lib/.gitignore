@@ -12,3 +12,7 @@
 # GCC output
 *.o
 *.a
+
+# makedepend
+*.d
+*.back
