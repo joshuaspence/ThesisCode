@@ -37,13 +37,7 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 		for i = 1 : n
 		    for j = 1 : sizeB
 		        if i ~= B(j) && B(j) ~= 0 % pruning B(j)<>0
-		            %----------------------------
-		            % d = euclidean_dist(X(i,:), X(B(j),:))^2;
-		            % {
-		            V = X(i,:) - X(B(j),:);
-                    d = V * V';
-		            % }
-                    %----------------------------
+		            d = euclidean_dist_squared(X(i,:), X(B(j),:));
                     
 		            if l>1 && l<=k+1 && neighbours(j,l-1) == 0
 		                l = l-1;
@@ -102,6 +96,11 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
 
 % Calculate the Euclidean distance between two vectors.
 function dist = euclidean_dist(X, Y)
+    dist = norm(X - Y);
+%--------------------------------------------------------------------------
+
+% Calculate the squared Euclidean distance between two vectors.
+function dist_squared = euclidean_dist_squared(X, Y)
     V = X - Y;
-    dist = sqrt(V * V');
+    dist_squared = V * V';
 %--------------------------------------------------------------------------

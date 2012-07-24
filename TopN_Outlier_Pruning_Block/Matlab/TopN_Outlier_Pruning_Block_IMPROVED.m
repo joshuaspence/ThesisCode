@@ -5,15 +5,13 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Find top N outliers by comparing average distances to k nearest neighbours 
-% with pruning technique.
+% Find top N outliers by comparing average distances to k nearest 
+% neighbours with pruning technique.
 function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, k, N, block_size)
-    data_size      = size(data,1);
-
-    outliers       = zeros(1,N);    % keep these in sorted
-    outlier_scores = zeros(1,N);    % (descending) order
+    data_size      = size(data,1);  % the number of vectors n the dataset
+    outliers       = zeros(1,N);    % /- keep these in sorted
+    outlier_scores = zeros(1,N);    % \- (descending) order
     outliers_size  = 0;             % the number of initialised elements in the outliers array
-    
     cutoff = 0;
     count = 0;
 	
@@ -22,8 +20,8 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
         block             = (count+1 : count+actual_block_size);
         count             = count + actual_block_size;
 
-        neighbours      = zeros(actual_block_size, k);  % keep these in sorted
-        neighbours_dist = zeros(actual_block_size, k);  % (ascending) order
+        neighbours      = zeros(actual_block_size, k);  % /- keep these in sorted
+        neighbours_dist = zeros(actual_block_size, k);  % \- (ascending) order
         
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
 		found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current bloc
@@ -33,41 +31,20 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED(data, 
                 vector2_index = block(block_index);
 			    
                 if vector1_index ~= vector2_index && vector2_index ~= 0
-                    %----------------------------
-                    % d = euclidean_dist(data(vector1_index,:), data(vector2_index,:))^2;
-                    % {
-                    V = data(vector1_index,:) - data(vector2_index,:);
-                    d = V * V';
-                    % }
-                    %----------------------------
+                    d = euclidean_dist_squared(data(vector1_index,:), data(vector2_index,:));
                     
-                    %[neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = unsorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
-                    maxd = -1; % the value that was removed from the value_array
-                    if found(block_index) < k
-                        neighbours(block_index,found(block_index)+1)      = vector1_index;
-                        neighbours_dist(block_index,found(block_index)+1) = d;
-                        found(block_index) = found(block_index)+1;
-                    else
-                        % Find the maximum value.
-                        [max_value,max_index] = max(neighbours_dist(block_index,:));
-
-                        if (d < max_value)
-                            % Replace the maximum value.
-                            neighbours(max_index) = vector1_index;
-                            neighbours_dist(max_index) = d;
-                            maxd = max_value;
-                        end
+                    % Keep track of the k nearest neighbours to each vector
+                    % in the block.
+                    [neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
+                    
+                    % Update the score.
+                    if maxd ~= -1
+                        score(block_index) = (score(block_index)*k - maxd + d)/k;
                     end
                     
-                    % Update the score
-                    if (maxd ~= -1)
-                        %score(block_index) = (score(block_index)*k - maxd + d)/k;
-                        score(block_index) = mean(neighbours_dist(block_index,:), 2);
-                        
-                        if found(block_index) == k && score(block_index) < cutoff
-                            block(block_index) = 0;
-                            score(block_index) = 0;         
-                        end
+                    if found(block_index) == k && score(block_index) < cutoff
+                        block(block_index) = 0;
+                        score(block_index) = 0;         
                     end
                 end
             end
@@ -106,13 +83,14 @@ function [index_array, value_array, curr_size, removed_value] = sorted_insert(in
         % Special handling required if the array is incomplete.
         
         for i = size(value_array,2)-curr_size : 1 : size(value_array,2)
-            if or(new_value > value_array(i), i == size(value_array,2)-curr_size)
+            if new_value > value_array(i) || i == size(value_array,2)-curr_size
                 % Shuffle values down the array.
                 if (i ~= 1)
                     index_array(i-1) = index_array(i);
                     value_array(i-1) = value_array(i);
                 end
                 index = i;
+                removed_value = 0;
             else
                 % We have found the insertion point.
                 break;
@@ -169,6 +147,7 @@ function [index_array, value_array, curr_size, removed_value] = unsorted_insert(
         index_array(curr_size+1) = new_index; 
         value_array(curr_size+1) = new_value;
         curr_size                = curr_size+1;
+        removed_value = 0;
     else
         % Find the maximum value.
         [max_value,max_index] = max(value_array);
@@ -256,6 +235,11 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
 
 % Calculate the Euclidean distance between two vectors.
 function dist = euclidean_dist(X, Y)
+    dist = norm(X - Y);
+%--------------------------------------------------------------------------
+
+% Calculate the squared Euclidean distance between two vectors.
+function dist_squared = euclidean_dist_squared(X, Y)
     V = X - Y;
-    dist = sqrt(V * V');
+    dist_squared = V * V';
 %--------------------------------------------------------------------------
