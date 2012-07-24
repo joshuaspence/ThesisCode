@@ -60,8 +60,8 @@ for d = 1 : length(data)
     % Iterate over all iterations
     for j = 1 : iterations
     	iter_output_dir = strcat(output_dir, filesep, int2str(j));
-    	if exist(output_dir, 'dir') ~= 7
-    		mkdir(output_dir);
+    	if exist(iter_output_dir, 'dir') ~= 7
+    		mkdir(iter_output_dir);
     	end
     
     	% Randomize data
