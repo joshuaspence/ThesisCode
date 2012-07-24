@@ -1,0 +1,18 @@
+# Mex outputs
+*.mexglx
+*.mexa64
+*.mexmac
+*.mexmaci
+*.mexmaci64
+*.mexw32
+*.mexw64
+*.bin
+*.dll
+
+# GCC output
+*.o
+*.a
+
+# makedepend
+*.d
+*.d.bak

@@ -1,8 +1,16 @@
 % This is an improved implementation, based on the code provided by Nguyen 
 % Lu Dang Khoa for the thesis titled "Large Scale Anomaly Detection and 
-% Clustering Using Random Walks"
+% Clustering Using Random Walks".
 %--------------------------------------------------------------------------
+% Differences between original implementation:
+%   * Keeps (neighbours, neighbours_dist) in sorted (ascending) order to 
+%     reduce the amount of time required to locate the maximum distance.
+%   * Added the "found" array which makes more logical sense than the 
+%     confusing "l" variable in the original implementation.
+%   * Utilised sorted property of (outliers, outlier_scores) when 
+%     determining the best global outliers.
 %
+% This file has all code inline to reduce runtime overhead.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Find top N outliers by comparing average distances to k nearest 

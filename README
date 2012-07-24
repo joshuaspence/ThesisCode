@@ -1,2 +1,12 @@
 This directory contains code and scripts used by Joshua Spence during the 
 completion of his thesis project.
+
+SUBDIRECTORIES
+==============
+MATLAB
+    The MATLAB directory is used as the working directory for MATLAB.
+scripts
+    This directory contains useful scripts, mostly for parsing data.
+TopN_Outlier_Pruning_Block
+    This directory contains various implementations of the 
+    "TopN_Outlier_Pruning_Block" function.
