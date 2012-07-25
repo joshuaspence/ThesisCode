@@ -53,11 +53,11 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED_INLINE
                     % [neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
                     % Inline {
                         % Input argument setup
-                        index_array = neighbours(block_index,:)
-                        value_array = neighbours_dist(block_index,:)
-                        curr_size   = found(block_index)
-                        new_index   = vector1_index
-                        new_value   = d
+                        index_array = neighbours(block_index,:);
+                        value_array = neighbours_dist(block_index,:);
+                        curr_size   = found(block_index);
+                        new_index   = vector1_index;
+                        new_value   = d;
                         
                         index = 0;
                         removed_value = -1;
