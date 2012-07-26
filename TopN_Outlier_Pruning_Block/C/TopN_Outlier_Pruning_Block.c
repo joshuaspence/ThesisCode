@@ -2,8 +2,8 @@
 /* Includes                                                                   */
 /******************************************************************************/
 /* 
- * For array_uint_t, array_double_t, array_index_t, ARRAY_PARAMS, ARRAY_ELEMENT,
- * ROWS, COLS, ARRAY_ARG, MIN, MAX, CREATE_REAL_UINT_ARRAY, 
+ * For array_uint_t, array_double_t, array_index_t, ARRAY_SIGNATURE, 
+ * ARRAY_ELEMENT, ROWS, COLS, ARRAY_ARGUMENTS, MIN, MAX, CREATE_REAL_UINT_ARRAY, 
  * CREATE_REAL_DOUBLE_ARRAY, MATLAB_ARRAY, RETRIEVE_REAL_UINT_ARRAY, 
  * RETRIEVE_REAL_DOUBLE_ARRAY, FREE_ARRAY, IS_REAL_2D_FULL_DOUBLE, 
  * IS_REAL_SCALAR
@@ -86,20 +86,13 @@ static void sorted_insert(const array_index_t vector,
         
         /* Recalculate the score. */
         if (found == k) {
-#if 1
-            for (col = begin_index; col <= COLS(values); col++) {
-                mexPrintf("%d => %lf    ", (int) ARRAY_ELEMENT(indexes, vector, col), ARRAY_ELEMENT(values, vector, col));
-            }
-            mexPrintf("\n");
-#endif
-            ARRAY_ELEMENT(scores, 1, vector) = (array_double_t) average_over_row(ARRAY_ARG(values), vector);
+            ARRAY_ELEMENT(scores, 1, vector) = (array_double_t) average_over_row(ARRAY_ARGUMENTS(values), vector);
         } else if (found > k) {
-            //mexPrintf("d<maxd\n");
             ARRAY_ELEMENT(scores, 1, vector) = (array_double_t) (ARRAY_ELEMENT(scores, 1, vector) * (array_double_t) k - removed_value + value) / (array_double_t) k;
     
             if (ARRAY_ELEMENT(scores, 1, vector) <= 0) {
                 /* avoid round off error */
-                const array_double_t average = average_over_row(ARRAY_ARG(values), vector);
+                const array_double_t average = average_over_row(ARRAY_ARGUMENTS(values), vector);
                 ARRAY_ELEMENT(scores, 1, vector) = MAX(average, 0.0);
             }
         }
@@ -131,32 +124,35 @@ static void sorted_insert(const array_index_t vector,
  *     - outlier_scores_cols: Number of columns contained in the 
  *           'outlier_scores' array.
  */
-static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_PARAMS(data), 
+static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_SIGNATURE(data), 
                                         const unsigned int k, const unsigned int N, const unsigned int block_size, 
-                                        array_uint_t * ARRAY_PARAMS(outliers), 
-                                        array_double_t * ARRAY_PARAMS(outlier_scores)) {
+                                        array_uint_t * ARRAY_SIGNATURE(outliers), 
+                                        array_double_t * ARRAY_SIGNATURE(outlier_scores)) {
     if (ROWS(outliers) != 1 || COLS(outliers) != N)
         mexErrMsgTxt("Input 'outliers' must be a 1xN array.");
     if (ROWS(outlier_scores) != 1 || COLS(outlier_scores) != N)
         mexErrMsgTxt("Input 'outlier_scores' must be a 1xN array.");
 
     array_double_t cutoff = 0;
-    array_index_t begin; /* the index of the first vector in the block currently being processed */
-    unsigned int actual_block_size; /* actual_block_size may be smaller than block_size if "ROWS(data) % block_size != 0" */
+    array_index_t block_begin; /* the index of the first vector in the block currently being processed */
+    size_t actual_block_size; /* actual_block_size may be smaller than block_size if "ROWS(data) % block_size != 0" */
     
     for (begin = begin_index; begin <= ROWS(data); begin += actual_block_size) { /* while there are still blocks to process */
-        const unsigned int end = MIN(begin+block_size-1, ROWS(data)); /* the index of the last vector in the block */
-        actual_block_size = end-begin+1; /* the number of vectors in the current block */
+        const unsigned int block_end = MIN(begin+block_size-1, ROWS(data)); /* the index of the last vector in the block */
+        actual_block_size = block_end-begin+1; /* the number of vectors in the current block */
     
         /* 
-         * Process actual_block_size vector, beginning at vector "begin" and 
+         * Process actual_block_size vectors, beginning at vector "begin" and 
          * ending at vector "end" inclusive. In this iteration, we find the top
-         * "N" outliers based on distances from vectors in the current block.
+         * "N" outliers based on distances from vectors in the current block to
+         * their k-nearest neighbours.
          */
         
         /* Arrays to store the "k" nearest neighbours for each node. */
         CREATE_REAL_UINT_ARRAY  (neighbours,      actual_block_size, k); 
         CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
+        
+        /* An array used to mark an element as being removed from the block. */
         boolean removed[actual_block_size];
         
         /* 
@@ -165,17 +161,13 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_PARAM
          * "k" neighbours.
          */
         CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
-
+        
         unsigned int found = 1; /* how many nearest neighbours we have found */
+
         array_index_t vector1;
-        for (vector1 = begin; vector1 <= ROWS(data); vector1++) {
-            /*
-             * Within this loop, we would benefit from having all vectors with 
-             * the current block in the cache.
-             */
-            
+        for (vector1 = begin_index; vector1 <= ROWS(data); vector1++) {            
             array_index_t vector2;
-            for (vector2 = begin; vector2 <= end; vector2++) {
+            for (vector2 = block_begin; vector2 <= block_end; vector2++) {
                 const array_index_t vector2_index = vector2-begin+1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
                 if (vector1 != vector2 && removed[vector2_index] != true) {
@@ -183,9 +175,8 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_PARAM
                      * Calculate the square of the distance between the two 
                      * vectors (indexed by "vector1" and "vector2")
                      */
-                    const array_double_t dist         = distance(ARRAY_ARG(data), vector1, vector2);
+                    const array_double_t dist         = distance(ARRAY_ARGUMENTS(data), vector1, vector2);
                     const array_double_t dist_squared = dist * dist;
-                    //mexPrintf("dist=%e\n", dist_squared);
                     
                     if (found > 1 && found <= k+1 && equals_zero(ARRAY_ELEMENT(neighbours, vector2_index, found-1)))
                         found--;
@@ -206,21 +197,17 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_PARAM
                          * nearest neighbours.
                          */
                         if (found == k)
-                            ARRAY_ELEMENT(score, 1, vector2_index) = (array_double_t) average_over_row(ARRAY_ARG(neighbours_dist), vector2_index);
+                            ARRAY_ELEMENT(score, 1, vector2_index) = (array_double_t) average_over_row(ARRAY_ARGUMENTS(neighbours_dist), vector2_index);
                     } else { /* we have found the maximum (k) number of nearest neighbours */
-                        sorted_insert(vector2_index, k, ARRAY_ARG(neighbours), vector1, ARRAY_ARG(neighbours_dist), dist, ARRAY_ARG(score));
+                        sorted_insert(vector2_index, k, ARRAY_ARGUMENTS(neighbours), vector1, ARRAY_ARGUMENTS(neighbours_dist), dist, ARRAY_ARGUMENTS(score));
                     }
 #endif
-                    sorted_insert(vector2_index, found, k, ARRAY_ARG(neighbours), vector1, ARRAY_ARG(neighbours_dist), dist_squared, ARRAY_ARG(score));
+                    sorted_insert(vector2_index, found, k, ARRAY_ARGUMENTS(neighbours), vector1, ARRAY_ARGUMENTS(neighbours_dist), dist_squared, ARRAY_ARGUMENTS(score));
 
                     if (found >= k && ARRAY_ELEMENT(score, 1, vector2_index) < cutoff) {
                         removed[vector2_index] = true;
                         ARRAY_ELEMENT(score, 1, vector2_index)   = (array_double_t) 0.0;
-                        mexPrintf("should skip\n");
                     }
-                    mexPrintf("i=%d, j=%d, B(j)=%d, found=%d, score=%e\n", vector1, vector2_index, vector2, found, ARRAY_ELEMENT(score, 1, vector2_index));
-                } else if (removed[vector2_index] == true) {
-                    mexPrintf("skipped\n");
                 }
             }
             found++;
@@ -342,5 +329,5 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     OUTLIERSCORES_OUT       = MATLAB_ARRAY(outlier_scores);
 
     /* Call the function. */
-    top_n_outlier_pruning_block(ARRAY_ARG(data), k, N, block_size, ARRAY_ARG(outliers), ARRAY_ARG(outlier_scores));
+    top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data), k, N, block_size, ARRAY_ARGUMENTS(outliers), ARRAY_ARGUMENTS(outlier_scores));
 }
