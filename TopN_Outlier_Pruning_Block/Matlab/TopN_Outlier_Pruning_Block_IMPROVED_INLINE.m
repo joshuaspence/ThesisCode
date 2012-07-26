@@ -22,7 +22,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED_INLINE
     outliers_size  = 0;             % the number of initialised elements in the outliers array
     cutoff = 0;                     % 
     count = 0;                      % the number of vectors processed in a block
-	
+    
     while (data_size - count > 0) % load a block of examples from D
         actual_block_size = min(block_size, data_size-count);
         block             = (count+1 : count+actual_block_size);
@@ -32,12 +32,12 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED_INLINE
         neighbours_dist = zeros(actual_block_size, k);  % \- (ascending) order
         
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
-		found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
-		
+        found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
+        
         for vector1_index = 1 : data_size % for each d in D
             for block_index = 1 : actual_block_size % for each b in B
                 vector2_index = block(block_index);
-			    
+                
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     % d = euclidean_dist_squared(data(vector1_index,:), data(vector2_index,:));
                     % Inline {
@@ -121,7 +121,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED_INLINE
                 end
             end
         end
-		
+        
         % Keep track of the best outliers so far.
         % [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
         % Inline {
@@ -134,7 +134,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_IMPROVED_INLINE
         
             [scores, index] = sort(scores, 'descend');
             current_block = current_block(index);
-		
+            
             % Merge the two arrays.
             % [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, current_block, scores, size(current_block,2), size(outliers,2));
             % Inline {

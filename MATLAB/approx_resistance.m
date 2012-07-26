@@ -1,14 +1,15 @@
 function [Z, solver_time] = approx_resistance(A, k, tolerance, maxIter, scale)
 % From the n x n adjacency matrix A, create the k x n matrix (k=O(logn))
 % Z from which we can calculate the approximate effective resistances 
+%
 % between any two nodes in the graph.
 % Creation of Z requires solving k linear equations which solve by 
 % a linear solver.
-
-% tol       : tolerance of the method
-% maxIter   : maximum number of iterations
-% scale     : decide the sparsity of the random matrix or the scale of the speed up 
-%             the lager the scale, the sparser the random matrix
+%
+% tol       : Tolerance of the method
+% maxIter   : Maximum number of iterations
+% scale     : Decide the sparsity of the random matrix or the scale of the 
+%             speed up the lager the scale, the sparser the random matrix
 
 n = size(A,1);
 [x,y,w] = find(A); % nonzero entries of A
@@ -71,11 +72,11 @@ solver_time = toc;
 function [Z, solver_time] = approx_resistance_2(A, k, solver, projection)
 %%% Georgina's version
 %%%function Z = approx_resistance(A, k)
-%%%	From the n x n adjacency matrix A, create the k x n matrix
-%%%	Z from which we can calculate the effective resistances between
-%%%	any two nodes in the graph.
+%%% From the n x n adjacency matrix A, create the k x n matrix
+%%% Z from which we can calculate the effective resistances between
+%%% any two nodes in the graph.
 
-%%%	Creation of Z requires solving k linear equations.
+%%% Creation of Z requires solving k linear equations.
 
 n = size(A,1);
 [x,y,w] = find(A); % nonzero entries of A
@@ -94,20 +95,20 @@ disp('calculated X');
 %%%disp(['number of nonzeros in W.^(0.5) * B: ' num2str(nnz(X))]);
 Y = zeros(k,n);
 for i = 1:k
-	if strcmp(projection, 'randn')
-		Y(i,:) = randn(1,m) * X;
-	elseif strcmp(projection, 'plusminus1')
-		Y(i,:) = randones(1,m) * X;
-	elseif strcmp(projection, 'randR2')
-		Y(i,:) = achlioptas2(1,m) * X;
-	elseif strcmp(projection, 'randR2a')
-		Y(i,:) = achlioptas2(1,m) * X ./ sqrt(3);
-	elseif strcmp(projection, 'scale')
-		Y(i,:) = randones(1,m) * X .* 0.7071;
-	else 
-		disp('unknown type of random matrix')
-		Y(i,:) = randones(1,m) * X;
-	end
+    if strcmp(projection, 'randn')
+        Y(i,:) = randn(1,m) * X;
+    elseif strcmp(projection, 'plusminus1')
+        Y(i,:) = randones(1,m) * X;
+    elseif strcmp(projection, 'randR2')
+        Y(i,:) = achlioptas2(1,m) * X;
+    elseif strcmp(projection, 'randR2a')
+        Y(i,:) = achlioptas2(1,m) * X ./ sqrt(3);
+    elseif strcmp(projection, 'scale')
+        Y(i,:) = randones(1,m) * X .* 0.7071;
+    else 
+        disp('unknown type of random matrix')
+        Y(i,:) = randones(1,m) * X;
+    end
 end
 clear X;
 disp('calculated Y');
@@ -120,40 +121,39 @@ L = diag(sum(A)) - A;
 tic
 Z = zeros(k,n);
 if strcmp(solver,'CMG')
-	pfun = cmg_dd(A);
+    pfun = cmg_dd(A);
     
     for i=1:k
-		tolerance = 1e-9;
-		maxit=100;
-		Z(i,:) = pcg(L, Y(i,:)',tolerance,maxit,pfun);
+        tolerance = 1e-9;
+        maxit=100;
+        Z(i,:) = pcg(L, Y(i,:)',tolerance,maxit,pfun);
     end    
 elseif strcmp(solver,'pinv')
-	pinvL = pinv(full(L));
-	for i=1:k
-%%%		Z(i,:) = L \ Y(i,:)';
-		Z(i,:) = pinvL * Y(i,:)';
-%%%		solver_error = norm(L * Z(i,:)' - Y(i,:)')
-%%%		x = Z(i,:)' - pinvL * Y(i,:)';
-%%%		Lnorm_error = sqrt(x' * L * x)
-%%%		actual = pinvL * Y(i,:)';
-%%%		relative_error = Lnorm_error / sqrt(actual' * L * actual)
-    end	
+    pinvL = pinv(full(L));
+    for i=1:k
+%%%     Z(i,:) = L \ Y(i,:)';
+        Z(i,:) = pinvL * Y(i,:)';
+%%%     solver_error = norm(L * Z(i,:)' - Y(i,:)')
+%%%     x = Z(i,:)' - pinvL * Y(i,:)';
+%%%     Lnorm_error = sqrt(x' * L * x)
+%%%     actual = pinvL * Y(i,:)';
+%%%     relative_error = Lnorm_error / sqrt(actual' * L * actual)
+    end
 elseif strcmp(solver, 'mldivide')
-%%%	pinvL = pinv(full(L));
-	for i=1:k
-		Z(i,:) = L \ Y(i,:)';
-%%%		solver_error = norm(L * Z(i,:)' - Y(i,:)')
-%%%		x = Z(i,:)' - pinvL * Y(i,:)';
-%%%		Lnorm_error = sqrt(x' * L * x)
-%%%		actual = pinvL * Y(i,:)';
-%%%		relative_error = Lnorm_error / sqrt(actual' * L * actual)
-	end
+%%%pinvL = pinv(full(L));
+    for i=1:k
+        Z(i,:) = L \ Y(i,:)';
+%%%     solver_error = norm(L * Z(i,:)' - Y(i,:)')
+%%%     x = Z(i,:)' - pinvL * Y(i,:)';
+%%%     Lnorm_error = sqrt(x' * L * x)
+%%%     actual = pinvL * Y(i,:)';
+%%%     relative_error = Lnorm_error / sqrt(actual' * L * actual)
+    end
 end
 epsilon  = 24 * log(n) / k;
 solver_time = toc;
 
 function Q = randones(k,d)
-%%%	function Q = randones(k,d)
-%%%	returns a matrix of size (k,d) with random (1,-1) entries
+%%% function Q = randones(k,d)
+%%% returns a matrix of size (k,d) with random (1,-1) entries
 Q = randsrc(k,d);
-

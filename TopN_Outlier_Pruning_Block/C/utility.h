@@ -9,7 +9,7 @@
 /*----------------------------------------------------------------------------*/
 
 /* For comparing floating point numbers to zero. */
-#define EPSILON			0.0000001
+#define EPSILON         0.0000001
 
 /*
  * Check if a double is equal to zero (within a small tolerance epsilon).

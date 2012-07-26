@@ -1,27 +1,27 @@
 % All data sets are assumed to have a CSV extension
 data_dir = 'Datasets';
 data = {
-	'ball1', ...
-	'letter-recognition', ...
-	'magicgamma', ...
-	'mesh_network', ...
-	'runningex1k', ...
-	'runningex10k', ...
-	'runningex20k', ...
-	'runningex30k', ...
-	'runningex40k', ...
-	'runningex50k', ...
-	'segmentation', ...
-	'spam_train', ...
-	'testCD', ...
-	'testCDST', ...
-	'testCDST2', ...
-	'testCDST3', ...
-	'testoutrank', ...
-	'spam', ...
-	'connect4', ...
-	'pendigits', ...
-	'musk', ...
+    'ball1', ...
+    'letter-recognition', ...
+    'magicgamma', ...
+    'mesh_network', ...
+    'runningex1k', ...
+    'runningex10k', ...
+    'runningex20k', ...
+    'runningex30k', ...
+    'runningex40k', ...
+    'runningex50k', ...
+    'segmentation', ...
+    'spam_train', ...
+    'testCD', ...
+    'testCDST', ...
+    'testCDST2', ...
+    'testCDST3', ...
+    'testoutrank', ...
+    'spam', ...
+    'connect4', ...
+    'pendigits', ...
+    'musk', ...
 };
 
 % The name of the file that the "commute_distance_anomaly" script saves  
@@ -31,9 +31,9 @@ results_file_name = 'TopN_Outlier_Pruning_Block.mat';
 % Each data set will be profiled with each of the following profiles.
 base_profile = struct('name', 'original',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL');
 profiles = [
-	struct('name', 'original_inline',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL_INLINE'), ...
-	struct('name', 'improved',         'func', 'TopN_Outlier_Pruning_Block_IMPROVED'), ...
-	struct('name', 'improved_inline',  'func', 'TopN_Outlier_Pruning_Block_IMPROVED_INLINE'), ...
+    struct('name', 'original_inline',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL_INLINE'), ...
+    struct('name', 'improved',         'func', 'TopN_Outlier_Pruning_Block_IMPROVED'), ...
+    struct('name', 'improved_inline',  'func', 'TopN_Outlier_Pruning_Block_IMPROVED_INLINE'), ...
 %    struct('name', 'initial_C',        'func', 'TopN_Outlier_Pruning_Block'), ...
     ];
 
@@ -43,7 +43,7 @@ iterations = 1;
 % Root output directory. If this directory exists, it will be deleted.
 testing_root_dir = strcat('.', filesep, 'test');
 if exist(testing_root_dir, 'dir') == 7
-	rmdir(testing_root_dir, 's');
+    rmdir(testing_root_dir, 's');
 end
 mkdir(testing_root_dir);
 
@@ -59,25 +59,25 @@ for d = 1 : length(data)
     dataset_file = strcat(data_dir, filesep, dataset, '.csv');
     output_dir   = strcat(testing_root_dir, filesep, dataset);
     if exist(output_dir, 'dir') ~= 7;
-    	mkdir(output_dir);
+        mkdir(output_dir);
     end
     
     % Iterate over all iterations.
     for j = 1 : iterations
-    	output_dir = strcat(output_dir, filesep, int2str(j));
-    	if exist(output_dir, 'dir') ~= 7
-    		mkdir(output_dir);
-    	end
+        output_dir = strcat(output_dir, filesep, int2str(j));
+        if exist(output_dir, 'dir') ~= 7
+            mkdir(output_dir);
+        end
     
-    	% Randomize data.
-    	randomness_file = strcat(output_dir, filesep, 'random.mat');
-    	if exist(randomness_file, 'file') ~= 2
-			fprintf('\nRandomizing...\n');
-			randnState = randn('state');
-			randState = rand('state');
-		    save(randomness_file, 'randnState', 'randState');
+        % Randomize data.
+        randomness_file = strcat(output_dir, filesep, 'random.mat');
+        if exist(randomness_file, 'file') ~= 2
+            fprintf('\nRandomizing...\n');
+            randnState = randn('state');
+            randState = rand('state');
+            save(randomness_file, 'randnState', 'randState');
         else
-        	fprintf('\nUsing randomness from file...\n');
+            fprintf('\nUsing randomness from file...\n');
         end
         
         % Iterate over all profiles.
@@ -110,7 +110,7 @@ for d = 1 : length(data)
         
         % Compare results.
         base_results_file = strcat(output_dir, filesep, base_profile.name, filesep, results_file_name);
-		base_results = load(base_results_file);
+        base_results = load(base_results_file);
 
         for k = 1 : length(profiles)
             profile_name = profiles(k).name;
@@ -120,39 +120,39 @@ for d = 1 : length(data)
             
             % Compare OF_sum.
             % A larger value for OF_sum is better...
-        	var = char('OF_sum');
-        	fprintf('Checking variable "%s"... ', var);
+            var = char('OF_sum');
+            fprintf('Checking variable "%s"... ', var);
             if (base_results.(var) - eps) <= results.(var)
-            	fprintf('YES\n');
-           	else
-           		fprintf('NO\n');
-           		num_failures = num_failures + 1;
+                fprintf('YES\n');
+               else
+                   fprintf('NO\n');
+                   num_failures = num_failures + 1;
             end
             fprintf('%s:\t%d\n', base_profile.name, base_results.(var));
             fprintf('%s:\t%d\n', profile_name, results.(var));
             
             % Compare similarity of O.
             % No pass/fail criteria set.
-        	var = char('O');
-        	fprintf('Checking variable "%s"... ', var);
+            var = char('O');
+            fprintf('Checking variable "%s"... ', var);
             similarity = sum(ismember(base_results.(var), results.(var)));
             theSize = size(base_results.(var),2);
             fprintf('%d out of %d similar\n', similarity, theSize);
             
             % Compare range of OF.
             % Larger values are better.
-        	var = char('OF');
-        	fprintf('Checking variable "%s"... ', var);
+            var = char('OF');
+            fprintf('Checking variable "%s"... ', var);
             base_upper    = base_results.(var)(1);
             results_upper = results.(var)(1);
             base_lower    = base_results.(var)(size(base_results.(var),2));
             results_lower = results.(var)(size(results.(var),2));
             
             if (base_upper - eps <= results_upper) && (base_lower - eps <= results_lower)
-            	fprintf('YES\n');
-           	else
-           		fprintf('NO\n');
-           		num_failures = num_failures + 1;
+                fprintf('YES\n');
+               else
+                   fprintf('NO\n');
+                   num_failures = num_failures + 1;
             end
             fprintf('%s (lowest):\t%d\n', base_profile.name, base_lower);
             fprintf('%s (highest):\t%d\n', base_profile.name, base_upper);
@@ -164,8 +164,8 @@ end
 
 % Done. Delete testing files.
 if num_failures == 0
-	fprintf('\nAll tests passed successfully.\n');
-	%rmdir(testing_root_dir, 's');
+    fprintf('\nAll tests passed successfully.\n');
+    %rmdir(testing_root_dir, 's');
 else
-	fprintf('\n%d tests failed.\n', num_failures);
+    fprintf('\n%d tests failed.\n', num_failures);
 end
