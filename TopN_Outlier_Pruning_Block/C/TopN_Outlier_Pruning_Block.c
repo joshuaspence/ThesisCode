@@ -53,9 +53,9 @@
  */
 static void sorted_insert(const array_index_t vector, 
                           const unsigned int found, const unsigned int k, 
-                          array_uint_t * const ARRAY_PARAMS(indexes),  const array_uint_t index, 
-                          array_double_t * const ARRAY_PARAMS(values), const array_double_t value,
-                          array_double_t * const ARRAY_PARAMS(scores)) {
+                          array_uint_t * const ARRAY_SIGNATURE(indexes),  const array_uint_t index, 
+                          array_double_t * const ARRAY_SIGNATURE(values), const array_double_t value,
+                          array_double_t * const ARRAY_SIGNATURE(scores)) {
     if (found > k && value > ARRAY_ELEMENT(values, 1, COLS(values)))
         /* No need to insert. */
         return;
@@ -137,9 +137,9 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_SIGNA
     array_index_t block_begin; /* the index of the first vector in the block currently being processed */
     size_t actual_block_size; /* actual_block_size may be smaller than block_size if "ROWS(data) % block_size != 0" */
     
-    for (begin = begin_index; begin <= ROWS(data); begin += actual_block_size) { /* while there are still blocks to process */
-        const unsigned int block_end = MIN(begin+block_size-1, ROWS(data)); /* the index of the last vector in the block */
-        actual_block_size = block_end-begin+1; /* the number of vectors in the current block */
+    for (block_begin = begin_index; block_begin <= ROWS(data); block_begin += actual_block_size) { /* while there are still blocks to process */
+        const unsigned int block_end = MIN(block_begin+block_size-1, ROWS(data)); /* the index of the last vector in the block */
+        actual_block_size = block_end-block_begin+1; /* the number of vectors in the current block */
     
         /* 
          * Process actual_block_size vectors, beginning at vector "begin" and 
@@ -168,7 +168,7 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_SIGNA
         for (vector1 = begin_index; vector1 <= ROWS(data); vector1++) {            
             array_index_t vector2;
             for (vector2 = block_begin; vector2 <= block_end; vector2++) {
-                const array_index_t vector2_index = vector2-begin+1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
+                const array_index_t vector2_index = vector2-block_begin+1; /* index into the "neighbours", "neighbours_dist" and "score" arrays */
 
                 if (vector1 != vector2 && removed[vector2_index] != true) {
                     /* 
@@ -221,7 +221,7 @@ static void top_n_outlier_pruning_block(const array_double_t * const ARRAY_SIGNA
         CREATE_REAL_UINT_ARRAY(new_outliers, ROWS(outliers), actual_block_size + COLS(outliers));
         array_index_t col;
         for (col = 1; col <= actual_block_size; col++)
-            ARRAY_ELEMENT(new_outliers, 1, col) = (array_uint_t) begin - 1 + col;
+            ARRAY_ELEMENT(new_outliers, 1, col) = (array_uint_t) block_begin - 1 + col;
         for (col = 1; col <= COLS(outliers); col++)
             ARRAY_ELEMENT(new_outliers, 1, col + actual_block_size) = ARRAY_ELEMENT(outliers, 1, col);
          

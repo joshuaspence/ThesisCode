@@ -20,7 +20,7 @@ boolean equals_zero(const array_double_t x) {
         return false;
 }
 
-array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array), const array_index_t row) {
+array_double_t average_over_row(const array_double_t * const ARRAY_SIGNATURE(array), const array_index_t row) {
 #if 0
     array_double_t average = 0.0;
       
@@ -48,7 +48,7 @@ array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array)
 #endif
 }
 
-array_double_t distance(const array_double_t * const ARRAY_PARAMS(vectors), const array_index_t vector1, const array_index_t vector2) {
+array_double_t distance(const array_double_t * const ARRAY_SIGNATURE(vectors), const array_index_t vector1, const array_index_t vector2) {
     array_double_t sum_of_squares = 0;
     
     array_index_t col;

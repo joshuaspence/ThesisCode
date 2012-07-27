@@ -4,7 +4,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-/* For boolean, array_double_t, array_index_t, ARRAY_PARAMS */
+/* For boolean, array_double_t, array_index_t, ARRAY_SIGNATURE */
 #include "macros.h"
 /*----------------------------------------------------------------------------*/
 
@@ -35,7 +35,7 @@ boolean equals_zero(const array_double_t x);
  * Return:
  *    The average of all values within the single row of the array.
  */
-array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array), const array_index_t row);
+array_double_t average_over_row(const array_double_t * const ARRAY_SIGNATURE(array), const array_index_t row);
 
 /*
  * Calculate the Euclidean distance between two vectors (square root of the sum 
@@ -54,7 +54,7 @@ array_double_t average_over_row(const array_double_t * const ARRAY_PARAMS(array)
  * Return:
  *    The sum of the distance between values of the rows.
  */
-array_double_t distance(const array_double_t * const ARRAY_PARAMS(vectors), const array_index_t vector1, const array_index_t vector2);
+array_double_t distance(const array_double_t * const ARRAY_SIGNATURE(vectors), const array_index_t vector1, const array_index_t vector2);
 
 /*
  * Round a double to a specified number of digits.
