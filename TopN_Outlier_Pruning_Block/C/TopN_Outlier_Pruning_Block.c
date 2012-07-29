@@ -19,6 +19,8 @@
 /* For pow */
 #include <math.h>
 
+#include <assert.h> /* for assert */
+
 /******************************************************************************/
 
 /* 
@@ -43,52 +45,190 @@
  *     - score_array_rows:
  *     - score_array_cols:
  */
-static void sorted_insert(const array_index_t vector, 
-                          const unsigned int found, const unsigned int k, 
-                          array_uint_t * const ARRAY_SIGNATURE(indexes),  const array_uint_t index, 
-                          array_double_t * const ARRAY_SIGNATURE(values), const array_double_t value,
-                          array_double_t * const ARRAY_SIGNATURE(scores)) {
-    if (found > k && value > ARRAY_ELEMENT(values, 1, COLS(values)))
-        /* No need to insert. */
-        return;
+static void sorted_insert(const index_t block_index, 
+                          unsigned int * const ARRAY_SIGNATURE(index_array), 
+                          double * const ARRAY_SIGNATURE(value_array), 
+                          unsigned int * const ARRAY_SIGNATURE(found),
+                          const unsigned int new_index, const double new_value) {
+    /* Error checking. */
+    assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
     
-    /* 
-     * Because the array is sorted (in ascending order), the value to be removed
-     * will always be at the end of the array.
+    index_t index = 0; /* the index at which the new pair will be inserted */   
+    double removed_value = -1; /* the value that was removed from the value_array */
+    const size_t curr_size = ARRAY_ELEMENT(found, 1, block_index);
+    
+    /*
+     * Shuffle array elements from front to back. Elements greater than the new 
+     * value will be right-shifted by one index in the array.
+     *
+     * Note that uninitialised values in the array will appear on the left. That
+     * is, if the array is incomplete (has a size n < N) then the data in the 
+     * array is stored in the rightmost n indexes.
      */
-    const array_double_t removed_value = ARRAY_ELEMENT(values, vector, COLS(values));
     
-    array_index_t insert_index = 0; /* the index where the new [index,value]-pair should be inserted */
-    array_index_t col;
-    for (col = COLS(values); col >= begin_index; col--) {
-        if (equals_zero(ARRAY_ELEMENT(values, vector, col)) || value < ARRAY_ELEMENT(values, vector, col)) {
-            /* Shuffle elements to make room for the new [index,value]-pair. */
-            if (col > begin_index) {
-                ARRAY_ELEMENT(indexes, vector, col) = ARRAY_ELEMENT(indexes, vector, col - 1);
-                ARRAY_ELEMENT(values,  vector, col) = ARRAY_ELEMENT(values,  vector, col - 1);
-            }
-            insert_index = col;
-        }
-    }
-    
-    if (insert_index >= begin_index) {
-        /* Insert the new values. */
-        ARRAY_ELEMENT(indexes, vector, insert_index) = index;
-        ARRAY_ELEMENT(values,  vector, insert_index) = value;
+    if (curr_size < COLS(value_array)) {
+        /* Special handling required if the array is incomplete. */
         
-        /* Recalculate the score. */
-        if (found == k) {
-            ARRAY_ELEMENT(scores, 1, vector) = (array_double_t) average_over_row(ARRAY_ARGUMENTS(values), vector);
-        } else if (found > k) {
-            ARRAY_ELEMENT(scores, 1, vector) = (array_double_t) (ARRAY_ELEMENT(scores, 1, vector) * (array_double_t) k - removed_value + value) / (array_double_t) k;
-    
-            if (ARRAY_ELEMENT(scores, 1, vector) <= 0) {
-                /* avoid round off error */
-                const array_double_t average = average_over_row(ARRAY_ARGUMENTS(values), vector);
-                ARRAY_ELEMENT(scores, 1, vector) = MAX(average, 0.0);
+        index_t i;
+        for (i = COLS(value_array) - curr_size; i <= COLS(value_array); i++) {
+            if (new_value > ARRAY_ELEMENT(value_array, block_index, i) || (i == COLS(value_array) - curr_size) {
+                /* Shuffle values down the array. */
+                if (i != 1) {
+                    ARRAY_ELEMENT(index_array, block_index, i-1) = ARRAY_ELEMENT(index_array, block_index, i);
+                    ARRAY_ELEMENT(value_array, block_index, i-1) = ARRAY_ELEMENT(value_array, block_index, i);
+                }
+                index = i;
+                removed_value = 0;
+            } else {
+                /* We have found the insertion point. */
+                break;
             }
         }
+    } else {
+        index_t i;
+        for (i = COLS(value_array); i >= 1; i--) {
+            if (new_value < ARRAY_ELEMENT(value_array, block_index, i)) {
+                if (i == COLS(value_array)) {
+                    /*
+                     * The removed value is the value of the last element in the
+                     * array.
+                     */
+                    removed_value = ARRAY_ELEMENT(value_array, block_index, i);
+                }
+            
+                /* Shuffle values down the array. */
+                if (i != 1) {
+                    ARRAY_ELEMENT(index_array, block_index, i) = ARRAY_ELEMENT(index_array, block_index, i-1);
+                    ARRAY_ELEMENT(value_array, block_index, i) = ARRAY_ELEMENT(value_array, block_index, i-1);
+                }
+                index = i;
+            } else {
+                /* We have found the insertion point. */
+                break;
+        }
     }
+    
+    /*
+     * Insert the new pair and increment the current_size of the array (if 
+     * necessary).
+     */
+    if (index != 0) {
+        ARRAY_ELEMENT(index_array, block_index, index) = new_index;
+        ARRAY_ELEMENT(value_array, block_index, index) = new_value;
+        
+        if (curr_size < COLS(value_array)) {
+            ARRAY_ELEMENT(found, 1, block_index) = curr_size + 1;
+        }
+    }
+}
+
+/*
+ * Take the top N outliers based on the current outliers (identified by the 
+ * (outliers-outlier_scores) pairs) and the new outliers from the current block 
+ * (identified by the (block-scores) pairs).
+ *
+ * Note that the (outliers, outlier_scores) arrays should already be sorted. The
+ *(block-scores) arrays need not be sorted.
+ *
+ * This function uses merge sort.
+ */
+static size_t best_outliers(outliers, outlier_scores, outliers_size, current_block, scores)
+    /* Error checking. */
+    assert(ROWS(outliers) == ROWS(outlier_scores) && COLS(outliers) == COLS(outlier_scores));
+
+    /* Sort the (current_block, scores) arrays. */
+    sort(ARRAY_ARGUMENTS(current_block), ARRAY_ARGUMENTS(scores));
+    
+    /* Create two temporary arrays. */
+    CREATE_REAL_UINT_ARRAY  (temp_index, ROWS(outliers),       COLS(outliers));
+    CREATE_REAL_DOUBLE_ARRAY(temp_value, ROWS(outlier_scores), COLS(outlier_scores));
+    
+    /* Merge the two arrays. */
+    const size_t outliers_size merge(ARRAY_ARGUMENTS(outliers), ARRAY_ARGUMENTS(outlier_scores), outliers_size, 
+                                     ARRAY_ARGUMENTS(current_block), ARRAY_ARGUMENTS(scores), COLS(current_block),
+                                     ARRAY_ARGUMENTS(temp_index), ARRAY_ARGUMENTS(temp_value));
+    
+    /* Copy values from temporary arrays to real arrays. */
+    index_t row, col;
+    for (row = 1; row <= ROWS(outliers); row++) {
+        for (col = 1; col <= COLS(outliers); col++) {
+            ARRAY_ELEMENT(outliers,        row, col) = ARRAY_ELEMENT(temp_index, row, col);
+            ARRAY_ELEMENT(outliers_scores, row, col) = ARRAY_ELEMENT(temp_value, row, col);
+        }
+    }
+    
+    /* Delete temporary arrays. */
+    FREE_ARRAY(temp_index);
+    FREE_ARRAY(temp_value);
+    
+    return outliers_size;
+}
+
+/*
+ * TODO
+ */
+static void sort_descending(unsigned int * const ARRAY_SIGNATURE(index_array),
+                            double * const ARRAY_SIGNATURE(value_array)) {
+    
+}
+
+/*
+ * Merge two sorted arrays in descending order. Takes two pairs of 1xN arrays 
+ * and returns a pair of 1xN arrays.
+ *
+ * TODO
+ */
+static size_t merge(unsigned int * const ARRAY_SIGNATURE(index_array1), double * const ARRAY_SIGNATURE(value_array1), const size_t array1_size, 
+                   unsigned int * const ARRAY_SIGNATURE(index_array2), double * const ARRAY_SIGNATURE(value_array2), const size_t array2_size, 
+                   unsigned int * const ARRAY_SIGNATURE(index_array), double * const ARRAY_SIGNATURE(value_array)) {
+    /* Error checking. */
+    assert(ROWS(index_array1) = ROWS(value_array1) && COLS(index_array1) == COLS(value_array1));
+    assert(ROWS(index_array2) == ROWS(value_array2) && COLS(index_array2) == COLS(value_array2));
+    assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
+    assert(ROWS(index_array1) == 1);
+    assert(ROWS(index_array2) == 1);
+    assert(ROWS(index_array) == 1);
+    
+    size_t array_size  = 0;
+    
+    index_t iter  = 1; /* iterator through output array */
+    index_t iter1 = 1; /* iterator through array1 */
+    index_t iter2 = 1; /* iterator through array2 */
+    while (iter <= COLS(value_array) && (iter1 <= array1_size || iter2 <= array2_size)) {
+        if (iter1 > array1_size && iter2 <= array2_size) {
+            /* There are no remaining elements remaining in array1. */
+            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array2, 1, iter2);
+            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array2, 1, iter2);
+            iter1++;
+            iter2++;
+        } else if (iter1 <= array1_size && iter2 > array2_size) {
+            /* There are no remaining elements remaining in array2. */
+            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array1, 1, iter1);
+            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array1, 1, iter1);
+            iter1++;
+            iter2++;
+        } else if (iter1 > array1_size && iter2 > array2_size) {
+            /* 
+             * There are no remaining elements remaining in either array1 or 
+             * array2.
+             */
+            iter1++;
+            iter2++;
+        } else if (value_array1(iter1) >= value_array2(iter2)) {
+            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array1, 1, iter1);
+            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array1, 1, iter1);
+            iter1++;
+        } else if (value_array1(iter1) <= value_array2(iter2)) {
+            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array2, 1, iter2);
+            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array2, 1, iter2);
+            iter2++;
+        }
+        
+        iter++;
+        array_size++;
+    }
+    
+    return array_size;
 }
 
 /*
@@ -121,10 +261,8 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
                                  unsigned int * ARRAY_SIGNATURE(outliers), 
                                  double * ARRAY_SIGNATURE(outlier_scores)) {
     /* Error checking. */
-    if (ROWS(outliers) != 1 || COLS(outliers) != N)
-        mexErrMsgTxt("Input 'outliers' must be a 1xN array.");
-    if (ROWS(outlier_scores) != 1 || COLS(outlier_scores) != N)
-        mexErrMsgTxt("Input 'outlier_scores' must be a 1xN array.");
+    assert(ROWS(outliers) == 1 && COLS(outliers) != N);
+    assert(ROWS(outlier_scores) != 1 || COLS(outlier_scores) != N);
     
     double cutoff = 0;
     size_t outliers_size = 0; /* the number of initialised elements in the outliers array */
@@ -178,10 +316,10 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
                      */
                     const double dist_squared = distance_squared(ARRAY_ARGUMENTS(data), vector1, vector2);
                     
-                    removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(found), ARRAY_ARGUMENTS(neighbours), vector1, ARRAY_ARGUMENTS(neighbours_dist), dist_squared);
+                    removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), ARRAY_ARGUMENTS(found), vector1, dist_squared);
 
                     if (removed_distance >= 0) {
-                        ARRAY_ELEMENT(score, 1, block_index) = (ARRAY_ELEMENT(score, 1, block_index)*k - maxd + d)/k;
+                        ARRAY_ELEMENT(score, 1, block_index) = (ARRAY_ELEMENT(score, 1, block_index)*k - removed_distance + d)/k;
                     }
 
                     if (ARRAY_ELEMENT(found, 1, block_index) >= k && ARRAY_ELEMENT(score, 1, block_index) < cutoff) {

@@ -202,6 +202,12 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
     if size(index_array2) ~= size(value_array2)
         error('index_array1 and value_array1 are not suitable pairs.');
     end
+    if (size(index_array1, 1) ~= 1)
+        error('index_array1 should have only one row.');
+    end
+    if (size(index_array2, 1) ~= 1)
+        error('index_array1 should have only one row.');
+    end
     
     index_array = zeros(1,N);
     value_array = zeros(1,N);
@@ -210,18 +216,21 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
     iter  = 1;  % iterator through output array
     iter1 = 1;  % iterator through array1
     iter2 = 1;  % iterator through array2
-    while iter <= N && (iter1 <= array1_size || iter2 <= array2_size)        
+    while iter <= N && (iter1 <= array1_size || iter2 <= array2_size)
         if iter1 > array1_size && iter2 <= array2_size
+            % There are no remaining elements remaining in array1
             index_array(iter)     = index_array2(iter2);
             value_array(iter)     = value_array2(iter2);
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif iter1 <= array1_size && iter2 > array2_size
+            % There are no remaining elements remaining in array2
             index_array(iter)     = index_array1(iter1);
             value_array(iter)     = value_array1(iter1);
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif iter1 > array1_size && iter2 > array2_size
+            % The are no remaining elements in either array1 or array2
             iter1                 = iter1+1;
             iter2                 = iter2+1;
         elseif value_array1(iter1) >= value_array2(iter2)
