@@ -1,4 +1,6 @@
 # Mex outputs
+*.mexsol
+*.mexs64
 *.mexglx
 *.mexa64
 *.mexmac

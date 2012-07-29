@@ -1,4 +1,6 @@
 # Mex outputs
+*.mexsol
+*.mexs64
 *.mexglx
 *.mexa64
 *.mexmac
@@ -7,5 +9,6 @@
 *.mexw32
 *.mexw64
 
+# Make outputs
 *.bak
 *.d

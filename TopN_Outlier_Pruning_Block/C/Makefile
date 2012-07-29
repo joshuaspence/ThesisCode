@@ -5,6 +5,14 @@
 #------------------------------------------------------------------------------
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
+# Detect architecture
+ALL_ARCH := "" -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
+define try-architecture
+$(shell $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | grep -q 'No MATLAB bin directory for this machine architecture' || echo 0)
+endef
+discover_architecture := $(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),))
+ARCH := $(call discover_architecture)
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              COMPILER FLAGS                                  #
@@ -17,10 +25,10 @@ MAKEDEPEND_FLAGS := -Y
 MAKEDEPEND_TOKEN := '\# MAKEDEPENDS'
 
 # Default flags
-CFLAGS   := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*CFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
-CXXFLAGS := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*CXXFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+CFLAGS   := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*CFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+CXXFLAGS := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*CXXFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
 MXXFLAGS :=
-LDFLAGS  := $(shell $(MATLAB_DIR)/bin/mex -v 2>/dev/null | sed -n 's/\s*LDFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+LDFLAGS  := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*LDFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
 
 # Remove 'ANSI standard' flags
 CFLAGS   := $(shell echo -n $(CFLAGS) | sed 's/-ansi\s\+//')
@@ -52,12 +60,12 @@ LDFLAGS_OPT  := -O3
 #------------------------------------------------------------------------------#
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX      := $(MATLAB_DIR)/bin/mex
+		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH)
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX      := $(MATLAB_DIR)/bin/mex
+		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH) 
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
@@ -65,23 +73,42 @@ else
 	MEXEXT := $(shell MEXEXT) 
 endif
 
+# If the architecture has been overriden, then the mexext script won't return 
+# the correct extension.
+define getmexext
+$(shell \
+case $1 in \
+	-glnx86) \
+		ext="mexglx";; \
+	-glnxa64) \
+		ext="mexa64";; \
+	-mac) \
+		ext="mexmac";; \
+	-maci) \
+		ext="mexmaci";; \
+	-maci64) \
+		ext="mexmaci64";; \
+	-sol2) \
+		ext="mexsol";; \
+	-sol64) \
+		ext="mexs64";; \
+	-win64) \ 
+		ext="mexw64";; \
+	-win32) \
+		ext="mexw32";; \
+esac; \
+echo $$ext; \
+)
+endef
+
+ifneq ($(ARCH),)
+	MEXEXT := $(call getmexext,$(ARCH))
+endif
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              DEPENDENCY RULES                                # 
 #                                                                              #
-# USAGE OF RELEASE AND DEBUG MODE                                              #
-# to compile a release file (without debug hooks and more efficient) just type #
-# make. On the other hand, to enable debugging portions of the code (output)   #
-# and add debugging links to the binary (needed for line by line execution)    #
-# use :make debug"                                                             #
-#                                                                              #
-# EXPLANATION OF A RULE                                                        #
-# anything (%) that terminates in .bin for which an explicit rule is not       #  
-# available is made dependable on the file which has same name but .cpp        #
-# extension. The compiler (CXX) with options (CXXFLAGS) is called on each of   #
-# the elements that trigger the rule ($@, which is left side of ":") and       #
-# produces an output with filename expressed by the "first" of elements from   #
-# which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
 # Default build configuration
 .DEFAULT: release
@@ -110,7 +137,7 @@ debug:   all
 
 all: depend $(MEXTARGET)
 
-%.mexa64: %.c $(SOURCES)
+%.$(MEXEXT): %.c $(SOURCES)
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
 	
 clean:
