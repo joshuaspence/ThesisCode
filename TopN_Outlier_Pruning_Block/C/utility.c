@@ -15,7 +15,7 @@ boolean equals_zero(const double x) {
         return false;
 }
 
-double distance(const double * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2) {
+double distance_squared(const double * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2) {
     double sum_of_squares = 0;
     
     index_t col;

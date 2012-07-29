@@ -73,25 +73,6 @@
     EXPORT_TO_MATLAB(_array_, MATLAB_ARRAY(_array_)); \
     EMPTY_STATEMENT()
 
-/* Free the memory associated with an array. */
-#define FREE_ARRAY(_array_) \
-    do { mxDestroyArray(MATLAB_ARRAY(_array_)); } while (false)
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* Array properties                                                           */
-/*============================================================================*/
-/* To access an array element. Uses one-based row/column indexing. */
-#define ARRAY_ELEMENT(_array_, _row_, _column_) \
-    _array_[((_row_) - 1) + ROWS(_array_) * ((_column_) - 1)]
-
-/* To declare an array and the dimensions of the array in a function signature. */
-#define ARRAY_SIGNATURE(_array_) \
-    _array_, const size_t UNUSED ROWS(_array_), const size_t UNUSED COLS(_array_)
-
-/* To call a function that requires an array as well as the array dimensions. */
-#define ARRAY_ARGUMENTS(_array_) \
-    _array_, ROWS(_array_), COLS(_array_)
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef MATLAB_H_ */

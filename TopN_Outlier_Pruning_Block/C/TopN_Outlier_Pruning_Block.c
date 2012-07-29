@@ -27,35 +27,36 @@
  * TODO
  *
  * Insert "index" into "index_array" and "value" into "value_array", whilst 
- * maintaining the sorted property of "value_array". Updates the "score" array
- * as necessary.
+ * maintaining the sorted property of "value_array". Returns the value that was
+ * removed from "value_array", else -1.
  *
  * Parameters:
- *     - vector:
- *     - k:
+ *     - block_index:
  *     - index_array: The index array.
  *     - index_array_rows: The number of vectors contained within index_array.
  *     - index_array_cols: The size of each vector within index_array.
- *     - index: The value to be inserted into index_array.
  *     - value_array: The value array.
  *     - value_array_rows: The number of vectors contained within value_array.
  *     - value_array_cols: The size of each vector within value_array.
- *     - value: The value to be inserted into value_array.
- *     - score_array:
- *     - score_array_rows:
- *     - score_array_cols:
+ *     - found:
+ *     - found_rows:
+ *     - found_cols:
+ *     - new_index: The value to be inserted into index_array.
+ *     - new_value: The value to be inserted into value_array.
  */
-static void sorted_insert(const index_t block_index, 
-                          unsigned int * const ARRAY_SIGNATURE(index_array), 
-                          double * const ARRAY_SIGNATURE(value_array), 
-                          unsigned int * const ARRAY_SIGNATURE(found),
-                          const unsigned int new_index, const double new_value) {
+static double sorted_insert(const index_t block_index, 
+                            unsigned int * const ARRAY_SIGNATURE(index_array), 
+                            double * const ARRAY_SIGNATURE(value_array), 
+                            unsigned int * const VECTOR_SIGNATURE(found),
+                            const unsigned int new_index, const double new_value) {
     /* Error checking. */
     assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
+    assert(ROWS(index_array) == ELEMENTS(found));
+    assert(block_index >=1 && block_index <= ROWS(index_array)
     
     index_t index = 0; /* the index at which the new pair will be inserted */   
     double removed_value = -1; /* the value that was removed from the value_array */
-    const size_t curr_size = ARRAY_ELEMENT(found, 1, block_index);
+    const size_t curr_size = VECTOR_ELEMENT(found, block_index);
     
     /*
      * Shuffle array elements from front to back. Elements greater than the new 
@@ -117,49 +118,54 @@ static void sorted_insert(const index_t block_index,
         ARRAY_ELEMENT(value_array, block_index, index) = new_value;
         
         if (curr_size < COLS(value_array)) {
-            ARRAY_ELEMENT(found, 1, block_index) = curr_size + 1;
+            VECTOR_ELEMENT(found, block_index) = curr_size + 1;
         }
     }
 }
 
 /*
  * Take the top N outliers based on the current outliers (identified by the 
- * (outliers-outlier_scores) pairs) and the new outliers from the current block 
- * (identified by the (block-scores) pairs).
+ * (outliers, outlier_scores) pairs) and the new outliers from the current block 
+ * (identified by the (block, scores) pairs).
  *
- * Note that the (outliers, outlier_scores) arrays should already be sorted. The
- *(block-scores) arrays need not be sorted.
+ * Note that the (outliers, outlier_scores) vectors should already be sorted. 
+ * The (block, scores) vector need not be sorted. This function uses merge sort.
  *
- * This function uses merge sort.
+ * This functions returns the number of initialised elements in the outliers 
+ * vector.
  */
-static size_t best_outliers(outliers, outlier_scores, outliers_size, current_block, scores)
+static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers), 
+                            double * const VECTOR_SIGNATURE(outlier_scores), 
+                            const size_t outliers_size, 
+                            unsigned int * const VECTOR_SIGNATURE(current_block), 
+                            double * const VECTOR_SIGNATURE(scores)) {
     /* Error checking. */
-    assert(ROWS(outliers) == ROWS(outlier_scores) && COLS(outliers) == COLS(outlier_scores));
+    assert(ELEMENTS(outliers) == ELEMENTS(outlier_scores));
+    assert(ELEMENTS(current_block) == ELEMENTS(scores));
+    assert(outliers_size >= 1 && outliers_size <= ELEMENTS(outliers));
 
-    /* Sort the (current_block, scores) arrays. */
-    sort(ARRAY_ARGUMENTS(current_block), ARRAY_ARGUMENTS(scores));
+    /* Sort the (current_block, scores) vectors. */
+    sort_vectors_descending(VECTOR_ARGUMENTS(current_block), VECTOR_ARGUMENTS(scores));
     
-    /* Create two temporary arrays. */
-    CREATE_REAL_UINT_ARRAY  (temp_index, ROWS(outliers),       COLS(outliers));
-    CREATE_REAL_DOUBLE_ARRAY(temp_value, ROWS(outlier_scores), COLS(outlier_scores));
+    /* Create two temporary vectors for the output of the "merge" function. */
+    CREATE_REAL_UINT_VECTOR  (temp_index, ELEMENTS(outliers));
+    CREATE_REAL_DOUBLE_VECTOR(temp_value, ELEMENTS(outlier_scores));
     
-    /* Merge the two arrays. */
-    const size_t outliers_size merge(ARRAY_ARGUMENTS(outliers), ARRAY_ARGUMENTS(outlier_scores), outliers_size, 
-                                     ARRAY_ARGUMENTS(current_block), ARRAY_ARGUMENTS(scores), COLS(current_block),
-                                     ARRAY_ARGUMENTS(temp_index), ARRAY_ARGUMENTS(temp_value));
+    /* Merge the two vectors. */
+    const size_t outliers_size merge(VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores), outliers_size, 
+                                     VECTOR_ARGUMENTS(current_block), VECTOR_ARGUMENTS(scores), ELEMENTS(current_block),
+                                     VECTOR_ARGUMENTS(temp_index), VECTOR_ARGUMENTS(temp_value));
     
-    /* Copy values from temporary arrays to real arrays. */
-    index_t row, col;
-    for (row = 1; row <= ROWS(outliers); row++) {
-        for (col = 1; col <= COLS(outliers); col++) {
-            ARRAY_ELEMENT(outliers,        row, col) = ARRAY_ELEMENT(temp_index, row, col);
-            ARRAY_ELEMENT(outliers_scores, row, col) = ARRAY_ELEMENT(temp_value, row, col);
-        }
+    /* Copy values from temporary vectors to real vectors. */
+    index_t i;
+    for (i = 1; i <= ELEMENTS(outliers); i++) {
+        VECTOR_ELEMENT(outliers,        i) = VECTOR_ELEMENT(temp_index, i);
+        VECTOR_ELEMENT(outliers_scores, i) = VECTOR_ELEMENT(temp_value, i);
     }
     
-    /* Delete temporary arrays. */
-    FREE_ARRAY(temp_index);
-    FREE_ARRAY(temp_value);
+    /* Delete temporary vector. */
+    FREE_VECTOR(temp_index);
+    FREE_VECTOR(temp_value);
     
     return outliers_size;
 }
@@ -167,9 +173,109 @@ static size_t best_outliers(outliers, outlier_scores, outliers_size, current_blo
 /*
  * TODO
  */
-static void sort_descending(unsigned int * const ARRAY_SIGNATURE(index_array),
-                            double * const ARRAY_SIGNATURE(value_array)) {
+static void sort_vectors_descending(unsigned int * const VECTOR_SIGNATURE(index_vector),
+                                    double * const VECTOR_SIGNATURE(value_vector)) {
+    /* Error checking. */
+    assert(ELEMENTS(index_vector) == ELEMENTS(value_vector));
     
+    /* Create temporary vectors for "merge_sort" function output. */
+    CREATE_REAL_UINT_VECTOR  (temp_index, ELEMENTS(index_vector));
+    CREATE_REAL_DOUBLE_VECTOR(temp_value, ELEMENTS(value_vector));
+    
+    merge_sort(VECTOR_ARGUMENTS(index_vector), VECTOR_ARGUMENTS(value_vector), 
+               1, ELEMENTS(index_vector),
+               VECTOR_ARGUMENTS(temp_index), VECTOR_ARGUMENTS(temp_value));
+    
+    /* Copy the values from the temporary vectors. */
+    index_t i;
+    for (i = 1; i <= ELEMENTS(index_vector); i++) {
+        VECTOR_ELEMENT(index_vector, i) = VECTOR_ELEMENT(temp_index, i);
+        VECTOR_ELEMENT(value_vector, i) = VECTOR_ELEMENT(temp_value, i);
+    }
+    
+    /* Delete the temporary vectors. */
+    FREE_VECTOR(temp_index);
+    FREE_VECTOR(temp_value);
+}
+
+/*
+ * TODO
+ */
+static void merge_sort(unsigned int * const VECTOR_SIGNATURE(index_vector),
+                       double * const VECTOR_SIGNATURE(value_vector),
+                       index_t start, index_t end,
+                       unsigned int * const VECTOR_SIGNATURE(output_index),
+                       double * const VECTOR_SIGNATURE(output_value)) {
+    /* Error checking. */
+    assert(ELEMENTS(index_vector) == ELEMENTS(value_vector));
+    assert(ELEMENTS(output_index) == ELEMENTS(output_value));
+    assert(ELEMENTS(index_vector) == ELEMENTS(output_index));
+    assert(start >= 1 && start <= ELEMENTS(index_vector));
+    assert(end >= 1 && end <= ELEMENTS(index_vector));
+    assert(start <= end);
+    
+    const size_t size = end - start + 1;
+    
+    if (size <= 2) {
+        /* Base case */
+        
+        if (size == 2) {
+            if (VECTOR_ELEMENT(value_vector, start) < VECTOR_ELEMENT(value_vector, end)) {
+                /* Swap the values around. */
+                unsigned int temp_index = VECTOR_ELEMENT(index_vector, start);
+                double       temp_value = VECTOR_ELEMENT(value_vector, start);
+                
+                VECTOR_ELEMENT(index_vector, start) = VECTOR_ELEMENT(index_vector, end);
+                VECTOR_ELEMENT(value_vector, start) = VECTOR_ELEMENT(value_vector, end);
+                
+                VECTOR_ELEMENT(index_vector, end)   = temp_index;
+                VECTOR_ELEMENT(value_vector, end)   = temp_value;
+            }
+        }
+    } else {
+        /* Recursion */
+        const index_t left_start  = start;
+        const index_t left_end    = start + (size-1) / 2;
+        const index_t right_start = left_end + 1;
+        const index_t right_end   = end;
+        
+        /* Sort the left half. */
+        merge_sort(VECTOR_ARGUMENTS(index_vector), VECTOR_ARGUMENTS(value_vector), left_start,  left_end);
+        
+        /* Sort the right half. */
+        merge_sort(VECTOR_ARGUMENTS(index_vector), VECTOR_ARGUMENTS(value_vector), right_start, right_end);
+        
+        /* Merge the two sorted halves. */
+        index_t left_iter  = left_start;
+        index_t right_iter = right_start;
+        while (left_iter <= left_end || right_iter <= right_end) {
+            assert(right_iter <= right_end);
+            
+            if (left_iter > left_end && right_iter <= right_end) {
+                right_iter++;
+            } 
+
+            if (VECTOR_ELEMENT(value_vector, left_iter) >= VECTOR_ELEMENT(value_vector, right_iter)) {
+                /* The two elements are ordered relatively correct. */
+                left_iter++;
+            }
+            if (VECTOR_ELEMENT(value_vector, left_iter) < VECTOR_ELEMENT(value_vector, right_iter)) {
+                /* Swap the values around. */
+                unsigned int temp_index = VECTOR_ELEMENT(index_vector, left_iter);
+                double       temp_value = VECTOR_ELEMENT(value_vector, left_iter);
+                
+                VECTOR_ELEMENT(index_vector, left_iter)  = VECTOR_ELEMENT(index_vector, right_iter);
+                VECTOR_ELEMENT(value_vector, left_iter)  = VECTOR_ELEMENT(value_vector, right_iter);
+                
+                VECTOR_ELEMENT(index_vector, right_iter) = temp_index;
+                VECTOR_ELEMENT(value_vector, right_iter) = temp_value;
+                
+                left_iter++;
+            } else {
+                left_iter++;
+            }
+        }
+    }
 }
 
 /*
@@ -178,33 +284,31 @@ static void sort_descending(unsigned int * const ARRAY_SIGNATURE(index_array),
  *
  * TODO
  */
-static size_t merge(unsigned int * const ARRAY_SIGNATURE(index_array1), double * const ARRAY_SIGNATURE(value_array1), const size_t array1_size, 
-                   unsigned int * const ARRAY_SIGNATURE(index_array2), double * const ARRAY_SIGNATURE(value_array2), const size_t array2_size, 
-                   unsigned int * const ARRAY_SIGNATURE(index_array), double * const ARRAY_SIGNATURE(value_array)) {
+static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
+                    unsigned int * const VECTOR_SIGNATURE(index_array2), double * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
+                    unsigned int * const VECTOR_SIGNATURE(index_array),  double * const VECTOR_SIGNATURE(value_array)) {
     /* Error checking. */
     assert(ROWS(index_array1) = ROWS(value_array1) && COLS(index_array1) == COLS(value_array1));
     assert(ROWS(index_array2) == ROWS(value_array2) && COLS(index_array2) == COLS(value_array2));
     assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
-    assert(ROWS(index_array1) == 1);
-    assert(ROWS(index_array2) == 1);
-    assert(ROWS(index_array) == 1);
+    assert(array1_size >= 1 && array1_size <= ELEMENTS(index_array1));
+    assert(array2_size >= 1 && array2_size <= ELEMENTS(index_array2));
     
-    size_t array_size  = 0;
-    
-    index_t iter  = 1; /* iterator through output array */
-    index_t iter1 = 1; /* iterator through array1 */
-    index_t iter2 = 1; /* iterator through array2 */
-    while (iter <= COLS(value_array) && (iter1 <= array1_size || iter2 <= array2_size)) {
+    size_t  array_size  = 0;
+    index_t iter        = 1; /* iterator through output array */
+    index_t iter1       = 1; /* iterator through array1 */
+    index_t iter2       = 1; /* iterator through array2 */
+    while (iter <= ELEMENTS(value_array) && (iter1 <= array1_size || iter2 <= array2_size)) {
         if (iter1 > array1_size && iter2 <= array2_size) {
             /* There are no remaining elements remaining in array1. */
-            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array2, 1, iter2);
-            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array2, 1, iter2);
+            VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array2, iter2);
+            VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array2, iter2);
             iter1++;
             iter2++;
         } else if (iter1 <= array1_size && iter2 > array2_size) {
             /* There are no remaining elements remaining in array2. */
-            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array1, 1, iter1);
-            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array1, 1, iter1);
+            VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array1, iter1);
+            VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array1, iter1);
             iter1++;
             iter2++;
         } else if (iter1 > array1_size && iter2 > array2_size) {
@@ -215,12 +319,12 @@ static size_t merge(unsigned int * const ARRAY_SIGNATURE(index_array1), double *
             iter1++;
             iter2++;
         } else if (value_array1(iter1) >= value_array2(iter2)) {
-            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array1, 1, iter1);
-            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array1, 1, iter1);
+            VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array1, iter1);
+            VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array1, iter1);
             iter1++;
         } else if (value_array1(iter1) <= value_array2(iter2)) {
-            ARRAY_ELEMENT(index_array, 1, iter) = ARRAY_ELEMENT(index_array2, 1, iter2);
-            ARRAY_ELEMENT(value_array, 1, iter) = ARRAY_ELEMENT(value_array2, 1, iter2);
+            VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array2, iter2);
+            VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array2, iter2);
             iter2++;
         }
         
@@ -258,11 +362,11 @@ static size_t merge(unsigned int * const ARRAY_SIGNATURE(index_array1), double *
  */
 void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
                                  const unsigned int k, const unsigned int N, const unsigned int block_size, 
-                                 unsigned int * ARRAY_SIGNATURE(outliers), 
-                                 double * ARRAY_SIGNATURE(outlier_scores)) {
+                                 unsigned int * VECTOR_SIGNATURE(outliers), 
+                                 double * VECTOR_SIGNATURE(outlier_scores)) {
     /* Error checking. */
-    assert(ROWS(outliers) == 1 && COLS(outliers) != N);
-    assert(ROWS(outlier_scores) != 1 || COLS(outlier_scores) != N);
+    assert(ELEMENTS(outliers) == ELEMENTS(outlier_scores));
+    assert(ELEMENTS(outliers) == N);
     
     double cutoff = 0;
     size_t outliers_size = 0; /* the number of initialised elements in the outliers array */
@@ -287,21 +391,21 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
         CREATE_REAL_UINT_ARRAY  (neighbours,      actual_block_size, k); 
         CREATE_REAL_DOUBLE_ARRAY(neighbours_dist, actual_block_size, k);
         
-        /* An array used to mark a vector as being removed from the block. */
-        CREATE_REAL_BOOLEAN_ARRAY(removed, 1, actual_block_size);
+        /* A vector used to mark a vector as being removed from the block. */
+        CREATE_BOOLEAN_VECTOR(removed, actual_block_size);
         
         /* 
          * The "score" function can be any monotonically decreasing function of 
          * the nearest neighbor distances. We use the average distance to the 
          * "k" neighbours.
          */
-        CREATE_REAL_DOUBLE_ARRAY(score, 1, actual_block_size);
+        CREATE_REAL_DOUBLE_VECTOR(score, actual_block_size);
         
         /*
          * How many nearest neighbours we have found, for each vector in the 
          * block.
          */
-        CREATE_REAL_UINT_ARRAY(found, 1, actual_block_size);
+        CREATE_REAL_UINT_VECTOR(found, actual_block_size);
 
         index_t vector1;
         for (vector1 = 1; vector1 <= ROWS(data); vector1++) {            
@@ -309,22 +413,22 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
             for (vector2 = block_begin; vector2 <= block_end; vector2++) {
                 const index_t block_index = vector2-block_begin+1;
 
-                if (vector1 != vector2 && ARRAY_ELEMENT(removed, 1, block_index) != true) {
+                if (vector1 != vector2 && VECTOR_ELEMENT(removed, block_index) != true) {
                     /* 
                      * Calculate the square of the distance between the two 
                      * vectors (indexed by "vector1" and "vector2")
                      */
                     const double dist_squared = distance_squared(ARRAY_ARGUMENTS(data), vector1, vector2);
                     
-                    removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), ARRAY_ARGUMENTS(found), vector1, dist_squared);
+                    removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
 
                     if (removed_distance >= 0) {
                         ARRAY_ELEMENT(score, 1, block_index) = (ARRAY_ELEMENT(score, 1, block_index)*k - removed_distance + d)/k;
                     }
 
-                    if (ARRAY_ELEMENT(found, 1, block_index) >= k && ARRAY_ELEMENT(score, 1, block_index) < cutoff) {
-                        ARRAY_ELEMENT(removed, 1, block_index) = true;
-                        ARRAY_ELEMENT(score, 1, block_index)   = 0.0;
+                    if (VECTOR_ELEMENT(found, block_index) >= k && VECTOR_ELEMENT(score, block_index) < cutoff) {
+                        VECTOR_ELEMENT(removed, block_index) = true;
+                        VECTOR_ELEMENT(score  , block_index) = 0.0;
                     }
                 }
             }
@@ -341,12 +445,12 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
          * store an outlier in future iterations if its score is better than the
          * cutoff.
          */
-        cutoff = ARRAY_ELEMENT(outlier_scores, 1, N);
+        cutoff = VECTOR_ELEMENT(outlier_scores, N);
         
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
-        FREE_ARRAY(removed);
-        FREE_ARRAY(score);
-        FREE_ARRAY(found);
+        FREE_VECTOR(removed);
+        FREE_VECTOR(score);
+        FREE_VECTOR(found);
     }
 }
