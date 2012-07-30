@@ -21,7 +21,7 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
     while (n-count > 0)
         B = zeros(1, block_size);
         B = (count+1 : count+block_size);
-        count = count + block_size;        
+        count = count + block_size;
         
         if count <= n
             sizeB = block_size;

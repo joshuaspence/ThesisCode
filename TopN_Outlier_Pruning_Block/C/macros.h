@@ -2,6 +2,13 @@
 #define MACROS_H_
 
 /*============================================================================*/
+/* Includes                                                                   */
+/*============================================================================*/
+#include <stddef.h> /* for size_t */
+#include <stdlib.h> /* for malloc, free */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* General purpose utility macros                                             */
 /*============================================================================*/
 #define MIN(X,Y)                ((X) < (Y) ? (X) : (Y))
@@ -32,7 +39,6 @@
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
-#include <stddef.h> /* for size_t */
 typedef size_t index_t;
 typedef double double_t;
 typedef unsigned int uint_t;
@@ -41,8 +47,6 @@ typedef unsigned int uint_t;
 /*============================================================================*/
 /* Macros for arrays                                                          */
 /*============================================================================*/
-#include <stdlib.h> /* for malloc, free */
-
 /* Create an array of doubles. */
 #define CREATE_REAL_DOUBLE_ARRAY(_array_, _rows_, _cols_) \
     const size_t ROWS(_array_) = _rows_; \
@@ -81,8 +85,6 @@ typedef unsigned int uint_t;
 /*============================================================================*/
 /* Macros for vectors                                                         */
 /*============================================================================*/
-#include <stdlib.h> /* for malloc, free */
-
 /* Create a vector of doubles. */
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \

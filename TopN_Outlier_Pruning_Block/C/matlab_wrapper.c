@@ -46,39 +46,48 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
      * Make sure the first input argument is a real 2D full (non-sparse) double 
      * array.
      */
-    if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN))
+    if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN)) {
         mexErrMsgTxt("Input 'data' must be a real full 2D double array.");
+    }
     MATLAB_RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
 
     /* Make sure the second input argument is an integer. */
-    if (!IS_REAL_SCALAR(K_IN))
+    if (!IS_REAL_SCALAR(K_IN)) {
         mexErrMsgTxt("Input 'k' must be a scalar.");
+    }
     const double k_dbl = mxGetScalar(K_IN);
-    if ((int) k_dbl <= 0)
+    if ((int) k_dbl <= 0) {
         mexErrMsgTxt("Input 'k' must be positive.");
+    }
     const size_t k = (size_t) k_dbl;
 
     /* Make sure the third input argument is an integer. */
-    if (!IS_REAL_SCALAR(N_IN))
+    if (!IS_REAL_SCALAR(N_IN)) {
         mexErrMsgTxt("Input 'N' must be a scalar.");
+    }
     const double N_dbl = mxGetScalar(N_IN);
-    if ((int) N_dbl <= 0)
+    if ((int) N_dbl <= 0) {
         mexErrMsgTxt("Input 'N' must be positive.");
+    }
     const size_t N = (size_t) N_dbl;
 
     /* Make sure the fourth input argument is an integer. */
-    if (!IS_REAL_SCALAR(BLOCKSIZE_IN))
+    if (!IS_REAL_SCALAR(BLOCKSIZE_IN)) {
         mexErrMsgTxt("Input 'block_size' must be a scalar.");
+    }
     const double block_size_dbl = mxGetScalar(BLOCKSIZE_IN);
-    if ((int) block_size_dbl <= 0)
+    if ((int) block_size_dbl <= 0) {
         mexErrMsgTxt("Input 'block_size' must be positive.");
+    }
     const size_t block_size = (size_t) block_size_dbl;
     
     /* Additional error checking. */
-    if (MATLAB_ROWS(data) < N)
+    if (MATLAB_ROWS(data) < N) {
         mexErrMsgTxt("Input 'N' must be less than or equal to the number of vectors in the 'data' array.");
-    if (MATLAB_ROWS(data) < k)
+    }
+    if (MATLAB_ROWS(data) < k) {
         mexErrMsgTxt("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
+    }
     
     /* Convert the input to proper format. */
     CREATE_REAL_DOUBLE_ARRAY(data_in, MATLAB_ROWS(data), MATLAB_COLS(data));
@@ -93,22 +102,22 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     } while (0);
     
     /* Create the output arrays. */
-    CREATE_REAL_UINT_VECTOR  (outliers,       N);
-    CREATE_REAL_DOUBLE_VECTOR(outlier_scores, N);
+    CREATE_REAL_UINT_VECTOR  (outliers_out,       N);
+    CREATE_REAL_DOUBLE_VECTOR(outlier_scores_out, N);
 
     /* Call the function. */
-    top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data_in), k, N, block_size, VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores));
+    top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data_in), k, N, block_size, VECTOR_ARGUMENTS(outliers_out), VECTOR_ARGUMENTS(outlier_scores_out));
     
     /* Convert the output to MATLAB format. */
-    MATLAB_CREATE_REAL_UINT_VECTOR   (outliers_out,       N);
-    MATLAB_CREATE_REAL_DOUBLE_VECTOR (outlier_scores_out, N);
-    OUTLIERS_OUT      = MATLAB_VECTOR(outliers_out);
-    OUTLIERSCORES_OUT = MATLAB_VECTOR(outlier_scores_out);
+    MATLAB_CREATE_REAL_UINT_VECTOR   (outliers,       N);
+    MATLAB_CREATE_REAL_DOUBLE_VECTOR (outlier_scores, N);
+    OUTLIERS_OUT      = MATLAB_VECTOR(outliers);
+    OUTLIERSCORES_OUT = MATLAB_VECTOR(outlier_scores);
     do {
         index_t element;
         for (element = 1; element <= ELEMENTS(outliers); element++) {
-            MATLAB_VECTOR_ELEMENT(outliers_out,       element) = (m_uint_t)   VECTOR_ELEMENT(outliers,       element);
-            MATLAB_VECTOR_ELEMENT(outlier_scores_out, element) = (m_double_t) VECTOR_ELEMENT(outlier_scores, element);
+            MATLAB_VECTOR_ELEMENT(outliers,       element) = (m_uint_t)   VECTOR_ELEMENT(outliers_out,       element);
+            MATLAB_VECTOR_ELEMENT(outlier_scores, element) = (m_double_t) VECTOR_ELEMENT(outlier_scores_out, element);
         }
     } while (0);
 }
