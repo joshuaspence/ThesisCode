@@ -115,7 +115,7 @@ endif
 TARGET     := TopN_Outlier_Pruning_Block
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
-FILES      := TopN_Outlier_Pruning_Block matlab_wrapper utility
+FILES      := TopN_Outlier_Pruning_Block matlab_wrapper
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 OBJS       := $(foreach f,$(FILES),$(addsuffix .o,$f))

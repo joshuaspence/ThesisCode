@@ -4,11 +4,8 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-/* 
- * For mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, mxIsSparse, 
- * mxArray, mxCreateDoubleMatrix, mxGetData, mxGetM, mxGetN, mxDestroyArray
- */
 #include <mex.h>
+#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -38,28 +35,29 @@
 /*============================================================================*/
 #define MATLAB_ROWS(array)      array##_rows
 #define MATLAB_COLS(array)      array##_cols
-#define MATLAB_ELEMENTS(array)  array##_elements
+#define MATLAB_NDIMS(array)     array##_ndims
+#define MATLAB_DIMS(array)      array##_dims
+#define MATLAB_ELEMENTS(vector) vector##_elements
 #define MATLAB_ARRAY(array)     array##_matlab
 #define MATLAB_VECTOR(array)    array##_vector
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
+/* Types                                                                      */
+/*============================================================================*/
+typedef double m_double_t;
+typedef double m_uint_t;
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* Macros for arrays                                                          */
 /*============================================================================*/
-/* Create a matrix of doubles. */
-#define MATLAB_CREATE_REAL_DOUBLE_ARRAY(_array_, _rows_, _cols_) \
-    const array_index_t MATLAB_ROWS(_array_) = _rows_; \
-    const array_index_t MATLAB_COLS(_array_) = _cols_; \
-    mxArray * const UNUSED MATLAB_ARRAY(_array_) = mxCreateDoubleMatrix(MATLAB_ROWS(_array_), MATLAB_COLS(_array_), mxREAL); \
-    double * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
-    EMPTY_STATEMENT()
-
 /* Retrieve a matrix of doubles from a specified location. */
 #define MATLAB_RETRIEVE_REAL_DOUBLE_ARRAY(_array_, _location_) \
     const size_t UNUSED MATLAB_ROWS(_array_) = mxGetM(_location_); \
     const size_t UNUSED MATLAB_COLS(_array_) = mxGetN(_location_); \
     mxArray * const UNUSED MATLAB_ARRAY(_array_) = (mxArray *) _location_; \
-    double * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
+    m_double_t * const _array_ = mxGetData(MATLAB_ARRAY(_array_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
@@ -90,7 +88,16 @@
 #define MATLAB_CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t MATLAB_ELEMENTS(_vector_) = _elements_; \
     mxArray * const UNUSED MATLAB_VECTOR(_vector_) = mxCreateDoubleMatrix(1, MATLAB_ELEMENTS(_vector_), mxREAL); \
-    double * const _vector_ = mxGetData(MATLAB_VECTOR(_vector_)); \
+    m_double_t * const _vector_ = mxGetData(MATLAB_VECTOR(_vector_)); \
+    EMPTY_STATEMENT()
+
+/* Create a vector of unsigned integers. */
+#define MATLAB_CREATE_REAL_UINT_VECTOR(_vector_, _elements_) \
+    const size_t MATLAB_ELEMENTS(_vector_) = _elements_; \
+    const mwSize MATLAB_NDIMS(_vector_) = 1; \
+    const mwSize MATLAB_DIMS(_vector_)[] = { MATLAB_ELEMENTS(_vector_) }; \
+    mxArray * const UNUSED MATLAB_VECTOR(_vector_) = mxCreateNumericArray(MATLAB_NDIMS(_vector_), MATLAB_DIMS(_vector_), mxUINT32_CLASS, mxREAL); \
+    m_uint_t * const _vector_ = mxGetData(MATLAB_VECTOR(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */

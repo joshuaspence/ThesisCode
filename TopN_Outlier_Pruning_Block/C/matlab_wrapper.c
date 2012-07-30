@@ -1,27 +1,9 @@
-/*============================================================================*/
-/* Includes                                                                   */
-/*============================================================================*/
-/* for mxArray, mexErrMsgTxt, mxGetScalar */
+/* Includes */
 #include <mex.h>
-
-/* 
- * For CREATE_REAL_DOUBLE_ARRAY, CREATE_REAL_UINT_VECTOR, 
- * CREATE_REAL_DOUBLE_VECTOR, ROWS, COLS, ELEMENTS, ARRAY_ELEMENT, 
- * VECTOR_ELEMENT, ARRAY_ARGUMENTS, VECTOR_ARGUMENTS
- */
+#include <stdlib.h>
 #include "macros.h"
-
-/*
- * For IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, 
- * MATLAB_RETRIEVE_REAL_DOUBLE_ARRAY, MATLAB_CREATE_REAL_DOUBLE_VECTOR, 
- * MATLAB_ROWS, MATLAB_COLS, MATLAB_VECTOR, MATLAB_ARRAY, MATLAB_ELEMENTS,
- * MATLAB_ARRAY_ELEMENT, MATLAB_VECTOR_ELEMENT
- */
 #include "matlab.h"
-
-/* for top_n_outlier_pruning_block */
 #include "TopN_Outlier_Pruning_Block.h"
-/*----------------------------------------------------------------------------*/
 
 /* Input and output arguments. */
 #define DATA_IN             prhs[0]
@@ -71,20 +53,26 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Make sure the second input argument is an integer. */
     if (!IS_REAL_SCALAR(K_IN))
         mexErrMsgTxt("Input 'k' must be a scalar.");
-    /* TODO: check k is non-negative and an integer */
-    const unsigned int k = (unsigned int) mxGetScalar(K_IN);
+    const double k_dbl = mxGetScalar(K_IN);
+    if ((int) k_dbl <= 0)
+        mexErrMsgTxt("Input 'k' must be positive.");
+    const size_t k = (size_t) k_dbl;
 
     /* Make sure the third input argument is an integer. */
     if (!IS_REAL_SCALAR(N_IN))
         mexErrMsgTxt("Input 'N' must be a scalar.");
-    /* TODO: check N is non-negative and an integer */
-    const unsigned int N = (unsigned int) mxGetScalar(N_IN);
+    const double N_dbl = mxGetScalar(N_IN);
+    if ((int) N_dbl <= 0)
+        mexErrMsgTxt("Input 'N' must be positive.");
+    const size_t N = (size_t) N_dbl;
 
     /* Make sure the fourth input argument is an integer. */
     if (!IS_REAL_SCALAR(BLOCKSIZE_IN))
         mexErrMsgTxt("Input 'block_size' must be a scalar.");
-    /* TODO: check block_size is non-negative and an integer */
-    const unsigned int block_size = (unsigned int) mxGetScalar(BLOCKSIZE_IN);
+    const double block_size_dbl = mxGetScalar(BLOCKSIZE_IN);
+    if ((int) block_size_dbl <= 0)
+        mexErrMsgTxt("Input 'block_size' must be positive.");
+    const size_t block_size = (size_t) block_size_dbl;
     
     /* Additional error checking. */
     if (MATLAB_ROWS(data) < N)
@@ -93,13 +81,13 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         mexErrMsgTxt("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
     
     /* Convert the input to proper format. */
-    CREATE_REAL_DOUBLE_ARRAY (data_in, MATLAB_ROWS(data), MATLAB_COLS(data));
+    CREATE_REAL_DOUBLE_ARRAY(data_in, MATLAB_ROWS(data), MATLAB_COLS(data));
     do {
         index_t row;
         for (row = 1; row <= ROWS(data_in); row++) {
             index_t col;
             for (col = 1; col <= COLS(data_in); col++) {
-                ARRAY_ELEMENT(data_in, row, col) = MATLAB_ARRAY_ELEMENT(data, row, col);
+                ARRAY_ELEMENT(data_in, row, col) = (double_t) MATLAB_ARRAY_ELEMENT(data, row, col);
             }
         }
     } while (0);
@@ -112,15 +100,15 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data_in), k, N, block_size, VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores));
     
     /* Convert the output to MATLAB format. */
-    MATLAB_CREATE_REAL_DOUBLE_VECTOR (outliers_out,       N);
+    MATLAB_CREATE_REAL_UINT_VECTOR   (outliers_out,       N);
     MATLAB_CREATE_REAL_DOUBLE_VECTOR (outlier_scores_out, N);
     OUTLIERS_OUT      = MATLAB_VECTOR(outliers_out);
     OUTLIERSCORES_OUT = MATLAB_VECTOR(outlier_scores_out);
     do {
         index_t element;
         for (element = 1; element <= ELEMENTS(outliers); element++) {
-            MATLAB_VECTOR_ELEMENT(outliers_out, element)       = VECTOR_ELEMENT(outliers, element);
-            MATLAB_VECTOR_ELEMENT(outlier_scores_out, element) = VECTOR_ELEMENT(outlier_scores, element);
+            MATLAB_VECTOR_ELEMENT(outliers_out,       element) = (m_uint_t)   VECTOR_ELEMENT(outliers,       element);
+            MATLAB_VECTOR_ELEMENT(outlier_scores_out, element) = (m_double_t) VECTOR_ELEMENT(outlier_scores, element);
         }
     } while (0);
 }

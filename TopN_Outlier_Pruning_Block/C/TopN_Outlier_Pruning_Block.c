@@ -1,48 +1,59 @@
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-/* 
- * For array_uint_t, array_double_t, array_index_t, ARRAY_SIGNATURE, 
- * ARRAY_ELEMENT, ROWS, COLS, ARRAY_ARGUMENTS, MIN, MAX, CREATE_REAL_UINT_ARRAY, 
- * CREATE_REAL_DOUBLE_ARRAY, MATLAB_ARRAY, RETRIEVE_REAL_UINT_ARRAY, 
- * RETRIEVE_REAL_DOUBLE_ARRAY, FREE_ARRAY, IS_REAL_2D_FULL_DOUBLE, 
- * IS_REAL_SCALAR
- */
+#include <assert.h>
+#include <mex.h>
 #include "macros.h"
-
-/* For equals_zero, average_over_row, distance */
-#include "utility.h"
-
-/* For mexErrMsgTxt, mxCreateString, mxArray, mexCallMATLAB, mxGetScalar */
-#include "mex.h"
-
-/* For pow */
-#include <math.h>
-
-#include <assert.h> /* for assert */
-
+#include "TopN_Outlier_Pruning_Block.h"
 /******************************************************************************/
 
 /* Forward declarations */
 static double sorted_insert(const index_t block_index, 
-                            unsigned int * const ARRAY_SIGNATURE(index_array), 
-                            double * const ARRAY_SIGNATURE(value_array), 
-                            unsigned int * const VECTOR_SIGNATURE(found),
-                            const unsigned int new_index, const double new_value);
-static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers), 
-                            double * const VECTOR_SIGNATURE(outlier_scores), 
+                            uint_t * const ARRAY_SIGNATURE(index_array), 
+                            double_t * const ARRAY_SIGNATURE(value_array), 
+                            uint_t * const VECTOR_SIGNATURE(found),
+                            const uint_t new_index, const double_t new_value);
+static size_t best_outliers(uint_t * const VECTOR_SIGNATURE(outliers), 
+                            double_t * const VECTOR_SIGNATURE(outlier_scores), 
                             const size_t outliers_size, 
-                            unsigned int * const VECTOR_SIGNATURE(current_block), 
-                            double * const VECTOR_SIGNATURE(scores));
-static void sort_vectors_descending(unsigned int * const VECTOR_SIGNATURE(index_vector),
-                                    double * const VECTOR_SIGNATURE(value_vector));
-static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
-                    unsigned int * const VECTOR_SIGNATURE(index_array2), double * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
-                    unsigned int * const VECTOR_SIGNATURE(index_array),  double * const VECTOR_SIGNATURE(value_array));
-void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
-                                 const unsigned int k, const unsigned int N, const unsigned int block_size, 
-                                 unsigned int * VECTOR_SIGNATURE(outliers), 
-                                 double * VECTOR_SIGNATURE(outlier_scores));
+                            uint_t * const VECTOR_SIGNATURE(current_block), 
+                            double_t * const VECTOR_SIGNATURE(scores));
+static void sort_vectors_descending(uint_t * const VECTOR_SIGNATURE(index_vector),
+                                    double_t * const VECTOR_SIGNATURE(value_vector));
+static size_t merge(uint_t * const VECTOR_SIGNATURE(index_array1), double_t * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
+                    uint_t * const VECTOR_SIGNATURE(index_array2), double_t * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
+                    uint_t * const VECTOR_SIGNATURE(index_array),  double_t * const VECTOR_SIGNATURE(value_array));
+static double distance_squared(const double * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2);
+
+/*
+ * Calculate the square of the Euclidean distance between two vectors (i.e. the 
+ * sum of the squares of the distance in each dimension).
+ *
+ * Parameters:
+ *     - vectors: The array containg the vectors between which to calculate the 
+ *           distance.
+ *     - vectors_rows: The number of vectors contained within the array.
+ *     - vectors_cols: The size of each vector within the array.
+ *     - vector1: The row index of one of the vectors. Note that the row index 
+ *           follows the MATLAB convention of beginning at 1.
+ *     - vector2: The row index of the other vector. Note that the row index 
+ *           follows the MATLAB convention of beginning at 1.
+ *
+ * Return:
+ *    The sum of the distance between values of the rows.
+ */
+static double distance_squared(const double * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2) {
+    double sum_of_squares = 0;
+    
+    index_t col;
+    for (col = 1; col <= COLS(vectors); col++) {
+        const double val = ARRAY_ELEMENT(vectors, vector1, col) - ARRAY_ELEMENT(vectors, vector2, col);
+        const double val_squared = val * val;
+        sum_of_squares += val_squared;
+    }
+    
+    return sum_of_squares;
+}
 
 /* 
  * TODO
@@ -66,10 +77,10 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
  *     - new_value: The value to be inserted into value_array.
  */
 static double sorted_insert(const index_t block_index, 
-                            unsigned int * const ARRAY_SIGNATURE(index_array), 
-                            double * const ARRAY_SIGNATURE(value_array), 
-                            unsigned int * const VECTOR_SIGNATURE(found),
-                            const unsigned int new_index, const double new_value) {
+                            uint_t * const ARRAY_SIGNATURE(index_array), 
+                            double_t * const ARRAY_SIGNATURE(value_array), 
+                            uint_t * const VECTOR_SIGNATURE(found),
+                            const uint_t new_index, const double_t new_value) {
     /* Error checking. */
     assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));    assert(ROWS(index_array) == ELEMENTS(found));
     assert(block_index >=1 && block_index <= ROWS(index_array));
@@ -157,11 +168,11 @@ static double sorted_insert(const index_t block_index,
  * This functions returns the number of initialised elements in the outliers 
  * vector.
  */
-static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers), 
-                            double * const VECTOR_SIGNATURE(outlier_scores), 
+static size_t best_outliers(uint_t * const VECTOR_SIGNATURE(outliers), 
+                            double_t * const VECTOR_SIGNATURE(outlier_scores), 
                             const size_t outliers_size, 
-                            unsigned int * const VECTOR_SIGNATURE(current_block), 
-                            double * const VECTOR_SIGNATURE(scores)) {
+                            uint_t * const VECTOR_SIGNATURE(current_block), 
+                            double_t * const VECTOR_SIGNATURE(scores)) {
     /* Error checking. */
     assert(ELEMENTS(outliers) == ELEMENTS(outlier_scores));
     assert(ELEMENTS(current_block) == ELEMENTS(scores));
@@ -196,8 +207,8 @@ static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers),
 /*
  * TODO
  */
-static void sort_vectors_descending(unsigned int * const VECTOR_SIGNATURE(index_vector),
-                                    double * const VECTOR_SIGNATURE(value_vector)) {
+static void sort_vectors_descending(uint_t * const VECTOR_SIGNATURE(index_vector),
+                                    double_t * const VECTOR_SIGNATURE(value_vector)) {
     /* Error checking. */
     assert(ELEMENTS(index_vector) == ELEMENTS(value_vector));
     
@@ -223,9 +234,9 @@ static void sort_vectors_descending(unsigned int * const VECTOR_SIGNATURE(index_
  *
  * TODO
  */
-static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
-                    unsigned int * const VECTOR_SIGNATURE(index_array2), double * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
-                    unsigned int * const VECTOR_SIGNATURE(index_array),  double * const VECTOR_SIGNATURE(value_array)) {
+static size_t merge(uint_t * const VECTOR_SIGNATURE(index_array1), double_t * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
+                    uint_t * const VECTOR_SIGNATURE(index_array2), double_t * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
+                    uint_t * const VECTOR_SIGNATURE(index_array),  double_t * const VECTOR_SIGNATURE(value_array)) {
     /* Error checking. */
     assert(ROWS(index_array1) = ROWS(value_array1) && COLS(index_array1) == COLS(value_array1));
     assert(ROWS(index_array2) == ROWS(value_array2) && COLS(index_array2) == COLS(value_array2));
@@ -297,10 +308,10 @@ static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double 
  *     - outlier_scores_elements: Number of elements contained in the 
  *          'outlier_scores' vector.
  */
-void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
-                                 const unsigned int k, const unsigned int N, const unsigned int block_size, 
-                                 unsigned int * VECTOR_SIGNATURE(outliers), 
-                                 double * VECTOR_SIGNATURE(outlier_scores)) {
+void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
+                                 const size_t k, const size_t N, const size_t block_size, 
+                                 uint_t * VECTOR_SIGNATURE(outliers), 
+                                 double_t * VECTOR_SIGNATURE(outlier_scores)) {
     /* Error checking. */
     assert(ELEMENTS(outliers) == ELEMENTS(outlier_scores));
     assert(ELEMENTS(outliers) == N);

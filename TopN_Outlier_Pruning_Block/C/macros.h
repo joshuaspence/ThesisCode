@@ -2,20 +2,6 @@
 #define MACROS_H_
 
 /*============================================================================*/
-/* Boolean type                                                               */
-/*============================================================================*/
-typedef char boolean;
-
-#ifndef true
-    #define true ((char) 1)
-#endif /* #ifndef true */
-
-#ifndef false
-    #define false ((char) 0)
-#endif /* #ifndef false */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
 /* General purpose utility macros                                             */
 /*============================================================================*/
 #define MIN(X,Y)                ((X) < (Y) ? (X) : (Y))
@@ -48,6 +34,8 @@ typedef char boolean;
 /*============================================================================*/
 #include <stddef.h> /* for size_t */
 typedef size_t index_t;
+typedef double double_t;
+typedef unsigned int uint_t;
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -59,21 +47,14 @@ typedef size_t index_t;
 #define CREATE_REAL_DOUBLE_ARRAY(_array_, _rows_, _cols_) \
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
-    double * const _array_ = (double *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(double)); \
+    double_t * const _array_ = (double_t *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(double_t)); \
     EMPTY_STATEMENT()
 
 /* Create an array of unsigned integers. */
 #define CREATE_REAL_UINT_ARRAY(_array_, _rows_, _cols_) \
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
-    unsigned int * const _array_ = (unsigned int *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(unsigned int)); \
-    EMPTY_STATEMENT()
-
-/* Create an array of booleans. */
-#define CREATE_BOOLEAN_ARRAY(_array_, _rows_, _cols_) \
-    const size_t ROWS(_array_) = _rows_; \
-    const size_t COLS(_array_) = _cols_; \
-    boolean * const _array_ = (boolean *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(boolean)); \
+    uint_t * const _array_ = (uint_t *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(uint_t)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
@@ -105,19 +86,13 @@ typedef size_t index_t;
 /* Create a vector of doubles. */
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
-    double * const _vector_ = (double *) malloc(ELEMENTS(_vector_) * sizeof(double)); \
+    double_t * const _vector_ = (double_t *) malloc(ELEMENTS(_vector_) * sizeof(double_t)); \
     EMPTY_STATEMENT()
 
 /* Create a vector of unsigned integers. */
 #define CREATE_REAL_UINT_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
-    unsigned int * const _vector_ = (unsigned int *) malloc(ELEMENTS(_vector_) * sizeof(unsigned int)); \
-    EMPTY_STATEMENT()
-
-/* Create a vector of booleans. */
-#define CREATE_BOOLEAN_VECTOR(_vector_, _elements_) \
-    const size_t ELEMENTS(_vector_) = _elements_; \
-    boolean * const _vector_ = (boolean *) malloc(ELEMENTS(_vector_) * sizeof(boolean)); \
+    uint_t * const _vector_ = (uint_t *) malloc(ELEMENTS(_vector_) * sizeof(uint_t)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */
