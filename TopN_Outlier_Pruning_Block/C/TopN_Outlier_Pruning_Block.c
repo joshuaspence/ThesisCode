@@ -23,6 +23,32 @@
 
 /******************************************************************************/
 
+/* Forward declarations */
+static double sorted_insert(const index_t block_index, 
+                            unsigned int * const ARRAY_SIGNATURE(index_array), 
+                            double * const ARRAY_SIGNATURE(value_array), 
+                            unsigned int * const VECTOR_SIGNATURE(found),
+                            const unsigned int new_index, const double new_value);
+static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers), 
+                            double * const VECTOR_SIGNATURE(outlier_scores), 
+                            const size_t outliers_size, 
+                            unsigned int * const VECTOR_SIGNATURE(current_block), 
+                            double * const VECTOR_SIGNATURE(scores));
+static void sort_vectors_descending(unsigned int * const VECTOR_SIGNATURE(index_vector),
+                                    double * const VECTOR_SIGNATURE(value_vector));
+static void merge_sort(unsigned int * const VECTOR_SIGNATURE(index_vector),
+                       double * const VECTOR_SIGNATURE(value_vector),
+                       index_t start, index_t end,
+                       unsigned int * const VECTOR_SIGNATURE(output_index),
+                       double * const VECTOR_SIGNATURE(output_value));
+static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double * const VECTOR_SIGNATURE(value_array1), const size_t array1_size, 
+                    unsigned int * const VECTOR_SIGNATURE(index_array2), double * const VECTOR_SIGNATURE(value_array2), const size_t array2_size, 
+                    unsigned int * const VECTOR_SIGNATURE(index_array),  double * const VECTOR_SIGNATURE(value_array));
+void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
+                                 const unsigned int k, const unsigned int N, const unsigned int block_size, 
+                                 unsigned int * VECTOR_SIGNATURE(outliers), 
+                                 double * VECTOR_SIGNATURE(outlier_scores));
+
 /* 
  * TODO
  *
@@ -50,9 +76,8 @@ static double sorted_insert(const index_t block_index,
                             unsigned int * const VECTOR_SIGNATURE(found),
                             const unsigned int new_index, const double new_value) {
     /* Error checking. */
-    assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
-    assert(ROWS(index_array) == ELEMENTS(found));
-    assert(block_index >=1 && block_index <= ROWS(index_array)
+    assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));    assert(ROWS(index_array) == ELEMENTS(found));
+    assert(block_index >=1 && block_index <= ROWS(index_array));
     
     index_t index = 0; /* the index at which the new pair will be inserted */   
     double removed_value = -1; /* the value that was removed from the value_array */
@@ -72,7 +97,7 @@ static double sorted_insert(const index_t block_index,
         
         index_t i;
         for (i = COLS(value_array) - curr_size; i <= COLS(value_array); i++) {
-            if (new_value > ARRAY_ELEMENT(value_array, block_index, i) || (i == COLS(value_array) - curr_size) {
+            if (new_value > ARRAY_ELEMENT(value_array, block_index, i) || (i == COLS(value_array) - curr_size)) {
                 /* Shuffle values down the array. */
                 if (i != 1) {
                     ARRAY_ELEMENT(index_array, block_index, i-1) = ARRAY_ELEMENT(index_array, block_index, i);
@@ -106,6 +131,7 @@ static double sorted_insert(const index_t block_index,
             } else {
                 /* We have found the insertion point. */
                 break;
+            }
         }
     }
     
@@ -121,6 +147,8 @@ static double sorted_insert(const index_t block_index,
             VECTOR_ELEMENT(found, block_index) = curr_size + 1;
         }
     }
+    
+    return removed_value;
 }
 
 /*
@@ -152,9 +180,9 @@ static size_t best_outliers(unsigned int * const VECTOR_SIGNATURE(outliers),
     CREATE_REAL_DOUBLE_VECTOR(temp_value, ELEMENTS(outlier_scores));
     
     /* Merge the two vectors. */
-    const size_t outliers_size merge(VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores), outliers_size, 
-                                     VECTOR_ARGUMENTS(current_block), VECTOR_ARGUMENTS(scores), ELEMENTS(current_block),
-                                     VECTOR_ARGUMENTS(temp_index), VECTOR_ARGUMENTS(temp_value));
+    const size_t outliers_size = merge(VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores), outliers_size, 
+                                       VECTOR_ARGUMENTS(current_block), VECTOR_ARGUMENTS(scores), ELEMENTS(current_block),
+                                       VECTOR_ARGUMENTS(temp_index), VECTOR_ARGUMENTS(temp_value));
     
     /* Copy values from temporary vectors to real vectors. */
     index_t i;
@@ -318,11 +346,11 @@ static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double 
              */
             iter1++;
             iter2++;
-        } else if (value_array1(iter1) >= value_array2(iter2)) {
+        } else if (VECTOR_ELEMENT(value_array1, iter1) >= VECTOR_ELEMENT(value_array2, iter2)) {
             VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array1, iter1);
             VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array1, iter1);
             iter1++;
-        } else if (value_array1(iter1) <= value_array2(iter2)) {
+        } else if (VECTOR_ELEMENT(value_array1, iter1) <= VECTOR_ELEMENT(value_array2, iter2)) {
             VECTOR_ELEMENT(index_array, iter) = VECTOR_ELEMENT(index_array2, iter2);
             VECTOR_ELEMENT(value_array, iter) = VECTOR_ELEMENT(value_array2, iter2);
             iter2++;
@@ -340,25 +368,23 @@ static size_t merge(unsigned int * const VECTOR_SIGNATURE(index_array1), double 
  * 'data' array in 'blocks' of size 'block_size'.
  *
  * Parameters:
- *     - data: A matrix consisting of 'data_rows' vectors, each of 
+ *     - data: An array consisting of 'data_rows' vectors, each of 
  *           dimensionality 'data_cols'.
- *     - data_rows: Number of vectors contained in the 'data' matrix.
- *     - data_cols: Size of each vector contained in the 'data' matrix.
+ *     - data_rows: Number of vectors contained in the 'data' array.
+ *     - data_cols: Size of each vector contained in the 'data' array.
  *     - k: The number of k-nearest neighbours for outlier detection.
  *     - N: The top 'N' outliers will be returned by this function.
  *     - block_size: The input 'data' matrix will be processed in blocks of
  *           size 'block_size'.
- *     - outliers: A 1xN array used to store the top 'N' outliers identified by
- *           this function. Each entry in this array will be an index (to the 
- *           'data' matrix) of the outlying vector.
- *     - outliers_rows: Number of rows contained in the 'outliers' array.
- *     - outliers_cols: Number of columns contained in the 'outliers' array.
- *     - outlier_scores: A 1xN array used to score the score associated with 
+ *     - outliers: A vector used to store the top 'N' outliers identified by 
+ *           this function. Each entry in this vector will be an index (to the 
+ *           'data' array) of the outlying vector.
+ *     - outliers_elements: Number of elements contained in the 'outliers' 
+ *            vector.
+ *     - outlier_scores: A vector used to score the score associated with 
  *           each of the outliers stored in the 'outliers' array.
- *     - outlier_scores_rows: Number of rows contained in the 'outlier_scores'
- *           array.
- *     - outlier_scores_cols: Number of columns contained in the 
- *           'outlier_scores' array.
+ *     - outlier_scores_elements: Number of elements contained in the 
+ *          'outlier_scores' vector.
  */
 void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
                                  const unsigned int k, const unsigned int N, const unsigned int block_size, 
@@ -367,11 +393,13 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
     /* Error checking. */
     assert(ELEMENTS(outliers) == ELEMENTS(outlier_scores));
     assert(ELEMENTS(outliers) == N);
+    assert(ROWS(data) >= N);
+    assert(ROWS(data) >= k);
     
-    double cutoff = 0;
-    size_t outliers_size = 0; /* the number of initialised elements in the outliers array */
-    index_t block_begin; /* the index of the first vector in the block currently being processed */
-    size_t actual_block_size; /* actual_block_size may be smaller than block_size if "ROWS(data) % block_size != 0" */
+    double cutoff = 0;          /* vectors with a score less than the cutoff will be removed from the block */
+    size_t outliers_size = 0;   /* the number of initialised elements in the outliers array */
+    index_t block_begin;        /* the index of the first vector in the block currently being processed */
+    size_t actual_block_size;   /* actual_block_size may be smaller than block_size if "ROWS(data) mod block_size != 0" */
     
     for (block_begin = 1; block_begin <= ROWS(data); block_begin += actual_block_size) { /* while there are still blocks to process */
         const index_t block_end = MIN(block_begin+block_size-1, ROWS(data)); /* the index of the last vector in the block */
@@ -420,25 +448,34 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
                      */
                     const double dist_squared = distance_squared(ARRAY_ARGUMENTS(data), vector1, vector2);
                     
-                    removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
+                    /* 
+                     * Insert the new (index, distance) pair into the neighbours
+                     * array for the current vector.
+                     */
+                    const double removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
 
+                    /* 
+                     * Update the score (if the neighbours array was changed).
+                     */
                     if (removed_distance >= 0) {
-                        ARRAY_ELEMENT(score, 1, block_index) = (ARRAY_ELEMENT(score, 1, block_index)*k - removed_distance + d)/k;
+                        VECTOR_ELEMENT(score, block_index) = (VECTOR_ELEMENT(score, block_index) * k - removed_distance + dist_squared)/k;
                     }
 
+                    /* 
+                     * If the score for this vector is less than the cutoff, 
+                     * then prune this vector from the block.
+                     */
                     if (VECTOR_ELEMENT(found, block_index) >= k && VECTOR_ELEMENT(score, block_index) < cutoff) {
                         VECTOR_ELEMENT(removed, block_index) = true;
-                        VECTOR_ELEMENT(score  , block_index) = 0.0;
+                        VECTOR_ELEMENT(score,   block_index) = 0.0;
                     }
                 }
             }
         }
         
-        /*
-         * Compare the new scores with the outliers stored in output arrays "O" 
-         * and "OF". Sort this array and keep the top "N" outliers.
-         */
-        best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
+        /* Keep track of the top "N" outliers. */
+        outliers_size = best_outliers(VECTOR_ARGUMENTS(outliers), VECTOR_ARGUMENTS(outlier_scores),
+                                      outliers_size, block_begin, block_end, VECTOR_ARGUMENTS(score));
         
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
@@ -447,6 +484,7 @@ void top_n_outlier_pruning_block(const double * const ARRAY_SIGNATURE(data),
          */
         cutoff = VECTOR_ELEMENT(outlier_scores, N);
         
+        /* Free memory. */
         FREE_ARRAY(neighbours);
         FREE_ARRAY(neighbours_dist);
         FREE_VECTOR(removed);

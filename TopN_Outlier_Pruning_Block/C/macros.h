@@ -46,6 +46,7 @@ typedef char boolean;
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
+#include <stddef.h> /* for size_t */
 typedef size_t index_t;
 /*----------------------------------------------------------------------------*/
 
@@ -115,7 +116,7 @@ typedef size_t index_t;
 
 /* Create a vector of booleans. */
 #define CREATE_BOOLEAN_VECTOR(_vector_, _elements_) \
-    const size_t ELEMENTS(_array_) = _elements_; \
+    const size_t ELEMENTS(_vector_) = _elements_; \
     boolean * const _vector_ = (boolean *) malloc(ELEMENTS(_vector_) * sizeof(boolean)); \
     EMPTY_STATEMENT()
 
@@ -129,7 +130,7 @@ typedef size_t index_t;
 /*============================================================================*/
 /* To access a vector element. Uses one-based element indexing. */
 #define VECTOR_ELEMENT(_vector_, _element_) \
-    _vector_[((_row_) - 1)]
+    _vector_[((_element_) - 1)]
 
 /* To declare a vector and the dimensions of the vector in a function signature. */
 #define VECTOR_SIGNATURE(_vector_) \
