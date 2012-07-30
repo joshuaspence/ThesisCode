@@ -56,7 +56,6 @@ LDFLAGS_OPT  := -O3
 #                                                                              #
 #                            ARCHITECTURE VARIABLES                            #
 #                                                                              #
-# add these to your user profile in order to specify your own.                 #
 #------------------------------------------------------------------------------#
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
@@ -116,7 +115,7 @@ endif
 TARGET     := TopN_Outlier_Pruning_Block
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
-FILES      := $(TARGET) utility
+FILES      := TopN_Outlier_Pruning_Block matlab_wrapper utility
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 OBJS       := $(foreach f,$(FILES),$(addsuffix .o,$f))
