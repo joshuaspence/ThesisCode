@@ -8,7 +8,7 @@ MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 # Detect architecture
 ALL_ARCH := "" -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
 define try-architecture
-$(shell $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | grep -q 'No MATLAB bin directory for this machine architecture' || echo 0)
+$(shell echo 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
 endef
 discover_architecture := $(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),))
 ARCH := $(call discover_architecture)
@@ -75,34 +75,34 @@ endif
 
 # If the architecture has been overriden, then the mexext script won't return 
 # the correct extension.
-define getmexext
-$(shell \
-case $1 in \
-	-glnx86) \
-		ext="mexglx";; \
-	-glnxa64) \
-		ext="mexa64";; \
-	-mac) \
-		ext="mexmac";; \
-	-maci) \
-		ext="mexmaci";; \
-	-maci64) \
-		ext="mexmaci64";; \
-	-sol2) \
-		ext="mexsol";; \
-	-sol64) \
-		ext="mexs64";; \
-	-win64) \ 
-		ext="mexw64";; \
-	-win32) \
-		ext="mexw32";; \
-esac; \
-echo $$ext; \
-)
-endef
-
 ifneq ($(ARCH),)
-	MEXEXT := $(call getmexext,$(ARCH))
+	ifeq ($(strip $(ARCH)),-glnx86)
+		MEXEXT := mexglx
+	endif
+	ifeq ($(strip $(ARCH)),-glnxa64)
+		MEXEXT := mexa64
+	endif
+	ifeq ($(strip $(ARCH)), "-mac")
+		MEXEXT := mexmac
+	endif
+	ifeq ($(strip $(ARCH)), "-maci")
+		MEXEXT := mexmaci
+	endif
+	ifeq ($(strip $(ARCH)), "-maci64")
+		MEXEXT := mexmaci64
+	endif
+	ifeq ($(strip $(ARCH)), "-sol2")
+		MEXEXT := mexsol
+	endif
+	ifeq ($(strip $(ARCH)), "-sol64")
+		MEXEXT := mexs64
+	endif
+	ifeq ($(strip $(ARCH)), "-win64")
+		MEXEXT := mexw64
+	endif
+	ifeq ($(strip $(ARCH)), "-win32")
+		MEXEXT := mexw32
+	endif
 endif
 
 #------------------------------------------------------------------------------#
