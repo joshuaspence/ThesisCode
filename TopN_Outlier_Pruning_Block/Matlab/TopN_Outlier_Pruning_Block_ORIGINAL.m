@@ -66,15 +66,15 @@ function [O, OF] = TopN_Outlier_Pruning_Block_ORIGINAL(X, k, N, block_size)
                                 % avoid round off error
                                 score(j) = max(mean(neighbours_dist(j,:),2),0);
                             end
-                        end                    
+                        end
                     end
                     
                     if l >= k && score(j) < c % prune B(j)
                         B(j) = 0;
                         %neighbours     (j,:) = 0;
                         %neighbours_dist(j,:)=0;
-                        score(j) = 0;                   
-                    end                                            
+                        score(j) = 0;
+                    end
                 end
             end
             l = l+1;

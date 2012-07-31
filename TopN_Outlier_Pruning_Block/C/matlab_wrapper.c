@@ -101,23 +101,36 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         }
     } while (0);
     
+
     /* Create the output arrays. */
     CREATE_REAL_UINT_VECTOR  (outliers_out,       N);
     CREATE_REAL_DOUBLE_VECTOR(outlier_scores_out, N);
-
+    do {
+        index_t element;
+        for (element = 1; element <= ELEMENTS(outliers_out); element++) {
+            VECTOR_ELEMENT(outliers_out,       element) = (uint_t)   0;
+            VECTOR_ELEMENT(outlier_scores_out, element) = (double_t) 0;
+        }
+    } while (0);
+    
     /* Call the function. */
     top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data_in), k, N, block_size, VECTOR_ARGUMENTS(outliers_out), VECTOR_ARGUMENTS(outlier_scores_out));
     
     /* Convert the output to MATLAB format. */
-    MATLAB_CREATE_REAL_UINT_VECTOR   (outliers,       N);
+    MATLAB_CREATE_REAL_DOUBLE_VECTOR   (outliers,       N);
     MATLAB_CREATE_REAL_DOUBLE_VECTOR (outlier_scores, N);
     OUTLIERS_OUT      = MATLAB_VECTOR(outliers);
     OUTLIERSCORES_OUT = MATLAB_VECTOR(outlier_scores);
+
     do {
         index_t element;
-        for (element = 1; element <= ELEMENTS(outliers); element++) {
+        for (element = 1; element <= MATLAB_ELEMENTS(outliers); element++) {
             MATLAB_VECTOR_ELEMENT(outliers,       element) = (m_uint_t)   VECTOR_ELEMENT(outliers_out,       element);
             MATLAB_VECTOR_ELEMENT(outlier_scores, element) = (m_double_t) VECTOR_ELEMENT(outlier_scores_out, element);
         }
     } while (0);
+    
+    /* Free memory. */
+    FREE_ARRAY(outliers_out);
+    FREE_ARRAY(outlier_scores_out);
 }

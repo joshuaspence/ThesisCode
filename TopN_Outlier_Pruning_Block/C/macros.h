@@ -6,6 +6,7 @@
 /*============================================================================*/
 #include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for malloc, free */
+#include <string.h> /* for memset */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -52,6 +53,7 @@ typedef unsigned int uint_t;
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
     double_t * const _array_ = (double_t *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(double_t)); \
+    memset(_array_, 0, ROWS(_array_) * COLS(_array_) * sizeof(double_t)); \
     EMPTY_STATEMENT()
 
 /* Create an array of unsigned integers. */
@@ -59,6 +61,7 @@ typedef unsigned int uint_t;
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
     uint_t * const _array_ = (uint_t *) malloc(ROWS(_array_) * COLS(_array_) * sizeof(uint_t)); \
+    memset(_array_, 0, ROWS(_array_) * COLS(_array_) * sizeof(uint_t)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
@@ -89,12 +92,14 @@ typedef unsigned int uint_t;
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
     double_t * const _vector_ = (double_t *) malloc(ELEMENTS(_vector_) * sizeof(double_t)); \
+    memset(_vector_, 0, ELEMENTS(_vector_) * sizeof(double_t)); \
     EMPTY_STATEMENT()
 
 /* Create a vector of unsigned integers. */
 #define CREATE_REAL_UINT_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
     uint_t * const _vector_ = (uint_t *) malloc(ELEMENTS(_vector_) * sizeof(uint_t)); \
+    memset(_vector_, 0, ELEMENTS(_vector_) * sizeof(uint_t)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */

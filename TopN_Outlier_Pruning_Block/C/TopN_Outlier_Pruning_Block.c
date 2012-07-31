@@ -2,6 +2,7 @@
 /* Includes                                                                   */
 /******************************************************************************/
 #include <assert.h>
+#include <limits.h>
 #include <mex.h>
 #include "macros.h"
 #include "TopN_Outlier_Pruning_Block.h"
@@ -369,10 +370,10 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
          * How many nearest neighbours we have found, for each vector in the 
          * block.
          */
-        CREATE_REAL_UINT_VECTOR(found, actual_block_size);
-
+        CREATE_REAL_UINT_VECTOR(found, actual_block_size);    
+        
         index_t vector1;
-        for (vector1 = 1; vector1 <= ROWS(data); vector1++) {            
+        for (vector1 = 1; vector1 <= ROWS(data); vector1++) {
             index_t block_index;
             for (block_index = 1; block_index <= actual_block_size; block_index++) {
                 const index_t vector2 = (index_t) VECTOR_ELEMENT(current_block, block_index);
@@ -389,7 +390,7 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
                      * array for the current vector.
                      */
                     const double_t removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
-
+                    
                     /* 
                      * Update the score (if the neighbours array was changed).
                      */
@@ -401,7 +402,7 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
                      * If the score for this vector is less than the cutoff, 
                      * then prune this vector from the block.
                      */
-                    if (VECTOR_ELEMENT(found, block_index) >= (uint_t) k && VECTOR_ELEMENT(score, block_index) < cutoff) {
+                    if (VECTOR_ELEMENT(found, block_index) >= (uint_t) k && VECTOR_ELEMENT(score, block_index) < (cutoff - DBL_EPSILON)) {
                         VECTOR_ELEMENT(current_block, block_index) = (uint_t)   0;
                         VECTOR_ELEMENT(score,         block_index) = (double_t) 0;
                     }
