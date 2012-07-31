@@ -112,7 +112,7 @@ endif
 # Default build configuration
 .DEFAULT: release
 
-TARGET     := top_n_outlier_pruning_block
+TARGET     := TopN_Outlier_Pruning_Block
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
 FILES      := top_n_outlier_pruning_block matlab_wrapper
