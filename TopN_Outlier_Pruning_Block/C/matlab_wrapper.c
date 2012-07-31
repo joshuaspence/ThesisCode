@@ -41,9 +41,9 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         mexErrMsgTxt("Four inputs required.");
     if (nlhs != 2)
         mexErrMsgTxt("Two outputs required.");
-    
+
     /*
-     * Make sure the first input argument is a real 2D full (non-sparse) double 
+     * Make sure the first input argument is a real 2D full (non-sparse) double
      * array.
      */
     if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN)) {
@@ -80,7 +80,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         mexErrMsgTxt("Input 'block_size' must be positive.");
     }
     const size_t block_size = (size_t) block_size_dbl;
-    
+
     /* Additional error checking. */
     if (MATLAB_ROWS(data) < N) {
         mexErrMsgTxt("Input 'N' must be less than or equal to the number of vectors in the 'data' array.");
@@ -88,7 +88,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     if (MATLAB_ROWS(data) < k) {
         mexErrMsgTxt("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
     }
-    
+
     /* Convert the input to proper format. */
     CREATE_REAL_DOUBLE_ARRAY(data_in, MATLAB_ROWS(data), MATLAB_COLS(data));
     do {
@@ -100,7 +100,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             }
         }
     } while (0);
-    
+
 
     /* Create the output arrays. */
     CREATE_REAL_UINT_VECTOR  (outliers_out,       N);
@@ -112,10 +112,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             VECTOR_ELEMENT(outlier_scores_out, element) = (double_t) 0;
         }
     } while (0);
-    
+
     /* Call the function. */
     top_n_outlier_pruning_block(ARRAY_ARGUMENTS(data_in), k, N, block_size, VECTOR_ARGUMENTS(outliers_out), VECTOR_ARGUMENTS(outlier_scores_out));
-    
+
     /* Convert the output to MATLAB format. */
     MATLAB_CREATE_REAL_DOUBLE_VECTOR   (outliers,       N);
     MATLAB_CREATE_REAL_DOUBLE_VECTOR (outlier_scores, N);
@@ -129,7 +129,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             MATLAB_VECTOR_ELEMENT(outlier_scores, element) = (m_double_t) VECTOR_ELEMENT(outlier_scores_out, element);
         }
     } while (0);
-    
+
     /* Free memory. */
     FREE_ARRAY(outliers_out);
     FREE_ARRAY(outlier_scores_out);

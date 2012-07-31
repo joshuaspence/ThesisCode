@@ -37,13 +37,13 @@ CXXFLAGS := $(shell echo -n $(CXXFLAGS) | sed 's/-ansi\s\+//')
 # Additional flags
 CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
-MXXFLAGS += 
-LDFLAGS  += 
+MXXFLAGS +=
+LDFLAGS  +=
 
 # Debug flags
 CFLAGS_DEBUG   := -g -O0 -DDEBUG
 CXXFLAGS_DEBUG := -g -O0 -DDEBUG
-MXXFLAGS_DEBUG := 
+MXXFLAGS_DEBUG :=
 LDFLAGS_DEBUG  := -g
 
 # Optimization flags
@@ -64,15 +64,15 @@ ifndef MXX
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH) 
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
+		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH)
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
 	endif
 else
-	MEXEXT := $(shell MEXEXT) 
+	MEXEXT := $(shell MEXEXT)
 endif
 
-# If the architecture has been overriden, then the mexext script won't return 
+# If the architecture has been overriden, then the mexext script won't return
 # the correct extension.
 ifneq ($(ARCH),)
 	ifeq ($(strip $(ARCH)),-glnx86)
@@ -106,7 +106,7 @@ endif
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                              DEPENDENCY RULES                                # 
+#                              DEPENDENCY RULES                                #
 #                                                                              #
 #------------------------------------------------------------------------------#
 # Default build configuration
@@ -138,7 +138,7 @@ all: depend $(MEXTARGET)
 
 %.$(MEXEXT): %.c $(SOURCES)
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
-	
+
 clean:
 	@rm -f $(MEXTARGET) $(DEPS) $(foreach d,$(DEPS),$(addsuffix .bak,$d))
 	@echo "clean completed"
