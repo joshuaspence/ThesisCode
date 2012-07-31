@@ -118,7 +118,6 @@ MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 FILES      := top_n_outlier_pruning_block matlab_wrapper
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
-OBJS       := $(foreach f,$(FILES),$(addsuffix .o,$f))
 
 # Release build
 release: CFLAGS   += $(CFLAGS_OPT)
@@ -134,29 +133,37 @@ debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
 debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
 debug:   all
 
-all: depend $(MEXTARGET)
+.PHONY: all
+all: $(MEXTARGET)
 
-%.$(MEXEXT): $(SOURCES)
+$(MEXTARGET): $(SOURCES) $(DEPS)
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
 
+.PHONY: clean
 clean:
-	@rm -f $(MEXTARGET) $(DEPS) $(foreach d,$(DEPS),$(addsuffix .bak,$d))
+	@rm $(MEXTARGET) $(DEPS)
+	@echo "clean completed"
+
+.PHONY: distclean
+distclean:
+	@rm -f $(MEXTARGET) $(DEPS)
 	@echo "clean completed"
 
 # Dependency generation
-depend: $(SOURCES)
-depend: $(DEPS)
+.PHONY: depend
+depend: $(SOURCES) $(DEPS)
 
 # Generate a dependency for a C file
 %.c.d: %.c
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@  -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
 	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
+	@rm $@.bak
 
 # Generate a dependency for a C++ file
 %.cpp.d: %.c
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@  -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
 	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
 
 # Include generated dependency files
