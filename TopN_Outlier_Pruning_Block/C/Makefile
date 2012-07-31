@@ -141,13 +141,11 @@ $(MEXTARGET): $(SOURCES) $(DEPS)
 
 .PHONY: clean
 clean:
-	@rm $(MEXTARGET) $(DEPS)
+	@rm -f $(MEXTARGET) $(DEPS)
 	@echo "clean completed"
 
 .PHONY: distclean
-distclean:
-	@rm -f $(MEXTARGET) $(DEPS)
-	@echo "clean completed"
+distclean: clean
 
 # Dependency generation
 .PHONY: depend
