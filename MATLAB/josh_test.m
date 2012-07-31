@@ -41,7 +41,7 @@ profiles = [
     ];
 
 % Number of iterations for each data set.
-iterations = 1;
+iterations = 3;
 
 % Root output directory. If this directory exists, it will be deleted.
 testing_root_dir = strcat('.', filesep, 'test');
