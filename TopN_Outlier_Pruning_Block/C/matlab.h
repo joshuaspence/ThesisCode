@@ -6,6 +6,7 @@
 /*============================================================================*/
 #include <mex.h>
 #include <stddef.h> /* for size_t */
+#include "macros.h" /* for UNUSED, EMPTY_STATEMENT */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -39,7 +40,7 @@
 #define MATLAB_DIMS(array)      array##_dims
 #define MATLAB_ELEMENTS(vector) vector##_elements
 #define MATLAB_ARRAY(array)     array##_matlab
-#define MATLAB_VECTOR(array)    array##_vector
+#define MATLAB_VECTOR(vector)   vector##_matlab
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -62,7 +63,8 @@ typedef double m_uint_t;
 
 /* Free the memory associated with an array. */
 #define MATLAB_FREE_ARRAY(_array_) \
-    do { mxDestroyArray(MATLAB_ARRAY(_array_)); } while (0)
+    mxDestroyArray(MATLAB_ARRAY(_array_)); \
+    EMPTY_STATEMENT()
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -102,7 +104,8 @@ typedef double m_uint_t;
 
 /* Free the memory associated with a vector. */
 #define MATLAB_FREE_VECTOR(_vector_) \
-    do { mxDestroyArray(MATLAB_VECTOR(_vector)); } while (0)
+    mxDestroyArray(MATLAB_VECTOR(_vector)); \
+    EMPTY_STATEMENT()
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
