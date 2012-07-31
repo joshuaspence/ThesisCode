@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "macros.h"
 #include "matlab.h"
-#include "TopN_Outlier_Pruning_Block.h"
+#include "top_n_outlier_pruning_block.h"
 
 /* Input and output arguments. */
 #define DATA_IN             prhs[0]

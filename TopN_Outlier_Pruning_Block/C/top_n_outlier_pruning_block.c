@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <mex.h>
 #include "macros.h"
-#include "TopN_Outlier_Pruning_Block.h"
+#include "top_n_outlier_pruning_block.h"
 /******************************************************************************/
 
 /* Forward declarations */

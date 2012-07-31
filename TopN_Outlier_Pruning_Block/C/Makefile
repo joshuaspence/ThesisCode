@@ -6,11 +6,11 @@
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
 # Detect architecture
-ALL_ARCH := "" -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
+ALL_ARCH := -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
 define try-architecture
 $(shell echo 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
 endef
-discover_architecture := $(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),))
+discover_architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),)))
 ARCH := $(call discover_architecture)
 
 #------------------------------------------------------------------------------#
@@ -112,10 +112,10 @@ endif
 # Default build configuration
 .DEFAULT: release
 
-TARGET     := TopN_Outlier_Pruning_Block
+TARGET     := top_n_outlier_pruning_block
 MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
 
-FILES      := TopN_Outlier_Pruning_Block matlab_wrapper
+FILES      := top_n_outlier_pruning_block matlab_wrapper
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 OBJS       := $(foreach f,$(FILES),$(addsuffix .o,$f))
@@ -136,7 +136,7 @@ debug:   all
 
 all: depend $(MEXTARGET)
 
-%.$(MEXEXT): %.c $(SOURCES)
+%.$(MEXEXT): $(SOURCES)
 	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
 
 clean:
