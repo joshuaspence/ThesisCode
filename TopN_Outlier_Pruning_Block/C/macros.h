@@ -55,7 +55,7 @@ typedef unsigned int    uint_t;
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
     const size_t SIZE(_array_) = ROWS(_array_) * COLS(_array_) * sizeof(double_t); \
-    double_t * const _array_ = (double_t *) malloc(SIZE(_array_)); \
+    double_t * const _array_   = (double_t *) malloc(SIZE(_array_)); \
     memset(_array_, 0, SIZE(_array_)); \
     EMPTY_STATEMENT()
 
@@ -64,13 +64,15 @@ typedef unsigned int    uint_t;
     const size_t ROWS(_array_) = _rows_; \
     const size_t COLS(_array_) = _cols_; \
     const size_t SIZE(_array_) = ROWS(_array_) * COLS(_array_) * sizeof(uint_t); \
-    uint_t * const _array_ = (uint_t *) malloc(SIZE(_array_)); \
+    uint_t * const _array_     = (uint_t *) malloc(SIZE(_array_)); \
     memset(_array_, 0, SIZE(_array_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
 #define FREE_ARRAY(_array_) \
-    if ((_array_) != NULL) free(_array_); \
+    if ((_array_) != NULL) { \
+        free(_array_); \
+    } \
     EMPTY_STATEMENT()
 /*----------------------------------------------------------------------------*/
 
@@ -96,22 +98,24 @@ typedef unsigned int    uint_t;
 /* Create a vector of doubles. */
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
-    const size_t SIZE(_vector_) = ELEMENTS(_vector_) * sizeof(double_t); \
-    double_t * const _vector_ = (double_t *) malloc(SIZE(_vector_)); \
+    const size_t SIZE(_vector_)     = ELEMENTS(_vector_) * sizeof(double_t); \
+    double_t * const _vector_       = (double_t *) malloc(SIZE(_vector_)); \
     memset(_vector_, 0, SIZE(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Create a vector of unsigned integers. */
 #define CREATE_REAL_UINT_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
-    const size_t SIZE(_vector_) = ELEMENTS(_vector_) * sizeof(uint_t); \
-    uint_t * const _vector_ = (uint_t *) malloc(SIZE(_vector_)); \
+    const size_t SIZE(_vector_)     = ELEMENTS(_vector_) * sizeof(uint_t); \
+    uint_t * const _vector_         = (uint_t *) malloc(SIZE(_vector_)); \
     memset(_vector_, 0, SIZE(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */
 #define FREE_VECTOR(_vector_) \
-    if ((_vector_) != NULL) free(_vector_); \
+    if ((_vector_) != NULL) { \
+        free(_vector_); \
+    } \
     EMPTY_STATEMENT()
 /*----------------------------------------------------------------------------*/
 
