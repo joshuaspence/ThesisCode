@@ -110,7 +110,7 @@ for d = 1 : length(data)
             
             % Save profiler report.
             % NOTE: This throws an error for some reason
-            disp('Saving profiler data to "%s".', profile_output_dir);
+            fprintf('Saving profiler data to "%s".', profile_output_dir);
             try
                 profsave(profile('info'), profile_output_dir);
             catch exception
