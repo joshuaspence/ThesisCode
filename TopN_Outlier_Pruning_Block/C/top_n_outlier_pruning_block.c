@@ -2,7 +2,6 @@
 /* Includes                                                                   */
 /******************************************************************************/
 #include <assert.h>
-#include <limits.h>
 #include <mex.h>
 #include "macros.h"
 #include "top_n_outlier_pruning_block.h"
@@ -462,7 +461,7 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
                      * If the score for this vector is less than the cutoff,
                      * then prune this vector from the block.
                      */
-                    if (VECTOR_ELEMENT(found, block_index) >= (uint_t) k && VECTOR_ELEMENT(score, block_index) < (cutoff - DBL_EPSILON)) {
+                    if (VECTOR_ELEMENT(found, block_index) >= (uint_t) k && VECTOR_ELEMENT(score, block_index) < cutoff) {
                         VECTOR_ELEMENT(current_block, block_index) = (uint_t)   0;
                         VECTOR_ELEMENT(score,         block_index) = (double_t) 0;
                     }
