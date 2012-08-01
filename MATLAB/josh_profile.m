@@ -33,7 +33,7 @@ profiles = [
     struct('name', 'original_inline',  'func', 'TopN_Outlier_Pruning_Block_ORIGINAL_INLINE'), ...
     struct('name', 'improved',         'func', 'TopN_Outlier_Pruning_Block_IMPROVED'), ...
     struct('name', 'improved_inline',  'func', 'TopN_Outlier_Pruning_Block_IMPROVED_INLINE'), ...
-%    struct('name', 'initial_C',        'func', 'TopN_Outlier_Pruning_Block'), ...
+    struct('name', 'initial_C',        'func', 'TopN_Outlier_Pruning_Block'), ...
     ];
 
 % Number of iterations for each data set.
@@ -110,7 +110,7 @@ for d = 1 : length(data)
             
             % Save profiler report.
             % NOTE: This throws an error for some reason
-            disp('Saving profiler data to "%s".', profile_output_dir);
+            fprintf('Saving profiler data to "%s".', profile_output_dir);
             try
                 profsave(profile('info'), profile_output_dir);
             catch exception
