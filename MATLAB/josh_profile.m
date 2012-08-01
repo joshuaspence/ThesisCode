@@ -1,12 +1,12 @@
-%===============================================================================
-% This script is used to record the execution profile of various MATLAB code 
-% profiles. The execution time will be profiled using each data set from the 
-% "data" array.
+%==========================================================================
+% This script is used to record the execution profile of various MATLAB 
+% code profiles. The execution time will be profiled using each data set 
+% from the "data" array.
 %
 % Profiling results will be output in the following subdirectory:
 %     {output_dir}/{hostname}/{date:yyyy-mm-dd}/...
 %
-%===============================================================================
+%==========================================================================
 
 % All data sets are assumed to have a CSV extension
 % Note: Data sets are listed here in increasing order of size, so that the 
@@ -45,7 +45,7 @@ profiles = [
     struct('name', 'improved',         'func', 'TopN_Outlier_Pruning_Block_IMPROVED'), ...
     struct('name', 'improved_inline',  'func', 'TopN_Outlier_Pruning_Block_IMPROVED_INLINE'), ...
     struct('name', 'initial_C',        'func', 'TopN_Outlier_Pruning_Block'), ...
-    ];
+];
 
 % Number of iterations for each data set.
 iterations = 3;
@@ -78,7 +78,7 @@ for d = 1 : length(data)
         if exist(iter_output_dir, 'dir') ~= 7
             mkdir(iter_output_dir);
         end
-    
+        
         % Randomize data.
         randomness_file = strcat(iter_output_dir, filesep, 'random.mat');
         if exist(randomness_file, 'file') ~= 2
@@ -103,7 +103,7 @@ for d = 1 : length(data)
             fprintf('Function: "%s"\n', profile_func);
             fprintf('Output directory: "%s"\n', output_dir);
             fprintf('Randomness: "%s"\n', randomness_file);
-
+            
             % If output_dir already exists, then we don't need to profile anything.
             if exist(profile_output_dir, 'dir') == 7
                 fprintf('Skipping as it appears that this data set has been profiled previously.\n');
@@ -111,7 +111,7 @@ for d = 1 : length(data)
             else
                 mkdir(profile_output_dir);
             end
-
+            
             % Profile execution.
             matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
             fprintf('Running MATLAB command: "%s"\n', matlab_command);
@@ -126,7 +126,7 @@ for d = 1 : length(data)
                 profsave(profile('info'), profile_output_dir);
             catch exception
             end
-
+            
             % Save profile data to a MAT file.
             %p = profile('info');
             %save(char(strcat(profile_output_dir, 'profiledata.mat')), p);

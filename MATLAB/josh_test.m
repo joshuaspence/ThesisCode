@@ -1,8 +1,19 @@
+%==========================================================================
+% This script is used to test the execution profile of various MATLAB code 
+% profiles. The execution time will be profiled using each data set from 
+% the "data" array.
+%
+% Profiling results will be output in the following subdirectory:
+%     {output_dir}/{hostname}/{date:yyyy-mm-dd}/...
+%
+%==========================================================================
+
 % All data sets are assumed to have a CSV extension
 % Note: Data sets are listed here in increasing order of size, so that the 
 % script produces as many results as quickly as possible. The command used 
 % to do this is `du *.csv | sort -n | awk '{print $2}'`.
-data_dir = 'Datasets';
+output_dir = strcat('.', filesep, 'test');
+data_dir   = strcat('.', filesep, 'Datasets');
 data = {
     'testoutrank', ...
     'ball1', ...
@@ -44,7 +55,7 @@ profiles = [
 iterations = 3;
 
 % Root output directory. If this directory exists, it will be deleted.
-testing_root_dir = strcat('.', filesep, 'test');
+testing_root_dir = output_dir;
 if exist(testing_root_dir, 'dir') == 7
     rmdir(testing_root_dir, 's');
 end
@@ -71,7 +82,7 @@ for d = 1 : length(data)
         if exist(output_dir, 'dir') ~= 7
             mkdir(output_dir);
         end
-    
+        
         % Randomize data.
         randomness_file = strcat(output_dir, filesep, 'random.mat');
         if exist(randomness_file, 'file') ~= 2
@@ -98,7 +109,7 @@ for d = 1 : length(data)
             fprintf('Function: "%s"\n', profile_func);
             fprintf('Output directory: "%s"\n', output_dir);
             fprintf('Randomness: "%s"\n', randomness_file);
-
+            
             % Run command.
             fprintf('Running MATLAB command.\n');
             matlab_command = sprintf('commute_distance_anomaly(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
@@ -122,15 +133,9 @@ for d = 1 : length(data)
             results = load(results_file);
             
             % Compare OF_sum.
-            % A larger value for OF_sum is better...
+            % No pass/fail criteria set.
             var = char('OF_sum');
-            fprintf('Checking variable "%s"... ', var);
-            if (base_results.(var) - eps) <= results.(var)
-                fprintf('YES\n');
-               else
-                   fprintf('NO\n');
-                   num_failures = num_failures + 1;
-            end
+            fprintf('Checking variable "%s"...\n', var);
             fprintf('%s:\t%d\n', base_profile.name, base_results.(var));
             fprintf('%s:\t%d\n', profile_name, results.(var));
             
@@ -153,9 +158,9 @@ for d = 1 : length(data)
             
             if (base_upper - eps <= results_upper) && (base_lower - eps <= results_lower)
                 fprintf('YES\n');
-               else
-                   fprintf('NO\n');
-                   num_failures = num_failures + 1;
+            else
+                fprintf('NO\n');
+                num_failures = num_failures + 1;
             end
             fprintf('%s (lowest):\t%d\n', base_profile.name, base_lower);
             fprintf('%s (highest):\t%d\n', base_profile.name, base_upper);
@@ -168,7 +173,6 @@ end
 % Done. Delete testing files.
 if num_failures == 0
     fprintf('\nAll tests passed successfully.\n');
-    %rmdir(testing_root_dir, 's');
 else
     fprintf('\n%d tests failed.\n', num_failures);
 end
