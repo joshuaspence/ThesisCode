@@ -36,8 +36,6 @@
 /*============================================================================*/
 #define MATLAB_ROWS(array)      array##_rows
 #define MATLAB_COLS(array)      array##_cols
-#define MATLAB_NDIMS(array)     array##_ndims
-#define MATLAB_DIMS(array)      array##_dims
 #define MATLAB_ELEMENTS(vector) vector##_elements
 #define MATLAB_ARRAY(array)     array##_matlab
 #define MATLAB_VECTOR(vector)   vector##_matlab
@@ -47,7 +45,6 @@
 /* Types                                                                      */
 /*============================================================================*/
 typedef double m_double_t;
-typedef double m_uint_t;
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -91,15 +88,6 @@ typedef double m_uint_t;
     const size_t MATLAB_ELEMENTS(_vector_) = _elements_; \
     mxArray * const UNUSED MATLAB_VECTOR(_vector_) = mxCreateDoubleMatrix(1, MATLAB_ELEMENTS(_vector_), mxREAL); \
     m_double_t * const _vector_ = mxGetData(MATLAB_VECTOR(_vector_)); \
-    EMPTY_STATEMENT()
-
-/* Create a vector of unsigned integers. */
-#define MATLAB_CREATE_REAL_UINT_VECTOR(_vector_, _elements_) \
-    const size_t MATLAB_ELEMENTS(_vector_) = _elements_; \
-    const mwSize MATLAB_NDIMS(_vector_) = 1; \
-    const mwSize MATLAB_DIMS(_vector_)[] = { MATLAB_ELEMENTS(_vector_) }; \
-    mxArray * const UNUSED MATLAB_VECTOR(_vector_) = mxCreateNumericArray(MATLAB_NDIMS(_vector_), MATLAB_DIMS(_vector_), mxUINT32_CLASS, mxREAL); \
-    m_uint_t * const _vector_ = mxGetData(MATLAB_VECTOR(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */
