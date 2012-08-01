@@ -1,8 +1,19 @@
+%===============================================================================
+% This script is used to record the execution profile of various MATLAB code 
+% profiles. The execution time will be profiled using each data set from the 
+% "data" array.
+%
+% Profiling results will be output in the following subdirectory:
+%     {output_dir}/{hostname}/{date:yyyy-mm-dd}/...
+%
+%===============================================================================
+
 % All data sets are assumed to have a CSV extension
 % Note: Data sets are listed here in increasing order of size, so that the 
 % script produces as many results as quickly as possible. The command used 
 % to do this is `du *.csv | sort -n | awk '{print $2}'`.
-data_dir = 'Datasets';
+output_dir = strcat('.', filesep, 'Profiling');
+data_dir   = strcat('.', filesep, 'Datasets');
 data = {
     'testoutrank', ...
     'ball1', ...
@@ -42,11 +53,11 @@ iterations = 3;
 % The hostname of this machine.
 [~, hostname] = system('hostname');
 
-% Get the date
+% Get the date.
 theDate = datestr(now, 'yyyy-mm-dd');
 
 % Root output directory.
-profiling_root_dir = strcat('.', filesep, 'Profiling', filesep, hostname, filesep, theDate);
+profiling_root_dir = strcat(output_dir, filesep, hostname, filesep, theDate);
 if exist(profiling_root_dir, 'dir') == 7
     rmdir(profiling_root_dir, 's');
 end
@@ -109,7 +120,7 @@ for d = 1 : length(data)
             profile off;
             
             % Save profiler report.
-            % NOTE: This throws an error for some reason
+            % NOTE: This throws an error for some reason (hence the try/catch).
             fprintf('Saving profiler data to "%s".', profile_output_dir);
             try
                 profsave(profile('info'), profile_output_dir);
