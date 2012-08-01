@@ -60,47 +60,49 @@ static inline double_t distance_squared(const double_t * const ARRAY_SIGNATURE(v
 
     index_t col;
     for (col = 1; col <= COLS(vectors); col++) {
-        const double_t val = ARRAY_ELEMENT(vectors, vector1, col) - ARRAY_ELEMENT(vectors, vector2, col);
+        const double_t val         = ARRAY_ELEMENT(vectors, vector1, col) - ARRAY_ELEMENT(vectors, vector2, col);
         const double_t val_squared = val * val;
-        sum_of_squares += val_squared;
+        sum_of_squares            += val_squared;
     }
 
     return sum_of_squares;
 }
 
 /*
- * TODO
- *
- * Insert "index" into "index_array" and "value" into "value_array", whilst
- * maintaining the sorted property of "value_array". Returns the value that was
- * removed from "value_array", else -1.
+ * Insert "new_index" into the "indexes" vector and "new_value" into the 
+ * "values" vector, whilst maintaining the sorted property of the "values" 
+ * vector. Returns the value  that was removed from the "values" vector, else 
+ * -1 if nothing was removed from the vector.
  *
  * Parameters:
- *     - block_index:
- *     - index_array: The index array.
- *     - index_array_rows: The number of vectors contained within index_array.
- *     - index_array_cols: The size of each vector within index_array.
- *     - value_array: The value array.
- *     - value_array_rows: The number of vectors contained within value_array.
- *     - value_array_cols: The size of each vector within value_array.
- *     - found:
- *     - found_rows:
- *     - found_cols:
- *     - new_index: The value to be inserted into index_array.
- *     - new_value: The value to be inserted into value_array.
+ *     - block_index: The index of the current vector (row) within the block. 
+ *           This indicates the row that will be used to read/write the 
+ *           "indexes" and "values" arrays.
+ *     - indexes: The index array.
+ *     - indexes_rows: The number of vectors contained within the "indexes" 
+ *           array.
+ *     - indexes_cols: The size of each vector within the "indexes" array.
+ *     - values: The value array.
+ *     - values_rows: The number of vectors contained within the "values" array.
+ *     - values_cols: The size of each vector within the "values" array.
+ *     - found: A vector storing the number of initialised entries in the
+ *           "indexes" and "values" arrays for each vector.
+ *     - found_elements: The number of elements in the "found" vector.
+ *     - new_index: The value to be inserted into the "indexes" array.
+ *     - new_value: The value to be inserted into the "values" array.
  */
 static inline double_t sorted_insert(const index_t block_index,
-                              uint_t * const ARRAY_SIGNATURE(index_array),
-                              double_t * const ARRAY_SIGNATURE(value_array),
-                              uint_t * const VECTOR_SIGNATURE(found),
-                              const uint_t new_index, const double_t new_value) {
+                                     uint_t * const ARRAY_SIGNATURE(indexes),
+                                     double_t * const ARRAY_SIGNATURE(values),
+                                     uint_t * const VECTOR_SIGNATURE(found),
+                                     const uint_t new_index, const double_t new_value) {
     /* Error checking. */
-    assert(ROWS(index_array) == ROWS(value_array) && COLS(index_array) == COLS(value_array));
-    assert(ROWS(index_array) == ELEMENTS(found));
-    assert(block_index >=1 && block_index <= ROWS(index_array));
+    assert(ROWS(indexes) == ROWS(values) && COLS(indexes) == COLS(values));
+    assert(ROWS(indexes) == ELEMENTS(found));
+    assert(block_index >=1 && block_index <= ROWS(indexes));
 
-    index_t index = 0; /* the index at which the new pair will be inserted */
-    double_t removed_value = -1; /* the value that was removed from the value_array */
+    index_t insert_index   = 0; /* the index at which the new pair will be inserted */
+    double_t removed_value = -1; /* the value that was removed from the values vector */
     const size_t curr_size = VECTOR_ELEMENT(found, block_index);
 
     /*
@@ -112,19 +114,19 @@ static inline double_t sorted_insert(const index_t block_index,
      * array is stored in the rightmost n indexes.
      */
 
-    if (curr_size < COLS(value_array)) {
+    if (curr_size < COLS(values)) {
         /* Special handling required if the array is incomplete. */
 
         index_t i;
-        for (i = COLS(value_array) - curr_size; i <= COLS(value_array); i++) {
-            if (new_value > ARRAY_ELEMENT(value_array, block_index, i) || (i == (index_t) (COLS(value_array) - curr_size))) {
+        for (i = COLS(values) - curr_size; i <= COLS(values); i++) {
+            if (new_value > ARRAY_ELEMENT(values, block_index, i) || (i == (index_t) (COLS(values) - curr_size))) {
                 /* Shuffle values down the array. */
                 if (i != 1) {
-                    ARRAY_ELEMENT(index_array, block_index, i-1) = ARRAY_ELEMENT(index_array, block_index, i);
-                    ARRAY_ELEMENT(value_array, block_index, i-1) = ARRAY_ELEMENT(value_array, block_index, i);
+                    ARRAY_ELEMENT(indexes, block_index, i-1) = ARRAY_ELEMENT(indexes, block_index, i);
+                    ARRAY_ELEMENT(values,  block_index, i-1) = ARRAY_ELEMENT(values,  block_index, i);
                 }
-                index = i;
-                removed_value = 0;
+                insert_index  = i;
+                removed_value = (double_t) 0;
             } else {
                 /* We have found the insertion point. */
                 break;
@@ -132,22 +134,22 @@ static inline double_t sorted_insert(const index_t block_index,
         }
     } else {
         index_t i;
-        for (i = COLS(value_array); i >= 1; i--) {
-            if (new_value < ARRAY_ELEMENT(value_array, block_index, i)) {
-                if (i == COLS(value_array)) {
+        for (i = COLS(values); i >= 1; i--) {
+            if (new_value < ARRAY_ELEMENT(values, block_index, i)) {
+                if (i == COLS(values)) {
                     /*
                      * The removed value is the value of the last element in the
                      * array.
                      */
-                    removed_value = ARRAY_ELEMENT(value_array, block_index, i);
+                    removed_value = ARRAY_ELEMENT(values, block_index, i);
                 }
 
                 /* Shuffle values down the array. */
                 if (i != 1) {
-                    ARRAY_ELEMENT(index_array, block_index, i) = ARRAY_ELEMENT(index_array, block_index, i-1);
-                    ARRAY_ELEMENT(value_array, block_index, i) = ARRAY_ELEMENT(value_array, block_index, i-1);
+                    ARRAY_ELEMENT(indexes, block_index, i) = ARRAY_ELEMENT(indexes, block_index, i-1);
+                    ARRAY_ELEMENT(values,  block_index, i) = ARRAY_ELEMENT(values,  block_index, i-1);
                 }
-                index = i;
+                insert_index = i;
             } else {
                 /* We have found the insertion point. */
                 break;
@@ -159,11 +161,11 @@ static inline double_t sorted_insert(const index_t block_index,
      * Insert the new pair and increment the current_size of the array (if
      * necessary).
      */
-    if (index != 0) {
-        ARRAY_ELEMENT(index_array, block_index, index) = new_index;
-        ARRAY_ELEMENT(value_array, block_index, index) = new_value;
+    if (insert_index != 0) {
+        ARRAY_ELEMENT(indexes, block_index, insert_index) = new_index;
+        ARRAY_ELEMENT(values,  block_index, insert_index) = new_value;
 
-        if (curr_size < COLS(value_array)) {
+        if (curr_size < COLS(values)) {
             VECTOR_ELEMENT(found, block_index) = curr_size + 1;
         }
     }
