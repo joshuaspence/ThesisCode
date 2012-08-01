@@ -9,28 +9,34 @@
 /******************************************************************************/
 
 /* Forward declarations */
-static double_t sorted_insert(
+static inline double_t sorted_insert(
     const index_t block_index,
     uint_t * const ARRAY_SIGNATURE(index_array),
     double_t * const ARRAY_SIGNATURE(value_array),
     uint_t * const VECTOR_SIGNATURE(found),
     const uint_t new_index, const double_t new_value);
-static size_t best_outliers(
+static inline size_t best_outliers(
     uint_t * const VECTOR_SIGNATURE(outliers),
     double_t * const VECTOR_SIGNATURE(outlier_scores),
     const size_t outliers_size,
     uint_t * const VECTOR_SIGNATURE(current_block),
     double_t * const VECTOR_SIGNATURE(scores));
-static void sort_vectors_descending(
+static inline void sort_vectors_descending(
     uint_t * const VECTOR_SIGNATURE(index_vector),
     double_t * const VECTOR_SIGNATURE(value_vector));
-static size_t merge(
-    uint_t * const VECTOR_SIGNATURE(index_array1), double_t * const VECTOR_SIGNATURE(value_array1), const size_t array1_size,
-    uint_t * const VECTOR_SIGNATURE(index_array2), double_t * const VECTOR_SIGNATURE(value_array2), const size_t array2_size,
-    uint_t * const VECTOR_SIGNATURE(index_array),  double_t * const VECTOR_SIGNATURE(value_array));
-static double_t distance_squared(
+static inline size_t merge(
+    uint_t * const VECTOR_SIGNATURE(index_array1),
+    double_t * const VECTOR_SIGNATURE(value_array1),
+    const size_t array1_size,
+    uint_t * const VECTOR_SIGNATURE(index_array2),
+    double_t * const VECTOR_SIGNATURE(value_array2),
+    const size_t array2_size,
+    uint_t * const VECTOR_SIGNATURE(index_array),
+    double_t * const VECTOR_SIGNATURE(value_array));
+static inline double_t distance_squared(
     const double * const ARRAY_SIGNATURE(vectors),
-    const index_t vector1, const index_t vector2);
+    const index_t vector1,
+    const index_t vector2);
 
 /*
  * Calculate the square of the Euclidean distance between two vectors (i.e. the
@@ -49,7 +55,7 @@ static double_t distance_squared(
  * Return:
  *    The sum of the distance between values of the rows.
  */
-static double_t distance_squared(const double_t * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2) {
+static inline double_t distance_squared(const double_t * const ARRAY_SIGNATURE(vectors), const index_t vector1, const index_t vector2) {
     double_t sum_of_squares = 0;
 
     index_t col;
@@ -83,7 +89,7 @@ static double_t distance_squared(const double_t * const ARRAY_SIGNATURE(vectors)
  *     - new_index: The value to be inserted into index_array.
  *     - new_value: The value to be inserted into value_array.
  */
-static double_t sorted_insert(const index_t block_index,
+static inline double_t sorted_insert(const index_t block_index,
                               uint_t * const ARRAY_SIGNATURE(index_array),
                               double_t * const ARRAY_SIGNATURE(value_array),
                               uint_t * const VECTOR_SIGNATURE(found),
@@ -176,7 +182,7 @@ static double_t sorted_insert(const index_t block_index,
  * This functions returns the number of initialised elements in the outliers
  * vector.
  */
-static size_t best_outliers(uint_t * const VECTOR_SIGNATURE(outliers),
+static inline size_t best_outliers(uint_t * const VECTOR_SIGNATURE(outliers),
                             double_t * const VECTOR_SIGNATURE(outlier_scores),
                             const size_t outliers_size,
                             uint_t * const VECTOR_SIGNATURE(current_block),
@@ -215,7 +221,7 @@ static size_t best_outliers(uint_t * const VECTOR_SIGNATURE(outliers),
 /*
  * TODO
  */
-static void sort_vectors_descending(uint_t *   const VECTOR_SIGNATURE(index),
+static inline void sort_vectors_descending(uint_t *   const VECTOR_SIGNATURE(index),
                                     double_t * const VECTOR_SIGNATURE(value)) {
     /* Error checking. */
     assert(ELEMENTS(index) == ELEMENTS(value));
@@ -243,7 +249,7 @@ static void sort_vectors_descending(uint_t *   const VECTOR_SIGNATURE(index),
  *
  * TODO
  */
-static size_t merge(uint_t * const VECTOR_SIGNATURE(index1), double_t * const VECTOR_SIGNATURE(value1), const size_t size1,
+static inline size_t merge(uint_t * const VECTOR_SIGNATURE(index1), double_t * const VECTOR_SIGNATURE(value1), const size_t size1,
                     uint_t * const VECTOR_SIGNATURE(index2), double_t * const VECTOR_SIGNATURE(value2), const size_t size2,
                     uint_t * const VECTOR_SIGNATURE(index),  double_t * const VECTOR_SIGNATURE(value)) {
     /* Error checking. */
