@@ -112,11 +112,11 @@ endif
 .SUFFIXES:
 .DEFAULT: release
 
-TARGETS    := TopN_Outlier_Pruning_Block_C_sorted \
-              TopN_Outlier_Pruning_Block_C_unsorted
+TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
+              TopN_Outlier_Pruning_Block_C_UNSORTED
 
-TopN_Outlier_Pruning_Block_C_sorted_FILES   := top_n_outlier_pruning_block_sorted
-TopN_Outlier_Pruning_Block_C_unsorted_FILES := top_n_outlier_pruning_block_unsorted
+TopN_Outlier_Pruning_Block_C_SORTED_FILES   := top_n_outlier_pruning_block_sorted
+TopN_Outlier_Pruning_Block_C_UNSORTED_FILES := top_n_outlier_pruning_block_unsorted
 COMMON_FILES                                := matlab_wrapper
 
 ALL_MEXTARGETS :=
@@ -137,7 +137,6 @@ $$($(1)_MEXTARGET): $$($(1)_SOURCES) $$($(1)_DEPS)
 	$$(MXX) CFLAGS='$$(CFLAGS)' CXXFLAGS='$$(CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
 	-@echo
 endef
-$(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
 
 # Release build
 release: CFLAGS   += $(CFLAGS_OPT)
@@ -153,9 +152,13 @@ debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
 debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
 debug:   all
 
+# Compile the MEX functions
+$(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
+
 .PHONY: all
 all: $(ALL_MEXTARGETS)
 	-@echo "Done."
+
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
