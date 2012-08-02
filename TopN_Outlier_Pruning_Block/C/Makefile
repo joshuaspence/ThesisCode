@@ -109,15 +109,35 @@ endif
 #                              DEPENDENCY RULES                                #
 #                                                                              #
 #------------------------------------------------------------------------------#
-# Default build configuration
+.SUFFIXES:
 .DEFAULT: release
 
-TARGET     := TopN_Outlier_Pruning_Block
-MEXTARGET  := $(TARGET:%=%.$(MEXEXT))
+TARGETS    := TopN_Outlier_Pruning_Block_C_sorted \
+              TopN_Outlier_Pruning_Block_C_unsorted
 
-FILES      := top_n_outlier_pruning_block matlab_wrapper
-SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
-DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
+TopN_Outlier_Pruning_Block_C_sorted_FILES   := top_n_outlier_pruning_block_sorted
+TopN_Outlier_Pruning_Block_C_unsorted_FILES := top_n_outlier_pruning_block_unsorted
+COMMON_FILES                                := matlab_wrapper
+
+ALL_MEXTARGETS :=
+ALL_SOURCES    :=
+ALL_DEPS       :=
+
+define target-template
+$(1)_MEXTARGET  := $(1).$$(MEXEXT)
+$(1)_SOURCES    := $$(foreach f,$$($(1)_FILES),$$(addsuffix .c,$$f)) $$(foreach f,$$(COMMON_FILES),$$(addsuffix .c,$$f))
+$(1)_DEPS       := $$(foreach s,$$($(1)_SOURCES),$$(addsuffix .d,$$s))
+
+ALL_MEXTARGETS  += $$($(1)_MEXTARGET)
+ALL_SOURCES     += $$($(1)_SOURCES)
+ALL_DEPS        += $$($(1)_DEPS)
+
+$$($(1)_MEXTARGET): $$($(1)_SOURCES) $$($(1)_DEPS)
+	-@echo "Compiling: $$@"
+	$$(MXX) CFLAGS='$$(CFLAGS)' CXXFLAGS='$$(CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
+	-@echo
+endef
+$(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
 
 # Release build
 release: CFLAGS   += $(CFLAGS_OPT)
@@ -134,35 +154,40 @@ debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
 debug:   all
 
 .PHONY: all
-all: $(MEXTARGET)
-
-$(MEXTARGET): $(SOURCES) $(DEPS)
-	$(MXX) CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(MXXFLAGS) -o $@ $(filter %.c,$^)
-
+all: $(ALL_MEXTARGETS)
+	-@echo "Done."
 .PHONY: clean
 clean:
-	@rm -f $(MEXTARGET) $(DEPS)
-	@echo "clean completed"
+	-@echo "Cleaning..."
+	rm -f $(ALL_MEXTARGETS) $(ALL_DEPS)
+	-@echo "Clean completed."
 
 .PHONY: distclean
 distclean: clean
 
 # Dependency generation
 .PHONY: depend
-depend: $(SOURCES) $(DEPS)
-
+ depend: $(ALL_SOURCES) $(ALL_DEPS)
+	
 # Generate a dependency for a C file
+# NOTE: We aren't making .o files, so we will pretend that the source files are
+# the object files.
 %.c.d: %.c
+	-@echo "Creating dependency file: $@"
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
-	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
-	@rm $@.bak
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.c -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	-@rm $@.bak
+	-@echo
 
 # Generate a dependency for a C++ file
+# NOTE: We aren't making .o files, so we will pretend that the source files are
+# the object files.
 %.cpp.d: %.c
+	-@echo "Creating dependency file: $@"
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
-	@sed -i 's/^.*\.o:/$(MEXTARGET):/' $@
-
+	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.cpp -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	-@rm $@.bak
+	-@echo
+	
 # Include generated dependency files
 include $(wildcard *.d)
