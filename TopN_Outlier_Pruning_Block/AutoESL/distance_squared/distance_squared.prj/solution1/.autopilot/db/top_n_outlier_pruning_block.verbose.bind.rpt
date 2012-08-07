@@ -1,0 +1,261 @@
+
+
+================================================================
+== Report Version
+================================================================
+* Tool:          AutoESL - High-Level Synthesis System (C, C++, SystemC)
+* Version:       2012.1
+* Build date:    Tue May 08 19:17:35 PM 2012
+* Copyright (C): 2012 Xilinx Inc. All rights reserved.
+
+
+================================================================
+== General Information
+================================================================
+* Project:  distance_squared.prj
+* Solution: solution1
+* Date:     Wed Aug 08 00:33:58 2012
+
+
+
+================================================================
+== User Assignments
+================================================================
+* Product Family:           virtex6 virtex6_fpv6 
+* Part:                     xc6vlx240t:ff1156:-3
+* Top Model name:           top_n_outlier_pruning_block
+* Target clock period (ns): 10.00
+* Clock uncertainty (ns):   1.25
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Summary of timing analysis: 
+    * Estimated clock period (ns): 0.00
++ Summary of overall latency (clock cycles): 
+    * Best-case latency:    0
+    * Average-case latency: 0
+    * Worst-case latency:   0
+
+
+================================================================
+== Area Estimates
+================================================================
+* Summary: 
+(Target device: xc6vlx240t:ff1156:-3)
++---+-----------------+-----+-------+--------+--------+-------+
+| ID|             Name| BRAM| DSP48E|      FF|     LUT|  SLICE|
++---+-----------------+-----+-------+--------+--------+-------+
+|  0|        Component|    -|      -|       -|       -|      -|
+|  1|       Expression|    -|      -|       -|       -|      -|
+|  2|             FIFO|    -|      -|       -|       -|      -|
+|  3|           Memory|    -|      -|       -|       -|      -|
+|  4|      Multiplexer|    -|      -|       -|       -|      -|
+|  5|         Register|    -|      -|       -|       -|      -|
++---+-----------------+-----+-------+--------+--------+-------+
+|  -|            Total|    0|      0|       0|       0|      0|
++---+-----------------+-----+-------+--------+--------+-------+
+|  -|        Available|  832|    768|  301440|  150720|  37680|
++---+-----------------+-----+-------+--------+--------+-------+
+|  -|  Utilization (%)|    0|      0|       0|       0|      0|
++---+-----------------+-----+-------+--------+--------+-------+
+
++ Details: 
+    * Component: 
+    N/A
+
+    * Expression: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * Multiplexer: 
+    N/A
+
+    * Register: 
+    N/A
+
+* Hierarchical Multiplexer Count: 
++---+--------------+-----+-----+------+
+| ID|          Name| Size| Bits| Count|
++---+--------------+-----+-----+------+
+|  0|  (This level)|    0|    0|     0|
++---+--------------+-----+-----+------+
+|  -|         Total|    0|    0|     0|
++---+--------------+-----+-----+------+
+
+
+
+================================================================
+== Power Estimate
+================================================================
+* Summary: 
++---+-------------+
+| ID|         Name|
++---+-------------+
+|  0|    Component|
+|  1|   Expression|
+|  2|         FIFO|
+|  3|       Memory|
+|  4|  Multiplexer|
+|  5|     Register|
++---+-------------+
+|  -|        Total|
++---+-------------+
+
+* Hierarchical Register Count: 
++---+--------------+------+
+| ID|          Name| Count|
++---+--------------+------+
+|  0|  (This level)|     0|
++---+--------------+------+
+|  -|         Total|     0|
++---+--------------+------+
+
+
+
+================================================================
+== Interface Summary
+================================================================
+* Interfaces: 
+N/A
+
+============================================================
++ Verbose Summary: Synthesis Manager
+============================================================
+InlineROM: 1
+ExposeGlobal: 0
+============================================================
++ Verbose Summary: CDFG Model
+============================================================
+IsTopModel: 1
+ResetActiveHigh: 1
+IsCombinational: 0
+IsDatapathOnly: 0
+HasWiredReturn: 1
+HasMFsm: 0
+HasVarLatency: 0
+IsPipeline: 0
+IsRtlPipelined: 0
+IsInstanceOverlapped: 0
+IsDontTouch: 0
+HasImplIP: 0
+IsGatedGlobalClock: 0
+
+
+============================================================
++ Verbose Summary: Schedule
+============================================================
+* Number of FSM states: 1
+* Pipeline: 0
+* Dataflow Pipeline: 0
+
+* FSM state transitions: 
+1 --> 
+* FSM state operations: 
+
+ <State 1>: 0.00ns
+ST_1: stg_2 [1/1] 0.00ns
+entry:0  ret i32 0
+
+
+
+============================================================
++ Verbose Summary: Binding
+============================================================
+STG Binding: 
+---------------- STG Properties BEGIN ----------------
+- Is combinational: 1
+- Is one-state seq: 0
+- Is datapath-only: 0
+- Is clock enabled: 0
+- Is pipelined: 0
+- Is top level: 1
+Port [ Return ] is wired: 1; IO mode=ap_ctrl_hs:ce=0
+Port [ dummy]:  wired=1; compound=0; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=0; mode=0x5def1e8; pingpong=0; private_global=0; IO mode=ap_none:ce=0
+---------------- STG Properties END ------------------
+
+---------------- Datapath Model BEGIN ----------------
+
+<LifeTime>
+<method=bitvector/>
+stg_2 (ret) [ 00]
+</LifeTime>
+
+<model>
+
+<comp_list>
+<comp id="0" class="1000" name="dummy">
+<pin_list>
+<pin id="1" dir="1" index="0" bw="1" slack="2147483647"/>
+</pin_list>
+<bind>
+<StgValue><ssdm name="dummy"/></StgValue>
+</bind>
+</comp>
+
+<comp id="2" class="1001" name="const_2">
+<pin_list>
+<pin id="3" dir="1" index="0" bw="1" slack="2147483647"/>
+</pin_list>
+<bind>
+<StgValue><ssdm name=""/></StgValue>
+</bind>
+</comp>
+
+</comp_list>
+
+<net_list>
+</net_list>
+
+</model> 
+---------------- Datapath Model END ------------------
+
+* FSMD analyzer results:
+  - Output states:
+  - Chain level:
+	State 1
+
+
+============================================================
++ Verbose Summary: Datapath Resource usage 
+============================================================
+
+* Functional unit list:
+|----------|----------------|
+| Operation| Functional Unit|
+|----------|----------------|
+|   Total  |                |
+|----------|----------------|
+
+Memories:
+N/A
+
+* Register list:
+N/A
+
+* Multiplexer (MUX) list: 
+|--------|------|------|------|--------|
+|  Comp  |  Pin | Size |  BW  | S x BW |
+|--------|------|------|------|--------|
+|  Total |      |      |      |    0   |
+|--------|------|------|------|--------|
+
+
+
+* Summary:
++-----------+
+|           |
++-----------+
+|  Function |
+|   Memory  |
+|Multiplexer|
+|  Register |
++-----------+
+|   Total   |
++-----------+

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
+  <source>
+    <originFiles name="basic.cpp" path="C:\AutoESL\Examples\AXI_Lite_Interface\basic.cpp"/>
+  </source>
+  <testbench>
+    <originFiles name="basic_test.cpp" path="C:\AutoESL\Examples\AXI_Lite_Interface\basic_test.cpp"/>
+    <originFiles name="result.golden.dat" path="C:\AutoESL\Examples\AXI_Lite_Interface\result.golden.dat"/>
+  </testbench>
+</autopilotfilemapping:AutoPilotFileMapping>
