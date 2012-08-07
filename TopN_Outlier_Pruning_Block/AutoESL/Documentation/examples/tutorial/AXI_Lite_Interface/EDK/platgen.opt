@@ -1,0 +1,9 @@
+-p
+xc6slx9csg324-2
+-lang
+vhdl
+-intstyle
+default
+-msg
+__xps/ise/xmsgprops.lst
+EDK.mhs
