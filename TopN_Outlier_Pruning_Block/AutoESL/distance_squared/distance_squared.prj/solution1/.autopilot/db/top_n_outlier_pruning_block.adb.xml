@@ -1,0 +1,44 @@
+<stg><name>top_n_outlier_pruning_block</name>
+
+
+<trans_list>
+</trans_list>
+
+
+
+<state_list>
+
+<state id="1" st_id="1">
+
+<operation id="2" st_id="1" stage="1" lat="1">
+<core>NULL</core>
+<MemPortIdVec></MemPortIdVec>
+<condition id="0">
+<or_exp><and_exp></and_exp></or_exp>
+</condition>
+
+<node id="2" bw="0" op_0_bw="32">
+<![CDATA[
+entry:0  ret i32 0
+
+]]></node>
+<StgValue><ssdm name=""/></StgValue>
+</operation>
+</state>
+</state_list>
+
+
+<ports>
+<port id="3" name="dummy" dir="0" iftype="0">
+<core>NULL</core><StgValue><ssdm name="dummy"/></StgValue>
+</port>
+</ports>
+
+
+<dataflows>
+<dataflow id="5" from="stg_4" to="stg_2" fromId="4" toId="2">
+</dataflow>
+</dataflows>
+
+
+</stg>
