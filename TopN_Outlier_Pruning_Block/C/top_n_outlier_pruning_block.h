@@ -15,4 +15,4 @@ void top_n_outlier_pruning_block(
     double_t * const outlier_scores
     );
 
-#endif /* #ifndef TOPN_OUTLIER_PRUNING_BLOCK_H_ */
+#endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */
