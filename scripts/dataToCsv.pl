@@ -185,7 +185,7 @@ for my $dataset (@datasets) {
     # Output averages over this data set
     my @profiles = sort(keys(%results));
     foreach my $profile (@profiles) {
-        my @functions = sort(keys($results{$profile}{'dataset_calls'}{$dataset_string}));
+        my @functions = sort(keys(%{$results{"$profile"}{'dataset_calls'}{$dataset_string}}));
         
         foreach my $function (@functions) {
             my $calls_average = $results{$profile}{'dataset_calls'}{$dataset_string}{$function} / $results{$profile}{'dataset_iterations'}{$dataset_string};
@@ -200,7 +200,7 @@ for my $dataset (@datasets) {
 my @profiles = sort(keys(%results));
     foreach my $profile (@profiles) {
     
-    my @functions = sort(keys($results{$profile}{'calls'}));
+    my @functions = sort(keys(%{$results{$profile}{'calls'}}));
     foreach my $function (@functions) {
         my $calls_average = $results{$profile}{'calls'}{$function} / $results{$profile}{'iterations'};
         my $total_time_average = $results{$profile}{'total_time'}{$function} / $results{$profile}{'iterations'};
