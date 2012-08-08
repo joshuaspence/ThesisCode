@@ -6,9 +6,13 @@
 
 void top_n_outlier_pruning_block(
     const double_t * const data,
-    const size_t num_vectors, const size_t vector_size,
-    const size_t k, const size_t N, const size_t block_size,
-    index_t * outliers, double_t * outlier_scores
+    const size_t num_vectors,
+    const size_t vector_dims,
+    const size_t k,
+    const size_t N,
+    const size_t default_block_size,
+    index_t * const outliers,
+    double_t * const outlier_scores
     );
 
 #endif /* #ifndef TOPN_OUTLIER_PRUNING_BLOCK_H_ */
