@@ -1,11 +1,14 @@
 #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_
 #define TOP_N_OUTLIER_PRUNING_BLOCK_H_
 
-#include "macros.h" /* for ARRAY_SIGNATURE, VECTOR_SIGNATURE */
+#include <stddef.h> /* for size_t */
+#include "macros.h" /* for double_t, index_t */
 
-void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
-                                 const size_t k, const size_t N, const size_t block_size,
-                                 uint_t * VECTOR_SIGNATURE(outliers),
-                                 double_t * VECTOR_SIGNATURE(outlier_scores));
+void top_n_outlier_pruning_block(
+    const double_t * const data,
+    const size_t num_vectors, const size_t vector_size,
+    const size_t k, const size_t N, const size_t block_size,
+    index_t * outliers, double_t * outlier_scores
+    );
 
 #endif /* #ifndef TOPN_OUTLIER_PRUNING_BLOCK_H_ */
