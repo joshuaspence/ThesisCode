@@ -478,7 +478,7 @@ static inline size_t merge(uint_t * const VECTOR_SIGNATURE(indexes1), double_t *
  *          "outlier_scores" vector.
  */
 void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
-                                 const size_t k, const size_t N, const size_t block_size,
+                                 const size_t k, const size_t N, size_t block_size,
                                  uint_t * VECTOR_SIGNATURE(outliers),
                                  double_t * VECTOR_SIGNATURE(outlier_scores)) {
     /* Error checking. */
@@ -489,6 +489,10 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
     assert(ELEMENTS(outliers) == N);
     assert(ROWS(data) >= N);
     assert(ROWS(data) >= k);
+    
+#ifdef NO_BLOCKING
+    block_size = 1;
+#endif /* #ifdef NO_BLOCKING */
     
     double_t cutoff = 0;        /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_size = 0; /* the number of initialised elements in the outliers array */

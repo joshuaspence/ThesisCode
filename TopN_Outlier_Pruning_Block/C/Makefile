@@ -113,14 +113,16 @@ endif
 .DEFAULT: release
 
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
-              TopN_Outlier_Pruning_Block_C_UNSORTED
+              TopN_Outlier_Pruning_Block_C_UNSORTED \
+              TopN_Outlier_Pruning_Block_C_SORTED_NO_BLOCKING
 MEXTARGETS := $(foreach t,$(TARGETS),$(addsuffix .$(MEXEXT),$t))
 FILES      := top_n_outlier_pruning_block matlab_wrapper
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 
-TopN_Outlier_Pruning_Block_C_SORTED_FLAGS   := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_FLAGS := -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_NO_BLOCKING_FLAGS := -DSORTED_INSERT -DNO_BLOCKING
 
 define target-template
 $(1).$$(MEXEXT): $(SOURCES) $(DEPS)
