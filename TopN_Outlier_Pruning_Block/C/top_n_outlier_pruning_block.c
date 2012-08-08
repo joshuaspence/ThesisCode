@@ -7,17 +7,32 @@
 #include "top_n_outlier_pruning_block.h"
 /******************************************************************************/
 
+/* Check definitions. */
+#if defined(UNSORTED_INSERT) && defined(SORTED_INSERT)
+    #error "Only one of UNSORTED_INSERT and SORTED_INSERT should be defined."
+#endif /* #if defined(UNSORTED_INSERT) && defined(SORTED_INSERT) */
+
 /* Forward declarations */
 static inline double_t distance_squared(
     const double * const ARRAY_SIGNATURE(vectors),
     const index_t vector1,
     const index_t vector2);
+#ifdef SORTED_INSERT
+static inline double_t sorted_insert(
+    const index_t block_index,
+    uint_t * const ARRAY_SIGNATURE(index_array),
+    double_t * const ARRAY_SIGNATURE(value_array),
+    uint_t * const VECTOR_SIGNATURE(found),
+    const uint_t new_index, const double_t new_value);
+#endif /* #ifdef SORTED_INSERT */
+#ifdef UNSORTED_INSERT
 static inline double_t unsorted_insert(
     const index_t block_index,
     uint_t * const ARRAY_SIGNATURE(index_array),
     double_t * const ARRAY_SIGNATURE(value_array),
     uint_t * const VECTOR_SIGNATURE(found),
     const uint_t new_index, const double_t new_value);
+#endif /* #ifdef UNSORTED_INSERT */
 static inline size_t best_outliers(
     uint_t * const VECTOR_SIGNATURE(outliers),
     double_t * const VECTOR_SIGNATURE(outlier_scores),
@@ -67,6 +82,114 @@ static inline double_t distance_squared(const double_t * const ARRAY_SIGNATURE(v
     return sum_of_squares;
 }
 
+#ifdef SORTED_INSERT
+/*
+ * Insert "new_index" into the "indexes" vector and "new_value" into the 
+ * "values" vector, whilst maintaining the sorted property of the "values" 
+ * vector. Returns the value  that was removed from the "values" vector, else 
+ * -1 if nothing was removed from the vector.
+ *
+ * Parameters:
+ *     - block_index: The index of the current vector (row) within the block. 
+ *           This indicates the row that will be used to read/write the 
+ *           "indexes" and "values" arrays.
+ *     - indexes: The index array.
+ *     - indexes_rows: The number of vectors contained within the "indexes" 
+ *           array.
+ *     - indexes_cols: The size of each vector within the "indexes" array.
+ *     - values: The value array.
+ *     - values_rows: The number of vectors contained within the "values" array.
+ *     - values_cols: The size of each vector within the "values" array.
+ *     - found: A vector storing the number of initialised entries in the
+ *           "indexes" and "values" arrays for each vector.
+ *     - found_elements: The number of elements in the "found" vector.
+ *     - new_index: The value to be inserted into the "indexes" array.
+ *     - new_value: The value to be inserted into the "values" array.
+ */
+static inline double_t sorted_insert(const index_t block_index,
+                                     uint_t * const ARRAY_SIGNATURE(indexes),
+                                     double_t * const ARRAY_SIGNATURE(values),
+                                     uint_t * const VECTOR_SIGNATURE(found),
+                                     const uint_t new_index, const double_t new_value) {
+    /* Error checking. */
+    assert(ROWS(indexes) == ROWS(values) && COLS(indexes) == COLS(values));
+    assert(ROWS(indexes) == ELEMENTS(found));
+    assert(block_index >=1 && block_index <= ROWS(indexes));
+    
+    index_t insert_index   = 0; /* the index at which the new pair will be inserted */
+    double_t removed_value = -1; /* the value that was removed from the values vector */
+    const size_t curr_size = VECTOR_ELEMENT(found, block_index);
+    
+    /*
+     * Shuffle array elements from front to back. Elements greater than the new
+     * value will be right-shifted by one index in the array.
+     *
+     * Note that uninitialised values in the array will appear on the left. That
+     * is, if the array is incomplete (has a size n < N) then the data in the
+     * array is stored in the rightmost n indexes.
+     */
+    
+    if (curr_size < COLS(values)) {
+        /* Special handling required if the array is incomplete. */
+        
+        index_t i;
+        for (i = COLS(values) - curr_size; i <= COLS(values); i++) {
+            if (new_value > ARRAY_ELEMENT(values, block_index, i) || (i == (index_t) (COLS(values) - curr_size))) {
+                /* Shuffle values down the array. */
+                if (i != 1) {
+                    ARRAY_ELEMENT(indexes, block_index, i-1) = ARRAY_ELEMENT(indexes, block_index, i);
+                    ARRAY_ELEMENT(values,  block_index, i-1) = ARRAY_ELEMENT(values,  block_index, i);
+                }
+                insert_index  = i;
+                removed_value = (double_t) 0;
+            } else {
+                /* We have found the insertion point. */
+                break;
+            }
+        }
+    } else {
+        index_t i;
+        for (i = COLS(values); i >= 1; i--) {
+            if (new_value < ARRAY_ELEMENT(values, block_index, i)) {
+                if (i == COLS(values)) {
+                    /*
+                     * The removed value is the value of the last element in the
+                     * array.
+                     */
+                    removed_value = ARRAY_ELEMENT(values, block_index, i);
+                }
+
+                /* Shuffle values down the array. */
+                if (i != 1) {
+                    ARRAY_ELEMENT(indexes, block_index, i) = ARRAY_ELEMENT(indexes, block_index, i-1);
+                    ARRAY_ELEMENT(values,  block_index, i) = ARRAY_ELEMENT(values,  block_index, i-1);
+                }
+                insert_index = i;
+            } else {
+                /* We have found the insertion point. */
+                break;
+            }
+        }
+    }
+
+    /*
+     * Insert the new pair and increment the current_size of the array (if
+     * necessary).
+     */
+    if (insert_index != 0) {
+        ARRAY_ELEMENT(indexes, block_index, insert_index) = new_index;
+        ARRAY_ELEMENT(values,  block_index, insert_index) = new_value;
+        
+        if (curr_size < COLS(values)) {
+            VECTOR_ELEMENT(found, block_index) = curr_size + 1;
+        }
+    }
+    
+    return removed_value;
+}
+#endif /* #ifdef SORTED_INSERT */
+
+#ifdef UNSORTED_INSERT
 /*
  * Insert "new_index" into the "indexes" vector and "new_value" into the 
  * "values" vector. Returns the value  that was removed from the "values" 
@@ -148,6 +271,7 @@ static inline double_t unsorted_insert(const index_t block_index,
     
     return removed_value;
 }
+#endif /* #ifdef UNSORTED_INSERT */
 
 /*
  * Take the top N outliers based on the current outliers (identified by the
@@ -425,7 +549,12 @@ void top_n_outlier_pruning_block(const double_t * const ARRAY_SIGNATURE(data),
                      * Insert the new (index, distance) pair into the neighbours
                      * array for the current vector.
                      */
+#ifdef SORTED_INSERT
+                    const double_t removed_distance = sorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
+#endif /* #ifdef SORTED_INSERT */
+#ifdef UNSORTED_INSERT
                     const double_t removed_distance = unsorted_insert(block_index, ARRAY_ARGUMENTS(neighbours), ARRAY_ARGUMENTS(neighbours_dist), VECTOR_ARGUMENTS(found), vector1, dist_squared);
+#endif /* #ifdef UNSORTED_INSERT */
                     
                     /*
                      * Update the score (if the neighbours array was changed).
