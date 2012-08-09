@@ -36,7 +36,7 @@
  *     - N is an integer-valued scalar.
  *     - block_size is an integer-valued scalar.
  */
-void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
+void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {    
     /* Check for proper number of arguments. */
     if (nrhs != 4)
         mexErrMsgTxt("Four inputs required.");
