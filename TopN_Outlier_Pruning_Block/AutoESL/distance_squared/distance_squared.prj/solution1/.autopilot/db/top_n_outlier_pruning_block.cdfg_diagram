@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<notation:Diagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:cdfg="http://www.autoesl.com/DBCdfg" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.2/notation" xmi:id="_J-YwsOCdEeG_qu06l6KHag" type="Cdfg" name="top_n_outlier_pruning_block.cdfg_diagram" measurementUnit="Pixel">
+  <styles xmi:type="notation:DiagramStyle" xmi:id="_J-YwseCdEeG_qu06l6KHag"/>
+  <element xmi:type="cdfg:DBCdfg" href="top_n_outlier_pruning_block.cdfg#/"/>
+</notation:Diagram>
