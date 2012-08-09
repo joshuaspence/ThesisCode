@@ -343,7 +343,12 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
 
 void top_n_outlier_pruning_block(const double_t * const data,
                                  const size_t num_vectors, const size_t vector_dims,
-                                 const size_t k, const size_t N, const size_t default_block_size,
+                                 const size_t k, const size_t N,
+#ifdef NO_BLOCKING
+                                 size_t default_block_size,
+#else
+                                 const size_t default_block_size,
+#endif /* #ifdef NO_BLOCKING */
                                  index_t * const outliers, double_t * const outlier_scores) {
     /* Error checking. */
     assert(data != NULL);
@@ -353,6 +358,10 @@ void top_n_outlier_pruning_block(const double_t * const data,
     assert(default_block_size > 0);
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
+    
+#ifdef NO_BLOCKING
+    default_block_size = 1;
+#endif /* #ifdef NO_BLOCKING */
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
@@ -377,11 +386,6 @@ void top_n_outlier_pruning_block(const double_t * const data,
             else
                 current_block[i] = null_index;
         }
-        mexPrintf("Initial block (bs=%d): ", block_size);
-        uint_t x;
-        for (x = 0; x < default_block_size; x++)
-            mexPrintf("%d ", current_block[x]);
-        mexPrintf("\n");
         memset(&neighbours,      null_index, default_block_size * k * sizeof(index_t));
         memset(&neighbours_dist,          0, default_block_size * k * sizeof(double));
         memset(&score,                    0, default_block_size * sizeof(double));
@@ -430,25 +434,7 @@ void top_n_outlier_pruning_block(const double_t * const data,
         }
         
         /* Keep track of the top "N" outliers. */
-        mexPrintf("Current block: ");
-        for (x = 0; x < default_block_size; x++)
-            mexPrintf("%d ", current_block[x]);
-        mexPrintf("\n");
-        mexPrintf("Scores: ");
-        for (x = 0; x < default_block_size; x++)
-            mexPrintf("%f ", score[x]);
-        mexPrintf("\n");
-        
         best_outliers(outliers, outlier_scores, &outliers_found, N, current_block, score, block_size);
-        
-        mexPrintf("Best outliers: ");
-        for (x = 0; x < N; x++)
-            mexPrintf("%d ", outliers[x]);
-        mexPrintf("\n");
-        mexPrintf("Best outlier scores: ");
-        for (x = 0; x < N; x++)
-            mexPrintf("%f ", outlier_scores[x]);
-        mexPrintf("\n");
         
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to

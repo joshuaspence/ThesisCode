@@ -10,7 +10,11 @@ void top_n_outlier_pruning_block(
     const size_t vector_dims,
     const size_t k,
     const size_t N,
+#ifdef NO_BLOCKING
+    size_t default_block_size,
+#else
     const size_t default_block_size,
+#endif /* #ifdef NO_BLOCKING */
     index_t * const outliers,
     double_t * const outlier_scores
     );
