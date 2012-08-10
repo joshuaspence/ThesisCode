@@ -113,17 +113,30 @@ endif
 .DEFAULT: release
 
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
-              TopN_Outlier_Pruning_Block_C_UNSORTED 
-MEXTARGETS := $(foreach t,$(TARGETS),$(addsuffix .$(MEXEXT),$t))
-FILES      := top_n_outlier_pruning_block matlab_wrapper
-SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
-DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
+              TopN_Outlier_Pruning_Block_C_UNSORTED \
+              TopN_Outlier_Pruning_Block_C_NO_BLOCKING
+              
+ALL_MEXTARGETS :=
+ALL_SOURCES    :=
+ALL_DEPS       :=
 
 TopN_Outlier_Pruning_Block_C_SORTED_FLAGS := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_FILES := top_n_outlier_pruning_block matlab_wrapper
 TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_UNSORTED_FILES := top_n_outlier_pruning_block matlab_wrapper
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FILES := top_n_outlier_pruning_block_no_blocking matlab_wrapper
 
 define target-template
-$(1).$$(MEXEXT): $(SOURCES) $(DEPS)
+$(1)_MEXTARGET := $(addsuffix .$(MEXEXT),$(1))
+$(1)_SOURCES   := $$(foreach f,$$($(1)_FILES),$$(addsuffix .c,$$f))
+$(1)_DEPS      := $$(foreach s,$$($(1)_SOURCES),$$(addsuffix .d,$$s))
+
+ALL_MEXTARGETS := $$(sort $$(ALL_MEXTARGETS) $$($(1)_MEXTARGET))
+ALL_SOURCES    := $$(sort $$(ALL_SOURCES) $$($(1)_SOURCES))
+ALL_DEPS       := $$(sort $$(ALL_DEPS) $$($(1)_DEPS))
+
+$$($(1)_MEXTARGET): $$($(1)_SOURCES) $$($(1)_DEPS)
 	-@echo "Compiling: $$@"
 	$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
 	-@echo
@@ -147,13 +160,13 @@ debug:   all
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
 
 .PHONY: all
-all: $(MEXTARGETS)
+all: $(ALL_MEXTARGETS)
 	-@echo "Done."
 
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
-	rm -f $(MEXTARGETS) $(DEPS)
+	rm -f $(ALL_MEXTARGETS) $(ALL_DEPS)
 	-@echo "Clean completed."
 
 .PHONY: distclean
@@ -161,7 +174,7 @@ distclean: clean
 
 # Dependency generation
 .PHONY: depend
- depend: $(SOURCES) $(DEPS)
+ depend: $(ALL_SOURCES) $(ALL_DEPS)
 	
 # Generate a dependency for a C file
 # NOTE: We aren't making .o files, so we will pretend that the source files are
