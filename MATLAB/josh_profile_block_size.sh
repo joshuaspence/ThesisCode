@@ -36,8 +36,8 @@ LOGFILE=$LOGFILE_NAME$COUNTER_TEXT.$LOGFILE_EXT
 
 echo "Running MATLAB..."
 echo "Logging to $LOGFILE"
-echo "GIT commit hash: $(git rev-parse HEAD)" > $LOGFILE
-nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_profile_block_size" 1>$LOGFILE 2>&1 &
+echo "GIT commit hash: $(git rev-parse HEAD)" >> $LOGFILE
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_profile_block_size" 1>>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY
