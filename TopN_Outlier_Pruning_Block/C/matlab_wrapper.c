@@ -14,6 +14,18 @@
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
 
+/* Forward declarations */
+void save_variables_to_file(
+   const double_t * const data,
+   const size_t num_vectors,
+   const size_t vector_dims,
+   const size_t k,
+   const size_t N,
+   const size_t default_block_size,
+   index_t * outliers,
+   double_t * outlier_scores
+   );
+
 /*
  * Gateway function
  *
@@ -102,6 +114,9 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Call the function. */
     top_n_outlier_pruning_block(data_in, num_vectors, vector_dims, k, N, block_size, outliers_out, outlier_scores_out);
     
+    /* Save input and output parameters. */
+    save_variables_to_file(data_in, num_vectors, vector_dims, k, N, block_size, outliers_out, outlier_scores_out);
+    
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
         CREATE_REAL_DOUBLE_VECTOR (outliers, N);
@@ -119,4 +134,31 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         for (i = 0; i < ELEMENTS(outlier_scores); i++)
             VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
     }
+}
+
+/* 
+ * Save the input and output parameters of the top_n_outlier_pruning_block 
+ * function to a binary file.
+ */
+void save_variables_to_file(const double_t * const data,
+                            const size_t num_vectors,
+                            const size_t vector_dims,
+                            const size_t k,
+                            const size_t N,
+                            const size_t default_block_size,
+                            index_t * outliers,
+                            double_t * outlier_scores) {
+    FILE *fp;
+    fp = fopen("vars.dat", "wb");
+    
+    fwrite(       &num_vectors,   sizeof(size_t),                         1, fp); /* num_vectors */
+    fwrite(       &vector_dims,   sizeof(size_t),                         1, fp); /* vector_dims */
+    fwrite(               data, sizeof(double_t), num_vectors * vector_dims, fp); /* data */
+    fwrite(                 &k,   sizeof(size_t),                         1, fp); /* k */
+    fwrite(                 &N,   sizeof(size_t),                         1, fp); /* N */
+    fwrite(&default_block_size,   sizeof(size_t),                         1, fp); /* default_block_size */
+    fwrite(           outliers,  sizeof(index_t),                         N, fp); /* outliers */
+    fwrite(     outlier_scores, sizeof(double_t),                         N, fp); /* outlier_scores */
+    
+    fclose(fp);
 }

@@ -122,6 +122,13 @@ for d = 1 : length(data)
             fid = fopen(strcat(profile_output_dir, filesep, 'matlab_output.log'), 'w');
             fprintf(fid, '%s', matlab_output);
             fclose(fid);
+            
+            % Move C vardump file.
+            vardump_file = 'vars.dat';
+            if exist(vardump_file, 'file') == 2
+                fprintf('Moving C vardump file to "%s".\n', profile_output_dir);
+                movefile(vardump_file, strcat(profile_output_dir, filesep));
+            end
         end
         
         % Compare results.
