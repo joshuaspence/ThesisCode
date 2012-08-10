@@ -44,7 +44,7 @@ nonblocking_profile = struct('name', 'C_no_blocking', 'func', 'TopN_Outlier_Prun
 
 % Each data set will be profiled with the following block sizes.
 %block_sizes = [1 10 40 100 1000 10000];
-block_sizes = [1 10 40 100 1000 10000 100000 1000000];
+block_sizes = [1 10 15 30 40 45 60 90 100 1000 10000 100000 1000000];
 
 % Number of iterations for each data set.
 iterations = 3;
