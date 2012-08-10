@@ -9,7 +9,7 @@
 %
 function commute_distance_anomaly(dataset, func_name)
 
-% Note: this function just calls the more advanced (more parameter) 
-% version of the same function. This function, however, is more user 
+% Note: this function just calls the more advanced (more parameter)
+% version of the same function. This function, however, is more user
 % friendly.
 commute_distance_anomaly_profiling(dataset, '', func_name, '.', 0)

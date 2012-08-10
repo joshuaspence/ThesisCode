@@ -18,7 +18,7 @@ function commute_distance_anomaly_profiling(dataset, randomness, func_name, base
 % testing and profiling scripts.
 
 global g_func_name;
-global g_base_dir;what
+global g_base_dir;
 g_func_name = func_name;
 g_base_dir = base_dir;
 
