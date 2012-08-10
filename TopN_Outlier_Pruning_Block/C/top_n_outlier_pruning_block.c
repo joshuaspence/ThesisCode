@@ -363,7 +363,7 @@ void top_n_outlier_pruning_block(const double_t * const data,
     size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
     
     for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
-        block_size = MIN(block_begin + (default_block_size-1), num_vectors) - block_begin; /* the number of vectors in the current block */
+        block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         assert(block_size <= default_block_size);
         
         index_t current_block[block_size];      /* the indexes of the vectors in the current block */
