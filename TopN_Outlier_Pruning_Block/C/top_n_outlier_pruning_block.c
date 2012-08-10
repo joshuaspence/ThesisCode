@@ -354,6 +354,9 @@ void top_n_outlier_pruning_block(const double_t * const data,
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
     
+    memset(&outliers,       null_index, N * sizeof(index_t));
+    memset(&outlier_scores,          0, N * sizeof(double_t));
+    
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
@@ -416,7 +419,7 @@ void top_n_outlier_pruning_block(const double_t * const data,
                      * If the score for this vector is less than the cutoff,
                      * then prune this vector from the block.
                      */
-                    if (found[block_index] >= (uint_t) k && score[block_index] < cutoff) {
+                    if (found[block_index] >= k && score[block_index] < cutoff) {
                         current_block[block_index] = null_index;
                         score        [block_index] = 0;
                     }
