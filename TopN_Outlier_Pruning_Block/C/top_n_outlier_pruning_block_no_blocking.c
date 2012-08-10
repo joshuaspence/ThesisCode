@@ -349,7 +349,6 @@ void top_n_outlier_pruning_block(const double_t * const data,
     assert(vector_dims > 0);
     assert(k > 0);
     assert(N > 0);
-    assert(default_block_size > 0);
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
     
