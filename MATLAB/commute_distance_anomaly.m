@@ -1,39 +1,21 @@
 % Commute distances from knn graph derived from data.
 %
 % USAGE
-%   commute_distance_anomaly dataset [func_name]
+%   commute_distance_anomaly dataset func_name
 %
 % ARGUMENTS
-%   dataset         The path to the input data set.
 %   func_name       The name of the "TopN_Outlier_Pruning_Block" function to 
-%                   use. Defaults to 'TopN_Outlier_Pruning_Block'.
+%                   use.
 %
-function commute_distance_anomaly (dataset, varargin)
-
-% only want 1 optional inputs at most
-numvarargs = length(varargin);
-if numvarargs > 1
-    error('commute_distance_anomaly:TooManyInputs', 'requires at most 1 optional inputs');
-end
-
-% Set defaults for optional inputs
-optargs = {'TopN_Outlier_Pruning_Block'};
-
-% Now put these defaults into the valuesToUse cell array, 
-% and overwrite the ones specified in varargin.
-optargs(1 : numvarargs) = varargin;
-
-% Place optional args in memorable variable names
-global func_name;
-[func_name] = optargs{:};
+function commute_distance_anomaly(dataset, func_name)
+global g_func_name;
+g_func_name = func_name;
 
 tic
 k1 = 10;        % number of k nearest neighbours of graph
 k2 = 15;        % number of k nearest neighbours for outlier detection
 N = 40;         % top N outliers
 
-pEigens = 0.1;  % pecentage of smallest eigenvectors for approximation
-maxEigens = 50; % maximum No of smallest eigenvectors for approximation
 pSampling = 01; % pecentage of samples
 
 kRP = 200;      % columns of random projection matrix
@@ -45,15 +27,15 @@ sigma = 0;
 
 % Rerandomize state
 randomness_file = 'random.mat';
-if exists(randomness_file, '') == true
+if exist(randomness_file, 'file') == 2
+    lastState = load(randomness_file, 'randnState', 'randState');
+    rand('state', lastState.randState);
+    randn('state', lastState.randnState);
+else
     disp 'Rerandomizing...'
     randnState = randn('state');
     randState = rand('state');
     save(randomness_file, 'randnState', 'randState');
-else
-    lastState = load(randomness_file, 'randnState', 'randState');
-    rand('state', lastState.randState);
-    randn('state', lastState.randnState);
 end
 
 disp 'Reading data file ...';
@@ -95,13 +77,8 @@ end
 sprintf('No. of sampled vertices = %d', size(sampled_vertices))
 t0 = toc(tGraph)
 disp 'Writing the graph to file graph.mat';
-save(strcat(base_dir, filesep, 'graph.mat'), 'G');
-%save(strcat(base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
-
-% disp 'Calculating distance based CTD ...';
-% tCDOF = tic;
-% [O3, OF3, Y_CD, Y_time, knn_time_CD] = TopN_Outlier_Pruning_Block_CTD(G, pEigens, maxEigens, k2, N, N);
-% t3 = toc(tCDOF)
+save('graph.mat', 'G');
+%save('graph.txt', 'G', '-ASCII');
 
 disp 'Calculating distance based CTD-ST ...';
 tCDOFa = tic;
@@ -110,13 +87,13 @@ t3a = toc(tCDOFa)
 
 label = O3a(1:N);
 graph = drawGraph('PCA plot', G, Y(sampled_vertices,:), true, label);
-print(graph, strcat(base_dir, filesep, 'output.png'), '-dpng');
+print(graph, 'output.png', '-dpng');
 
 O = sampled_vertices(O3a);
 OF = OF3a;
 
 disp 'Writing the result to file output.csv';
-csvwrite(strcat(base_dir, filesep, 'output.csv'),[O' OF']);
+csvwrite('output.csv', [O' OF']);
 
 'Done'
 
@@ -204,7 +181,7 @@ for i = 1 : n
                     inn(l) = j;
                     l = l+1;
                 else % l>k
-                    % find the farthest point
+                    % find the farthest point            
                     [maxd, maxi] = max(dnn);
 
                     % replace the farthest point
@@ -219,8 +196,7 @@ for i = 1 : n
         % knn
         q = X(i,:);    
         % the nearest point (the same point) is at the end, just ignore it 
-        inn = kdtree_k_nearest_neighbors(tree, q, k+1);    % euclidean?
-
+        inn = kdtree_k_nearest_neighbors(tree, q, k+1);    % euclidean?  
         for j = 1 : k
             dnn(j) = dist(X(i,:), X(inn(j),:));
         end
@@ -239,11 +215,6 @@ for i = 1 : n
         end
     end
 end
-
-% if strcmp(similarity,'euclidean') == 1
-%     % cleanup
-%     kdtree_delete(tree);
-% end
 
 if graph_type == 2 % mutual knn graph
     for i = 1 : n
@@ -264,6 +235,7 @@ function [A, tree] = knn_components_sparse(X, k, graph_type, similarity, sigma)
 % graph_type = 2: mutual knn
 % graph_type = 3: fully connected graph
 % similarity = how to compute weights of the edge
+
 % A: graph adjacency matrix
 
 if nargin < 5
@@ -357,7 +329,6 @@ Anew = A;
 
 E = euclidean(X);
 T = mst(sparse(E));
-% T = affinity(X, similarity, sigma);
 
 [i,j] = find(T);
 for l = 1 : nnz(T)
@@ -405,13 +376,11 @@ function [A, sampled_vertices_all] = knn_sampling(X, k, graph_type, outlying_clu
 % similarity = how to compute weights of the edge, only apply for full graph
 % outlying_cluster_size: threshold b/w sizes of normal and outlying clusters 
 % pSampling: percentage of samples
-
 % A: sampled similarity matrix 
 
 A = knn_components(X, k, graph_type, similarity);
 
-%[A, sampled_vertices_all] = RW_sampling(A, outlying_cluster_size);
-[A, sampled_vertices_all] = vertex_sampling(A, pSampling, outlying_cluster_size);
+[~, sampled_vertices_all] = vertex_sampling(A, pSampling, outlying_cluster_size);
 A = knn_components(X(sampled_vertices_all,:), k, graph_type, similarity);
 
 A = connect_components_mix(X(sampled_vertices_all,:), A);
@@ -441,15 +410,6 @@ for i = 1 : nClusters
         index = randperm(cluster_size);
         nSamples = round(pSampling*cluster_size);
         sampled_vertices = cluster_index(index(1:nSamples));
-
-%         l = 1;
-%         while l <= nSamples
-%             j = cluster_index(randi(cluster_size));
-%             if size(find(sampled_vertices ==j),2) == 0 % expensive
-%                 sampled_vertices = [sampled_vertices j];
-%                 l = l+1;
-%             end
-%         end
           
         sampled_vertices_all = [sampled_vertices_all sampled_vertices];
     else
@@ -541,15 +501,14 @@ Z_time = toc(tZ);
 
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
-global func_name;
-func_handle = str2func(char(func_name));
+global g_func_name;
+func_handle = str2func(char(g_func_name));
 [O,OF] = func_handle(Y, k, N, block_size);
 OF_sum = sum(OF);
 
 % save variables
-global base_dir;
-save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum');
-%save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum', '-ASCII');
+save('TopN_Outlier_Pruning_Block.mat', 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum');
+%save('TopN_Outlier_Pruning_Block.txt', 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum', '-ASCII');
 
 knn_time = toc(tknn);
 

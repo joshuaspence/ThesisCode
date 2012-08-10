@@ -1,36 +1,23 @@
 % Commute distances from knn graph derived from data.
 %
 % USAGE
-%   commute_distance_anomaly_profiling dataset [randomness [func_name [base_dir]]]
+%   commute_distance_anomaly_profiling dataset randomness func_name base_dir block_sizes
 %
 % ARGUMENTS
 %   dataset         The path to the input data set.
-%   randomness      The path to the randomness file. If blank then a new 
-%                   randomness file will be created in the 'base_dir' directory.
+%   randomness      The path to the randomness file.
 %   func_name       The name of the "TopN_Outlier_Pruning_Block" function to 
-%                   use. Defaults to 'TopN_Outlier_Pruning_Block'.
-%   base_dir        The base directory for output files. Defaults to the current
-%                   directory.
+%                   use.
+%   base_dir        The base directory for output files.
+%   block_size      The block_size to use for outlier pruning. If set to less 
+%                   than or equal to 0, then the default is used.
 %
-function commute_distance_anomaly_profiling (dataset, varargin)
+function commute_distance_anomaly_profiling(dataset, randomness, func_name, base_dir, block_size)
 
-% only want 3 optional inputs at most
-numvarargs = length(varargin);
-if numvarargs > 3
-    error('commute_distance_anomaly_profiling:TooManyInputs', 'requires at most 3 optional inputs');
-end
-
-% Set defaults for optional inputs
-optargs = {'' 'TopN_Outlier_Pruning_Block', '.'};
-
-% Now put these defaults into the valuesToUse cell array, 
-% and overwrite the ones specified in varargin.
-optargs(1 : numvarargs) = varargin;
-
-% Place optional args in memorable variable names
-global func_name;
-global base_dir;
-[randomness, func_name, base_dir] = optargs{:};
+global g_func_name;
+global g_base_dir;what
+g_func_name = func_name;
+g_base_dir = base_dir;
 
 tic
 k1 = 10;        % number of k nearest neighbours of graph
@@ -51,11 +38,15 @@ if strcmp(randomness, '') == true
     disp 'Rerandomizing...'
     randnState = randn('state');
     randState = rand('state');
-    save(strcat(base_dir, filesep, 'random.mat'), 'randnState', 'randState');
+    save(strcat(g_base_dir, filesep, 'random.mat'), 'randnState', 'randState');
 else
     lastState = load(randomness, 'randnState', 'randState');
     rand('state', lastState.randState);
     randn('state', lastState.randnState);
+end
+
+if block_size <= 0
+    block_size = N;
 end
 
 disp 'Reading data file ...';
@@ -97,23 +88,23 @@ end
 sprintf('No. of sampled vertices = %d', size(sampled_vertices))
 t0 = toc(tGraph)
 disp 'Writing the graph to file graph.mat';
-save(strcat(base_dir, filesep, 'graph.mat'), 'G');
-%save(strcat(base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
+save(strcat(g_base_dir, filesep, 'graph.mat'), 'G');
+%save(strcat(g_base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
 disp 'Calculating distance based CTD-ST ...';
 tCDOFa = tic;
-[O3a, OF3a] = TopN_Outlier_Pruning_Block_CTD_ST(G, kRP, scale, k2, N, N);
+[O3a, OF3a] = TopN_Outlier_Pruning_Block_CTD_ST(G, kRP, scale, k2, N, block_size);
 t3a = toc(tCDOFa)
 
 label = O3a(1:N);
 graph = drawGraph('PCA plot', G, Y(sampled_vertices,:), true, label);
-print(graph, strcat(base_dir, filesep, 'output.png'), '-dpng');
+print(graph, strcat(g_base_dir, filesep, 'output.png'), '-dpng');
 
 O = sampled_vertices(O3a);
 OF = OF3a;
 
 disp 'Writing the result to file output.csv';
-csvwrite(strcat(base_dir, filesep, 'output.csv'),[O' OF']);
+csvwrite(strcat(g_base_dir, filesep, 'output.csv'), [O' OF']);
 
 'Done'
 
@@ -521,15 +512,15 @@ Z_time = toc(tZ);
 
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
-global func_name;
-func_handle = str2func(char(func_name));
+global g_func_name;
+func_handle = str2func(char(g_func_name));
 [O,OF] = func_handle(Y, k, N, block_size);
 OF_sum = sum(OF);
 
 % save variables
-global base_dir;
-save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum');
-%save(strcat(base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum', '-ASCII');
+global g_base_dir;
+save(strcat(g_base_dir, filesep, 'TopN_Outlier_Pruning_Block.mat'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum');
+%save(strcat(g_base_dir, filesep, 'TopN_Outlier_Pruning_Block.txt'), 'Y', 'k', 'N', 'block_size', 'O', 'OF', 'OF_sum', '-ASCII');
 
 knn_time = toc(tknn);
 

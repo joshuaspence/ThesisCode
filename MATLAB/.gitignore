@@ -2,6 +2,7 @@
 graph.mat
 graph.txt
 output.csv
+output.png
 random.mat
 random.txt
 TopN_Outlier_Pruning_Block.mat

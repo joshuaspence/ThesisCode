@@ -115,7 +115,7 @@ for d = 1 : length(data)
             end
             
             % Profile execution.
-            matlab_command = sprintf('commute_distance_anomaly_profiling(''%s'', ''%s'', ''%s'', ''%s'')', dataset_file, randomness_file, profile_func, profile_output_dir);
+            matlab_command = sprintf('commute_distance_anomaly_profiling(''%s'', ''%s'', ''%s'', ''%s'', 0)', dataset_file, randomness_file, profile_func, profile_output_dir);
             fprintf('Running MATLAB command: "%s"\n', matlab_command);
             profile on;
             matlab_output = evalc(matlab_command);
