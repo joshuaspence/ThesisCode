@@ -260,7 +260,7 @@ static inline void best_outliers(index_t * const outliers,
     /* Copy values from temporary vectors to real vectors. */
     memcpy(outliers,       new_outliers,       N * sizeof(index_t));
     memcpy(outlier_scores, new_outlier_scores, N * sizeof(double_t));
-    memcpy(outliers_size,  &new_outliers_size, sizeof(size_t));
+    *outliers_size = new_outliers_size;
 }
 
 static inline void sort_vectors_descending(index_t *  const current_block,
@@ -324,8 +324,7 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
              * There are no remaining elements in either the global or local 
              * arrays.
              */
-            local ++;
-            global++;
+            break;
         } else if (global_outlier_scores[global] >= local_outlier_scores[local]) {
             new_outliers      [iter] = global_outliers      [global];
             new_outlier_scores[iter] = global_outlier_scores[global];
@@ -354,6 +353,7 @@ void top_n_outlier_pruning_block(const double_t * const data,
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
     
+    /* Set output to zero. */
     memset(outliers,       null_index, N * sizeof(index_t));
     memset(outlier_scores,          0, N * sizeof(double_t));
     
