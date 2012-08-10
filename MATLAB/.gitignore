@@ -8,8 +8,6 @@ random.txt
 TopN_Outlier_Pruning_Block.mat
 TopN_Outlier_Pruning_Block.txt
 
-# Test script output
-test/
-
-# Profile script output
+# MATLAB script output
 Profiling/
+test/
