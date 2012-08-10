@@ -80,13 +80,13 @@ for d = 1 : length(data)
     
     % Iterate over all iterations.
     for j = 1 : iterations
-        output_dir = strcat(output_dir, filesep, int2str(j));
-        if exist(output_dir, 'dir') ~= 7
-            mkdir(output_dir);
+        iter_output_dir = strcat(output_dir, filesep, int2str(j));
+        if exist(iter_output_dir, 'dir') ~= 7
+            mkdir(iter_output_dir);
         end
         
         % Randomize data.
-        randomness_file = strcat(output_dir, filesep, 'random.mat');
+        randomness_file = strcat(iter_output_dir, filesep, 'random.mat');
         if exist(randomness_file, 'file') ~= 2
             fprintf('\nRandomizing...\n');
             randnState = randn('state');
@@ -101,7 +101,7 @@ for d = 1 : length(data)
         for k = 1 : length(all_profiles)
             profile_name       = all_profiles(k).name;
             profile_func       = all_profiles(k).func;
-            profile_output_dir = strcat(output_dir, filesep, profile_name);
+            profile_output_dir = strcat(iter_output_dir, filesep, profile_name);
             mkdir(profile_output_dir);
             
             fprintf('\nDate: %s\n', datestr(now));
@@ -132,13 +132,13 @@ for d = 1 : length(data)
         end
         
         % Compare results.
-        base_results_file = strcat(output_dir, filesep, base_profile.name, filesep, results_file_name);
+        base_results_file = strcat(iter_output_dir, filesep, base_profile.name, filesep, results_file_name);
         base_results = load(base_results_file);
 
         for k = 1 : length(profiles)
             profile_name = profiles(k).name;
             fprintf('\nComparing results for "%s"...\n', profile_name);
-            results_file = strcat(output_dir, filesep, profile_name, filesep, results_file_name);
+            results_file = strcat(iter_output_dir, filesep, profile_name, filesep, results_file_name);
             results = load(results_file);
             
             % Compare OF_sum.
