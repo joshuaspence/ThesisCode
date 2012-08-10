@@ -344,7 +344,7 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
 void top_n_outlier_pruning_block(const double_t * const data,
                                  const size_t num_vectors, const size_t vector_dims,
                                  const size_t k, const size_t N, const size_t default_block_size,
-                                 index_t * const outliers, double_t * const outlier_scores) {
+                                 index_t * outliers, double_t * outlier_scores) {
     /* Error checking. */
     assert(data != NULL);
     assert(vector_dims > 0);
@@ -354,36 +354,36 @@ void top_n_outlier_pruning_block(const double_t * const data,
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
     
-    memset(&outliers,       null_index, N * sizeof(index_t));
-    memset(&outlier_scores,          0, N * sizeof(double_t));
+    memset(outliers,       null_index, N * sizeof(index_t));
+    memset(outlier_scores,          0, N * sizeof(double_t));
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
     
-    index_t current_block[default_block_size];      /* the indexes of the vectors in the current block */
-    index_t neighbours[default_block_size][k];      /* the "k" nearest neighbours for each vector in the current block */
-    double neighbours_dist[default_block_size][k];  /* the distance of the "k" nearest neighbours for each vector in the current block */
-    double score[default_block_size];               /* the average distance to the "k" neighbours */
-    uint_t found[default_block_size];               /* how many nearest neighbours we have found, for each vector in the block */
-    
     for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
         block_size = MIN(block_begin + (default_block_size-1), num_vectors) - block_begin; /* the number of vectors in the current block */
         assert(block_size <= default_block_size);
         
+        index_t current_block[block_size];      /* the indexes of the vectors in the current block */
+        index_t neighbours[block_size][k];      /* the "k" nearest neighbours for each vector in the current block */
+        double neighbours_dist[block_size][k];  /* the distance of the "k" nearest neighbours for each vector in the current block */
+        double score[block_size];               /* the average distance to the "k" neighbours */
+        uint_t found[block_size];               /* how many nearest neighbours we have found, for each vector in the block */
+        
         /* Reset array contents */
         uint_t i;
-        for (i = 0; i < default_block_size; i++) {
+        for (i = 0; i < block_size; i++) {
             if (i < block_size)
                 current_block[i] = (index_t)((block_begin + i) + start_index);
             else
                 current_block[i] = null_index;
         }
-        memset(&neighbours,      null_index, default_block_size * k * sizeof(index_t));
-        memset(&neighbours_dist,          0, default_block_size * k * sizeof(double));
-        memset(&score,                    0, default_block_size * sizeof(double));
-        memset(&found,                    0, default_block_size * sizeof(uint_t));
+        memset(&neighbours,      null_index, block_size * k * sizeof(index_t));
+        memset(&neighbours_dist,          0, block_size * k * sizeof(double));
+        memset(&score,                    0, block_size * sizeof(double));
+        memset(&found,                    0, block_size * sizeof(uint_t));
         
         index_t vector1;
         for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
