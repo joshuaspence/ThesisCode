@@ -14,6 +14,9 @@
 %
 function commute_distance_anomaly_profiling(dataset, randomness, func_name, base_dir, block_size)
 
+% This function accepts a wide range of parameters and is used by my 
+% testing and profiling scripts.
+
 global g_func_name;
 global g_base_dir;what
 g_func_name = func_name;
@@ -34,7 +37,7 @@ similarity = 'euclidean'; % knn similarity metric
 sigma = 0;
 
 % Rerandomize state
-if strcmp(randomness, '') == true
+if strcmp(randomness, '') == true || exist(randomness, 'file') ~= 2
     disp 'Rerandomizing...'
     randnState = randn('state');
     randState = rand('state');

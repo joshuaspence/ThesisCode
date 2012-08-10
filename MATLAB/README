@@ -17,8 +17,8 @@ SCRIPTS
 clean.sh
     Remove any leftover files produced by the MATLAB code. Only removes file 
 from the base MATLAB directory.
-clean-testing.sh
-    Remove any files produce by running the `josh_test' test scripts.
+clean-profiling.sh
+    Remove any files produce by running the `josh_profile' test scripts.
 josh_profile.sh
     Profiles the execution of all "TopN_Outlier_Pruning_Block" implementations 
     over all data sets.

@@ -11,6 +11,6 @@ TopN_Outlier_Pruning_Block.txt
 # C outputs
 vars.dat
 
-# MATLAB script output
+# MATLAB script outputs
 Profiling/
 test/
