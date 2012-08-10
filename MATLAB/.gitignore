@@ -9,3 +9,6 @@ TopN_Outlier_Pruning_Block.txt
 
 # Test script output
 test/
+
+# Profile script output
+Profiling/
