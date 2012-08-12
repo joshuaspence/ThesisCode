@@ -11,8 +11,8 @@
 /******************************************************************************/
 /* Check compatibility of defined macros.                                     */
 /******************************************************************************/
-#if defined(UNSORTED_INSERT) && defined(SORTED_INSERT)
-    #error "Only one of UNSORTED_INSERT and SORTED_INSERT should be defined."
+#if (defined(UNSORTED_INSERT) && defined(SORTED_INSERT)) || (!defined(UNSORTED_INSERT) && !defined(SORTED_INSERT))
+    #error "Exactly one of UNSORTED_INSERT and SORTED_INSERT should be defined."
 #endif /* #if defined(UNSORTED_INSERT) && defined(SORTED_INSERT) */
 /******************************************************************************/
 
