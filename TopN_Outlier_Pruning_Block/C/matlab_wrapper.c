@@ -16,14 +16,14 @@
 
 /* Forward declarations */
 void save_variables_to_file(
-   const double_t * const data,
    const size_t num_vectors,
    const size_t vector_dims,
+   const double_t (* const data)[num_vectors][vector_dims],
    const size_t k,
    const size_t N,
    const size_t default_block_size,
-   index_t * outliers,
-   double_t * outlier_scores
+   index_t (* outliers)[N],
+   double_t (* outlier_scores)[N]
    );
 
 /*
@@ -96,26 +96,24 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Convert the input to proper format. */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    double_t data_in[num_vectors * vector_dims];
+    double_t data_in[num_vectors][vector_dims];
     
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
         for (dim = 0; dim < vector_dims; dim++)
-            data_in[vector * vector_dims + dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
+            data_in[vector][dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
     }
     
     /* Create the output arrays. */
     index_t  outliers_out      [N];
     double_t outlier_scores_out[N];
-    memset(outliers_out,       0, N * sizeof(index_t));
-    memset(outlier_scores_out, 0, N * sizeof(double_t));
     
     /* Call the function. */
-    top_n_outlier_pruning_block(data_in, num_vectors, vector_dims, k, N, block_size, outliers_out, outlier_scores_out);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Save input and output parameters. */
-    save_variables_to_file(data_in, num_vectors, vector_dims, k, N, block_size, outliers_out, outlier_scores_out);
+    save_variables_to_file(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
@@ -140,14 +138,14 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
  * Save the input and output parameters of the top_n_outlier_pruning_block 
  * function to a binary file.
  */
-void save_variables_to_file(const double_t * const data,
-                            const size_t num_vectors,
+void save_variables_to_file(const size_t num_vectors,
                             const size_t vector_dims,
+                            const double_t (* const data)[num_vectors][vector_dims],
                             const size_t k,
                             const size_t N,
                             const size_t default_block_size,
-                            index_t * outliers,
-                            double_t * outlier_scores) {
+                            index_t (* outliers)[N],
+                            double_t (* outlier_scores)[N]) {
     FILE *fp;
     fp = fopen("vars.dat", "wb");
     

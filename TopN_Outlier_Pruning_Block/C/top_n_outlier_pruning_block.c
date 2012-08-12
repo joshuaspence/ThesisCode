@@ -17,15 +17,15 @@
 
 /* Forward declarations */
 static inline double_t distance_squared(
-    const double_t * const vector1, 
-    const double_t * const vector2, 
-    const size_t vector_dims
+    const size_t vector_dims,
+    const double_t (* const vector1)[vector_dims],
+    const double_t (* const vector2)[vector_dims]
     );
 #ifdef SORTED_INSERT
 static inline double_t sorted_insert(
-    index_t * const outliers,
-    double_t * const outlier_scores,
     const size_t k,
+    index_t (* const outliers)[k],
+    double_t (* const outlier_scores)[k],    
     uint_t * const found,
     const index_t new_outlier, 
     const double_t new_outlier_index
@@ -33,51 +33,55 @@ static inline double_t sorted_insert(
 #endif /* #ifdef SORTED_INSERT */
 #ifdef UNSORTED_INSERT
 static inline double_t unsorted_insert(
-    index_t * const outliers,
-    double_t * const outlier_scores,
     const size_t k,
+    index_t (* const outliers)[k],
+    double_t (* const outlier_scores)[k],
     uint_t * const found,
     const index_t new_outlier, 
     const double_t new_outlier_score
     );
 #endif /* #ifdef UNSORTED_INSERT */
 static inline void best_outliers(
-    index_t * const outliers,
-    double_t * const outlier_scores,
-    size_t * outliers_size,
     const size_t N,
-    index_t * const current_block,
-    double_t * const scores,
-    const size_t block_size
+    size_t * const outliers_size,
+    index_t (*const outliers)[N],
+    double_t (*const outlier_scores)[N],
+    const size_t block_size,
+    index_t (*const current_block)[block_size],
+    double_t (*const scores)[block_size]
     );
 static inline void sort_vectors_descending(
-    index_t *  const current_block,
-    double_t * const scores,
-    const size_t block_size
+    const size_t block_size,
+    index_t (* const current_block)[block_size],
+    double_t (* const scores)[block_size]
     );
 static inline void merge(
-    index_t * const global_outliers,
-    double_t * const global_outlier_scores,
-    const size_t global_outliers_size,
     const size_t N,
-    index_t * const local_outliers,
-    double_t * const local_outlier_scores,
+    const size_t global_outliers_size,
+    index_t (* const global_outliers)[N],
+    double_t (* const global_outlier_scores)[N],
     const size_t block_size,
-    index_t * const new_outliers,
-    double_t * const new_outlier_scores,
-    size_t * new_outliers_size
+    index_t (* const local_outliers)[block_size],
+    double_t (* const local_outlier_scores)[block_size],
+    size_t * const new_outliers_size,
+    index_t (* const new_outliers)[N],
+    double_t (* const new_outlier_scores)[N]
     );
 
-static inline double_t distance_squared(const double_t * const vector1, const double_t * const vector2, const size_t vector_dims) {
+static inline double_t distance_squared(const size_t vector_dims,
+                                       const double_t (* const vector1)[vector_dims],
+                                       const double_t (* const vector2)[vector_dims]) {
+#ifndef __AUTOESL__
     assert(vector1 != NULL);
     assert(vector2 != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(vector_dims > 0);
     
     double_t sum_of_squares = 0;
     
     uint_t dim;
     for (dim = 0; dim < vector_dims; dim++) {
-        const double_t val         = vector1[dim] - vector2[dim];
+        const double_t val         = (*vector1)[dim] - (*vector2)[dim];
         const double_t val_squared = val * val;
         sum_of_squares            += val_squared;
     }
@@ -86,17 +90,21 @@ static inline double_t distance_squared(const double_t * const vector1, const do
 }
 
 #ifdef SORTED_INSERT
-static inline double_t sorted_insert(index_t * const outliers,
-                                     double_t * const outlier_scores,
-                                     const size_t k,
+static inline double_t sorted_insert(const size_t k,
+                                     index_t (* const outliers)[k],
+                                     double_t (* const outlier_scores)[k],
                                      uint_t * const found,
                                      const index_t new_outlier, 
                                      const double_t new_outlier_score) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(k > 0);
+#ifndef __AUTOESL__
     assert(found != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(*found <= k);
     assert(new_outlier >= start_index);
     
@@ -117,11 +125,11 @@ static inline double_t sorted_insert(index_t * const outliers,
         
         uint_t i;
         for (i = k - *found - 1; i < k; i++) {
-            if (new_outlier_score > outlier_scores[i] || i == (k - *found - 1)) {
+            if (new_outlier_score > (*outlier_scores)[i] || i == (k - *found - 1)) {
                 /* Shuffle values down the array. */
-                if (i != 0) {
-                    outliers      [i-1] = outliers      [i];
-                    outlier_scores[i-1] = outlier_scores[i];
+                if (i > 0) {
+                    (*outliers      )[i-1] = (*outliers      )[i];
+                    (*outlier_scores)[i-1] = (*outlier_scores)[i];
                 }
                 insert_index  = i;
                 removed_value = 0;
@@ -133,18 +141,18 @@ static inline double_t sorted_insert(index_t * const outliers,
     } else {
         int_t i;
         for (i = k-1; i >= 0; i--) {
-            if (new_outlier_score < outlier_scores[i]) {
+            if (new_outlier_score < (*outlier_scores)[i]) {
                 if ((unsigned) i == k-1)
                     /*
                      * The removed value is the value of the last element in the
                      * array.
                      */
-                    removed_value = outlier_scores[i];
+                    removed_value = (*outlier_scores)[i];
 
                 /* Shuffle values down the array. */
-                if (i != 0) {
-                    outliers      [i] = outliers      [i-1];
-                    outlier_scores[i] = outlier_scores[i-1];
+                if (i > 0) {
+                    (*outliers      )[i] = (*outliers      )[i-1];
+                    (*outlier_scores)[i] = (*outlier_scores)[i-1];
                 }
                 insert_index = i;
             } else {
@@ -159,8 +167,8 @@ static inline double_t sorted_insert(index_t * const outliers,
      * necessary).
      */
     if (insert_index >= 0) {
-        outliers      [insert_index] = new_outlier;
-        outlier_scores[insert_index] = new_outlier_score;
+        (*outliers      )[insert_index] = new_outlier;
+        (*outlier_scores)[insert_index] = new_outlier_score;
         
         if (*found < k)
             (*found)++;
@@ -171,17 +179,21 @@ static inline double_t sorted_insert(index_t * const outliers,
 #endif /* #ifdef SORTED_INSERT */
 
 #ifdef UNSORTED_INSERT
-static inline double_t unsorted_insert(index_t * const outliers,
-                                       double_t * const outlier_scores,
-                                       const size_t k,
+static inline double_t unsorted_insert(const size_t k,
+                                       index_t (* const outliers)[k],
+                                       double_t (* const outlier_scores)[k],
                                        uint_t * const found,
                                        const index_t new_outlier, 
                                        const double_t new_outlier_score) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(k > 0);
+#ifndef __AUTOESL__
     assert(found != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(*found <= k);
     assert(new_outlier >= start_index);
     
@@ -197,9 +209,9 @@ static inline double_t unsorted_insert(index_t * const outliers,
     
         int_t i;
         for (i = k-1; i >= 0; i--) {
-            if (max_index <= 0 || outlier_scores[i] > max_value) {
+            if (max_index <= 0 || (*outlier_scores)[i] > max_value) {
                 max_index = i;
-                max_value = outlier_scores[i];
+                max_value = (*outlier_scores)[i];
             }
         }
         
@@ -214,8 +226,8 @@ static inline double_t unsorted_insert(index_t * const outliers,
      * necessary).
      */
     if (insert_index >= 0) {
-        outliers      [insert_index] = new_outlier;
-        outlier_scores[insert_index] = new_outlier_score;
+        (*outliers      )[insert_index] = new_outlier;
+        (*outlier_scores)[insert_index] = new_outlier_score;
         
         if (*found < k)
            (*found)++;
@@ -225,25 +237,29 @@ static inline double_t unsorted_insert(index_t * const outliers,
 }
 #endif /* #ifdef UNSORTED_INSERT */
 
-static inline void best_outliers(index_t * const outliers,
-                                 double_t * const outlier_scores,
-                                 size_t * outliers_size,
-                                 const size_t N,
-                                 index_t * const current_block,
-                                 double_t * const scores,
-                                 const size_t block_size) {
+static inline void best_outliers(const size_t N, size_t * outliers_size,
+                                 index_t (*const outliers)[N],
+                                 double_t (*const outlier_scores)[N],
+                                 const size_t block_size,
+                                 index_t (* const current_block)[block_size],
+                                 double_t (* const scores)[block_size]
+                                 ) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
     assert(outliers_size != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(*outliers_size <= N);
     assert(N > 0);
+#ifndef __AUTOESL__
     assert(current_block != NULL);
     assert(scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(block_size > 0);
     
     /* Sort the (current_block, scores) vectors in descending order of value. */
-    sort_vectors_descending(current_block, scores, block_size);
+    sort_vectors_descending(block_size, current_block, scores);
     
     /* Create two temporary vectors for the output of the "merge" function. */
     index_t  new_outliers      [N];
@@ -254,7 +270,7 @@ static inline void best_outliers(index_t * const outliers,
     memset(new_outlier_scores,          0, N * sizeof(double_t));
     
     /* Merge the two vectors. */
-    merge(outliers, outlier_scores, *outliers_size, N, current_block, scores, block_size, new_outliers, new_outlier_scores, &new_outliers_size);
+    merge(N, *outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, &new_outliers, &new_outlier_scores);
     
     /* Copy values from temporary vectors to real vectors. */
     memcpy(outliers,       new_outliers,       N * sizeof(index_t));
@@ -262,44 +278,53 @@ static inline void best_outliers(index_t * const outliers,
     *outliers_size = new_outliers_size;
 }
 
-static inline void sort_vectors_descending(index_t *  const current_block,
-                                           double_t * const scores,
-                                           const size_t block_size) {
+static inline void sort_vectors_descending(const size_t block_size,
+                                           index_t (*  const current_block)[block_size],
+                                           double_t (* const scores)[block_size]) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(current_block != NULL);
     assert(scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(block_size > 0);
     
     uint_t i;
     for (i = 0; i < block_size; i++) {
     	int_t j;
-    	index_t  ind = current_block[i];
-        double_t val = scores       [i];
+    	index_t  ind = (*current_block)[i];
+        double_t val = (*scores       )[i];
         for (j = i-1; j >= 0; j--) {
-            if (scores[j] >= val)
+            if ((*scores)[j] >= val)
                 break;
-            current_block[j+1] = current_block[j];
-            scores       [j+1] = scores       [j];
+            (*current_block)[j+1] = (*current_block)[j];
+            (*scores       )[j+1] = (*scores       )[j];
         }
-        current_block[j+1] = ind;
-        scores       [j+1] = val;
+        (*current_block)[j+1] = ind;
+        (*scores       )[j+1] = val;
     }
 }
 
-static inline void merge(index_t * const global_outliers, double_t * const global_outlier_scores, const size_t global_outliers_size, const size_t N,
-                         index_t * const local_outliers,  double_t * const local_outlier_scores,  const size_t block_size,
-                         index_t * const new_outliers,    double_t * const new_outlier_scores,    size_t * new_outliers_size) {
+static inline void merge(const size_t N,
+                         const size_t global_outliers_size, index_t (* const global_outliers)[N], double_t (* const global_outlier_scores)[N],
+                         const size_t block_size, index_t (* const local_outliers)[block_size], double_t (* const local_outlier_scores)[block_size],
+                         size_t * const new_outliers_size, index_t (* const new_outliers)[N], double_t (* const new_outlier_scores)[N]) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(global_outliers != NULL);
     assert(global_outlier_scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(global_outliers_size <= N);
     assert(N > 0);
+#ifndef __AUTOESL__
     assert(local_outliers != NULL);
     assert(local_outlier_scores != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(block_size > 0);
+#ifndef __AUTOESL__
     assert(new_outliers != NULL);
     assert(new_outlier_scores != NULL);
     assert(new_outliers_size != NULL);
+#endif /* #ifndef __AUTOESL__ */
     
     *new_outliers_size  = 0;
     uint_t iter         = 0; /* iterator through output array */
@@ -308,14 +333,14 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
     while (iter < N && (global < global_outliers_size || local < block_size)) {
         if (global >= global_outliers_size && local < block_size) {
             /* There are no remaining elements in the global arrays. */
-            new_outliers      [iter] = local_outliers      [local];
-            new_outlier_scores[iter] = local_outlier_scores[local];
+            (*new_outliers      )[iter] = (*local_outliers      )[local];
+            (*new_outlier_scores)[iter] = (*local_outlier_scores)[local];
             local ++;
             global++;
         } else if (global < global_outliers_size && local >= block_size) {
             /* There are no remaining elements in the local arrays. */
-            new_outliers      [iter] = global_outliers      [global];
-            new_outlier_scores[iter] = global_outlier_scores[global];
+            (*new_outliers      )[iter] = (*global_outliers      )[global];
+            (*new_outlier_scores)[iter] = (*global_outlier_scores)[global];
             local ++;
             global++;
         } else if (global >= global_outliers_size && local >= block_size) {
@@ -325,12 +350,12 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
              */
             break;
         } else if (global_outlier_scores[global] >= local_outlier_scores[local]) {
-            new_outliers      [iter] = global_outliers      [global];
-            new_outlier_scores[iter] = global_outlier_scores[global];
+            (*new_outliers      )[iter] = (*global_outliers      )[global];
+            (*new_outlier_scores)[iter] = (*global_outlier_scores)[global];
             global++;
         } else if (global_outlier_scores[global] <= local_outlier_scores[local]) {
-            new_outliers      [iter] = local_outliers      [local];
-            new_outlier_scores[iter] = local_outlier_scores[local];
+            (*new_outliers      )[iter] = (*local_outliers      )[local];
+            (*new_outlier_scores)[iter] = (*local_outlier_scores)[local];
             local++;
         }
         
@@ -339,22 +364,34 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
     }
 }
 
-void top_n_outlier_pruning_block(const double_t * const data,
-                                 const size_t num_vectors, const size_t vector_dims,
+void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_dims,
+                                 const double_t (* const data)[num_vectors][vector_dims],
                                  const size_t k, const size_t N, const size_t default_block_size,
-                                 index_t * outliers, double_t * outlier_scores) {
+                                 index_t (*outliers)[N], double_t (*outlier_scores)[N]) {
     /* Error checking. */
+#ifndef __AUTOESL__
     assert(data != NULL);
+#endif /* #ifndef __AUTOESL__ */
     assert(vector_dims > 0);
     assert(k > 0);
     assert(N > 0);
     assert(default_block_size > 0);
+#ifndef __AUTOESL__
     assert(outliers != NULL);
     assert(outlier_scores != NULL);
-    
+#endif /* #ifndef __AUTOESL__ */
+
     /* Set output to zero. */
-    memset(outliers,       null_index, N * sizeof(index_t));
-    memset(outlier_scores,          0, N * sizeof(double_t));
+#ifndef __AUTOESL__
+    memset(*outliers,       null_index, N * sizeof(index_t));
+    memset(*outlier_scores,          0, N * sizeof(double_t));
+#else
+    uint_t i;
+    for (i = 0; i < N; i++) {
+        *outliers      [i] = null_index;
+        *outlier_scores[i] = 0;
+    }
+#endif /* #ifndef __AUTOESL__ */
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
@@ -365,20 +402,16 @@ void top_n_outlier_pruning_block(const double_t * const data,
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         assert(block_size <= default_block_size);
         
-        index_t current_block[block_size];      /* the indexes of the vectors in the current block */
-        index_t neighbours[block_size][k];      /* the "k" nearest neighbours for each vector in the current block */
-        double neighbours_dist[block_size][k];  /* the distance of the "k" nearest neighbours for each vector in the current block */
-        double score[block_size];               /* the average distance to the "k" neighbours */
-        uint_t found[block_size];               /* how many nearest neighbours we have found, for each vector in the block */
+        index_t current_block[block_size];          /* the indexes of the vectors in the current block */
+        index_t neighbours[block_size][k];          /* the "k" nearest neighbours for each vector in the current block */
+        double_t neighbours_dist[block_size][k];    /* the distance of the "k" nearest neighbours for each vector in the current block */
+        double_t score[block_size];                 /* the average distance to the "k" neighbours */
+        uint_t found[block_size];                   /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
         uint_t i;
-        for (i = 0; i < block_size; i++) {
-            if (i < block_size)
-                current_block[i] = (index_t)((block_begin + i) + start_index);
-            else
-                current_block[i] = null_index;
-        }
+        for (i = 0; i < block_size; i++)
+            current_block[i] = (index_t)((block_begin + i) + start_index);
         memset(&neighbours,      null_index, block_size * k * sizeof(index_t));
         memset(&neighbours_dist,          0, block_size * k * sizeof(double));
         memset(&score,                    0, block_size * sizeof(double));
@@ -395,17 +428,17 @@ void top_n_outlier_pruning_block(const double_t * const data,
                      * Calculate the square of the distance between the two
                      * vectors (indexed by "vector1" and "vector2")
                      */
-                    const double_t dist_squared = distance_squared(&data[(vector1-start_index) * vector_dims], &data[(vector2-start_index) * vector_dims], vector_dims);
+                    const double_t dist_squared = distance_squared(vector_dims, &((*data)[vector1-start_index]), &((*data)[vector2-start_index]));
                     
                     /*
                      * Insert the new (index, distance) pair into the neighbours
                      * array for the current vector.
                      */
 #ifdef SORTED_INSERT
-                    const double_t removed_distance = sorted_insert  (neighbours[block_index], neighbours_dist[block_index], k, &found[block_index], vector1, dist_squared);
+                    const double_t removed_distance = sorted_insert  (k, &neighbours[block_index], &neighbours_dist[block_index], &found[block_index], vector1, dist_squared);
 #endif /* #ifdef SORTED_INSERT */
 #ifdef UNSORTED_INSERT
-                    const double_t removed_distance = unsorted_insert(neighbours[block_index], neighbours_dist[block_index], k, &found[block_index], vector1, dist_squared);
+                    const double_t removed_distance = unsorted_insert(k, &neighbours[block_index], &neighbours_dist[block_index], &found[block_index], vector1, dist_squared);
 #endif /* #ifdef UNSORTED_INSERT */
                     
                     /*
@@ -427,13 +460,13 @@ void top_n_outlier_pruning_block(const double_t * const data,
         }
         
         /* Keep track of the top "N" outliers. */
-        best_outliers(outliers, outlier_scores, &outliers_found, N, current_block, score, block_size);
+        best_outliers(N, &outliers_found, outliers, outlier_scores, block_size, &current_block, &score);
         
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
          * store an outlier in future iterations if its score is better than the
          * cutoff.
          */
-        cutoff = outlier_scores[N-1];
+        cutoff = (*outlier_scores)[N-1];
     }
 }

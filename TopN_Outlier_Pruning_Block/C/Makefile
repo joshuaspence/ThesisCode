@@ -35,8 +35,8 @@ CFLAGS   := $(shell echo -n $(CFLAGS) | sed 's/-ansi\s\+//')
 CXXFLAGS := $(shell echo -n $(CXXFLAGS) | sed 's/-ansi\s\+//')
 
 # Additional flags
-CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0
-CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
+CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0 -D__MEX__
+CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0 -D__MEX__
 MXXFLAGS +=
 LDFLAGS  +=
 
@@ -113,8 +113,8 @@ endif
 .DEFAULT: release
 
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
-              TopN_Outlier_Pruning_Block_C_UNSORTED \
-              TopN_Outlier_Pruning_Block_C_NO_BLOCKING
+              TopN_Outlier_Pruning_Block_C_UNSORTED
+#              TopN_Outlier_Pruning_Block_C_NO_BLOCKING
               
 ALL_MEXTARGETS :=
 ALL_SOURCES    :=
