@@ -2,7 +2,6 @@
 /* Includes                                                                   */
 /******************************************************************************/
 #include <assert.h> /* for assert */
-#include <mex.h>
 #include <string.h> /* for memset, memcpy */
 #include "macros.h"
 #include "top_n_outlier_pruning_block.h"
