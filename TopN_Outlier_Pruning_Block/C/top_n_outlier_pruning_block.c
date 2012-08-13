@@ -436,7 +436,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         memset(&found,                    0, block_size * sizeof(uint_t));
         
 #ifdef LOGGING
-        fprintf(log_file, "Inspecting block %u..%u\n", (unsigned int) block_begin, (unsigned int) block_size);
+        fprintf(log_file, "Processing block %u..%u\n", (unsigned int) block_begin, (unsigned int) (block_begin + block_size + start_index -1));
 #endif /* #ifdef LOGGING */
         
         index_t vector1;
@@ -452,7 +452,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                      */
                     const double_t dist_squared = distance_squared(vector_dims, &((*data)[vector1-start_index]), &((*data)[vector2-start_index]));
 #ifdef LOGGING
-                    fprintf(log_file, "Distance(%u)(%u) = %f\n", (unsigned int) vector2, (unsigned int) vector1, dist_squared);
+                    fprintf(log_file, "Distance(%u,%u) = %f\n", (unsigned int) vector2, (unsigned int) vector1, dist_squared);
 #endif /* #ifdef LOGGING */
 
                     /*
@@ -467,8 +467,11 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
 #endif /* #ifdef UNSORTED_INSERT */
 #ifdef LOGGING
                     uint_t log_i;
-                    for (log_i = 0; log_i < k; log_i++)
-                        fprintf(log_file, "Neighbour(%u)(%u) = %u @ %f\n", (unsigned int) vector2, log_i, (unsigned int) neighbours[block_index][log_i], neighbours_dist[block_index][log_i]);
+                    if (block_size > 0) {
+                        fprintf(log_file, "Neighbours(%u):\n", (unsigned int) vector2);
+                        for (log_i = 0; log_i < block_size; log_i++)
+                            fprintf(log_file, "\t%u @ %f\n", (unsigned int) neighbours[block_index][log_i], neighbours_dist[block_index][log_i]);
+                    }
 #endif /* #ifdef LOGGING */
                     
                     /*
@@ -485,9 +488,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                         current_block[block_index] = null_index;
                         score        [block_index] = 0;
                     }
-                    
+                   
 #ifdef LOGGING
-                    fprintf(log_file, "Score(%u) = %f\n", (unsigned int) vector2, score[block_index]);
+                    if (block_size > 0) {
+                        fprintf(log_file, "Block:\n");
+                        for (log_i = 1; log_i < block_size; log_i++)
+                            fprintf(log_file, "\t%u @ %f\n", (unsigned int) current_block[log_i], score[log_i]);
+                    }
 #endif /* #ifdef LOGGING */
                 }
             }
@@ -495,6 +502,15 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         
         /* Keep track of the top "N" outliers. */
         best_outliers(N, &outliers_found, outliers, outlier_scores, block_size, &current_block, &score);
+#ifdef LOGGING
+        fprintf(log_file, "count(outliers) = %u\n", (unsigned int) outliers_found);
+        uint_t log_i;
+        if (N > 0) {
+            fprintf(log_file, "Outliers:\n");
+            for (log_i = 0; log_i < N; log_i++)
+                fprintf(log_file, "\t%u @ %f\n", (unsigned int) (*outliers)[log_i], (*outlier_scores)[log_i]);
+        }
+#endif /* #ifdef LOGGING */
         
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
@@ -502,6 +518,9 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
          * cutoff.
          */
         cutoff = (*outlier_scores)[N-1];
+#ifdef LOGGING
+        fprintf(log_file, "cutoff = %f\n", cutoff);
+#endif /* #ifdef LOGGING */
     }
     
 #ifdef LOGGING
