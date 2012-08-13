@@ -12,6 +12,10 @@ if [ "$(readlink -f $(pwd))" != "$(readlink -f $(dirname $0))" ]; then
     exit 1
 fi
 
+# Clean the MATLAB directory first
+echo "Cleaning MATLAB directory."
+./clean.sh
+
 # Unset the DISPLAY environment variable so that MATLAB does not attempt to 
 # create any graphs
 echo "Unsetting DISPLAY environment variable."
