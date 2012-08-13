@@ -6,8 +6,17 @@
 #include <string.h> /* for memset, memcpy */
 #include "macros.h"
 #include "top_n_outlier_pruning_block.h"
+
+#ifdef DEBUG
+    #define LOGGING
+    #define LOG_FILE "top_n_outlier_pruning_block.log"
+#endif /* #ifdef DEBUG */
+
+#ifdef LOGGING
+    #include <stdio.h> /* for fprintf */
+#endif /* #ifdef LOGGING */
 /******************************************************************************/
-#include "mex.h"
+
 /******************************************************************************/
 /* Check compatibility of defined macros.                                     */
 /******************************************************************************/
@@ -399,6 +408,14 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
     
+#ifdef LOGGING
+    FILE * log_file;
+    log_file = fopen(LOG_FILE, "a+");
+#ifndef __AUTOESL__
+    assert(log_file != NULL);
+#endif /* #ifndef __AUTOESL__ */
+#endif /* #ifdef LOGGING */
+    
     for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         assert(block_size <= default_block_size);
@@ -418,6 +435,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         memset(&score,                    0, block_size * sizeof(double));
         memset(&found,                    0, block_size * sizeof(uint_t));
         
+#ifdef LOGGING
+        fprintf(log_file, "Inspecting block %u..%u\n", (unsigned int) block_begin, (unsigned int) block_size);
+#endif /* #ifdef LOGGING */
+        
         index_t vector1;
         for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
             uint_t block_index;
@@ -430,7 +451,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                      * vectors (indexed by "vector1" and "vector2")
                      */
                     const double_t dist_squared = distance_squared(vector_dims, &((*data)[vector1-start_index]), &((*data)[vector2-start_index]));
-                    
+#ifdef LOGGING
+                    fprintf(log_file, "Distance(%u)(%u) = %f\n", (unsigned int) vector2, (unsigned int) vector1, dist_squared);
+#endif /* #ifdef LOGGING */
+
                     /*
                      * Insert the new (index, distance) pair into the neighbours
                      * array for the current vector.
@@ -441,6 +465,11 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
 #ifdef UNSORTED_INSERT
                     const double_t removed_distance = unsorted_insert(k, &(neighbours[block_index]), &(neighbours_dist[block_index]), &(found[block_index]), vector1, dist_squared);
 #endif /* #ifdef UNSORTED_INSERT */
+#ifdef LOGGING
+                    uint_t log_i;
+                    for (log_i = 0; log_i < k; log_i++)
+                        fprintf(log_file, "Neighbour(%u)(%u) = %u @ %f\n", (unsigned int) vector2, log_i, (unsigned int) neighbours[block_index][log_i], neighbours_dist[block_index][log_i]);
+#endif /* #ifdef LOGGING */
                     
                     /*
                      * Update the score (if the neighbours array was changed).
@@ -456,6 +485,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                         current_block[block_index] = null_index;
                         score        [block_index] = 0;
                     }
+                    
+#ifdef LOGGING
+                    fprintf(log_file, "Score(%u) = %f\n", (unsigned int) vector2, score[block_index]);
+#endif /* #ifdef LOGGING */
                 }
             }
         }
@@ -470,4 +503,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
          */
         cutoff = (*outlier_scores)[N-1];
     }
+    
+#ifdef LOGGING
+    fclose(log_file);
+#endif /* #ifdef LOGGING */
 }
