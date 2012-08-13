@@ -9,7 +9,10 @@
 
 #ifdef DEBUG
     #define LOGGING
-    #define LOG_FILE "top_n_outlier_pruning_block.log"
+    
+    #ifndef LOG_FILE
+        #define LOG_FILE "top_n_outlier_pruning_block.log"
+    #endif /* #ifndef LOG_FILE */
 #endif /* #ifdef DEBUG */
 
 #ifdef LOGGING
