@@ -6,7 +6,7 @@
 #include "macros.h"
 #include "top_n_outlier_pruning_block.h"
 /******************************************************************************/
-
+#include "mex.h"
 /******************************************************************************/
 /* Check compatibility of defined macros.                                     */
 /******************************************************************************/
@@ -273,13 +273,13 @@ static inline void best_outliers(const size_t N, size_t * outliers_size,
     merge(N, *outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, &new_outliers, &new_outlier_scores);
     
     /* Copy values from temporary vectors to real vectors. */
-    memcpy(outliers,       new_outliers,       N * sizeof(index_t));
-    memcpy(outlier_scores, new_outlier_scores, N * sizeof(double_t));
+    memcpy(*outliers,       new_outliers,       N * sizeof(index_t));
+    memcpy(*outlier_scores, new_outlier_scores, N * sizeof(double_t));
     *outliers_size = new_outliers_size;
 }
 
 static inline void sort_vectors_descending(const size_t block_size,
-                                           index_t (*  const current_block)[block_size],
+                                           index_t (* const current_block)[block_size],
                                            double_t (* const scores)[block_size]) {
     /* Error checking. */
 #ifndef __AUTOESL__
@@ -388,8 +388,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
 #else
     uint_t i;
     for (i = 0; i < N; i++) {
-        *outliers      [i] = null_index;
-        *outlier_scores[i] = 0;
+        (*outliers      )[i] = null_index;
+        (*outlier_scores)[i] = 0;
     }
 #endif /* #ifndef __AUTOESL__ */
     
@@ -435,10 +435,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                      * array for the current vector.
                      */
 #ifdef SORTED_INSERT
-                    const double_t removed_distance = sorted_insert  (k, &neighbours[block_index], &neighbours_dist[block_index], &found[block_index], vector1, dist_squared);
+                    const double_t removed_distance = sorted_insert  (k, &(neighbours[block_index]), &(neighbours_dist[block_index]), &(found[block_index]), vector1, dist_squared);
 #endif /* #ifdef SORTED_INSERT */
 #ifdef UNSORTED_INSERT
-                    const double_t removed_distance = unsorted_insert(k, &neighbours[block_index], &neighbours_dist[block_index], &found[block_index], vector1, dist_squared);
+                    const double_t removed_distance = unsorted_insert(k, &(neighbours[block_index]), &(neighbours_dist[block_index]), &(found[block_index]), vector1, dist_squared);
 #endif /* #ifdef UNSORTED_INSERT */
                     
                     /*
