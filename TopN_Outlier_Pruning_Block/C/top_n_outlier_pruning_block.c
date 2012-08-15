@@ -61,10 +61,14 @@ static inline void merge(
 
 #ifdef STATS
 static lint_t calls_counter = 0;
+static uint_t num_pruned    = 0;
 
-void get_stats(lint_t * counter) {
+void get_stats(lint_t * const counter, uint_t * const prune_count) {
     ASSERT_NOT_NULL(counter);
+    ASSERT_NOT_NULL(prune_count);
+    
     *counter = calls_counter;
+    *prune_count = num_pruned;
 }
 #endif /* #ifdef STATS */
 
@@ -74,7 +78,7 @@ static inline double_t distance_squared(const double_t * const vector1, const do
     ASSERT(vector_dims > 0);
     
 #ifdef STATS
-    UNUSED lint_t old_calls_counter = calls_counter;
+    const UNUSED lint_t old_calls_counter = calls_counter;
     calls_counter++;
     ASSERT(calls_counter > old_calls_counter);
 #endif /* #ifdef STATS */
@@ -391,6 +395,11 @@ void top_n_outlier_pruning_block(const double_t * const data,
                     if (found[block_index] >= k && score[block_index] < cutoff) {
                         current_block[block_index] = null_index;
                         score        [block_index] = 0;
+#ifdef STATS
+                        const UNUSED uint_t old_num_pruned = num_pruned;
+                        num_pruned++;
+                        ASSERT(num_pruned > old_num_pruned);
+#endif /* #ifdef STATS */
                     }
                 }
             }
@@ -443,6 +452,11 @@ void top_n_outlier_pruning_block(const double_t * const data,
                  */
                 if (found >= k && score < cutoff) {
                     removed = true;
+#ifdef STATS
+                    const UNUSED uint_t old_num_pruned = num_pruned;
+                    num_pruned++;
+                    ASSERT(num_pruned > old_num_pruned);
+#endif /* #ifdef STATS */
                     break;
                 }
             }

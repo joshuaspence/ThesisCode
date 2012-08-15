@@ -138,8 +138,11 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 #ifdef STATS
     /* Print the number of calls to the distance function */
     lint_t num_calls;
-    get_stats(&num_calls);
+    uint_t num_pruned;
+    
+    get_stats(&num_calls, &num_pruned);
     mexPrintf("Calls to distance function = %llu\n", num_calls);
+    mexPrintf("Number of pruned vectors = %u\n", num_pruned);
 #endif /* #ifdef STATS */
 }
 

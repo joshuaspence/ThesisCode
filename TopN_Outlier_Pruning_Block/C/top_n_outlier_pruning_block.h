@@ -17,7 +17,8 @@ void top_n_outlier_pruning_block(
 
 #ifdef STATS
 void get_stats(
-    lint_t * counter
+    lint_t * counter,
+    uint_t * prune_count
     );
 #endif /* #ifdef STATS */
 
