@@ -13,6 +13,10 @@
 #if (defined(UNSORTED_INSERT) && defined(SORTED_INSERT)) || (!defined(UNSORTED_INSERT) && !defined(SORTED_INSERT))
     #error "Exactly one of UNSORTED_INSERT and SORTED_INSERT should be defined."
 #endif /* #if defined(UNSORTED_INSERT) && defined(SORTED_INSERT) */
+
+#if !defined(DEBUG) && defined(COUNTER)
+    #error "COUNTER should only be defined in DEBUG mode."
+#endif /* #if !defined(DEBUG) && defined(COUNTER) */
 /******************************************************************************/
 
 /* Forward declarations */
@@ -68,10 +72,20 @@ static inline void merge(
     size_t * new_outliers_size
     );
 
+#ifdef COUNTER
+static lint_t calls_counter = 0;
+#endif /* #ifdef COUNTER */
+
 static inline double_t distance_squared(const double_t * const vector1, const double_t * const vector2, const size_t vector_dims) {
     assert(vector1 != NULL);
     assert(vector2 != NULL);
     assert(vector_dims > 0);
+    
+#ifdef COUNTER
+    lint_t old_calls_counter = calls_counter;
+    calls_counter++;
+    assert(calls_counter > old_calls_counter);
+#endif /* #ifdef COUNTER */
     
     double_t sum_of_squares = 0;
     
@@ -342,7 +356,11 @@ static inline void merge(index_t * const global_outliers, double_t * const globa
 void top_n_outlier_pruning_block(const double_t * const data,
                                  const size_t num_vectors, const size_t vector_dims,
                                  const size_t k, const size_t N, const size_t default_block_size,
-                                 index_t * outliers, double_t * outlier_scores) {
+                                 index_t * outliers, double_t * outlier_scores
+#ifdef COUNTER
+    , lint_t * counter
+#endif /* #ifdef COUNTER */
+                                 ) {
     /* Error checking. */
     assert(data != NULL);
     assert(vector_dims > 0);
@@ -436,4 +454,8 @@ void top_n_outlier_pruning_block(const double_t * const data,
          */
         cutoff = outlier_scores[N-1];
     }
+    
+#ifdef COUNTER
+    *counter = calls_counter;
+#endif /* #ifdef COUNTER */
 }

@@ -45,10 +45,11 @@ typedef int boolean;
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
-typedef double          double_t;
-typedef int             int_t;
-typedef unsigned int    uint_t;
-typedef size_t          index_t;
+typedef double              double_t;
+typedef int                 int_t;
+typedef unsigned int        uint_t;
+typedef size_t              index_t;
+typedef unsigned long long  lint_t; /* large integer type */
 
 static const index_t null_index  = 0;
 static const index_t start_index = 1;

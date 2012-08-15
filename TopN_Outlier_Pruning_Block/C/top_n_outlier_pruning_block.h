@@ -13,6 +13,9 @@ void top_n_outlier_pruning_block(
     const size_t default_block_size,
     index_t * outliers,
     double_t * outlier_scores
+#ifdef COUNTER
+    , lint_t * counter
+#endif /* #ifdef COUNTER */
     );
 
 #endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */
