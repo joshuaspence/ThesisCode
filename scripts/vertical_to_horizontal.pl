@@ -6,7 +6,7 @@
 # http://stackoverflow.com/questions/2247851/how-to-convert-a-csv-list-horizontal-from-vertical-name-value-pair-set
 #
 # Usage:
-#     ./verticalToHorizontal.pl [OPTIONS] input
+#     ./vertical_to_horizontal.pl [OPTIONS] input
 # Scripts options:
 #     NONE    No options.
 #

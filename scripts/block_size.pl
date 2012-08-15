@@ -3,23 +3,17 @@
 ################################################################################
 #
 # Script to convert MATLAB profiler output into CSV format. Processes data as
-# produced by the `josh_profile' script.
+# produced by the `josh_profile_block_size' script.
 #
 # Usage:
-#     ./dataToCsv.pl [OPTIONS] input
-# 
-# Scripts options:
-#     -a, --all-data
-#         Outputs all iteration data. Without this flag, only the 
-#         average for each data set (across all iterations) will be 
-#         output.
+#     ./block_size.pl input
 #
 # Input:  Base directory where the profiler output is found. Should contain 
 #         subdirectories named after the data sets that the data pertains to.
 #         Each data set subdirectory should contain a single subdirectory for 
 #         each iteration of the Matlab code. The input format should be a 
 #         directory hierarchy with the following structure:
-#             `{data-set}/{iteration}/{profile}`
+#             `{data-set}/{iteration}/{block-size}`
 # Output: Profiler data in CSV format. Outputs to STDOUT.
 #
 ################################################################################
@@ -39,6 +33,17 @@ sub strip_directory($) {
     my $formatted_string = $_[0];
     $formatted_string =~ s/.*\///g;
     return $formatted_string;
+}
+
+sub parse_function_name($) {
+    my $row = $_[0];
+    return @$row[0];
+}
+
+sub parse_function_time($) {
+    my $row = $_[0];
+    (my $time = @$row[2]) =~ s/\s*s//;
+    return $time;
 }
 
 sub parse_block_size($) {
@@ -71,6 +76,9 @@ my $base_dir = $ARGV[0];
 # File::Util used to traverse directories
 my $fu = File::Util->new;
 
+# HTML::TableExtract used to traverse HTML tables
+my $html_table_extract = HTML::TableExtract->new(); 
+
 # Get data sets from subdirectories below base directory
 my @dataset_dirs = next_subdirectory_level($fu, $base_dir);
 
@@ -95,6 +103,7 @@ for my $dataset_dir (@dataset_dirs) {
         for my $block_size_dir (@block_size_dirs) {
             my $block_size = parse_block_size($block_size_dir);
             my $log_block_size = log10($block_size);
+            
             my $dimensions;
             my $vectors;
             my $projected_dimensions;
@@ -105,11 +114,10 @@ for my $dataset_dir (@dataset_dirs) {
             my $function_time;
             
             # Retrieve the input HTML file
-            my $html_table_extract = HTML::TableExtract->new(); 
             my $profile_html_file = File::Spec->catfile($block_size_dir, '/', PROFILE_HTML_FILE);
             $html_table_extract->parse_file($profile_html_file);
             
-            # Get table rows
+            # Get table rows (there should only be one table)
             my $table = ($html_table_extract->tables())[0];
             my @data_rows = $table->rows();
 
@@ -118,35 +126,33 @@ for my $dataset_dir (@dataset_dirs) {
 
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
-                my $function_name = @$row[0];
-                (my $time = @$row[2]) =~ s/\s*s//;
+                my $function_name = parse_function_name($row);
+                my $time = parse_function_time($row);
                 
                 if ($function_name =~ m/^commute_distance_anomaly_profiling$/) {
                     $total_time = $time;
                 } elsif ($function_name =~ m/^TopN_Outlier_Pruning_Block/) {
                     $function_time = $time;
                 }
-            
-                # Retrieve the input log file
-                my $log_file = $block_size_dir . "/" . MATLAB_LOG_FILE;
-                open(LOG, $log_file) || die;
-                while (my $line = <LOG>) {
-                    #$line = chomp($line);
-                    
-                    if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
-                        $dimensions = $1;
-                        $vectors = $2;
-                    } elsif ($line =~ m/Projected data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
-                        $projected_dimensions = $1;
-                        $projected_vectors = $2;
-                    } elsif ($line =~ m/Number of pruned vectors\s*=\s*([0-9]+)/) {
-                        $pruned = $1;
-                    } elsif ($line =~ m/Calls to distance function\s*=\s*([0-9]+)/) {
-                        $distance_calls = $1;
-                    }
-                }
-                close(LOG);
             }
+            
+            # Parse the MATLAB log file
+            my $log_file = $block_size_dir . "/" . MATLAB_LOG_FILE;
+            open(LOG, $log_file) || die;
+            while (my $line = <LOG>) {                
+                if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
+                    $dimensions = $1;
+                    $vectors = $2;
+                } elsif ($line =~ m/Projected data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
+                    $projected_dimensions = $1;
+                    $projected_vectors = $2;
+                } elsif ($line =~ m/Number of pruned vectors\s*=\s*([0-9]+)/) {
+                    $pruned = $1;
+                } elsif ($line =~ m/Calls to distance function\s*=\s*([0-9]+)/) {
+                    $distance_calls = $1;
+                }
+            }
+            close(LOG);
             
             # Print output
             print("\"$dataset\",$block_size,$log_block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$distance_calls,$pruned\n");

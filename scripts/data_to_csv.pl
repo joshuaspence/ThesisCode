@@ -6,7 +6,7 @@
 # produced by the `josh_profile' script.
 #
 # Usage:
-#     ./dataToCsv.pl [OPTIONS] input
+#     ./data_to_csv.pl [OPTIONS] input
 # 
 # Scripts options:
 #     -a, --all-data
