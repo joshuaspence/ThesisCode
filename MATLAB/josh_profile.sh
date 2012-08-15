@@ -14,7 +14,7 @@ fi
 
 # Clean the MATLAB directory first
 echo "Cleaning MATLAB directory."
-./clean.sh
+./clean.sh >/dev/null
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION

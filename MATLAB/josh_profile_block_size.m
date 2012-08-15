@@ -12,7 +12,7 @@ function [] = josh_profile_block_size(base_dir)
     [data, data_file] = all_datasets;
     profiles = all_profiles;
     block_sizes = all_block_sizes;
-    iterations = 3;
+    iterations = 1;
 
     % Root output directory.
     root_dir = 'Profiling';

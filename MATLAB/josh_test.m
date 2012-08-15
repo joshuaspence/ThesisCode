@@ -13,7 +13,7 @@ function [] = josh_test(base_dir)
     allprofiles = all_profiles;
     base_profile = allprofiles(1);
     profiles = allprofiles(2 : size(allprofiles, 2));
-    iterations = 3;
+    iterations = 1;
 
     % The name of the file that the "commute_distance_anomaly" script saves  
     % output variables to... from "commute_distance_anomaly.m"
