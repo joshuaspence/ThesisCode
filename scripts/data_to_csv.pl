@@ -36,15 +36,7 @@ use File::Spec;
 use constant USEFUL_HTML_FILE => "file0.html";
 use constant OUTPUT_HEADER => "Profile,Data set,Iteration,Function Name,Calls,Total Time,Self Time\n";
 
-sub strip_directory($) {
-    my $formatted_string = $_[0];
-    $formatted_string =~ s/.*\///g;
-    return($formatted_string);
-}
-
-sub next_subdirectory_level($$) {
-    return($_[0]->list_dir($_[1], '--dirs-only', '--no-fsdots', '--with-paths'));
-}
+require "./util.pl";
 
 # Get command line options
 Getopt::Long::Configure('bundling');
