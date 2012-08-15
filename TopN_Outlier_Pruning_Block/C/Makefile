@@ -41,8 +41,8 @@ MXXFLAGS +=
 LDFLAGS  +=
 
 # Debug flags
-CFLAGS_DEBUG   := -g -O0 -DDEBUG
-CXXFLAGS_DEBUG := -g -O0 -DDEBUG
+CFLAGS_DEBUG   := -g -O0 -DDEBUG -DSTATS
+CXXFLAGS_DEBUG := -g -O0 -DDEBUG -DSTATS
 MXXFLAGS_DEBUG :=
 LDFLAGS_DEBUG  := -g
 
@@ -115,28 +115,18 @@ endif
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
               TopN_Outlier_Pruning_Block_C_UNSORTED \
               TopN_Outlier_Pruning_Block_C_NO_BLOCKING
-              
-ALL_MEXTARGETS :=
-ALL_SOURCES    :=
-ALL_DEPS       :=
+FILES      := top_n_outlier_pruning_block matlab_wrapper 
+        
+MEXTARGETS := $(foreach t,$(TARGETS),$(addsuffix .$(MEXEXT),$t))
+SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
+DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 
-TopN_Outlier_Pruning_Block_C_SORTED_FLAGS := -DSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_SORTED_FILES := top_n_outlier_pruning_block matlab_wrapper
-TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS := -DUNSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_UNSORTED_FILES := top_n_outlier_pruning_block matlab_wrapper
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FILES := top_n_outlier_pruning_block_no_blocking matlab_wrapper
+TopN_Outlier_Pruning_Block_C_SORTED_FLAGS      := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS    := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DNO_BLOCKING -DSORTED_INSERT
 
 define target-template
-$(1)_MEXTARGET := $(addsuffix .$(MEXEXT),$(1))
-$(1)_SOURCES   := $$(foreach f,$$($(1)_FILES),$$(addsuffix .c,$$f))
-$(1)_DEPS      := $$(foreach s,$$($(1)_SOURCES),$$(addsuffix .d,$$s))
-
-ALL_MEXTARGETS := $$(sort $$(ALL_MEXTARGETS) $$($(1)_MEXTARGET))
-ALL_SOURCES    := $$(sort $$(ALL_SOURCES) $$($(1)_SOURCES))
-ALL_DEPS       := $$(sort $$(ALL_DEPS) $$($(1)_DEPS))
-
-$$($(1)_MEXTARGET): $$($(1)_SOURCES) $$($(1)_DEPS)
+$(1).$(MEXEXT): $(SOURCES) $(DEPS)
 	-@echo "Compiling: $$@"
 	$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
 	-@echo
@@ -160,13 +150,13 @@ debug:   all
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
 
 .PHONY: all
-all: $(ALL_MEXTARGETS)
+all: $(MEXTARGETS)
 	-@echo "Done."
 
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
-	rm -f $(ALL_MEXTARGETS) $(ALL_DEPS)
+	rm -f $(MEXTARGETS) $(DEPS)
 	-@echo "Clean completed."
 
 .PHONY: distclean
@@ -174,7 +164,7 @@ distclean: clean
 
 # Dependency generation
 .PHONY: depend
- depend: $(ALL_SOURCES) $(ALL_DEPS)
+ depend: $(SOURCES) $(DEPS)
 	
 # Generate a dependency for a C file
 # NOTE: We aren't making .o files, so we will pretend that the source files are

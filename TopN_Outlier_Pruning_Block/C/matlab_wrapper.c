@@ -134,9 +134,16 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         for (i = 0; i < ELEMENTS(outlier_scores); i++)
             VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
     }
+    
+#ifdef STATS
+    /* Print the number of calls to the distance function */
+    lint_t num_calls;
+    get_stats(&num_calls);
+    mexPrintf("Calls to distance function = %llu\n", num_calls);
+#endif /* #ifdef STATS */
 }
 
-/* 
+/*
  * Save the input and output parameters of the top_n_outlier_pruning_block 
  * function to a binary file.
  */
