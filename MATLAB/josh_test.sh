@@ -16,36 +16,38 @@ fi
 echo "Cleaning MATLAB directory."
 ./clean.sh
 
+echo -n "Provide a description (defaults to date): "
+read DESCRIPTION
+if [[ -z "$DESCRIPTION" ]]; then
+    DESCRIPTION=$(date '+%Y-%m-%d')
+fi
+
 # Unset the DISPLAY environment variable so that MATLAB does not attempt to 
 # create any graphs
 echo "Unsetting DISPLAY environment variable."
 OLD_DISPLAY=$DISPLAY
 unset DISPLAY
 
-# Generate a unique log file name
-LOGFILE_NAME=${SCRIPT_NAME%.*}
-LOGFILE_EXT=log
-COUNTER=
-COUNTER_TEXT=
-while [[ -f "$LOGFILE_NAME$COUNTER_TEXT.$LOGFILE_EXT" ]]; do
-    if [[ -z "$COUNTER" ]]; then
-        COUNTER=0
-        COUNTER_TEXT=.0
-    else
-        COUNTER=$(expr $COUNTER + 1)
-        COUNTER_TEXT=.$COUNTER
-    fi
-done
-LOGFILE=$LOGFILE_NAME$COUNTER_TEXT.$LOGFILE_EXT
+# MATLAB script
+MATLAB_CMD=josh_test
+MATLAB_CMD_ARGS=$DESCRIPTION
+MATLAB_SCRIPT=$MATLAB_CMD.m
+
+# Output directory
+ROOT_DIR=$(sed -n "s/.*root_dir\s*=\s*'\(.*\)'\s*;.*$/\1/p" $MATLAB_SCRIPT)
+OUTPUT_DIR=$ROOT_DIR/$DESCRIPTION
+LOGFILE=$ROOT_DIR/$DESCRIPTION.log
+mkdir --parents $(dirname $LOGFILE)
 
 echo "Running MATLAB..."
-echo "Logging to $LOGFILE"
+echo "Output directory is '$OUTPUT_DIR'"
+echo "Logging to '$LOGFILE'"
 echo "GIT commit hash: $(git rev-parse HEAD)" >> $LOGFILE
-nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); josh_test" 1>>$LOGFILE 2>&1 &
+echo "Running MATLAB command: '$MATLAB_CMD($MATLAB_CMD_ARGS)'"
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); $MATLAB_CMD('$MATLAB_CMD_ARGS')" 1>>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY
 export DISPLAY
 
 echo "Done"
-exit 0
