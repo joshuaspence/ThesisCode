@@ -43,7 +43,7 @@ echo "Running MATLAB..."
 echo "Output directory is '$OUTPUT_DIR'"
 echo "Logging to '$LOGFILE'"
 echo "GIT commit hash: $(git rev-parse HEAD)" >> $LOGFILE
-echo "Running MATLAB command: '$MATLAB_CMD($MATLAB_CMD_ARGS)'"
+echo "Running MATLAB command: '$MATLAB_CMD('$MATLAB_CMD_ARGS')'"
 nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); $MATLAB_CMD('$MATLAB_CMD_ARGS')" 1>>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
