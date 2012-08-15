@@ -4,7 +4,7 @@
 % from the "data" array.
 %
 % Profiling results will be output in the following subdirectory:
-%     {output_dir}/{hostname}/{date:yyyy-mm-dd}/...
+%     Profiling/${base_dir}/${data_set}/${iteration}/${profile}
 %
 %==========================================================================
 
@@ -14,6 +14,8 @@ function [] = josh_profile(base_dir)
     iterations = 3;
 
     % Root output directory.
+    root_dir = strcat('.', filesep, 'Profiling');
+    base_dir = strcat(root_dir, filesep, base_dir);
     if exist(base_dir, 'dir') == 7
         rmdir(base_dir, 's');
     end

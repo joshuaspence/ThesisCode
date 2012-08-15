@@ -4,7 +4,7 @@
 % the "data" array.
 %
 % Profiling results will be output in the following subdirectory:
-%     {output_dir}/{hostname}/{date:yyyy-mm-dd}/...
+%     Testing/${base_dir}/${data_set}/${iteration}/${profile}
 %
 %==========================================================================
 
@@ -20,6 +20,8 @@ function [] = josh_test(base_dir)
     results_file_name = 'TopN_Outlier_Pruning_Block.mat';
     
     % Root output directory.
+    root_dir = strcat('.', filesep, 'Testing');
+    base_dir = strcat(root_dir, filesep, base_dir);
     if exist(base_dir, 'dir') == 7
         rmdir(base_dir, 's');
     end
