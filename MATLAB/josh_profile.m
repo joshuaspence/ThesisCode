@@ -14,7 +14,7 @@ function [] = josh_profile(base_dir)
     iterations = 3;
 
     % Root output directory.
-    root_dir = strcat('.', filesep, 'Profiling');
+    root_dir = 'Profiling';
     base_dir = strcat(root_dir, filesep, base_dir);
     if exist(base_dir, 'dir') == 7
         rmdir(base_dir, 's');
