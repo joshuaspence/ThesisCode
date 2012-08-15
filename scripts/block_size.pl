@@ -104,11 +104,11 @@ for my $dataset_dir (@dataset_dirs) {
             open(LOG, $log_file) || die("Could not open $log_file");
             while (my $line = <LOG>) {                
                 if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
-                    $dimensions = $1;
-                    $vectors = $2;
+                    $vectors = $1;
+                     $dimensions = $2;
                 } elsif ($line =~ m/Projected data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
-                    $projected_dimensions = $1;
-                    $projected_vectors = $2;
+                    $projected_vectors = $1;
+                    $projected_dimensions = $2;
                 } elsif ($line =~ m/Number of pruned vectors\s*=\s*([0-9]+)/) {
                     $pruned = $1;
                 } elsif ($line =~ m/Calls to distance function\s*=\s*([0-9]+)/) {
