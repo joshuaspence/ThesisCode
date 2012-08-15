@@ -101,7 +101,7 @@ for my $dataset_dir (@dataset_dirs) {
             
             # Parse the MATLAB log file
             my $log_file = $block_size_dir . "/" . MATLAB_LOG_FILE;
-            open(LOG, $log_file) || die;
+            open(LOG, $log_file) || die("Could not open $log_file");
             while (my $line = <LOG>) {                
                 if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
                     $dimensions = $1;
