@@ -51,8 +51,11 @@ my $base_dir = $ARGV[0];
 # File::Util used to traverse directories
 my $fu = File::Util->new;
 
+# HTML::TableExtract used to traverse HTML tables
+my $html_table_extract = HTML::TableExtract->new();
+
 # Get data sets from subdirectories below base directory
-my @datasets = next_subdirectory_level($fu, $base_dir);
+my @dataset_dirs = next_subdirectory_level($fu, $base_dir);
 
 # Print header of output
 print(OUTPUT_HEADER);
@@ -72,90 +75,85 @@ print(OUTPUT_HEADER);
 my %results = ();
 
 # Loop through each data set
-for my $dataset (@datasets) {
-    my $dataset_string = strip_directory($dataset);
+for my $dataset_dir (@dataset_dirs) {
+    my $dataset = strip_directory($dataset_dir);
     
     # Get iterations from next subdirectory level
-    my @iterations = next_subdirectory_level($fu, $dataset);
+    my @iteration_dirs = next_subdirectory_level($fu, $dataset_dir);
     
     # Loop through each iteration subdirectory
-    for my $iteration (@iterations) {
-        my $iteration_string = strip_directory($iteration);
+    for my $iteration_dir (@iteration_dirs) {
+        my $iteration = strip_directory($iteration_dir);
     
         # Get profiles from next subdirectory level
-        my @profiles = next_subdirectory_level($fu, $iteration);
+        my @profile_dirs = next_subdirectory_level($fu, $iteration_dir);
         
         # Loop through each profile subdirectory
-        for my $profile (@profiles) {
-            my $profile_string = strip_directory($profile);
+        for my $profile_dir (@profile_dirs) {
+            my $profile = strip_directory($profile_dir);
             
             # Check if the profile exists in the results hash
-            if (!exists $results{$profile_string}) {
-                $results{$profile_string} = ();
-                $results{$profile_string}{'calls'} = ();
-                $results{$profile_string}{'total_time'} = ();
-                $results{$profile_string}{'self_time'} = ();
-                $results{$profile_string}{'iterations'} = 0;
-                $results{$profile_string}{'dataset_calls'} = ();
-                $results{$profile_string}{'dataset_total_time'} = ();
-                $results{$profile_string}{'dataset_self_time'} = ();
-                $results{$profile_string}{'dataset_iterations'} = ();
+            if (!exists $results{$profile}) {
+                $results{$profile} = ();
+                $results{$profile}{'calls'} = ();
+                $results{$profile}{'total_time'} = ();
+                $results{$profile}{'self_time'} = ();
+                $results{$profile}{'iterations'} = 0;
+                $results{$profile}{'dataset_calls'} = ();
+                $results{$profile}{'dataset_total_time'} = ();
+                $results{$profile}{'dataset_self_time'} = ();
+                $results{$profile}{'dataset_iterations'} = ();
             }
-            if (!exists $results{$profile_string}{'dataset_calls'}{$dataset_string}) {
-                $results{$profile_string}{'dataset_calls'}{$dataset_string} = ();
+            if (!exists $results{$profile}{'dataset_calls'}{$dataset}) {
+                $results{$profile}{'dataset_calls'}{$dataset} = ();
             }
-            if (!exists $results{$profile_string}{'dataset_total_time'}{$dataset_string}) {
-                $results{$profile_string}{'dataset_total_time'}{$dataset_string} = ();
+            if (!exists $results{$profile}{'dataset_total_time'}{$dataset}) {
+                $results{$profile}{'dataset_total_time'}{$dataset} = ();
             }
-            if (!exists $results{$profile_string}{'dataset_self_time'}{$dataset_string}) {
-                $results{$profile_string}{'dataset_self_time'}{$dataset_string} = ();
+            if (!exists $results{$profile}{'dataset_self_time'}{$dataset}) {
+                $results{$profile}{'dataset_self_time'}{$dataset} = ();
             }
-            if (!exists $results{$profile_string}{'dataset_iterations'}{$dataset_string}) {
-                $results{$profile_string}{'dataset_iterations'}{$dataset_string} = 0;
+            if (!exists $results{$profile}{'dataset_iterations'}{$dataset}) {
+                $results{$profile}{'dataset_iterations'}{$dataset} = 0;
             }
     
             # Retrieve the input HTML file
-            my $html_table_extract = HTML::TableExtract->new();
-            my $useful_html_file = File::Spec->catfile($profile, USEFUL_HTML_FILE);
+            my $useful_html_file = File::Spec->catfile($profile_dir, USEFUL_HTML_FILE);
             $html_table_extract->parse_file($useful_html_file);
 
             # Buffered output
             my @output = ();
 
-            # Loop through each table in the HTML file (note: should only be one)
-            foreach my $table ($html_table_extract->tables()) {
-                # We have seen another iteration
-                ($results{$profile_string}{'dataset_iterations'}{$dataset_string})++;
-                ($results{$profile_string}{'iterations'})++;
+            # Get table rows (there should only be one table)
+            my $table = ($html_table_extract->tables())[0];
+            my @data_rows = $table->rows();
+            
+            # We have seen another iteration
+            ($results{$profile}{'dataset_iterations'}{$dataset})++;
+            ($results{$profile}{'iterations'})++;
+
+            # Remove header information from data
+            splice(@data_rows, 0, 1);
+
+            # Output the data, looping through each row
+            foreach my $row (@data_rows) {
+                my $function = parse_function_name($row);
+                my $calls = parse_function_calls($row);
+                my $total_time = parse_function_total_time($row);
+                my $self_time = parse_function_self_time($row);
                 
-                # Get table rows
-                my @data_rows = $table->rows();
-
-                # Remove header information from data
-                splice(@data_rows, 0, 1);
-
-                # Output the data, looping through each row
-                foreach my $row (@data_rows) {
-                    my $function_name = @$row[0];
-                    
-                    my $calls = @$row[1];
-                    $results{$profile_string}{'dataset_calls'}{$dataset_string}{$function_name} += $calls;
-                    $results{$profile_string}{'calls'}{$function_name} += $calls;
-                    
-                    my $total_time = @$row[2];
-                    $total_time =~ s/\s*s//;
-                    $results{$profile_string}{'dataset_total_time'}{$dataset_string}{$function_name} += $total_time;
-                    $results{$profile_string}{'total_time'}{$function_name} += $total_time;
-                    
-                    my $self_time = @$row[3];
-                    $self_time =~ s/\s*s//;
-                    $results{$profile_string}{'dataset_self_time'}{$dataset_string}{$function_name} += $self_time;
-                    $results{$profile_string}{'self_time'}{$function_name} += $self_time;
-                    
-                    # Output the data
-                    my $this_output = [$function_name, $calls, $total_time, $self_time];
-                    push(@output, $this_output);
-                }
+                $results{$profile}{'dataset_calls'}{$dataset}{$function} += $calls;
+                $results{$profile}{'calls'}{$function} += $calls;
+                
+                $results{$profile}{'dataset_total_time'}{$dataset}{$function} += $total_time;
+                $results{$profile}{'total_time'}{$function} += $total_time;
+                
+                $results{$profile}{'dataset_self_time'}{$dataset}{$function} += $self_time;
+                $results{$profile}{'self_time'}{$function} += $self_time;
+                
+                # Output the data
+                my $this_output = [$function, $calls, $total_time, $self_time];
+                push(@output, $this_output);
             }
             
             # Output data for this iteration
@@ -164,11 +162,11 @@ for my $dataset (@datasets) {
                 @output = sort {@$a[0] cmp @$b[0]} @output;
                 
                 foreach my $this_output (@output) {
-                    my $function_name = @$this_output[0];
+                    my $function = @$this_output[0];
                     my $calls = @$this_output[1];
                     my $total_time = @$this_output[2];
                     my $self_time = @$this_output[3];
-                    print("\"$profile_string\",\"$dataset_string\",\"$iteration_string\",\"$function_name\",$calls,$total_time,$self_time\n");
+                    print("\"$profile\",\"$dataset\",\"$iteration\",\"$function\",$calls,$total_time,$self_time\n");
                 }
             }
         }
@@ -177,13 +175,13 @@ for my $dataset (@datasets) {
     # Output averages over this data set
     my @profiles = sort(keys(%results));
     foreach my $profile (@profiles) {
-        my @functions = sort(keys(%{$results{"$profile"}{'dataset_calls'}{$dataset_string}}));
+        my @functions = sort(keys(%{$results{"$profile"}{'dataset_calls'}{$dataset}}));
         
         foreach my $function (@functions) {
-            my $calls_average = $results{$profile}{'dataset_calls'}{$dataset_string}{$function} / $results{$profile}{'dataset_iterations'}{$dataset_string};
-            my $total_time_average = $results{$profile}{'dataset_total_time'}{$dataset_string}{$function} / $results{$profile}{'dataset_iterations'}{$dataset_string};
-            my $self_time_average = $results{$profile}{'dataset_self_time'}{$dataset_string}{$function} / $results{$profile}{'dataset_iterations'}{$dataset_string};
-            print("\"$profile\",\"$dataset_string\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
+            my $calls_average = $results{$profile}{'dataset_calls'}{$dataset}{$function} / $results{$profile}{'dataset_iterations'}{$dataset};
+            my $total_time_average = $results{$profile}{'dataset_total_time'}{$dataset}{$function} / $results{$profile}{'dataset_iterations'}{$dataset};
+            my $self_time_average = $results{$profile}{'dataset_self_time'}{$dataset}{$function} / $results{$profile}{'dataset_iterations'}{$dataset};
+            print("\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$total_time_average,$self_time_average\n");
         }
     }
 }

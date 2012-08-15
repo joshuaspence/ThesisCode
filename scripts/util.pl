@@ -17,9 +17,20 @@ sub parse_function_name($) {
     return @$row[0];
 }
 
-sub parse_function_time($) {
+sub parse_function_calls($) {
+    my $row = $_[0];
+    return @$row[1];
+}
+
+sub parse_function_total_time($) {
     my $row = $_[0];
     (my $time = @$row[2]) =~ s/\s*s//;
+    return $time;
+}
+
+sub parse_function_self_time($) {
+    my $row = $_[0];
+    (my $time = @$row[3]) =~ s/\s*s//;
     return $time;
 }
 

@@ -90,7 +90,7 @@ for my $dataset_dir (@dataset_dirs) {
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
                 my $function_name = parse_function_name($row);
-                my $time = parse_function_time($row);
+                my $time = parse_function_total_time($row);
                 
                 if ($function_name =~ m/^commute_distance_anomaly_profiling$/) {
                     $total_time = $time;
