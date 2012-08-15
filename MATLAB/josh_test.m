@@ -43,18 +43,13 @@ data = {
 results_file_name = 'TopN_Outlier_Pruning_Block.mat';
 
 % Each data set will be profiled with each of the following profiles.
-base_profile = struct('name', 'matlab_original',  'func', 'TopN_Outlier_Pruning_Block_MATLAB_ORIGINAL');
+base_profile = struct('name', 'matlab_unsorted',  'func', 'TopN_Outlier_Pruning_Block_MATLAB_UNSORTED');
 profiles = [
-    struct('name', 'matlab_original_inline',    'func', 'TopN_Outlier_Pruning_Block_MATLAB_ORIGINAL_INLINE'), ...
-    struct('name', 'matlab_sorted',             'func', 'TopN_Outlier_Pruning_Block_MATLAB_SORTED'), ...
-    struct('name', 'matlab_sorted_inline',      'func', 'TopN_Outlier_Pruning_Block_MATLAB_SORTED_INLINE'), ...
     struct('name', 'C_sorted',                  'func', 'TopN_Outlier_Pruning_Block_C_SORTED'), ...
-    struct('name', 'C_unsorted',                'func', 'TopN_Outlier_Pruning_Block_C_UNSORTED'), ...
-    struct('name', 'C_no_blocking',             'func', 'TopN_Outlier_Pruning_Block_C_NO_BLOCKING'), ...
 ];
 
 % Number of iterations for each data set.
-iterations = 3;
+iterations = 1;
 
 % Root output directory. If this directory exists, it will be deleted.
 testing_root_dir = output_dir;

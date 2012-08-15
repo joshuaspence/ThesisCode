@@ -7,7 +7,7 @@
 #===============================================================================
 
 SCRIPT_NAME=$(basename $0)
-if [ "$(readlink -f $(pwd))" != "$(readlink -f $(dirname $0))" ]; then
+if [[ "$(readlink -f $(pwd))" != "$(readlink -f $(dirname $0))" ]]; then
     echo "This script must be run from the directory '$(readlink -f $(dirname $0))'." >&2
     exit 1
 fi
