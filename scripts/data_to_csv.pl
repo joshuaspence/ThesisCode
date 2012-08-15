@@ -30,11 +30,9 @@ use warnings;
 use Getopt::Std;
 use Getopt::Long;
 use HTML::TableExtract;
-use File::Util;
-use File::Spec;
 
-use constant USEFUL_HTML_FILE => "file0.html";
-use constant OUTPUT_HEADER => "Profile,Data set,Iteration,Function Name,Calls,Total Time,Self Time\n";
+use constant PROFILE_HTML_FILE => "file0.html";
+use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function Name,Calls,Total Time,Self Time\n";
 
 require "./util.pl";
 
@@ -48,14 +46,11 @@ scalar(@ARGV) >= 1 || die("No directory specified!\n");
 my $base_dir = $ARGV[0];
 -d $base_dir || die("Directory doesn't exist: $base_dir\n");
 
-# File::Util used to traverse directories
-my $fu = File::Util->new;
-
 # HTML::TableExtract used to traverse HTML tables
 my $html_table_extract = HTML::TableExtract->new();
 
 # Get data sets from subdirectories below base directory
-my @dataset_dirs = next_subdirectory_level($fu, $base_dir);
+my @dataset_dirs = next_subdirectory_level($base_dir);
 
 # Print header of output
 print(OUTPUT_HEADER);
@@ -79,14 +74,14 @@ for my $dataset_dir (@dataset_dirs) {
     my $dataset = strip_directory($dataset_dir);
     
     # Get iterations from next subdirectory level
-    my @iteration_dirs = next_subdirectory_level($fu, $dataset_dir);
+    my @iteration_dirs = next_subdirectory_level($dataset_dir);
     
     # Loop through each iteration subdirectory
     for my $iteration_dir (@iteration_dirs) {
         my $iteration = strip_directory($iteration_dir);
     
         # Get profiles from next subdirectory level
-        my @profile_dirs = next_subdirectory_level($fu, $iteration_dir);
+        my @profile_dirs = next_subdirectory_level($iteration_dir);
         
         # Loop through each profile subdirectory
         for my $profile_dir (@profile_dirs) {
@@ -118,22 +113,15 @@ for my $dataset_dir (@dataset_dirs) {
             }
     
             # Retrieve the input HTML file
-            my $useful_html_file = File::Spec->catfile($profile_dir, USEFUL_HTML_FILE);
-            $html_table_extract->parse_file($useful_html_file);
+            my $profile_html_file = File::Spec->catfile($profile_dir, PROFILE_HTML_FILE);
+            my @data_rows = get_table_rows($profile_html_file);
 
             # Buffered output
             my @output = ();
-
-            # Get table rows (there should only be one table)
-            my $table = ($html_table_extract->tables())[0];
-            my @data_rows = $table->rows();
             
             # We have seen another iteration
             ($results{$profile}{'dataset_iterations'}{$dataset})++;
             ($results{$profile}{'iterations'})++;
-
-            # Remove header information from data
-            splice(@data_rows, 0, 1);
 
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
