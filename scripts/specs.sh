@@ -21,17 +21,17 @@ echo_and_execute "gcc --version" "$OUTPUT_DIRECTORY/gcc.txt"
 echo
 
 echo "Getting MATLAB version..."
-echo_and_execute "matlab -nosplash -nodesktop -r \"ver; quit;\"" "matlab.txt"
+echo_and_execute "matlab -nosplash -nodesktop -r \"ver; quit;\"" "$OUTPUT_DIRECTORY/matlab.txt"
 echo
 
 echo "Getting mex info..."
-echo_and_execute "$MATLAB_DIR/mex -v" "mex.txt"
+echo_and_execute "$MATLAB_DIR/mex -v" "$OUTPUT_DIRECTORY/mex.txt"
 echo
 
 echo "Getting ld version..."
-echo_and_execute "ld -v" "ld.txt"
+echo_and_execute "ld -v" "$OUTPUT_DIRECTORY/ld.txt"
 echo
 
 echo "Getting OS info..."
-echo_and_execute "uname -a" "uname.txt"
+echo_and_execute "uname -a" "$OUTPUT_DIRECTORY/uname.txt"
 echo
