@@ -96,18 +96,22 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Convert the input to proper format. */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    double_t data_in[num_vectors][vector_dims];
-    
+    double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    if (data_in == NULL)
+        mexErrMsgTxt("Unable to allocate memory for data array.");
+
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
         for (dim = 0; dim < vector_dims; dim++)
-            data_in[vector][dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
+            data_in[vector * vector_dims + dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
     }
     
     /* Create the output arrays. */
     index_t  outliers_out      [N];
     double_t outlier_scores_out[N];
+    memset(outliers_out,       0, N * sizeof(index_t));
+    memset(outlier_scores_out, 0, N * sizeof(double_t));
     
     /* Call the function. */
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
@@ -115,6 +119,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Save input and output parameters. */
     save_variables_to_file(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
+    /* Free dynamic memory. */
+    if (data_in != NULL)
+        free(data_in);
+
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
         CREATE_REAL_DOUBLE_VECTOR (outliers, N);
@@ -132,9 +140,19 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         for (i = 0; i < ELEMENTS(outlier_scores); i++)
             VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
     }
+    
+#ifdef STATS
+    /* Print the number of calls to the distance function */
+    lint_t num_calls;
+    uint_t num_pruned;
+    
+    get_stats(&num_calls, &num_pruned);
+    mexPrintf("Calls to distance function = %llu\n", num_calls);
+    mexPrintf("Number of pruned vectors = %u\n", num_pruned);
+#endif /* #ifdef STATS */
 }
 
-/* 
+/*
  * Save the input and output parameters of the top_n_outlier_pruning_block 
  * function to a binary file.
  */

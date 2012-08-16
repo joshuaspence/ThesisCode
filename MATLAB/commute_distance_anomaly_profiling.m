@@ -22,7 +22,7 @@ global g_base_dir;
 g_func_name = func_name;
 g_base_dir = base_dir;
 
-tic
+tic;
 k1 = 10;        % number of k nearest neighbours of graph
 k2 = 15;        % number of k nearest neighbours for outlier detection
 N = 40;         % top N outliers
@@ -57,8 +57,10 @@ tRead = tic;
 X = csvread(dataset);
 toc(tRead);
 
-n = size(X, 1)
-d = size(X, 2)
+% Data set size
+n = size(X, 1);
+d = size(X, 2);
+fprintf('Data set dimensions = %u*%u\n', n, d);
 
 disp 'Data preprocessing ...';
 tPre = tic;
@@ -88,16 +90,17 @@ if pSampling == 1
 else
     [G, sampled_vertices] = knn_sampling(Z, k1, graph_type, k2, pSampling, similarity);
 end
-sprintf('No. of sampled vertices = %d', size(sampled_vertices))
-t0 = toc(tGraph)
-disp 'Writing the graph to file graph.mat';
-save(strcat(g_base_dir, filesep, 'graph.mat'), 'G');
+fprintf('No. of sampled vertices = %d\n', size(sampled_vertices));
+t0 = toc(tGraph);
+graph_output = strcat(g_base_dir, filesep, 'graph.mat');
+fprintf('Writing the graph to file %s\n', graph_output);
+save(graph_output, 'G');
 %save(strcat(g_base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
 disp 'Calculating distance based CTD-ST ...';
 tCDOFa = tic;
 [O3a, OF3a] = TopN_Outlier_Pruning_Block_CTD_ST(G, kRP, scale, k2, N, block_size);
-t3a = toc(tCDOFa)
+t3a = toc(tCDOFa);
 
 label = O3a(1:N);
 graph = drawGraph('PCA plot', G, Y(sampled_vertices,:), true, label);
@@ -106,8 +109,9 @@ print(graph, strcat(g_base_dir, filesep, 'output.png'), '-dpng');
 O = sampled_vertices(O3a);
 OF = OF3a;
 
-disp 'Writing the result to file output.csv';
-csvwrite(strcat(g_base_dir, filesep, 'output.csv'), [O' OF']);
+csv_output = strcat(g_base_dir, filesep, 'output.csv');
+fprintf('Writing the result to file %s\n', csv_output);
+csvwrite(csv_output, [O' OF']);
 
 'Done'
 
@@ -157,8 +161,8 @@ end
 % fully connected graph
 if graph_type == 3
     A = zeros(n,n); % dense graph
-    for i=1:n
-        for j=i+1:n
+    for i = 1 : n
+        for j = i + 1 : n
             w = sim(X(i,:), X(j,:), similarity);
             if w > 0
                 A(i,j) = w;
@@ -294,7 +298,7 @@ for i = 1 : n
         w = sim(X(i,:), X(inn(l),:), similarity, sigma);
         
         if w < 1e-6 % not suitable sigma
-            sprintf('sigma is too small');
+            fprintf('sigma is too small\n');
             w = 1e-6;
         end
         
@@ -349,7 +353,7 @@ for l = 1 : nnz(T)
     if i(l) < j(l) && A(i(l), j(l)) == 0
         s = sim_d(T(i(l),j(l)), similarity, sigma);
         if s < 1e-6 % not suitable sigma
-            sprintf('sigma is too small');
+            fprintf('sigma is too small\n');
             s = 1e-6;
         end
         Anew(i(l), j(l)) = s;
@@ -367,7 +371,7 @@ function Anew = connect_components_mix(X, A, similarity, sigma)
 
 Anew = A;
 nClusters = size(sizes,1);
-sprintf('There are %d disconnected components', nClusters)
+fprintf('There are %d disconnected components\n', nClusters)
 if nClusters > 1 % disconnected
     indexT = zeros(nClusters, 1); % store the representative point from all components
         
@@ -512,6 +516,8 @@ Z = approx_resistance(G, kRP, 1e-6, 100, scale);
 total_weight = sum(sum(G));
 Y = sqrt(full(total_weight)) .* Z';
 Z_time = toc(tZ);
+
+fprintf('Projected data set dimensions = %u*%u\n', size(Y,1), size(Y,2));
 
 tknn = tic;
 disp 'Detecting outliers in the commute time embedding ...'
