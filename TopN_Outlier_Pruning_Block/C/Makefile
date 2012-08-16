@@ -156,16 +156,19 @@ all: $(MEXTARGETS)
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
-	rm -f $(MEXTARGETS) $(DEPS)
+	rm -f $(MEXTARGETS) $(DEPS) *.d *.$(MEXEXT)
 	-@echo "Clean completed."
 
 .PHONY: distclean
 distclean: clean
+	-@echo "Cleaning..."
+	rm -f *.d *.$(MEXEXT)
+	-@echo "Clean completed."
 
 # Dependency generation
 .PHONY: depend
  depend: $(SOURCES) $(DEPS)
-	
+
 # Generate a dependency for a C file
 # NOTE: We aren't making .o files, so we will pretend that the source files are
 # the object files.

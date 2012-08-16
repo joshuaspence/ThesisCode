@@ -1,6 +1,7 @@
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
+#include <float.h> /* for DBL_MAX */
 #include <string.h> /* for memset, memcpy */
 #include "macros.h"
 #include "top_n_outlier_pruning_block.h"
@@ -169,7 +170,7 @@ static inline double_t insert(index_t * const outliers,
         removed_value = 0;
     } else {
         int_t    max_index = -1;
-        double_t max_value;
+        double_t max_value = DBL_MAX;
     
         int_t i;
         for (i = k-1; i >= 0; i--) {
