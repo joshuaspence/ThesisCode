@@ -96,8 +96,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Convert the input to proper format. */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    double_t data_in[num_vectors * vector_dims];
-    
+    double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    if (data_in == NULL)
+        mexErrMsgTxt("Unable to allocate memory for data array.");
+
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
@@ -117,6 +119,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Save input and output parameters. */
     save_variables_to_file(data_in, num_vectors, vector_dims, k, N, block_size, outliers_out, outlier_scores_out);
     
+    /* Free dynamic memory. */
+    if (data_in != NULL)
+        free(data_in);
+
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
         CREATE_REAL_DOUBLE_VECTOR (outliers, N);
