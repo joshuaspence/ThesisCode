@@ -13,10 +13,21 @@
 #if (defined(UNSORTED_INSERT) && defined(SORTED_INSERT)) || (!defined(UNSORTED_INSERT) && !defined(SORTED_INSERT))
     #error "Exactly one of UNSORTED_INSERT and SORTED_INSERT should be defined."
 #endif /* #if defined(UNSORTED_INSERT) && defined(SORTED_INSERT) */
+/******************************************************************************/
 
-#if !defined(DEBUG) && defined(STATS)
-    #error "STATS should only be defined in DEBUG mode."
-#endif /* #if !defined(DEBUG) && defined(STATS) */
+/******************************************************************************/
+/* Stats                                                                      */
+/******************************************************************************/
+#include "stats.h"
+/******************************************************************************/
+
+/******************************************************************************/
+/* Logging                                                                    */
+/******************************************************************************/
+#include "logging.h"
+#ifndef LOG_FILE
+	#define LOG_FILE "top_n_outlier_pruning_block.log"
+#endif /* #ifndef LOG_FILE */
 /******************************************************************************/
 
 /* Forward declarations */
@@ -60,18 +71,7 @@ static inline void merge(
     double_t (* const new_outlier_scores)[N]
     );
 
-#ifdef STATS
-static lint_t calls_counter = 0;
-static uint_t num_pruned    = 0;
-
-void get_stats(lint_t * const counter, uint_t * const prune_count) {
-    ASSERT_NOT_NULL(counter);
-    ASSERT_NOT_NULL(prune_count);
-    
-    *counter = calls_counter;
-    *prune_count = num_pruned;
-}
-#endif /* #ifdef STATS */
+LOG_FILE_DECLARE(log)
 
 static inline double_t distance_squared(const size_t vector_dims,
                                        const double_t (* const vector1)[vector_dims],
@@ -332,6 +332,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT_NOT_NULL(outliers);
     ASSERT_NOT_NULL(outlier_scores);
     
+    LOG_FILE_OPEN(log, LOG_FILE);
+    
     /* Set output to zero. */
 #ifndef __AUTOESL__
     memset(*outliers,       null_index, N * sizeof(index_t));
@@ -422,6 +424,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
          * cutoff.
          */
         cutoff = (*outlier_scores)[N-1];
+        LOG_FILE_WRITE(log, "cutoff = %f\n", cutoff);
     }
 #else
     index_t vector1;
@@ -483,7 +486,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
              * cutoff.
              */
             cutoff = (*outlier_scores)[N-1];
+            LOG_FILE_WRITE(log, "cutoff = %f\n", cutoff);
         }
     }
 #endif /* #ifndef NO_BLOCKING */
+	
+	LOG_FILE_CLOSE(log);
 }

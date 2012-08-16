@@ -15,11 +15,4 @@ void top_n_outlier_pruning_block(
     double_t (*outlier_scores)[N]
     );
 
-#ifdef STATS
-void get_stats(
-    lint_t * counter,
-    uint_t * prune_count
-    );
-#endif /* #ifdef STATS */
-
 #endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */

@@ -4,6 +4,7 @@
 #include <string.h> /* for memset */
 #include "macros.h"
 #include "matlab.h"
+#include "stats.h"
 #include "top_n_outlier_pruning_block.h"
 
 /* Input and output arguments. */

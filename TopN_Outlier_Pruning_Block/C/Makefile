@@ -41,8 +41,8 @@ MXXFLAGS +=
 LDFLAGS  +=
 
 # Debug flags
-CFLAGS_DEBUG   := -g -O0 -DDEBUG -DSTATS
-CXXFLAGS_DEBUG := -g -O0 -DDEBUG -DSTATS
+CFLAGS_DEBUG   := -g -O0 -DDEBUG -DSTATS -DLOGGING -DLOG_LEVEL=LOG_LEVEL_0
+CXXFLAGS_DEBUG := -g -O0 -DDEBUG -DSTATS -DLOGGING -DLOG_LEVEL=LOG_LEVEL_0
 MXXFLAGS_DEBUG :=
 LDFLAGS_DEBUG  := -g
 
@@ -115,7 +115,7 @@ endif
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
               TopN_Outlier_Pruning_Block_C_UNSORTED \
               TopN_Outlier_Pruning_Block_C_NO_BLOCKING
-FILES      := top_n_outlier_pruning_block matlab_wrapper 
+FILES      := top_n_outlier_pruning_block matlab_wrapper stats
         
 MEXTARGETS := $(foreach t,$(TARGETS),$(addsuffix .$(MEXEXT),$t))
 SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
