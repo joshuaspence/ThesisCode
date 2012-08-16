@@ -304,11 +304,11 @@ static inline void merge(const size_t N,
              * arrays.
              */
             break;
-        } else if (global_outlier_scores[global] >= local_outlier_scores[local]) {
+        } else if ((*global_outlier_scores)[global] >= (*local_outlier_scores)[local]) {
             (*new_outliers      )[iter] = (*global_outliers      )[global];
             (*new_outlier_scores)[iter] = (*global_outlier_scores)[global];
             global++;
-        } else if (global_outlier_scores[global] <= local_outlier_scores[local]) {
+        } else if ((*global_outlier_scores)[global] <= (*local_outlier_scores)[local]) {
             (*new_outliers      )[iter] = (*local_outliers      )[local];
             (*new_outlier_scores)[iter] = (*local_outlier_scores)[local];
             local++;
