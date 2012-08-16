@@ -166,7 +166,7 @@ static inline double_t insert(const size_t k,
             }
         }
     }
-#elif defined(UNSORTED_INDEX)
+#elif defined(UNSORTED_INSERT)
     if (*found < k) {
         insert_index  = *found + 1;
         removed_value = 0;
