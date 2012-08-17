@@ -4,7 +4,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include <mex.h>
+#include <mex.h> /* for mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, mxGetNumberOfElements, mxIsSparse, mxGetM, mxGetN, mxArray, mxGetData, mxDestroyArray, mxCreateDoubleMatrix */
 #include <stddef.h> /* for size_t */
 #include "utility.h" /* for UNUSED, EMPTY_STATEMENT */
 /*----------------------------------------------------------------------------*/
@@ -61,22 +61,10 @@ typedef double m_double_t;
 #define FREE_ARRAY(_array_) \
     mxDestroyArray(ARRAY(_array_)); \
     EMPTY_STATEMENT()
-/*----------------------------------------------------------------------------*/
 
-/*============================================================================*/
-/* Array properties                                                           */
-/*============================================================================*/
 /* To access an array element. Uses one-based row/column indexing. */
 #define ARRAY_ELEMENT(_array_, _row_, _column_) \
-    _array_[(_row_) + ROWS(_array_) * (_column_)]
-
-/* To declare an array and the dimensions of the array in a function signature. */
-#define ARRAY_SIGNATURE(_array_) \
-    _array_, const size_t UNUSED ROWS(_array_), const size_t UNUSED COLS(_array_)
-
-/* To call a function that requires an array as well as the array dimensions. */
-#define ARRAY_ARGUMENTS(_array_) \
-    _array_, ROWS(_array_), COLS(_array_)
+    _array_[(_row_) + (ROWS(_array_) * (_column_))]
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -93,22 +81,10 @@ typedef double m_double_t;
 #define FREE_VECTOR(_vector_) \
     mxDestroyArray(VECTOR(_vector)); \
     EMPTY_STATEMENT()
-/*----------------------------------------------------------------------------*/
 
-/*============================================================================*/
-/* Vector properties                                                          */
-/*============================================================================*/
 /* To access a vector element. Uses one-based element indexing. */
 #define VECTOR_ELEMENT(_vector_, _element_) \
     _vector_[(_element_)]
-
-/* To declare a vector and the dimensions of the vector in a function signature. */
-#define VECTOR_SIGNATURE(_vector_) \
-    _vector_, const size_t UNUSED ELEMENTS(_vector_)
-
-/* To call a function that requires a vector as well as the vector dimensions. */
-#define VECTOR_ARGUMENTS(_vector_) \
-    _vector_, ELEMENTS(_vector_)
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef MATLAB_H_ */

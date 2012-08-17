@@ -126,7 +126,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
-        CREATE_REAL_DOUBLE_VECTOR (outliers, N);
+        CREATE_REAL_DOUBLE_VECTOR(outliers, N);
         OUTLIERS_OUT = VECTOR(outliers);
         
         uint_t i;
@@ -134,7 +134,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             VECTOR_ELEMENT(outliers, i) = (m_double_t) outliers_out[i];
     }
     if (nlhs >= 2) {
-        CREATE_REAL_DOUBLE_VECTOR (outlier_scores, N);
+        CREATE_REAL_DOUBLE_VECTOR(outlier_scores, N);
         OUTLIERSCORES_OUT = VECTOR(outlier_scores);
         
         uint_t i;
