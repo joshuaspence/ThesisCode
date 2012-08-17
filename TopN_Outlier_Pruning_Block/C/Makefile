@@ -2,16 +2,83 @@
 #                                                                              #
 #                                FIND MATLAB                                   #
 #                                                                              #
-#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------#
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
-# Detect architecture
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                            DETECT ARCHITECTURE                               #
+#                                                                              #
+# This seemed to be necessary when running a 32-bit student version of MATLAB  #
+# on a 64-bit machine, for example. Basically, try different architecture      #
+# flags until MATLAB stops complaining.                                        #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
 ALL_ARCH := -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
+ARCH := $(call discover-architecture)
+
+# Test an architecture and see if MATLAB complains
+# $(call try-architecture,ARCH)
 define try-architecture
-$(shell echo 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
+$(shell yes 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
 endef
-discover_architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),)))
-ARCH := $(call discover_architecture)
+
+# Discover the system architecture to use for MATLAB
+# $(call discover-architecture)
+discover-architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),)))
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                            ARCHITECTURE VARIABLES                            #
+#                                                                              #
+#------------------------------------------------------------------------------#
+ifndef MXX
+	ifeq ($(shell uname),Darwin)
+		MXX      := $(strip $(MATLAB_DIR)/bin/mex $(ARCH))
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
+	endif
+	ifeq ($(shell uname),Linux)
+		MXX      := $(strip $(MATLAB_DIR)/bin/mex $(ARCH))
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
+	endif
+else
+	MEXEXT := $(shell MEXEXT)
+endif
+
+# If the architecture has been overriden, then the mexext script won't return
+# the correct extension.
+ifneq ($(ARCH),)
+	ifeq ($(strip $(ARCH)),-glnx86)
+		MEXEXT := mexglx
+	endif
+	ifeq ($(strip $(ARCH)),-glnxa64)
+		MEXEXT := mexa64
+	endif
+	ifeq ($(strip $(ARCH)),-mac)
+		MEXEXT := mexmac
+	endif
+	ifeq ($(strip $(ARCH)),-maci)
+		MEXEXT := mexmaci
+	endif
+	ifeq ($(strip $(ARCH)),-maci64)
+		MEXEXT := mexmaci64
+	endif
+	ifeq ($(strip $(ARCH)),-sol2)
+		MEXEXT := mexsol
+	endif
+	ifeq ($(strip $(ARCH)),-sol64)
+		MEXEXT := mexs64
+	endif
+	ifeq ($(strip $(ARCH)),-win64)
+		MEXEXT := mexw64
+	endif
+	ifeq ($(strip $(ARCH)),-win32)
+		MEXEXT := mexw32
+	endif
+endif
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -24,15 +91,27 @@ MAKEDEPEND       := makedepend
 MAKEDEPEND_FLAGS := -Y
 MAKEDEPEND_TOKEN := '\# MAKEDEPENDS'
 
-# Default flags
-CFLAGS   := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*CFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
-CXXFLAGS := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*CXXFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+# Parse options from the mex compiler
+# $(call parse-mex-options,OPTION_NAME)
+define parse-mex-options
+$(shell $(MXX) -v 2>/dev/null | sed -n 's/\s*$1\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+endef
+
+# Remove a flag from a CFLAG-style string.
+# $(call remove-flag,FLAGS,FLAG)
+define remove-flag
+$(shell echo -n $1 | sed 's/-$2\s\+//')
+endef
+
+# Default flags (these will be overridden)
+CFLAGS   := $(call parse-mex-options,CFLAGS)
+CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
 MXXFLAGS :=
-LDFLAGS  := $(shell $(MATLAB_DIR)/bin/mex $(ARCH) -v 2>/dev/null | sed -n 's/\s*LDFLAGS\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+LDFLAGS  := $(call parse-mex-options,LDFLAGS)
 
 # Remove 'ANSI standard' flags
-CFLAGS   := $(shell echo -n $(CFLAGS) | sed 's/-ansi\s\+//')
-CXXFLAGS := $(shell echo -n $(CXXFLAGS) | sed 's/-ansi\s\+//')
+CFLAGS   := $(call remove-flag,$(CFLAGS),ansi)
+CXXFLAGS := $(call remove-flag,$(CXXFLAGS),ansi)
 
 # Additional flags
 CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0 -D__MEX__
@@ -51,58 +130,6 @@ CFLAGS_OPT   := -O3 -DNDEBUG
 CXXFLAGS_OPT := -O3 -DNDEBUG
 MXXFLAGS_OPT := -O
 LDFLAGS_OPT  := -O3
-
-#------------------------------------------------------------------------------#
-#                                                                              #
-#                            ARCHITECTURE VARIABLES                            #
-#                                                                              #
-#------------------------------------------------------------------------------#
-ifndef MXX
-	ifeq ($(shell uname),Darwin)
-		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH)
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
-		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
-	endif
-	ifeq ($(shell uname),Linux)
-		MXX      := $(MATLAB_DIR)/bin/mex $(ARCH)
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
-		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
-	endif
-else
-	MEXEXT := $(shell MEXEXT)
-endif
-
-# If the architecture has been overriden, then the mexext script won't return
-# the correct extension.
-ifneq ($(ARCH),)
-	ifeq ($(strip $(ARCH)),-glnx86)
-		MEXEXT := mexglx
-	endif
-	ifeq ($(strip $(ARCH)),-glnxa64)
-		MEXEXT := mexa64
-	endif
-	ifeq ($(strip $(ARCH)), "-mac")
-		MEXEXT := mexmac
-	endif
-	ifeq ($(strip $(ARCH)), "-maci")
-		MEXEXT := mexmaci
-	endif
-	ifeq ($(strip $(ARCH)), "-maci64")
-		MEXEXT := mexmaci64
-	endif
-	ifeq ($(strip $(ARCH)), "-sol2")
-		MEXEXT := mexsol
-	endif
-	ifeq ($(strip $(ARCH)), "-sol64")
-		MEXEXT := mexs64
-	endif
-	ifeq ($(strip $(ARCH)), "-win64")
-		MEXEXT := mexw64
-	endif
-	ifeq ($(strip $(ARCH)), "-win32")
-		MEXEXT := mexw32
-	endif
-endif
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -125,12 +152,16 @@ TopN_Outlier_Pruning_Block_C_SORTED_FLAGS      := -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS    := -DUNSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DNO_BLOCKING -DSORTED_INSERT
 
+# $(call target-template,TARGET)
 define target-template
 $(1).$(MEXEXT): $(SOURCES) $(DEPS)
 	-@echo "Compiling: $$@"
 	$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
 	-@echo
 endef
+
+# Compile the MEX functions
+$(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
 
 # Release build
 release: CFLAGS   += $(CFLAGS_OPT)
@@ -146,17 +177,19 @@ debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
 debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
 debug:   all
 
-# Compile the MEX functions
-$(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
-
 .PHONY: all
 all: $(MEXTARGETS)
 	-@echo "Done."
 
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                               CLEAN TARGETS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
-	rm -f $(MEXTARGETS) $(DEPS) *.d *.$(MEXEXT)
+	rm -f $(MEXTARGETS) $(DEPS)
 	-@echo "Clean completed."
 
 .PHONY: distclean
@@ -165,9 +198,15 @@ distclean: clean
 	rm -f *.d *.$(MEXEXT)
 	-@echo "Clean completed."
 
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                             MAKEDEPEND TARGETS                               #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
 # Dependency generation
 .PHONY: depend
- depend: $(SOURCES) $(DEPS)
+depend: $(SOURCES) $(DEPS)
 
 # Generate a dependency for a C file
 # NOTE: We aren't making .o files, so we will pretend that the source files are
@@ -188,6 +227,27 @@ distclean: clean
 	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.cpp -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
 	-@rm $@.bak
 	-@echo
-	
+
 # Include generated dependency files
-include $(wildcard *.d)
+-include $(DEPS)
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                                INFO TARGET                                   #
+#                                                                              #
+#------------------------------------------------------------------------------#
+.PHONY: info
+info:
+	$(call print-variables)
+	
+# $(call print-variable,var)
+# Print the name and value of a variable.
+print-variable = $(info $1=$($1))
+
+# $(call print-variables)
+# Print all makefile variables
+define print-variables
+$(foreach V,$(sort $(filter-out print-variable%,$(.VARIABLES))), 
+	$(if $(filter file,$(origin $V)),
+		$(call print-variable,$V)))
+endef
