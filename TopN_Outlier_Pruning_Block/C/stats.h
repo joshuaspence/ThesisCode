@@ -1,7 +1,7 @@
 #if !defined(STATS_H_) && defined(STATS)
 #define STATS_H_
 
-#include "macros.h" /* for lint_t, uint_t */
+#include "utility.h" /* for lint_t, uint_t */
 
 #ifndef DEBUG
     #error "STATS should only be defined in DEBUG mode."

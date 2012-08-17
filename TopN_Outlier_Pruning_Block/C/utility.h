@@ -1,5 +1,5 @@
-#ifndef MACROS_H_
-#define MACROS_H_
+#ifndef UTILITY_H_
+#define UTILITY_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
@@ -70,4 +70,4 @@ static const index_t null_index  = 0;
 static const index_t start_index = 1;
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef MACROS_H_ */
+#endif /* #ifndef UTILITY_H_ */

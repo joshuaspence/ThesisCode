@@ -2,7 +2,7 @@
 #include <mex.h>
 #include <stdlib.h> /* for size_t */
 #include <string.h> /* for memset */
-#include "macros.h"
+#include "utility.h"
 #include "matlab.h"
 #include "stats.h"
 #include "top_n_outlier_pruning_block.h"

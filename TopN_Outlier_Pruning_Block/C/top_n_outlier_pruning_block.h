@@ -2,7 +2,7 @@
 #define TOP_N_OUTLIER_PRUNING_BLOCK_H_
 
 #include <stddef.h> /* for size_t */
-#include "macros.h" /* for double_t, index_t, UNUSED */
+#include "utility.h" /* for double_t, index_t, UNUSED */
 
 void top_n_outlier_pruning_block(
     const size_t num_vectors,

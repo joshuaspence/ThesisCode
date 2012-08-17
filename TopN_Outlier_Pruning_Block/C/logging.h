@@ -12,7 +12,7 @@
 
 #ifdef LOGGING
     #include <stdio.h> /* for fprintf */
-	#include "macros.h" /* for ASSERT_NOT_NULL */
+	#include "utility.h" /* for ASSERT_NOT_NULL */
 	
 	#define LOG_FILE_DECLARE(_logfile_) \
 		static FILE * _logfile_;

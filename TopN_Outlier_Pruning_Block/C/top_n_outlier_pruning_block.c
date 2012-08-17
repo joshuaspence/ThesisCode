@@ -3,7 +3,7 @@
 /******************************************************************************/
 #include <float.h> /* for DBL_MAX */
 #include <string.h> /* for memset, memcpy */
-#include "macros.h"
+#include "utility.h"
 #include "top_n_outlier_pruning_block.h"
 /******************************************************************************/
 

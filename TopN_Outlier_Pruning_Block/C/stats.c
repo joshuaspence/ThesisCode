@@ -1,5 +1,5 @@
 #include "stats.h"
-#include "macros.h" /* for lint_t, uint_t, ASSERT_NOT_NULL */
+#include "utility.h" /* for lint_t, uint_t, ASSERT_NOT_NULL */
 
 lint_t calls_counter = 0;
 uint_t num_pruned    = 0;
