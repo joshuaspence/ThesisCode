@@ -163,9 +163,9 @@ void save_variables_to_file(const size_t num_vectors,
                             const size_t k,
                             const size_t N,
                             const size_t default_block_size,
-                            index_t (* outliers)[N],
-                            double_t (* outlier_scores)[N]) {
-    FILE *fp;
+                            index_t (* const outliers)[N],
+                            double_t (* const outlier_scores)[N]) {
+    FILE * fp;
     fp = fopen("vars.dat", "wb");
     
     fwrite(       &num_vectors,   sizeof(size_t),                         1, fp); /* num_vectors */

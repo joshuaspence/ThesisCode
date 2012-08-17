@@ -11,11 +11,11 @@
 #define LOG_LEVEL_DEFAULT	LOG_LEVEL_0
 
 #ifdef LOGGING
-    #include <stdio.h> /* for fprintf */
+    #include <stdio.h> /* for fprintf, fopen, fclose */
 	#include "utility.h" /* for ASSERT_NOT_NULL */
 	
 	#define LOG_FILE_DECLARE(_logfile_) \
-		static FILE * _logfile_;
+		static FILE * _logfile_
 	
 	#define LOG_FILE_OPEN(_logfile_, _path_) \
 		do { \
@@ -31,8 +31,8 @@
     
 	#define LOG_FILE_CLOSE(_logfile_) \
 		fclose(_logfile_);
-#else
-	#define LOG_FILE_DECLARE(_logfile_)
+#else	
+	#define LOG_FILE_DECLARE(_logfile_)			void dummy##__LINE__(void)
 	#define LOG_FILE_OPEN(_logfile_, _path_)	EMPTY_STATEMENT()
 	#define LOG_FILE_WRITE(_logfile, ...)		EMPTY_STATEMENT()
 	#define LOG_FILE_CLOSE(_logfile_)			EMPTY_STATEMENT()

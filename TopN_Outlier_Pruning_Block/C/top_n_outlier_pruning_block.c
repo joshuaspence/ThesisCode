@@ -71,7 +71,7 @@ static inline void merge(
     double_t (* const new_outlier_scores)[N]
     );
 
-LOG_FILE_DECLARE(log)
+LOG_FILE_DECLARE(log);
 
 static inline double_t distance_squared(const size_t vector_dims,
                                        const double_t (* const vector1)[vector_dims],

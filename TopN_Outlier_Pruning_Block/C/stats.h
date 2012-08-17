@@ -11,8 +11,8 @@ extern lint_t calls_counter;
 extern uint_t num_pruned;
 
 void get_stats(
-    lint_t * counter,
-    uint_t * prune_count
+    lint_t * const counter,
+    uint_t * const prune_count
     );
 
 #endif /* #if !defined(STATS_H_) && defined(STATS) */
