@@ -21,13 +21,6 @@
 #include "stats.h"
 /******************************************************************************/
 
-/******************************************************************************/
-/* Logging                                                                    */
-/******************************************************************************/
-#include "logging.h"
-#define LOG_FILE "top_n_outlier_pruning_block.log"
-/******************************************************************************/
-
 /* Forward declarations */
 static inline double_t distance_squared(
     const size_t vector_dims,
@@ -69,11 +62,9 @@ static inline void merge(
     double_t (* const new_outlier_scores)[N]
     );
 
-LOG_FILE_DECLARE(log);
-
 static inline double_t distance_squared(const size_t vector_dims,
-                                       const double_t (* const vector1)[vector_dims],
-                                       const double_t (* const vector2)[vector_dims]) {
+                                        const double_t (* const vector1)[vector_dims],
+                                        const double_t (* const vector2)[vector_dims]) {
     ASSERT_NOT_NULL(vector1);
     ASSERT_NOT_NULL(vector2);
     ASSERT(vector_dims > 0);
@@ -147,7 +138,6 @@ static inline double_t insert(const size_t k,
                      * array.
                      */
                     removed_value = (*outlier_scores)[i];
-
                 /* Shuffle values down the array. */
                 if (i > 0) {
                     (*outliers      )[i] = (*outliers      )[i-1];
@@ -326,8 +316,6 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT_NOT_NULL(outliers);
     ASSERT_NOT_NULL(outlier_scores);
     
-    LOG_FILE_OPEN(log, LOG_FILE);
-    
     /* Set output to zero. */
 #ifndef __AUTOESL__
     memset(*outliers,       null_index, N * sizeof(index_t));
@@ -353,11 +341,11 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         ASSERT(block_size <= default_block_size);
         
-        index_t current_block[block_size];      /* the indexes of the vectors in the current block */
-        index_t neighbours[block_size][k];      /* the "k" nearest neighbours for each vector in the current block */
+        index_t current_block[block_size];          /* the indexes of the vectors in the current block */
+        index_t neighbours[block_size][k];          /* the "k" nearest neighbours for each vector in the current block */
         double_t neighbours_dist[block_size][k];    /* the distance of the "k" nearest neighbours for each vector in the current block */
         double_t score[block_size];                 /* the average distance to the "k" neighbours */
-        uint_t found[block_size];               /* how many nearest neighbours we have found, for each vector in the block */
+        uint_t found[block_size];                   /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
         do {
@@ -425,14 +413,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         
         /* Keep track of the top "N" outliers. */
         best_outliers(N, &outliers_found, outliers, outlier_scores, block_size, &current_block, &score);
-        
+           
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
          * store an outlier in future iterations if its score is better than the
          * cutoff.
          */
         cutoff = (*outlier_scores)[N-1];
-        LOG_FILE_WRITE(log, "cutoff = %f\n", cutoff);
     }
 #else
     index_t vector1;
@@ -500,10 +487,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
              * cutoff.
              */
             cutoff = (*outlier_scores)[N-1];
-            LOG_FILE_WRITE(log, "cutoff = %f\n", cutoff);
         }
     }
 #endif /* #ifndef NO_BLOCKING */
-	
-	LOG_FILE_CLOSE(log);
 }

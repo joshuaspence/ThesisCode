@@ -98,14 +98,16 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
     double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    
     if (data_in == NULL)
         mexErrMsgTxt("Unable to allocate memory for data array.");
 
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
-        for (dim = 0; dim < vector_dims; dim++)
+        for (dim = 0; dim < vector_dims; dim++) {
             data_in[vector * vector_dims + dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
+        }
     }
     
     /* Create the output arrays. */
@@ -115,10 +117,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     memset(outlier_scores_out, 0, N * sizeof(double_t));
     
     /* Call the function. */
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Save input and output parameters. */
-    save_variables_to_file(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) &data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
+    save_variables_to_file(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Free dynamic memory. */
     if (data_in != NULL)
