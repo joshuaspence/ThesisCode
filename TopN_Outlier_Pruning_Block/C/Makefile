@@ -7,6 +7,37 @@ MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                              UTILITY MACROS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
+# Remove duplicate whitespace from a string. Removes the following:
+#     - Repeated whitespace
+#     - Leading whitespace
+#     - Trailing whitespace
+# $(call pretty,STRING)
+define pretty
+$(shell echo -n "$1" | sed \
+-e 's/\s\s\+/ /' \
+-e 's/^\s\+//' \
+-e 's/\s\+$$//'
+)
+endef
+
+# $(call print-variable,var)
+# Print the name and value of a variable.
+print-variable = $(info $1=$($1))
+
+# $(call print-variables)
+# Print all makefile variables
+define print-variables
+$(foreach V,$(sort $(filter-out print-variable%,$(.VARIABLES))), 
+	$(if $(filter file,$(origin $V)),
+		$(call print-variable,$V)))
+endef
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                            DETECT ARCHITECTURE                               #
 #                                                                              #
 # This seemed to be necessary when running a 32-bit student version of MATLAB  #
@@ -35,12 +66,12 @@ discover-architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_AR
 #------------------------------------------------------------------------------#
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX      := $(strip $(MATLAB_DIR)/bin/mex $(ARCH))
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex $(ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX      := $(strip $(MATLAB_DIR)/bin/mex $(ARCH))
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex $(ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
@@ -156,7 +187,7 @@ TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DNO_BLOCKING -DSORTED_INSERT
 define target-template
 $(1).$(MEXEXT): $(SOURCES) $(DEPS)
 	-@echo "Compiling: $$@"
-	$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^)
+	$$(call pretty,$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^))
 	-@echo
 endef
 
@@ -214,7 +245,7 @@ depend: $(SOURCES) $(DEPS)
 %.c.d: %.c
 	-@echo "Creating dependency file: $@"
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.c -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	$(call pretty,$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.c -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null)
 	-@rm $@.bak
 	-@echo
 
@@ -224,7 +255,7 @@ depend: $(SOURCES) $(DEPS)
 %.cpp.d: %.c
 	-@echo "Creating dependency file: $@"
 	@echo $(MAKEDEPEND_TOKEN) > $@
-	$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.cpp -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null
+	$(call pretty,$(MAKEDEPEND) $(MAKEDEPEND_FLAGS) -o.cpp -f $@ -s $(MAKEDEPEND_TOKEN) -- $(CXXFLAGS) $(MXXFLAGS) -- $^ 2>/dev/null)
 	-@rm $@.bak
 	-@echo
 
@@ -239,15 +270,3 @@ depend: $(SOURCES) $(DEPS)
 .PHONY: info
 info:
 	$(call print-variables)
-	
-# $(call print-variable,var)
-# Print the name and value of a variable.
-print-variable = $(info $1=$($1))
-
-# $(call print-variables)
-# Print all makefile variables
-define print-variables
-$(foreach V,$(sort $(filter-out print-variable%,$(.VARIABLES))), 
-	$(if $(filter file,$(origin $V)),
-		$(call print-variable,$V)))
-endef
