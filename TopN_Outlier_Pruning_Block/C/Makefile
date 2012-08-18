@@ -220,13 +220,13 @@ all: $(MEXTARGETS)
 .PHONY: clean
 clean:
 	-@echo "Cleaning..."
-	rm -f $(MEXTARGETS) $(DEPS)
+	$(call pretty,rm -f $(MEXTARGETS) $(DEPS))
 	-@echo "Clean completed."
 
 .PHONY: distclean
 distclean: clean
 	-@echo "Cleaning..."
-	rm -f *.d *.$(MEXEXT)
+	$(call pretty,rm -f *.d *.$(MEXEXT))
 	-@echo "Clean completed."
 
 #------------------------------------------------------------------------------#
