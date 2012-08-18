@@ -2,7 +2,7 @@
 #include <mex.h>
 #include <stdlib.h> /* for size_t */
 #include <string.h> /* for memset */
-#include "utility.h"
+#include "utility.h" /* for double_t, index_t */
 #include "matlab.h"
 #include "stats.h"
 #include "top_n_outlier_pruning_block.h"
@@ -23,8 +23,8 @@ void save_variables_to_file(
    const size_t k,
    const size_t N,
    const size_t default_block_size,
-   index_t (* outliers)[N],
-   double_t (* outlier_scores)[N]
+   index_t (* const outliers)[N],
+   double_t (* const outlier_scores)[N]
    );
 
 /*

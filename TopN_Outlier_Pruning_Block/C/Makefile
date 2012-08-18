@@ -36,6 +36,14 @@ $(foreach V,$(sort $(filter-out print-variable%,$(.VARIABLES))),
 		$(call print-variable,$V)))
 endef
 
+# $(call target-template,TARGET)
+define target-template
+$(1).$(MEXEXT): $(SOURCES) $(DEPS)
+	-@echo "Compiling: $$@"
+	$$(call pretty,$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^))
+	-@echo
+endef
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                            DETECT ARCHITECTURE                               #
@@ -182,14 +190,6 @@ DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 TopN_Outlier_Pruning_Block_C_SORTED_FLAGS      := -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_UNSORTED_FLAGS    := -DUNSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_FLAGS := -DNO_BLOCKING -DSORTED_INSERT
-
-# $(call target-template,TARGET)
-define target-template
-$(1).$(MEXEXT): $(SOURCES) $(DEPS)
-	-@echo "Compiling: $$@"
-	$$(call pretty,$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^))
-	-@echo
-endef
 
 # Compile the MEX functions
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))

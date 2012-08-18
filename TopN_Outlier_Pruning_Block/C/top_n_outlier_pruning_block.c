@@ -25,9 +25,7 @@
 /* Logging                                                                    */
 /******************************************************************************/
 #include "logging.h"
-#ifndef LOG_FILE
-	#define LOG_FILE "top_n_outlier_pruning_block.log"
-#endif /* #ifndef LOG_FILE */
+#define LOG_FILE "top_n_outlier_pruning_block.log"
 /******************************************************************************/
 
 /* Forward declarations */
@@ -80,12 +78,8 @@ static inline double_t distance_squared(const size_t vector_dims,
     ASSERT_NOT_NULL(vector2);
     ASSERT(vector_dims > 0);
     
-#ifdef STATS
-    const UNUSED lint_t old_calls_counter = calls_counter;
-    calls_counter++;
-    ASSERT(calls_counter > old_calls_counter);
-#endif /* #ifdef STATS */
-    
+    STATS_INCREMENT_CALLS_COUNTER();
+	
     double_t sum_of_squares = 0;
     
     uint_t dim;
@@ -322,7 +316,7 @@ static inline void merge(const size_t N,
 void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_dims,
                                  const double_t (* const data)[num_vectors][vector_dims],
                                  const size_t k, const size_t N, const UNUSED size_t default_block_size,
-                                 index_t (*outliers)[N], double_t (*outlier_scores)[N]) {
+                                 index_t (* const outliers)[N], double_t (* const outlier_scores)[N]) {
     /* Error checking. */
     ASSERT_NOT_NULL(data);
     ASSERT(vector_dims > 0);
