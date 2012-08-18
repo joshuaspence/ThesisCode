@@ -333,11 +333,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     memset(*outliers,       null_index, N * sizeof(index_t));
     memset(*outlier_scores,          0, N * sizeof(double_t));
 #else
-    uint_t i;
-    for (i = 0; i < N; i++) {
-        (*outliers      )[i] = null_index;
-        (*outlier_scores)[i] = 0;
-    }
+    do {
+        uint_t i;
+        for (i = 0; i < N; i++) {
+            (*outliers      )[i] = null_index;
+            (*outlier_scores)[i] = 0;
+        }
+    } while (0);
 #endif /* #ifndef __AUTOESL__ */
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
@@ -358,13 +360,29 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         uint_t found[block_size];               /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
-        uint_t i;
-        for (i = 0; i < block_size; i++)
+        do {
+            uint_t i;
+            for (i = 0; i < block_size; i++)
                 current_block[i] = (index_t)((block_begin + i) + start_index);
+        } while (0);
+#ifndef __AUTOESL__
         memset(&neighbours,      null_index, block_size * k * sizeof(index_t));
         memset(&neighbours_dist,          0, block_size * k * sizeof(double));
         memset(&score,                    0, block_size * sizeof(double));
         memset(&found,                    0, block_size * sizeof(uint_t));
+#else
+        do {
+            uint_t i, j;
+            for (i = 0; i < block_size; i++) {
+                for (j = 0; j < k; j++) {
+                    neighbours     [i][j] = 0;
+                    neighbours_dist[i][j] = 0.0;
+                }
+                score[i] = 0.0;
+                found[i] = 0;
+            }
+        } while (0);
+#endif /* __AUTOESL__ */
         
         index_t vector1;
         for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
@@ -399,11 +417,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                     if (found[block_index] >= k && score[block_index] < cutoff) {
                         current_block[block_index] = null_index;
                         score        [block_index] = 0;
-#ifdef STATS
-                        const UNUSED uint_t old_num_pruned = num_pruned;
-                        num_pruned++;
-                        ASSERT(num_pruned > old_num_pruned);
-#endif /* #ifdef STATS */
+                        STATS_INCREMENT_NUM_PRUNED();
                     }
                 }
             }
@@ -429,8 +443,18 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         uint_t found = 0;               /* how many nearest neighbours we have found */
         boolean removed = false;        /* true if vector1 has been pruned */
         
+#ifndef __AUTOESL__
         memset(neighbours,      null_index, k * sizeof(index_t));
         memset(neighbours_dist,          0, k * sizeof(double_t));
+#else
+        do {
+            uint_t i;
+            for (i = 0; i < k; i++) {
+                neighbours     [i] = 0;
+                neighbours_dist[i] = 0.0;
+            }
+        } while (0);
+#endif /* #ifndef __AUTOESL__ */
         
         index_t vector2;
         for (vector2 = start_index; vector2 < num_vectors + start_index && !removed; vector2++) {
@@ -457,11 +481,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                  */
                 if (found >= k && score < cutoff) {
                     removed = true;
-#ifdef STATS
-                    const UNUSED uint_t old_num_pruned = num_pruned;
-                    num_pruned++;
-                    ASSERT(num_pruned > old_num_pruned);
-#endif /* #ifdef STATS */
+                    STATS_INCREMENT_NUM_PRUNED();
                     break;
                 }
             }
