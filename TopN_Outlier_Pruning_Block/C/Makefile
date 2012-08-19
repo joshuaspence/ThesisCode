@@ -1,5 +1,14 @@
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                                MAKE OPTIONS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+.SUFFIXES:
+.DEFAULT: release
+release:
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                                FIND MATLAB                                   #
 #                                                                              #
 #------------------------------------------------------------------------------#
@@ -11,11 +20,11 @@ MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 #                                                                              #
 #------------------------------------------------------------------------------#
 
+# $(call pretty,STRING)
 # Remove duplicate whitespace from a string. Removes the following:
 #     - Repeated whitespace
 #     - Leading whitespace
 #     - Trailing whitespace
-# $(call pretty,STRING)
 define pretty
 $(shell echo -n "$1" | sed \
 -e 's/\s\s\+/ /' \
@@ -38,11 +47,33 @@ endef
 
 # $(call target-template,TARGET)
 define target-template
-$(1).$(MEXEXT): $(SOURCES) $(DEPS)
+$(1).$(MEXEXT): $(SOURCES)
 	-@echo "Compiling: $$@"
-	$$(call pretty,$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$(filter %.c,$$^))
+	$$(call pretty,$$(MXX) CFLAGS='$$(CFLAGS) $$($(1)_FLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_FLAGS)' LDFLAGS='$$(LDFLAGS)' $$(MXXFLAGS) -o $$@ $$^)
 	-@echo
 endef
+
+# $(call parse-mex-options,OPTION_NAME)
+# Parse options from the mex compiler.
+define parse-mex-options
+$(shell $(MXX) -v 2>/dev/null | sed -n 's/\s*$1\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+endef
+
+# $(call remove-flag,FLAGS,FLAG)
+# Remove a flag from a CFLAG-style string.
+define remove-flag
+$(shell echo -n $1 | sed 's/-$2\s\+//')
+endef
+
+# $(call try-architecture,ARCH)
+# Test an architecture and see if MATLAB complains.
+define try-architecture
+$(shell yes 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
+endef
+
+# $(call discover-architecture)
+# Discover the system architecture to use for MATLAB.
+discover-architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),)))
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -56,16 +87,6 @@ endef
 
 ALL_ARCH := -glnx86 -glnxa64 -mac -maci -maci64 -sol2 -sol64
 ARCH := $(call discover-architecture)
-
-# Test an architecture and see if MATLAB complains
-# $(call try-architecture,ARCH)
-define try-architecture
-$(shell yes 'n' | $(MATLAB_DIR)/bin/matlab $1 -e 2>/dev/null | egrep -q 'No MATLAB bin directory for this machine architecture|Unsupported version' || echo 0)
-endef
-
-# Discover the system architecture to use for MATLAB
-# $(call discover-architecture)
-discover-architecture := $(if $(call try-architecture,),,$(foreach arch,$(ALL_ARCH),$(if $(call try-architecture,$(arch)),$(arch),)))
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -130,18 +151,6 @@ MAKEDEPEND       := makedepend
 MAKEDEPEND_FLAGS := -Y
 MAKEDEPEND_TOKEN := '\# MAKEDEPENDS'
 
-# Parse options from the mex compiler
-# $(call parse-mex-options,OPTION_NAME)
-define parse-mex-options
-$(shell $(MXX) -v 2>/dev/null | sed -n 's/\s*$1\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
-endef
-
-# Remove a flag from a CFLAG-style string.
-# $(call remove-flag,FLAGS,FLAG)
-define remove-flag
-$(shell echo -n $1 | sed 's/-$2\s\+//')
-endef
-
 # Default flags (these will be overridden)
 CFLAGS   := $(call parse-mex-options,CFLAGS)
 CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
@@ -175,16 +184,12 @@ LDFLAGS_OPT  := -O3
 #                              DEPENDENCY RULES                                #
 #                                                                              #
 #------------------------------------------------------------------------------#
-.SUFFIXES:
-.DEFAULT: release
-
 TARGETS    := TopN_Outlier_Pruning_Block_C_SORTED \
               TopN_Outlier_Pruning_Block_C_UNSORTED \
               TopN_Outlier_Pruning_Block_C_NO_BLOCKING
-FILES      := top_n_outlier_pruning_block matlab_wrapper stats
-        
+SOURCES    := top_n_outlier_pruning_block.c matlab_wrapper.c stats.c
+
 MEXTARGETS := $(foreach t,$(TARGETS),$(addsuffix .$(MEXEXT),$t))
-SOURCES    := $(foreach f,$(FILES),$(addsuffix .c,$f))
 DEPS       := $(foreach s,$(SOURCES),$(addsuffix .d,$s))
 
 TopN_Outlier_Pruning_Block_C_SORTED_FLAGS      := -DSORTED_INSERT

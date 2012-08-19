@@ -4,6 +4,15 @@
 lint_t calls_counter = 0;
 uint_t num_pruned    = 0;
 
+/*
+ * Retrieve statstics rdescribing the profile execution.
+ *
+ * Parameters:
+ *     - counter: Stores the number of ties that the distance_squared function
+ *           was called.
+ *     - prune_count: Calculates the number of vectors that were pruned by this
+ *           algorithm.
+ */
 void get_stats(lint_t * const counter, uint_t * const prune_count) {
     ASSERT_NOT_NULL(counter);
     ASSERT_NOT_NULL(prune_count);

@@ -11,33 +11,35 @@
 /*============================================================================*/
 /* General purpose utility macros                                             */
 /*============================================================================*/
-#define MIN(X,Y)                ((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y)                ((X) > (Y) ? (X) : (Y))
+#define MIN(X,Y)                    ((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y)                    ((X) > (Y) ? (X) : (Y))
 
 /* An empty statement to force the use of a semicolon. */
-#define EMPTY_STATEMENT()       do {} while (0)
+#define EMPTY_STATEMENT()           do {} while (0)
 
+/* Create an assertion. */
 #ifndef ASSERT
-    #define ASSERT(x) \
-        assert(x)
+    #define ASSERT(x)               assert(x)
 #endif /* #ifndef ASSERT */
 
+/* 
+ * Assert that a variable is not null. Note that we cannot compare pointers in
+ * AutoESL.
+ */
 #ifndef ASSERT_NOT_NULL
     #ifdef __AUTOESL__
-        #define ASSERT_NOT_NULL(p) \
-            ASSERT(p != NULL)
+        #define ASSERT_NOT_NULL(p)  ASSERT(p != NULL)
     #else
-        #define ASSERT_NOT_NULL(p) \
-        	EMPTY_STATEMENT()
+        #define ASSERT_NOT_NULL(p)  EMPTY_STATEMENT()
     #endif /* #ifdef __AUTOESL__ */
 #endif /* #ifndef ASSERT_NOT_NULL */
 
 /* Declare an unused variable. */
 #ifndef UNUSED
     #if defined(__GNUC__)
-        #define UNUSED          __attribute__((unused))
+        #define UNUSED              __attribute__((unused))
     #elif defined(__LCLINT__)
-        #define UNUSED          /*@unused@*/
+        #define UNUSED              /*@unused@*/
     #else
         #define UNUSED
     #endif /* #if defined(__GNUC__) */

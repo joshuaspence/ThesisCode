@@ -4,8 +4,8 @@
 #include <string.h> /* for memset */
 #include "utility.h" /* for double_t, index_t */
 #include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY */
-#include "stats.h"
-#include "top_n_outlier_pruning_block.h"
+#include "stats.h" /* for get_stats */
+#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
 
 /* Input and output arguments. */
 #define DATA_IN             prhs[0]
@@ -15,17 +15,32 @@
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
 
-/* Forward declarations */
-void save_variables_to_file(
-   const size_t num_vectors,
-   const size_t vector_dims,
-   const double_t (* const data)[num_vectors][vector_dims],
-   const size_t k,
-   const size_t N,
-   const size_t default_block_size,
-   index_t (* const outliers)[N],
-   double_t (* const outlier_scores)[N]
-   );
+/*
+ * Save the input and output parameters of the top_n_outlier_pruning_block 
+ * function to a binary file.
+ */
+void save_variables_to_file(const size_t num_vectors,
+                            const size_t vector_dims,
+                            const double_t (* const data)[num_vectors][vector_dims],
+                            const size_t k,
+                            const size_t N,
+                            const size_t default_block_size,
+                            index_t (* const outliers)[N],
+                            double_t (* const outlier_scores)[N]) {
+    FILE * fp;
+    fp = fopen("vars.dat", "wb");
+    
+    fwrite(       &num_vectors,   sizeof(size_t),                         1, fp); /* num_vectors */
+    fwrite(       &vector_dims,   sizeof(size_t),                         1, fp); /* vector_dims */
+    fwrite(               data, sizeof(double_t), num_vectors * vector_dims, fp); /* data */
+    fwrite(                 &k,   sizeof(size_t),                         1, fp); /* k */
+    fwrite(                 &N,   sizeof(size_t),                         1, fp); /* N */
+    fwrite(&default_block_size,   sizeof(size_t),                         1, fp); /* default_block_size */
+    fwrite(           outliers,  sizeof(index_t),                         N, fp); /* outliers */
+    fwrite(     outlier_scores, sizeof(double_t),                         N, fp); /* outlier_scores */
+    
+    fclose(fp);
+}
 
 /*
  * Gateway function
@@ -153,31 +168,4 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     mexPrintf("Calls to distance function = %llu\n", num_calls);
     mexPrintf("Number of pruned vectors = %u\n", num_pruned);
 #endif /* #ifdef STATS */
-}
-
-/*
- * Save the input and output parameters of the top_n_outlier_pruning_block 
- * function to a binary file.
- */
-void save_variables_to_file(const size_t num_vectors,
-                            const size_t vector_dims,
-                            const double_t (* const data)[num_vectors][vector_dims],
-                            const size_t k,
-                            const size_t N,
-                            const size_t default_block_size,
-                            index_t (* const outliers)[N],
-                            double_t (* const outlier_scores)[N]) {
-    FILE * fp;
-    fp = fopen("vars.dat", "wb");
-    
-    fwrite(       &num_vectors,   sizeof(size_t),                         1, fp); /* num_vectors */
-    fwrite(       &vector_dims,   sizeof(size_t),                         1, fp); /* vector_dims */
-    fwrite(               data, sizeof(double_t), num_vectors * vector_dims, fp); /* data */
-    fwrite(                 &k,   sizeof(size_t),                         1, fp); /* k */
-    fwrite(                 &N,   sizeof(size_t),                         1, fp); /* N */
-    fwrite(&default_block_size,   sizeof(size_t),                         1, fp); /* default_block_size */
-    fwrite(           outliers,  sizeof(index_t),                         N, fp); /* outliers */
-    fwrite(     outlier_scores, sizeof(double_t),                         N, fp); /* outlier_scores */
-    
-    fclose(fp);
 }
