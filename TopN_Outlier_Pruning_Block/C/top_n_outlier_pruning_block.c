@@ -1,7 +1,7 @@
 /******************************************************************************/
 /* Includes                                                                   */
 /******************************************************************************/
-#include <float.h> /* for DBL_MAX */
+#include <float.h> /* for DBL_MIN */
 #include <string.h> /* for memset, memcpy */
 #include "utility.h"
 #include "top_n_outlier_pruning_block.h"
@@ -152,15 +152,15 @@ static inline double_t insert(const size_t k,
     }
 #elif defined(UNSORTED_INSERT)
     if (*found < k) {
-        insert_index  = *found + 1;
+        insert_index  = *found;
         removed_value = 0;
     } else {
         int_t    max_index = -1;
-        double_t max_value = DBL_MAX;
+        double_t max_value = DBL_MIN;
     
         int_t i;
         for (i = k-1; i >= 0; i--) {
-            if (max_index <= 0 || (*outlier_scores)[i] > max_value) {
+            if (max_index < 0 || (*outlier_scores)[i] > max_value) {
                 max_index = i;
                 max_value = (*outlier_scores)[i];
             }
@@ -170,7 +170,7 @@ static inline double_t insert(const size_t k,
             insert_index  = max_index;
             removed_value = max_value;
         }
-    }
+    }   
 #endif /* #if defined(SORTED_INSERT) */
     
     /*

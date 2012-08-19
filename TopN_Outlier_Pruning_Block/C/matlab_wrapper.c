@@ -3,7 +3,7 @@
 #include <stdlib.h> /* for size_t */
 #include <string.h> /* for memset */
 #include "utility.h" /* for double_t, index_t */
-#include "matlab.h"
+#include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY */
 #include "stats.h"
 #include "top_n_outlier_pruning_block.h"
 
