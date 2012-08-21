@@ -1,115 +1,224 @@
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                                MAKE OPTIONS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+ALL_TARGETS :=
+
+.SUFFIXES:
+.DEFAULT: release
+release:
+
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                                FIND MATLAB                                   #
 #                                                                              #
 #------------------------------------------------------------------------------#
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
+ARCH       := $(shell matlab -e 2>/dev/null | sed -n 's/ARCH=\(.\+\)/\1/p')
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                              COMPILER FLAGS                                  #
+#                              UTILITY MACROS                                  #
 #                                                                              #
-# CPPONLY flag removes mex-portions (includes and MEX iterface function) to    #
-# allow C++ independent testing                                                #
 #------------------------------------------------------------------------------#
-# --- RELEASE --- #
-CXXFLAGS = -O2 -Wall -fmessage-length=0 -D CPPONLY
-# --- DEBUG   --- #
-# CXXFLAGS = -j2 -O2 -Wall -fmessage-length=0 -D CPPONLY -D DEBUG
+
+# $(call parse-mex-options,OPTION_NAME)
+# Parse options from the mex compiler.
+define parse-mex-options
+$(shell $(MXX) -v 2>/dev/null | sed -n 's/\s*$1\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p')
+endef
+
+# $(call pretty,STRING)
+# Remove duplicate whitespace from a string. Removes the following:
+#     - Repeated whitespace
+#     - Leading whitespace
+#     - Trailing whitespace
+define pretty
+$(shell echo -n "$1" | sed \
+-e 's/\s\s\+/ /' \
+-e 's/^\s\+//' \
+-e 's/\s\+$$//'
+)
+endef
+
+# $(call remove-flag,FLAGS,FLAG)
+# Remove a flag from a CFLAG-style string.
+define remove-flag
+$(shell echo -n $1 | sed 's/-$2\s\+//')
+endef
+
+#-------------------------------------------------------------------------------
+
+# $(call target-template,TARGET)
+define target-template
+ALL_TARGETS += $(1).$$(MEXEXT)
+
+$(1).cpp: $$(HEADERS)
+
+$(1).$$(MEXEXT): $(1).cpp
+	-@echo "Compiling: $$@"
+	$$(call pretty,$$(MXX) $$(MXXFLAGS) CFLAGS='$$(CFLAGS)' CXXFLAGS='$$(CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
+	-@echo
+endef
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                            ARCHITECTURE VARIABLES                            #
 #                                                                              #
-# add these to your user profile in order to specify your own.                 #
 #------------------------------------------------------------------------------#
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
-		MXX      := $(MATLAB_DIR)/bin/mex
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
-		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
+		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
-		MXX      := $(MATLAB_DIR)/bin/mex
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext) 
-		MXXFLAGS += -I$(MATLAB_DIR)/extern/include
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
+		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 else
-	MEXEXT := $(shell MEXEXT) 
+	MEXEXT := $(shell MEXEXT)
 endif
 
-#------------------------------------------------------------------------------#
-#                                                                              #
-#                              OTHER VARIABLES                                 #
-#                                                                              #
-#------------------------------------------------------------------------------#
-ARCHIVENAME = kdtree
+ifeq ($(ARCH),glnx86)
+	MEXEXT    := mexglx
+	ARCH_TYPE := x86
+endif
+ifeq ($(ARCH),glnxa64)
+	MEXEXT    := mexa64
+	ARCH_TYPE := x64
+endif
+ifeq ($(ARCH),mac)
+	MEXEXT    := mexmac
+	ARCH_TYPE := x86
+endif
+ifeq ($(ARCH),maci)
+	MEXEXT    := mexmaci
+	ARCH_TYPE := x86
+endif
+ifeq ($(ARCH),maci64)
+	MEXEXT    := mexmaci64
+	ARCH_TYPE := x64
+endif
+ifeq ($(ARCH),sol2)
+	MEXEXT    := mexsol
+	ARCH_TYPE := x86
+endif
+ifeq ($(ARCH),sol64)
+	MEXEXT    := mexs64
+	ARCH_TYPE := x64
+endif
+ifeq ($(ARCH),win64)
+	MEXEXT    := mexw64
+	ARCH_TYPE := x64
+endif
+ifeq ($(ARCH),win32)
+	MEXEXT    := mexw32
+	ARCH_TYPE := x86
+endif
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                              DEPENDENCY RULES                                # 
+#                              COMPILER FLAGS                                  #
 #                                                                              #
-# USAGE OF RELEASE AND DEBUG MODE                                              #
-# to compile a release file (without debug hooks and more efficient) just type #
-# make. On the other hand, to enable debugging portions of the code (output)   #
-# and add debugging links to the binary (needed for line by line execution)    #
-# use :make debug"                                                             #
-#                                                                              #
-# EXPLANATION OF A RULE                                                        #
-# anything (%) that terminates in .bin for which an explicit rule is not       #  
-# available is made dependable on the file which has same name but .cpp        #
-# extension. The compiler (CXX) with options (CXXFLAGS) is called on each of   #
-# the elements that trigger the rule ($@, which is left side of ":") and       #
-# produces an output with filename expressed by the "first" of elements from   #
-# which it depends ($< or right side of ":")                                   #
 #------------------------------------------------------------------------------#
-HDRS = KDTree.h MyHeaps.h
-TARGET =  kdtree_build kdtree_delete kdtree_nearest_neighbor kdtree_range_query \
-		  kdtree_ball_query kdtree_k_nearest_neighbors
-BINTARGET = $(TARGET:%=%.bin)
-MEXTARGET = $(TARGET:%=%.$(MEXEXT))
-### MANUALLY REDUCED TARGETS
-# TARGET = kdtree_build
-# MEXTARGET = kdtree_build.$(MEXEXT)
 
-all: $(BINTARGET) $(MEXTARGET)
+# Default flags (these will be overridden)
+CFLAGS   := $(call parse-mex-options,CFLAGS)
+CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
+LDFLAGS  := $(call parse-mex-options,LDFLAGS)
 
-debug: CXXFLAGS += -D DEBUG -g
-debug: all
+# Remove 'ANSI standard' flags
+CFLAGS   := $(call remove-flag,$(CFLAGS),ansi)
+CXXFLAGS := $(call remove-flag,$(CXXFLAGS),ansi)
 
-%.bin : %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $<
+# Additional flags
+CFLAGS   += -std=c99 -pedantic -fmessage-length=0
+CXXFLAGS += -std=c++0x -pedantic -fmessage-length=0
+MXXFLAGS +=
+LDFLAGS  +=
 
-%.$(MEXEXT) : %.cpp
-	$(MXX) $(MXXFLAGS) -o $@ $<
+# Architecture specific
+ifeq ($(ARCH_TYPE), x86)
+CFLAGS   +=
+CXXFLAGS +=
+MXXFLAGS += -compatibleArrayDims
+LDFLAGS  +=
+endif
+ifeq ($(ARCH_TYPE), x64)
+CFLAGS   +=
+CXXFLAGS +=
+MXXFLAGS += -largeArrayDims
+LDFLAGS  +=
+endif
 
+# Debug flags
+CFLAGS_DEBUG   := -g -O0
+CXXFLAGS_DEBUG := -g -O0
+MXXFLAGS_DEBUG := -DDEBUG
+LDFLAGS_DEBUG  := -g
+
+# Optimization flags
+CFLAGS_OPT   := -O3
+CXXFLAGS_OPT := -O3
+MXXFLAGS_OPT := -O -DNDEBUG
+LDFLAGS_OPT  := -O3
+
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                              DEPENDENCY RULES                                #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
+HEADERS     := KDTree.h MyHeaps.h
+TARGETS     := kdtree_build \
+               kdtree_delete kdtree_nearest_neighbor \
+               kdtree_range_query \
+               kdtree_ball_query \
+               kdtree_k_nearest_neighbors
+$(foreach TARGET,$(TARGETS),$(eval $(call target-template,$(TARGET))))
+
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                                  TARGETS                                     #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
+# Release build
+release: CFLAGS   += $(CFLAGS_OPT)
+release: CXXFLAGS += $(CXXFLAGS_OPT)
+release: MXXFLAGS += $(MXXFLAGS_OPT)
+release: LDFLAGS  += $(LDFLAGS_OPT)
+release: all
+
+# Debug build
+debug:   CFLAGS   += $(CFLAGS_DEBUG)
+debug:   CXXFLAGS += $(CXXFLAGS_DEBUG)
+debug:   MXXFLAGS += $(MXXFLAGS_DEBUG)
+debug:   LDFLAGS  += $(LDFLAGS_DEBUG)
+debug:   all
+
+.PHONY: all
+all: $(ALL_TARGETS)
+	-@echo "Done."
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                               CLEAN TARGETS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+.PHONY: clean
 clean:
-	@rm -f $(OBJS) $(BINTARGET) $(MEXTARGET)
-	@rm -rf  *.dSYM
-	@rm -rf *.bin
-	@echo "clean completed"
+	-@echo "Cleaning..."
+	$(call pretty,rm -f $(ALL_TARGETS))
+	-@echo "Clean completed."
 
+.PHONY: distclean
 distclean: clean
-	
-#------------------------------------------------------------------------------#
-#                                                                              #
-#                   CREATE A DISTRIBUTION IN A ZIP FILE                        #
-#                                                                              #
-# move resources to a kdtree folder, tar them, then remove the temp directory  # 
-# and its content completely                                                   #
-#------------------------------------------------------------------------------#
-dist:   
-	rm -rf $(ARCHIVENAME)
-	mkdir $(ARCHIVENAME)
-	cp *.mexmaci $(ARCHIVENAME)
-	cp *.m $(ARCHIVENAME)
-	cp -L *.h $(ARCHIVENAME) #follow symlinks
-	cp *.cpp $(ARCHIVENAME)
-	cp CHANGES $(ARCHIVENAME)
-	cp TODO $(ARCHIVENAME)
-	cp README $(ARCHIVENAME)
-	cp Makefile $(ARCHIVENAME)
-	#tar -cvf $(ARCHIVENAME).tar.gz $(ARCHIVENAME)
-	zip -r -v ${ARCHIVENAME}.zip ${ARCHIVENAME}
-	rm -rf $(ARCHIVENAME)
-	echo $(VAR)

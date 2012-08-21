@@ -140,7 +140,6 @@ endif
 # Default flags (these will be overridden)
 CFLAGS   := $(call parse-mex-options,CFLAGS)
 CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
-MXXFLAGS :=
 LDFLAGS  := $(call parse-mex-options,LDFLAGS)
 
 # Remove 'ANSI standard' flags
