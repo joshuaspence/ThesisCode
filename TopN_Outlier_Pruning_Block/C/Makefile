@@ -140,7 +140,6 @@ endif
 # Default flags (these will be overridden)
 CFLAGS   := $(call parse-mex-options,CFLAGS)
 CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
-MXXFLAGS :=
 LDFLAGS  := $(call parse-mex-options,LDFLAGS)
 
 # Remove 'ANSI standard' flags
@@ -157,7 +156,7 @@ LDFLAGS  +=
 ifeq ($(ARCH_TYPE), x86)
 CFLAGS   +=
 CXXFLAGS +=
-MXXFLAGS +=
+MXXFLAGS += -compatibleArrayDims
 LDFLAGS  +=
 endif
 ifeq ($(ARCH_TYPE), x64)
@@ -178,6 +177,7 @@ CFLAGS_OPT   := -O3
 CXXFLAGS_OPT := -O3
 MXXFLAGS_OPT := -O -DNDEBUG
 LDFLAGS_OPT  := -O3
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -208,6 +208,7 @@ TopN_Outlier_Pruning_Block_C_NO_BLOCKING_SOURCES  := $(COMMON_SOURCES)
 
 # Compile the MEX functions
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -246,9 +247,6 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	-@echo "Cleaning..."
-	$(call pretty,rm -f *.$(MEXEXT))
-	-@echo "Clean completed."
 
 
 #------------------------------------------------------------------------------#
