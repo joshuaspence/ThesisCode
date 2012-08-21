@@ -167,7 +167,7 @@ LDFLAGS_OPT  := -O3
 
 SOURCE_DIR := Source
 OUTPUT_DIR := MATLAB
-MXXFLAGS   += -D__MEX__ -IInclude
+MXXFLAGS   += -IInclude
 ALL_TARGETS :=
 
 # $(call target-template,TARGET)
