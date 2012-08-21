@@ -3,7 +3,7 @@
 % directory.
 %==========================================================================
 
-function [] = save_profile(output_dir)
+function save_profile(output_dir)
     % NOTE: This throws an error for some reason (hence the try/catch).
     fprintf('Saving profiler data to "%s".\n', output_dir);
     try
