@@ -1,4 +1,4 @@
-% Commute distances from knn graph derived from data.
+    % Commute distances from knn graph derived from data.
 %
 % USAGE
 %   commute_distance_anomaly_profiling dataset randomness func_name base_dir block_sizes
