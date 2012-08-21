@@ -149,7 +149,7 @@ CXXFLAGS := $(call remove-flag,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   += -std=c99 -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -pedantic -fmessage-length=0
-MXXFLAGS += -largeArrayDims
+MXXFLAGS +=
 LDFLAGS  +=
 
 # Architecture specific
@@ -197,14 +197,14 @@ $(foreach TARGET,$(MATLAB_TARGETS),$(eval $(call matlab-target-template,$(TARGET
 SOLVER_COMMON := vpv vmv vpvmv vvmul rmvec ldl_solve spmv sspmv preconditioner
 
 mx_s_preconditioner_TARGET   := $(OUTPUT_DIR)/Solver/mx_s_preconditioner.$(MEXEXT)
-mx_s_preconditioner_SOURCES  := $(foreach file,$(SOLVER_COMMON),$(SOURCE_DIR)/Solver/$(file).c)
-mx_s_preconditioner_CFLAGS   :=
-mx_s_preconditioner_CXXFLAGS :=
+mx_s_preconditioner_SOURCES  := $(OUTPUT_DIR)/Solver/mx_s_preconditioner.c $(foreach file,$(SOLVER_COMMON),$(SOURCE_DIR)/Solver/$(file).c)
+mx_s_preconditioner_CFLAGS   := -DSINGLE_PR
+mx_s_preconditioner_CXXFLAGS := -DSINGLE_PR
 mx_s_preconditioner_MXXFLAGS := -DSINGLE_PR
 $(eval $(call target-template,mx_s_preconditioner))
 
 mx_d_preconditioner_TARGET   := $(OUTPUT_DIR)/Solver/mx_d_preconditioner.$(MEXEXT)
-mx_d_preconditioner_SOURCES  := $(foreach file,$(SOLVER_COMMON),$(SOURCE_DIR)/Solver/$(file).c)
+mx_d_preconditioner_SOURCES  := $(OUTPUT_DIR)/Solver/mx_d_preconditioner.c  $(foreach file,$(SOLVER_COMMON),$(SOURCE_DIR)/Solver/$(file).c)
 mx_d_preconditioner_CFLAGS   :=
 mx_d_preconditioner_CXXFLAGS :=
 mx_d_preconditioner_MXXFLAGS :=

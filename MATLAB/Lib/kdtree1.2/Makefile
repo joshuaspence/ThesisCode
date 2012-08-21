@@ -18,6 +18,7 @@ release:
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 ARCH       := $(shell matlab -e 2>/dev/null | sed -n 's/ARCH=\(.\+\)/\1/p')
 
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              UTILITY MACROS                                  #
@@ -158,14 +159,14 @@ LDFLAGS  +=
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := -g -O0
-CXXFLAGS_DEBUG := -g -O0
+CFLAGS_DEBUG   := -g -O0 -DDEBUG
+CXXFLAGS_DEBUG := -g -O0 -DDEBUG
 MXXFLAGS_DEBUG := -DDEBUG
 LDFLAGS_DEBUG  := -g
 
 # Optimization flags
-CFLAGS_OPT   := -O3
-CXXFLAGS_OPT := -O3
+CFLAGS_OPT   := -O3 -DNDEBUG
+CXXFLAGS_OPT := -O3 -DNDEBUG
 MXXFLAGS_OPT := -O -DNDEBUG
 LDFLAGS_OPT  := -O3
 
