@@ -12,3 +12,6 @@
 # Make outputs
 *.bak
 *.d
+
+# GCC outputs
+*.bin

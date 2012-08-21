@@ -65,9 +65,14 @@ endef
 
 # $(eval $(call target-template,TARGET))
 define target-template
-ALL_TARGETS += $(1).$$(MEXEXT)
+ALL_TARGETS += $(1).bin
+$(1).bin: $$(COMMON_SOURCES) $$(BINARY_SOURCES)
+	-@echo "Compiling: $$@"
+	$$(call pretty,gcc $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	-@echo
 
-$(1).$$(MEXEXT): $$($(1)_SOURCES)
+ALL_TARGETS += $(1).$$(MEXEXT)
+$(1).$$(MEXEXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(MXX) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	-@echo
@@ -167,14 +172,14 @@ LDFLAGS  +=
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := -g -O0
-CXXFLAGS_DEBUG := -g -O0
+CFLAGS_DEBUG   := -g -O0 -DDEBUG -DSTATS
+CXXFLAGS_DEBUG := -g -O0 -DDEBUG -DSTATS
 MXXFLAGS_DEBUG := -DDEBUG -DSTATS
 LDFLAGS_DEBUG  := -g
 
 # Optimization flags
-CFLAGS_OPT   := -O3
-CXXFLAGS_OPT := -O3
+CFLAGS_OPT   := -O3 -DNDEBUG
+CXXFLAGS_OPT := -O3 -DNDEBUG
 MXXFLAGS_OPT := -O -DNDEBUG
 LDFLAGS_OPT  := -O3
 
@@ -189,22 +194,21 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-COMMON_SOURCES := top_n_outlier_pruning_block.c matlab_wrapper.c stats.c
+COMMON_SOURCES := top_n_outlier_pruning_block.c stats.c
+MATLAB_SOURCES := matlab_wrapper.c
+BINARY_SOURCES := wrapper.c
 
-TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        :=
-TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      :=
+TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := -DSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_SORTED_SOURCES       := $(COMMON_SOURCES)
 
-TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      :=
-TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    :=
+TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := -DUNSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := -DUNSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_UNSORTED_SOURCES     := $(COMMON_SOURCES)
 
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   :=
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS :=
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := -DNO_BLOCKING -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_SOURCES  := $(COMMON_SOURCES)
 
 # Compile the MEX functions
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))
