@@ -1,5 +1,5 @@
 /* Includes */
-#include <mex.h>
+#include <mex.h> /* for mexPrintf */
 #include <stdlib.h> /* for size_t */
 #include <string.h> /* for memset */
 #include "utility.h" /* for double_t, index_t */
@@ -15,31 +15,106 @@
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
 
+#define SUCCESS             (0)
+#define FILE_NOT_FOUND      (1)
+#define FILE_IO_ERROR       (2)
+
 /*
  * Save the input and output parameters of the top_n_outlier_pruning_block 
  * function to a binary file.
  */
-void save_variables_to_file(const size_t num_vectors,
-                            const size_t vector_dims,
-                            const double_t (* const data)[num_vectors][vector_dims],
-                            const size_t k,
-                            const size_t N,
-                            const size_t default_block_size,
-                            index_t (* const outliers)[N],
-                            double_t (* const outlier_scores)[N]) {
-    FILE * fp;
-    fp = fopen("vars.dat", "wb");
+int save_variables_to_file(const char * const filename,
+                           const size_t * const num_vectors,
+                           const size_t * const vector_dims,
+                           const double_t (* const data)[*num_vectors][*vector_dims],
+                           const size_t * const k,
+                           const size_t * const N,
+                           const size_t * const block_size,
+                           index_t (* const outliers)[*N],
+                           double_t (* const outlier_scores)[*N]) {
+    if (filename == NULL) {
+        mexErrMsgTxt("No filename specified.\n");
+        return FILE_NOT_FOUND;
+    }
+    FILE * const fp = fopen(filename, "wb");
+    if (fp == NULL) {
+        mexErrMsgTxt("Error opening file.");
+        return FILE_NOT_FOUND;
+    }
     
-    fwrite(       &num_vectors,   sizeof(size_t),                         1, fp); /* num_vectors */
-    fwrite(       &vector_dims,   sizeof(size_t),                         1, fp); /* vector_dims */
-    fwrite(               data, sizeof(double_t), num_vectors * vector_dims, fp); /* data */
-    fwrite(                 &k,   sizeof(size_t),                         1, fp); /* k */
-    fwrite(                 &N,   sizeof(size_t),                         1, fp); /* N */
-    fwrite(&default_block_size,   sizeof(size_t),                         1, fp); /* default_block_size */
-    fwrite(           outliers,  sizeof(index_t),                         N, fp); /* outliers */
-    fwrite(     outlier_scores, sizeof(double_t),                         N, fp); /* outlier_scores */
+    size_t size;
+    size_t count;
     
-    fclose(fp);
+    /* num_vectors */
+    size = sizeof(size_t);
+    count = 1;
+    if (fwrite(num_vectors, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing num_vectors to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* vector_dims */
+    size = sizeof(size_t);
+    count = 1;
+    if (fwrite(vector_dims, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing vector_dims to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* data */
+    size = sizeof(double_t);
+    count = *num_vectors * *vector_dims;
+    if (fwrite(data, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing data to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* k */
+    size = sizeof(size_t);
+    count = 1;
+    if (fwrite(k, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing k to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* N */
+    size = sizeof(size_t);
+    count = 1;
+    if (fwrite(N, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing N to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* block_size */
+    size = sizeof(size_t);
+    count = 1;
+    if (fwrite(block_size, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing block_size to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* outliers */
+    size = sizeof(index_t);
+    count = *N;
+    if (fwrite(outliers, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing outliers to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    /* outlier_scores */
+    size = sizeof(double_t);
+    count = *N;
+    if (fwrite(outlier_scores, size, count, fp) != count) {
+        mexErrMsgTxt("Error writing outlier_scores to file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    if (fclose(fp) != 0) {
+        mexErrMsgTxt("Error closing file.\n");
+        return FILE_IO_ERROR;
+    }
+    
+    return SUCCESS;
 }
 
 /*
@@ -113,7 +188,6 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
     double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
-    
     if (data_in == NULL)
         mexErrMsgTxt("Unable to allocate memory for data array.");
 
@@ -135,7 +209,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Save input and output parameters. */
-    save_variables_to_file(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
+    save_variables_to_file("vars.dat", &num_vectors, &vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
     
     /* Free dynamic memory. */
     if (data_in != NULL)
