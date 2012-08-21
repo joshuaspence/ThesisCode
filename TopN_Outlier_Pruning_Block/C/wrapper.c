@@ -223,4 +223,6 @@ int main(int argc, char * argv[]) {
     printf("\nCalls to distance function = %llu\n", num_calls);
     printf("Number of pruned vectors = %u\n", num_pruned);
 #endif /* #ifdef STATS */
+
+    return SUCCESS;
 }
