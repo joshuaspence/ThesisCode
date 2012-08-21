@@ -1,1 +1,0 @@
- -p spartan6 -lang vhdl$(PROJECT_SEARCHPATHOPT) $(GLOBAL_SEARCHPATHOPT) -msg __xps/ise/xmsgprops.lst -s isim -X C:/AutoESL/Examples/AXI_Lite_Interface_base/EDK/
