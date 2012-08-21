@@ -6,19 +6,17 @@
 
 clean_matlab() {
     echo "Cleaning..."
-    rm --force --verbose graph.{mat,txt} output.{csv,png} random.{mat,txt} TopN_Outlier_Pruning_Block.{mat,txt} vars.dat top_n_outlier_pruning_block.log
+    rm --force --verbose graph.{mat,txt} output.{csv,png} random.{mat,txt} TopN_Outlier_Pruning_Block.{mat,txt} vars.dat
 }
 
 clean_profiling() {
     echo "Cleaning profiling data..."
-    rm --force --verbose josh_profile{,.*}.log josh_profile_block_size{,.*}.log top_n_outlier_pruning_block.log
-    rm --force --verbose --recursive Profiling{,.*}/
+    rm --force --verbose --recursive Profiling/
 }
 
 clean_testing() {
     echo "Cleaning testing files..."
-    rm --force --verbose josh_test.log josh_test.*.log top_n_outlier_pruning_block.log
-    rm --force --verbose --recursive test/ test.*/
+    rm --force --verbose --recursive Testing/
 }
 #-------------------------------------------------------------------------------
 
