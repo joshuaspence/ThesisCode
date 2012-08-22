@@ -1,5 +1,5 @@
 /*
- * This header files checks for invalid combinations of preprocessor macros. It 
+ * This header files checks for invalid combinations of preprocessor macros. It
  * also ensure that require preprocessor macros have been defined.
  */
  
@@ -11,7 +11,7 @@
 /*============================================================================*/
 #undef _ARCH_SET_
 
-/* __C__ */
+/* __C__ = Stand-alone C program */
 #ifdef __C__
     #ifdef _ARCH_SET_
         #error "Only one architecture should be specified."
@@ -20,7 +20,7 @@
     #endif /* #ifdef _ARCH_SET_ */
 #endif /* #ifdef __C__ */
 
-/* __MEX__ */
+/* __MEX__ = MEX file for MATLAB */
 #ifdef __MEX__
     #ifdef _ARCH_SET_
         #error "Only one architecture should be specified."
@@ -29,6 +29,7 @@
     #endif /* #ifdef _ARCH_SET_ */
 #endif /* #ifdef __MEX__ */
 
+/* __AUTOESL__ = AutoESL project */
 #ifdef __AUTOESL__
     #ifdef _ARCH_SET_
         #error "Only one architecture should be specified."
@@ -56,7 +57,7 @@
     #endif /* #ifdef _INSERT_TYPE_SET_ */
 #endif /* #ifdef SORTED_INSERT */
 
-/* SORTED_INSERT */
+/* UNSORTED_INSERT */
 #ifdef UNSORTED_INSERT
     #ifdef _INSERT_TYPE_SET_
         #error "Only one insert type should be specified."

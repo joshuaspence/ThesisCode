@@ -3,13 +3,16 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
-#include "stats.h" /* for algorithm statistics */
-#include "utility.h"
+#include "stats.h" /* for algorithm statistics - STATS_INCREMENT_CALLS_COUNTER */
+#include "top_n_outlier_pruning_block.h"
+#include "utility.h" /* for double_t, index_t, uint_t, ASSERT, ASSERT_NOT_NULL, int_t, MIN */
 
 #include <float.h> /* for DBL_MIN */
-#include <string.h> /* for memset, memcpy */
+#include <stdlib.h> /* for size_t */
 
-#include "top_n_outlier_pruning_block.h"
+#if _MEMSET_
+    #include <string.h> /* for memset, memcpy */
+#endif /* #if _MEMSET_ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -261,15 +264,35 @@ static inline void best_outliers(const size_t N, size_t * outliers_size,
     double_t new_outlier_scores[N];
     size_t   new_outliers_size = 0;
     
+#if _MEMSET_
     memset(new_outliers,       null_index, N * sizeof(index_t));
     memset(new_outlier_scores,          0, N * sizeof(double_t));
+#else
+    do {
+        uint_t i;
+        for (i = 0; i < N; i++) {
+            new_outliers      [i] = null_index;
+            new_outlier_scores[i] = 0;
+        }
+    } while (0);
+#endif /* #if _MEMSET_ */
     
     /* Merge the two vectors. */
     merge(N, *outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, &new_outliers, &new_outlier_scores);
     
     /* Copy values from temporary vectors to real vectors. */
+#if _MEMSET_
     memcpy(*outliers,       new_outliers,       N * sizeof(index_t));
     memcpy(*outlier_scores, new_outlier_scores, N * sizeof(double_t));
+#else
+    do {
+        uint_t i;
+        for (i = 0; i < N; i++) {
+            outliers      [i] = new_outliers      [i];
+            outlier_scores[i] = new_outlier_scores[i];
+        }
+    } while (0);
+#endif /* #if _MEMSET_ */
     *outliers_size = new_outliers_size;
 }
 
@@ -412,7 +435,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT_NOT_NULL(outlier_scores);
     
     /* Set output to zero. */
-#ifndef __AUTOESL__
+#if _MEMSET_
     memset(*outliers,       null_index, N * sizeof(index_t));
     memset(*outlier_scores,          0, N * sizeof(double_t));
 #else
@@ -423,7 +446,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
             (*outlier_scores)[i] = 0;
         }
     } while (0);
-#endif /* #ifndef __AUTOESL__ */
+#endif /* #if _MEMSET_ */
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
@@ -436,11 +459,11 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         ASSERT(block_size <= default_block_size);
         
-        index_t current_block[block_size];          /* the indexes of the vectors in the current block */
-        index_t neighbours[block_size][k];          /* the "k" nearest neighbours for each vector in the current block */
+        index_t  current_block[block_size];         /* the indexes of the vectors in the current block */
+        index_t  neighbours[block_size][k];         /* the "k" nearest neighbours for each vector in the current block */
         double_t neighbours_dist[block_size][k];    /* the distance of the "k" nearest neighbours for each vector in the current block */
         double_t score[block_size];                 /* the average distance to the "k" neighbours */
-        uint_t found[block_size];                   /* how many nearest neighbours we have found, for each vector in the block */
+        uint_t   found[block_size];                 /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
         do {
@@ -448,7 +471,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
             for (i = 0; i < block_size; i++)
                 current_block[i] = (index_t)((block_begin + i) + start_index);
         } while (0);
-#ifndef __AUTOESL__
+#if _MEMSET_
         memset(&neighbours,      null_index, block_size * k * sizeof(index_t));
         memset(&neighbours_dist,          0, block_size * k * sizeof(double));
         memset(&score,                    0, block_size * sizeof(double));
@@ -459,13 +482,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
             for (i = 0; i < block_size; i++) {
                 for (j = 0; j < k; j++) {
                     neighbours     [i][j] = 0;
-                    neighbours_dist[i][j] = 0.0;
+                    neighbours_dist[i][j] = 0;
                 }
-                score[i] = 0.0;
+                score[i] = 0;
                 found[i] = 0;
             }
         } while (0);
-#endif /* __AUTOESL__ */
+#endif /* #if _MEMSET_ */
         
         index_t vector1;
         for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
@@ -508,7 +531,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         
         /* Keep track of the top "N" outliers. */
         best_outliers(N, &outliers_found, outliers, outlier_scores, block_size, &current_block, &score);
-           
+        
         /*
          * Set "cutoff" to the score of the weakest outlier. There is no need to
          * store an outlier in future iterations if its score is better than the
@@ -519,11 +542,11 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
 #else
     index_t vector1;
     for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
-        index_t neighbours[k];          /* the "k" nearest neighbours for the current vector */
+        index_t  neighbours[k];         /* the "k" nearest neighbours for the current vector */
         double_t neighbours_dist[k];    /* the distance of the "k" nearest neighbours for the current vector */
         double_t score = 0;             /* the average distance to the "k" neighbours */
-        uint_t found = 0;               /* how many nearest neighbours we have found */
-        boolean removed = false;        /* true if vector1 has been pruned */
+        uint_t   found = 0;             /* how many nearest neighbours we have found */
+        boolean  removed = false;       /* true if vector1 has been pruned */
         
 #if _MEMSET_
         memset(neighbours,      null_index, k * sizeof(index_t));
@@ -532,8 +555,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         do {
             uint_t i;
             for (i = 0; i < k; i++) {
-                neighbours     [i] = 0;
-                neighbours_dist[i] = 0.0;
+                neighbours     [i] = null_index;
+                neighbours_dist[i] = 0;
             }
         } while (0);
 #endif /* #ifndef _MEMSET_ */

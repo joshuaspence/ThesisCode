@@ -8,16 +8,6 @@
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
-/*============================================================================*/
-/* Return values                                                              */
-/*============================================================================*/
-#define SUCCESS             (0)
-#define FILE_NOT_FOUND      (1)
-#define FILE_IO_ERROR       (2)
-#define MALLOC_FAILED       (3)
-#define FILE_EXPECTED_EOF   (4)
-/*----------------------------------------------------------------------------*/
-
 int save_vardump(
     const char * const filename,
     const size_t * const num_vectors,

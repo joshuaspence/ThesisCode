@@ -1,15 +1,18 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for double_t, index_t */
-#include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY */
+#include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, COLUMNS, ARRAY_ELEMENT, CREATE_REAL_DOUBLE_VECTOR, VECTOR_ELEMENT, m_double_t */
 #include "stats.h" /* for get_stats */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
+#include "utility.h" /* for double_t, index_t, uint_t, lint_t */
 #include "vardump.h" /* for save_vardump */
 
-#include <mex.h> /* for mexPrintf */
+#include <mex.h> /* for mexPrintf, mexErrMsgTxt */
 #include <stdlib.h> /* for size_t, malloc, free */
-#include <string.h> /* for memset */
+
+#if _MEMSET_
+    #include <string.h> /* for memset */
+#endif /* #if _MEMSET_ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -22,6 +25,11 @@
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
 /*----------------------------------------------------------------------------*/
+
+/* Additional check. */
+#ifndef __MEX__
+    #error "This file should only be included in MEX builds."
+#endif /* #ifndef __MEX__ */
 
 /*
  * Gateway function
@@ -90,7 +98,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     if (ROWS(data) < k)
         mexErrMsgTxt("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
     
-    /* Convert the input to proper format. */
+    /*
+     * Convert the input to proper format for the "top_n_outlier_pruning_block" 
+     * function.
+     */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
     double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
@@ -108,14 +119,26 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Create the output arrays. */
     index_t  outliers_out      [N];
     double_t outlier_scores_out[N];
-    memset(outliers_out,       0, N * sizeof(index_t));
-    memset(outlier_scores_out, 0, N * sizeof(double_t));
+#if _MEMSET_
+    memset(outliers_out,       null_index, N * sizeof(index_t));
+    memset(outlier_scores_out,          0, N * sizeof(double_t));
+#else
+    do {
+        uint_t i;
+        for (i = 0; i < N; i++) {
+            outliers    [i] = 0;
+            outliers_out[i] = 0;
+        }
+    } while (0);
+#endif /* #if _MEMSET */
     
     /* Call the function. */
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
+#ifdef VARDUMP
     /* Save input and output parameters. */
     save_vardump("vars.dat", &num_vectors, &vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
+#endif /* #ifdef VARDUMP */
     
     /* Free dynamic memory. */
     if (data_in != NULL)

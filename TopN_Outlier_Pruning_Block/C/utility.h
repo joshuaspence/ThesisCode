@@ -74,4 +74,14 @@ static const index_t null_index  = 0;
 static const index_t start_index = 1;
 /*----------------------------------------------------------------------------*/
 
+/*============================================================================*/
+/* Return values                                                              */
+/*============================================================================*/
+#define SUCCESS             (0)
+#define FILE_NOT_FOUND      (1)
+#define FILE_IO_ERROR       (2)
+#define MALLOC_FAILED       (3)
+#define FILE_EXPECTED_EOF   (4)
+/*----------------------------------------------------------------------------*/
+
 #endif /* #ifndef UTILITY_H_ */

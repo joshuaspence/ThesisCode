@@ -5,7 +5,7 @@
     /*========================================================================*/
     /* Includes                                                               */
     /*========================================================================*/
-    #include "utility.h" /* for lint_t, uint_t, ASSERT, UNUSED */
+    #include "utility.h" /* for lint_t, uint_t, ASSERT, UNUSED, EMPTY_STATEMENT */
     /*------------------------------------------------------------------------*/
     
     #define STATS_INCREMENT_CALLS_COUNTER() \

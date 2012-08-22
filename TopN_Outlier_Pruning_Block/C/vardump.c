@@ -1,15 +1,62 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for double_t, index_t */
-
-#include <errno.h> /* for errno */
-#include <stddef.h> /* for size_t */
-#include <stdlib.h> /* for size_t, malloc, free */
-#include <stdio.h> /* for fopen, fread, fclose */
-#include <string.h> /* for strerror */
-
+#include "utility.h"
 #include "vardump.h"
+
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* Macros                                                                     */
+/*============================================================================*/
+#define WRITE_VARIABLE(_var_, _size_, _count_, _filename_, _fp_) \
+    do { \
+        const size_t size  = _size_; \
+        const size_t count = _count_; \
+        size_t result; \
+        \
+        if ((result = fwrite(_var_, size, count, _fp_)) != count) { \
+            fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", #_var_, _filename_, (unsigned int) count, (unsigned int) result); \
+            return FILE_IO_ERROR; \
+        } \
+    } while (0)
+
+#define READ_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
+    do { \
+        const size_t size  = _size_; \
+        const size_t count = _count_; \
+        size_t result; \
+        \
+        if ((result = fread(_var_, size, count, _fp_)) != count) { \
+            fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", #_var_, _filename_, (unsigned int) count, (unsigned int) result); \
+            _cleanup_code_ \
+            return FILE_IO_ERROR; \
+        } \
+    } while (0)
+
+#define MALLOC_READ_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
+    do { \
+        const size_t size  = _size_; \
+        const size_t count = _count_; \
+        size_t result; \
+        *_var_ = malloc(count * size); \
+        if (*_var_ == NULL) { \
+            fprintf(stderr, "Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), #_var_); \
+            _cleanup_code_ \
+            return MALLOC_FAILED; \
+        } else { \
+            if ((result = fread(*outlier_scores, size, count, fp)) != count) { \
+                fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n",#_var_, filename, (unsigned int) count, (unsigned int) result); \
+                free(*_var_); \
+                _cleanup_code_ \
+                return FILE_IO_ERROR; \
+            } \
+        } \
+    } while (0);
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -35,73 +82,29 @@ int save_vardump(const char * const filename,
         return FILE_NOT_FOUND;
     }
     
-    size_t result;
-    size_t size;
-    size_t count;
-    
     /* num_vectors */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fwrite(num_vectors, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "num_vectors", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp);
     
     /* vector_dims */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fwrite(vector_dims, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "vector_dims", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp);
     
     /* data */
-    size = sizeof(double_t);
-    count = *num_vectors * *vector_dims;
-    if ((result = fwrite(data, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "data", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp);
     
     /* k */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fwrite(k, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "k", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(k, sizeof(size_t), 1, filename, fp);
     
     /* N */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fwrite(N, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "N", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(N, sizeof(size_t), 1, filename, fp);
     
     /* block_size */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fwrite(block_size, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "block_size", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(block_size, sizeof(size_t), 1, filename, fp);
     
     /* outliers */
-    size = sizeof(index_t);
-    count = *N;
-    if ((result = fwrite(outliers, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "outliers", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(outliers, sizeof(index_t), (*N), filename, fp);
     
     /* outlier_scores */
-    size = sizeof(double_t);
-    count = *N;
-    if ((result = fwrite(outlier_scores, size, count, fp)) != count) {
-        fprintf(stderr, "Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", "outlier_scores", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    WRITE_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp);
     
     if (fclose(fp) != 0) {
         fprintf(stderr, "Error closing file.\n");
@@ -130,102 +133,29 @@ int read_vardump(const char * const filename,
         return FILE_NOT_FOUND;
     }
     
-    size_t result;
-    size_t size;
-    size_t count;
-    
     /* num_vectors */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fread(num_vectors, size, count, fp)) != count) {
-        fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "num_vectors", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    READ_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp,);
     
     /* vector_dims */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fread(vector_dims, size, count, fp)) != count) {
-        fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "vector_dims", filename, (unsigned int) count, (unsigned int) result);
-        return FILE_IO_ERROR;
-    }
+    READ_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp,);
     
     /* data */
-    size = sizeof(double_t);
-    count = *num_vectors * *vector_dims;
-    *data = (double_t *) malloc(count * size);
-    if (*data == NULL) {
-        fprintf(stderr, "Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), "data");
-        return MALLOC_FAILED;
-    } else {
-        if ((result = fread(*data, size, count, fp)) != count) {
-            fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "data", filename, (unsigned int) count, (unsigned int) result);
-            return FILE_IO_ERROR;
-        }
-    }
+    MALLOC_READ_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp,);
     
     /* k */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fread(k, size, 1, fp)) != count) {
-        fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "vector_dims", filename, (unsigned int) count, (unsigned int) result);
-        free(*data);
-        return FILE_IO_ERROR;
-    }
+    READ_VARIABLE(k, sizeof(size_t), 1, filename, fp,);
     
     /* N */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fread(N, size, count, fp)) != count) {
-        fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "vector_dims", filename, (unsigned int) count, (unsigned int) result);
-        free(*data);
-        return FILE_IO_ERROR;
-    }
+    READ_VARIABLE(N, sizeof(size_t), 1, filename, fp,);
     
     /* block_size */
-    size = sizeof(size_t);
-    count = 1;
-    if ((result = fread(block_size, size, count, fp)) != count) {
-        fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "block_size", filename, (unsigned int) count, (unsigned int) result);
-        free(*data);
-        return FILE_IO_ERROR;
-    }
+    READ_VARIABLE(block_size, sizeof(size_t), 1, filename, fp,);
     
     /* outliers */
-    size = sizeof(index_t);
-    count = *N;
-    *outliers = (index_t *) malloc(count * size);
-    if (*outliers == NULL) {
-        fprintf(stderr, "Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), "outliers");
-        free(*data);
-        return MALLOC_FAILED;
-    } else {
-        if ((result = fread(*outliers, size, count, fp)) != count) {
-            fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "pit;oers", filename, (unsigned int) count, (unsigned int) result);
-            free(*data);
-            free(*outliers);
-            return FILE_IO_ERROR;
-        }
-    }
+    MALLOC_READ_VARIABLE(outliers, sizeof(index_t), (*N), filename, fp, free(*data););
     
     /* outlier_scores */
-    size = sizeof(double_t);
-    count = *N;
-    *outlier_scores = (double_t *) malloc(count * size);
-    if (*outlier_scores == NULL) {
-        fprintf(stderr, "Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), "outlier_scores");
-        free(*data);
-        free(*outliers);
-        return MALLOC_FAILED;
-    } else {
-        if ((result = fread(*outlier_scores, size, count, fp)) != count) {
-            fprintf(stderr, "Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "outlier_scores", filename, (unsigned int) count, (unsigned int) result);
-            free(*data);
-            free(*outliers);
-            free(*outlier_scores);
-            return FILE_IO_ERROR;
-        }
-    }
+    MALLOC_READ_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp, free(*data); free(*outliers););
     
 #if 0
     if (!feof(fp)) {
