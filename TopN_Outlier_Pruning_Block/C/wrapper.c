@@ -2,14 +2,17 @@
 /* Includes                                                                   */
 /*============================================================================*/
 #include "test.h" /* for test */
-#include <stdio.h> /* for fprintf, stderr */
 /*----------------------------------------------------------------------------*/
 
+/*
+ * TODO
+ */
 int main(int argc, char * argv[]) {
-    /* Check for proper number of arguments. */
-    if (argc < 1)
-        fprintf(stderr, "No input file specified.\n");
-    
-    const char * const filename = argv[1];
-    return test(filename);
+    /* If no argument was specified, then test all data sets. */
+    if (argc < 1) {
+        return test_all();
+    } else {
+        const char * const filename = argv[1];
+        return test(filename);
+    }
 }
