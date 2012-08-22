@@ -3,12 +3,13 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
-#include "stats.h"
-#include "top_n_outlier_pruning_block.h"
-#include "utility.h"
 
-#include <float.h>
-#include <stddef.h>
+#include "stats.h" /* for STATS_INCREMENT_CALLS_COUNTER, STATS_INCREMENT_NUM_PRUNED */
+#include "top_n_outlier_pruning_block.h"
+#include "utility.h" /* for ASSERT, ASSERT_NOT_NULL, boolean, double_t, false, index_t, int_t, MEMCPY, MEMSET, MIN, null_index, start_index, true, uint_t */
+
+#include <float.h> /* for DBL_MIN */
+#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -260,18 +261,8 @@ static inline void best_outliers(const size_t N, size_t * outliers_size,
     double_t new_outlier_scores[N];
     size_t   new_outliers_size = 0;
     
-#if _MEMSET_
-    memset(new_outliers,       null_index, N * sizeof(index_t));
-    memset(new_outlier_scores,          0, N * sizeof(double_t));
-#else
-    do {
-        uint_t i;
-        for (i = 0; i < N; i++) {
-            new_outliers      [i] = null_index;
-            new_outlier_scores[i] = 0;
-        }
-    } while (0);
-#endif /* #if _MEMSET_ */
+    MEMSET(new_outliers,       null_index, N, sizeof(index_t));
+    MEMSET(new_outlier_scores,          0, N, sizeof(double_t));
     
     /* Merge the two vectors. */
     merge(N, *outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, &new_outliers, &new_outlier_scores);
@@ -448,8 +439,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                 current_block[i] = (index_t)((block_begin + i) + start_index);
         } while (0);
         MEMSET(&neighbours,      null_index, block_size * k, sizeof(index_t));
-        MEMSET(&neighbours_dist,          0, block_size * k, sizeof(double));
-        MEMSET(&score,                    0, block_size,     sizeof(double));
+        MEMSET(&neighbours_dist,          0, block_size * k, sizeof(double_t));
+        MEMSET(&score,                    0, block_size,     sizeof(double_t));
         MEMSET(&found,                    0, block_size,     sizeof(uint_t));
         
         index_t vector1;

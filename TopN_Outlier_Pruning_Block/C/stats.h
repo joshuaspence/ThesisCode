@@ -22,7 +22,7 @@
             ASSERT(num_pruned > old_num_pruned); \
             \
             const UNUSED lint_t old_num_scaled_pruned = num_scaled_pruned; \
-            num_sclaled_pruned++; \
+            num_scaled_pruned++; \
             ASSERT(num_scaled_pruned > old_num_scaled_pruned); \
         } while (0)
     
@@ -33,7 +33,7 @@
     void get_stats(
         lint_t * const counter,
         uint_t * const prune_count,
-        lint_t * const scaled_prune_count;
+        lint_t * const scaled_prune_count
         );
 
 #else

@@ -188,7 +188,6 @@ int read_vardump(const char * const filename,
     /* outlier_scores */
     MALLOC_READ_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp, free(*data); free(*outliers););
     
-#if 0
     if (!feof(fp)) {
         PRINTF_STDERR("Error reading from file %s. Expected end of file.\n", filename);
         free(*data);
@@ -196,7 +195,6 @@ int read_vardump(const char * const filename,
         free(*outlier_scores);
         return FILE_EXPECTED_EOF;
     }
-#endif
     
     if (fclose(fp) != 0) {
         PRINTF_STDERR("Error closing file.\n");
