@@ -12,22 +12,6 @@
 /*----------------------------------------------------------------------------*/
 
 /*
- * TODO
- */
-int test_all(void) {
-    const size_t num_datasets = sizeof(all_datasets) / sizeof(all_datasets[0]);
-    uint_t failures = 0;
-    
-    uint_t i;
-    for (i = 0; i < num_datasets; i++) {
-        const char * const data_file = all_datasets[i];
-        failures += test(data_file);
-    }
-    
-    return failures;
-}
-
-/*
  *
  */
 int test(const char * const data_file) {

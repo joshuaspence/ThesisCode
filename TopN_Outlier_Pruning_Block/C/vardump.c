@@ -1,13 +1,13 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h"
+#include "utility.h" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, PRINTF_STDERR, SUCCESS */
 #include "vardump.h"
 
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <errno.h> /* for errno */
+#include <stdlib.h> /* for free, malloc, size_t */
+#include <stdio.h> /* for FILE, fclose, feof, fopen, fread, fwrite */
+#include <string.h> /* for strerror */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -64,7 +64,20 @@
  * Save the input and output parameters of the top_n_outlier_pruning_block 
  * function to a binary file.
  * 
- * TODO
+ * Parameters:
+ *     - filename: The file to read the variable dump file.
+ *     - num_vectors: A variable to read from the variable dump file.
+ *     - vector_dims: A variable to read from the variable dump file.
+ *     - data: A variable to read from the variable dump file.
+ *     - k: A variable to read from the variable dump file.
+ *     - N: A variable to read from the variable dump file.
+ *     - block_size: A variable to read from the variable dump file.
+ *     - outliers: A variable to read from the variable dump file.
+ *     - outlier_scores: A variable to read from the variable dump file.
+ *
+ * Return:
+ *     A return value indicating either success, or a non-zero integer 
+ *     representing failure.
  */
 int save_vardump(const char * const filename,
                  const size_t * const num_vectors,
@@ -76,7 +89,7 @@ int save_vardump(const char * const filename,
                  index_t (* const outliers)[*N],
                  double_t (* const outlier_scores)[*N]) {
     if (filename == NULL) {
-        fprintf(stderr, "No filename specified.\n");
+        PRINTF_STDERR("No filename specified.\n");
         return FILE_NOT_FOUND;
     }
     FILE * const fp = fopen(filename, "wb");
@@ -121,7 +134,20 @@ int save_vardump(const char * const filename,
  * Read the input and output parameters of the top_n_outlier_pruning_block 
  * function from a binary file.
  *
- * TODO
+ * Parameters:
+ *     - filename: The file to read the variable dump file.
+ *     - num_vectors: A variable to read from the variable dump file.
+ *     - vector_dims: A variable to read from the variable dump file.
+ *     - data: A variable to read from the variable dump file.
+ *     - k: A variable to read from the variable dump file.
+ *     - N: A variable to read from the variable dump file.
+ *     - block_size: A variable to read from the variable dump file.
+ *     - outliers: A variable to read from the variable dump file.
+ *     - outlier_scores: A variable to read from the variable dump file.
+ *
+ * Return:
+ *     A return value indicating either success, or a non-zero integer 
+ *     representing failure.
  */
 int read_vardump(const char * const filename,
                  size_t * const num_vectors,

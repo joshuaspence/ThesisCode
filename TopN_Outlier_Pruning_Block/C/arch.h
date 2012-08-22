@@ -1,6 +1,9 @@
 /*
  * This header files enables and disables certain code features based on the
  * chosen architecture.
+ *
+ * The following architectures are available: C (__C__), MEX (__MEX__) and 
+ * AutoESL (__AUTOESL__).
  */
 
 #ifndef ARCH_H_
@@ -13,19 +16,15 @@
 #undef _MEMSET_
 
 /*============================================================================*/
-/* Checks                                                                     */
+/* Includes                                                                   */
 /*============================================================================*/
-/* "checks.h" should have already been included. */
-#ifndef _ARCH_SET_
-    #error "No architecture has been defined."
-#endif /* #ifndef _ARCH_SET_ */
+#include "checks.h"
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* __C__ = Stand-alone C program                                              */
 /*============================================================================*/
 #ifdef __C__
-    
     #define _POINTER_COMPARISON_    ENABLED
     #define _MEMSET_                ENABLED
     

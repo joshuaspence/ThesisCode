@@ -158,7 +158,7 @@ CXXFLAGS := $(call remove-flag,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
-MXXFLAGS +=
+MXXFLAGS += -DVARDUMP
 LDFLAGS  +=
 
 # Architecture specific
@@ -202,17 +202,17 @@ COMMON_SOURCES := top_n_outlier_pruning_block.c stats.c vardump.c
 MATLAB_SOURCES := matlab_wrapper.c
 BINARY_SOURCES := wrapper.c test.c
 
-TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := -DSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := -DSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := -DSORTED_INSERT -DVARDUMP
+TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := -DSORTED_INSERT
 
-TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := -DUNSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := -DUNSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := -DUNSORTED_INSERT -DVARDUMP
+TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := -DUNSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := -DUNSORTED_INSERT
 
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := -DNO_BLOCKING -DSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT -DVARDUMP
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT -DVARDUMP
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := -DNO_BLOCKING -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := -DNO_BLOCKING -DSORTED_INSERT
 
 # Compile the MEX functions
 $(foreach t,$(TARGETS),$(eval $(call target-template,$t)))

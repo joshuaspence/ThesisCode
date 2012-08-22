@@ -1,6 +1,6 @@
 /*
  * This header files checks for invalid combinations of preprocessor macros. It
- * also ensure that require preprocessor macros have been defined.
+ * also ensures that required preprocessor macros have been defined.
  */
  
 #ifndef CHECKS_H_
