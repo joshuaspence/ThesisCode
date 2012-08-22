@@ -66,10 +66,16 @@ endef
 
 # $(eval $(call target-template,TARGET))
 define target-template
-ALL_TARGETS += $(1).bin
-$(1).bin: $$(COMMON_SOURCES) $$(BINARY_SOURCES)
+ALL_TARGETS += $(1).$$(BIN_EXT)
+$(1).$$(BIN_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(CC) -D__C__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	-@echo
+
+ALL_TARGETS += $(1).$$(AUTOESL_EXT)
+$(1).$$(AUTOESL_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
+	-@echo "Compiling: $$@"
+	$$(call pretty,$$(CC) -D__AUTOESL__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@echo
 
 ALL_TARGETS += $(1).$$(MEXEXT)
@@ -136,6 +142,9 @@ ifeq ($(ARCH),win32)
 	MEXEXT    := mexw32
 	ARCH_TYPE := x86
 endif
+
+BIN_EXT     := bin
+AUTOESL_EXT := autoesl
 
 #------------------------------------------------------------------------------#
 #                                                                              #
