@@ -2,15 +2,18 @@
 /* Includes                                                                   */
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
-#include "arch.h" /* set architecture specific macros */
-#include "matlab.h"
-#include "stats.h"
-#include "top_n_outlier_pruning_block.h"
-#include "utility.h"
+#include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
+
+#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, VECTOR, VECTOR_ELEMENT */
+#ifdef STATS
+    #include "stats.h" /* for get_stats */
+#endif /* #ifdef STATS */
+#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
+#include "utility.h" /* for double_t, index_t, lint_t, MEMSET, null_index, uint_t */
 #include "vardump.h"
 
-#include <mex.h>
-#include <stdlib.h>
+#include <mex.h> /* for mxGetScalar */
+#include <stdlib.h> /* for free, malloc, size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -56,48 +59,70 @@
  */
 void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {    
     /* Check for proper number of arguments. */
-    if (nrhs != 4)
-        mexErrMsgTxt("Four inputs required.");
-    if (nlhs <= 0 || nlhs > 2)
-        mexErrMsgTxt("One or two outputs required.");
+    if (nrhs != 4) {
+        PRINTF_STDERR("Four inputs required.");
+        return;
+    }
+    if (nlhs <= 0 || nlhs > 2) {
+        PRINTF_STDERR("One or two outputs required.");
+        return;
+    }
     
     /*
      * Make sure the first input argument is a real 2D full (non-sparse) double
      * array.
      */
-    if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN))
-        mexErrMsgTxt("Input 'data' must be a real full 2D double array.");
+    if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN)) {
+        PRINTF_STDERR("Input 'data' must be a real full 2D double array.");
+        return;
+    }
     RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
     
     /* Make sure the second input argument is an integer. */
-    if (!IS_REAL_SCALAR(K_IN))
-        mexErrMsgTxt("Input 'k' must be a scalar.");
+    if (!IS_REAL_SCALAR(K_IN)) {
+        PRINTF_STDERR("Input 'k' must be a scalar.");
+        return;
+    }
     const double k_dbl = mxGetScalar(K_IN);
-    if ((int) k_dbl <= 0) /* make sure the second input argument is greater than zero */
-        mexErrMsgTxt("Input 'k' must be positive.");
+    if ((int) k_dbl <= 0) { /* make sure the second input argument is greater than zero */
+        PRINTF_STDERR("Input 'k' must be positive.");
+        return;
+    }
     const size_t k = (size_t) k_dbl;
     
     /* Make sure the third input argument is an integer. */
-    if (!IS_REAL_SCALAR(N_IN))
-        mexErrMsgTxt("Input 'N' must be a scalar.");
+    if (!IS_REAL_SCALAR(N_IN)) {
+        PRINTF_STDERR("Input 'N' must be a scalar.");
+        return;
+    }
     const double N_dbl = mxGetScalar(N_IN);
-    if ((int) N_dbl <= 0) /* make sure the third input argument is greater than zero */
-        mexErrMsgTxt("Input 'N' must be positive.");
+    if ((int) N_dbl <= 0) { /* make sure the third input argument is greater than zero */
+        PRINTF_STDERR("Input 'N' must be positive.");
+        return;
+    }
     const size_t N = (size_t) N_dbl;
     
     /* Make sure the fourth input argument is an integer. */
-    if (!IS_REAL_SCALAR(BLOCKSIZE_IN))
-        mexErrMsgTxt("Input 'block_size' must be a scalar.");
+    if (!IS_REAL_SCALAR(BLOCKSIZE_IN)) {
+        PRINTF_STDERR("Input 'block_size' must be a scalar.");
+        return;
+    }
     const double block_size_dbl = mxGetScalar(BLOCKSIZE_IN);
-    if ((int) block_size_dbl <= 0) /* make sure the fourth input argument is greater than zero */
-        mexErrMsgTxt("Input 'block_size' must be positive.");
+    if ((int) block_size_dbl <= 0) { /* make sure the fourth input argument is greater than zero */
+        PRINTF_STDERR("Input 'block_size' must be positive.");
+        return;
+    }
     const size_t block_size = (size_t) block_size_dbl;
     
     /* Additional error checking. */
-    if (ROWS(data) < N)
-        mexErrMsgTxt("Input 'N' must be less than or equal to the number of vectors in the 'data' array.");
-    if (ROWS(data) < k)
-        mexErrMsgTxt("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
+    if (ROWS(data) < N) {
+        PRINTF_STDERR("Input 'N' must be less than or equal to the number of vectors in the 'data' array.");
+        return;
+    }
+    if (ROWS(data) < k) {
+        PRINTF_STDERR("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
+        return;
+    }
     
     /*
      * Convert the input to proper format for the "top_n_outlier_pruning_block" 
@@ -106,8 +131,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
     double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
-    if (data_in == NULL)
-        mexErrMsgTxt("Unable to allocate memory for data array.");
+    if (data_in == NULL) {
+        PRINTF_STDERR("Unable to allocate memory for data array.");
+        return;
+    }
 
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
@@ -120,18 +147,8 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Create the output arrays. */
     index_t  outliers_out      [N];
     double_t outlier_scores_out[N];
-#if _MEMSET_
-    memset(outliers_out,       null_index, N * sizeof(index_t));
-    memset(outlier_scores_out,          0, N * sizeof(double_t));
-#else
-    do {
-        uint_t i;
-        for (i = 0; i < N; i++) {
-            outliers    [i] = 0;
-            outliers_out[i] = 0;
-        }
-    } while (0);
-#endif /* #if _MEMSET */
+    MEMSET(outliers_out,       null_index, N, sizeof(index_t));
+    MEMSET(outlier_scores_out,          0, N, sizeof(double_t));
     
     /* Call the function. */
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
@@ -167,9 +184,11 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Print the number of calls to the distance function */
     lint_t num_calls;
     uint_t num_pruned;
+    lint_t num_scaled_pruned;
     
-    get_stats(&num_calls, &num_pruned);
-    mexPrintf("Calls to distance function = %llu\n", num_calls);
-    mexPrintf("Number of pruned vectors = %u\n", num_pruned);
+    get_stats(&num_calls, &num_pruned, &num_scaled_pruned);
+    PRINTF_STDOUT("Calls to distance function = %llu\n", num_calls);
+    PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
+    PRINTF_STDOUT("Number of pruned vectors (scaled) = %u\n", num_scaled_pruned);
 #endif /* #ifdef STATS */
 }

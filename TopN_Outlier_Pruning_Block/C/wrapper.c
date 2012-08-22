@@ -3,8 +3,10 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
+
 #include "test.h" /* for test */
 #include "utility.h" /* for uint_t */
+
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 

@@ -12,9 +12,9 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h"
-#include <mex.h>
-#include <stddef.h>
+#include "utility.h" /* for EMPTY_STATEMENT, UNUSED */
+#include <mex.h> /* for mxCreateDoubleMatrix, mxDestroyArray, mxGetData, mxGetM, mxGetN, mxGetNumberOfDimensions, mxGetNumberOfElements, mxIsComplex, mxIsDouble, mxIsSparse */
+#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/

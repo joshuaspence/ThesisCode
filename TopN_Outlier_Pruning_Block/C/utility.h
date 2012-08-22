@@ -7,8 +7,8 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include <assert.h>
-#include <stddef.h>
+#include <assert.h> /* for assert */
+#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/

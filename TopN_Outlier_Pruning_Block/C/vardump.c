@@ -2,7 +2,7 @@
 /* Includes                                                                   */
 /*============================================================================*/
 #include "utility.h" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, PRINTF_STDERR, SUCCESS */
-#include "vardump.h"
+#include "vardump.h" /* main header file */
 
 #include <errno.h> /* for errno */
 #include <stdlib.h> /* for free, malloc, size_t */
