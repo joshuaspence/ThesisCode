@@ -50,14 +50,14 @@
             _cleanup_code_ \
             return MALLOC_FAILED; \
         } else { \
-            if ((result = fread(*outlier_scores, size, count, fp)) != count) { \
+            if ((result = fread(*_var_, size, count, fp)) != count) { \
                 PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", #_var_, filename, (unsigned int) count, (unsigned int) result); \
                 free(*_var_); \
                 _cleanup_code_ \
                 return FILE_IO_ERROR; \
             } \
         } \
-    } while (0);
+    } while (0)
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -172,6 +172,25 @@ int read_vardump(const char * const filename,
     
     /* data */
     MALLOC_READ_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp,);
+#if 0
+    do {
+        const size_t size = sizeof(double_t);
+        const size_t count = (*num_vectors) * (*vector_dims);
+        size_t result;
+        
+        *data = malloc(count * size);
+        if (*data == NULL) {
+            PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), "data");
+            return (3);
+        } else {
+            if ((result = fread(*outlier_scores, size, count, fp)) != count) {
+                PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", "data", filename, (unsigned int) count, (unsigned int) result);
+                free(*data);
+                return (2);
+            }
+        }
+    } while (0);
+#endif
     
     /* k */
     READ_VARIABLE(k, sizeof(size_t), 1, filename, fp, free(*data););
@@ -188,6 +207,7 @@ int read_vardump(const char * const filename,
     /* outlier_scores */
     MALLOC_READ_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp, free(*data); free(*outliers););
     
+#if 0 /* this code doesn't seem to work */
     if (!feof(fp)) {
         PRINTF_STDERR("Error reading from file %s. Expected end of file.\n", filename);
         free(*data);
@@ -195,7 +215,8 @@ int read_vardump(const char * const filename,
         free(*outlier_scores);
         return FILE_EXPECTED_EOF;
     }
-    
+#endif /* #if 0 */
+
     if (fclose(fp) != 0) {
         PRINTF_STDERR("Error closing file.\n");
         return FILE_IO_ERROR;
