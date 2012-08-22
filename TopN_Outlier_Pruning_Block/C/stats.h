@@ -1,12 +1,12 @@
 #ifndef STATS_H_
 #define STATS_H_
 
-#if !defined(DEBUG) && defined(STATS)
-    #error "STATS should only be defined in DEBUG mode."
-#endif /* #if !defined(DEBUG) && defined(STATS) */
-
 #ifdef STATS
+    /*========================================================================*/
+    /* Includes                                                               */
+    /*========================================================================*/
     #include "utility.h" /* for lint_t, uint_t, ASSERT, UNUSED */
+    /*------------------------------------------------------------------------*/
     
     #define STATS_INCREMENT_CALLS_COUNTER() \
         do { \

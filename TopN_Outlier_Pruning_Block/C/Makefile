@@ -18,6 +18,7 @@ release:
 MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 ARCH       := $(shell matlab -e 2>/dev/null | sed -n 's/ARCH=\(.\+\)/\1/p')
 
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              UTILITY MACROS                                  #
@@ -68,13 +69,13 @@ define target-template
 ALL_TARGETS += $(1).bin
 $(1).bin: $$(COMMON_SOURCES) $$(BINARY_SOURCES)
 	-@echo "Compiling: $$@"
-	$$(call pretty,gcc $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	$$(call pretty,$$(CC) -D__C__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@echo
 
 ALL_TARGETS += $(1).$$(MEXEXT)
 $(1).$$(MEXEXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
 	-@echo "Compiling: $$@"
-	$$(call pretty,$$(MXX) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
+	$$(call pretty,$$(MXX) -D__MEX__ $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	-@echo
 endef
 
@@ -142,6 +143,9 @@ endif
 #                                                                              #
 #------------------------------------------------------------------------------#
 
+# C compiler
+CC       := gcc
+
 # Default flags (these will be overridden)
 CFLAGS   := $(call parse-mex-options,CFLAGS)
 CXXFLAGS := $(call parse-mex-options,CXXFLAGS)
@@ -154,7 +158,7 @@ CXXFLAGS := $(call remove-flag,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   += -std=c99 -W -Wall -pedantic -fmessage-length=0
 CXXFLAGS += -std=c++0x -W -Wall -pedantic -fmessage-length=0
-MXXFLAGS += -D__MEX__
+MXXFLAGS += 
 LDFLAGS  +=
 
 # Architecture specific
@@ -194,7 +198,7 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-COMMON_SOURCES := top_n_outlier_pruning_block.c stats.c
+COMMON_SOURCES := top_n_outlier_pruning_block.c stats.c vardump.c
 MATLAB_SOURCES := matlab_wrapper.c
 BINARY_SOURCES := wrapper.c
 

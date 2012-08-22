@@ -1,27 +1,20 @@
-/******************************************************************************/
+/*============================================================================*/
 /* Includes                                                                   */
-/******************************************************************************/
+/*============================================================================*/
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+#include "stats.h" /* for algorithm statistics */
+#include "utility.h"
+
 #include <float.h> /* for DBL_MIN */
 #include <string.h> /* for memset, memcpy */
-#include "utility.h"
+
 #include "top_n_outlier_pruning_block.h"
-/******************************************************************************/
+/*----------------------------------------------------------------------------*/
 
-/******************************************************************************/
-/* Check compatibility of defined macros.                                     */
-/******************************************************************************/
-#if (defined(UNSORTED_INSERT) && defined(SORTED_INSERT)) || (!defined(UNSORTED_INSERT) && !defined(SORTED_INSERT))
-    #error "Exactly one of UNSORTED_INSERT and SORTED_INSERT should be defined."
-#endif /* #if defined(UNSORTED_INSERT) && defined(SORTED_INSERT) */
-/******************************************************************************/
-
-/******************************************************************************/
-/* Stats                                                                      */
-/******************************************************************************/
-#include "stats.h"
-/******************************************************************************/
-
-/* Forward declarations */
+/*============================================================================*/
+/* Forward declarations                                                       */
+/*============================================================================*/
 static inline double_t distance_squared(
     const size_t vector_dims,
     const double_t (* const vector1)[vector_dims],
@@ -38,11 +31,11 @@ static inline double_t insert(
 static inline void best_outliers(
     const size_t N,
     size_t * const outliers_size,
-    index_t (*const outliers)[N],
-    double_t (*const outlier_scores)[N],
+    index_t (* const outliers)[N],
+    double_t (* const outlier_scores)[N],
     const size_t block_size,
-    index_t (*const current_block)[block_size],
-    double_t (*const scores)[block_size]
+    index_t (* const current_block)[block_size],
+    double_t (* const scores)[block_size]
     );
 static inline void sort_vectors_descending(
     const size_t size,
@@ -61,6 +54,7 @@ static inline void merge(
     index_t (* const new_outliers)[N],
     double_t (* const new_outlier_scores)[N]
     );
+/*----------------------------------------------------------------------------*/
 
 /*
  * Calculate the square of the Euclidean distance between two vectors (i.e. the
@@ -531,7 +525,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         uint_t found = 0;               /* how many nearest neighbours we have found */
         boolean removed = false;        /* true if vector1 has been pruned */
         
-#ifndef __AUTOESL__
+#if _MEMSET_
         memset(neighbours,      null_index, k * sizeof(index_t));
         memset(neighbours_dist,          0, k * sizeof(double_t));
 #else
@@ -542,7 +536,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                 neighbours_dist[i] = 0.0;
             }
         } while (0);
-#endif /* #ifndef __AUTOESL__ */
+#endif /* #ifndef _MEMSET_ */
         
         index_t vector2;
         for (vector2 = start_index; vector2 < num_vectors + start_index && !removed; vector2++) {

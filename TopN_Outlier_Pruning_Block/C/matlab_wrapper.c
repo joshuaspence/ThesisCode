@@ -1,121 +1,27 @@
-/* Includes */
-#include <mex.h> /* for mexPrintf */
-#include <stdlib.h> /* for size_t */
-#include <string.h> /* for memset */
+/*============================================================================*/
+/* Includes                                                                   */
+/*============================================================================*/
 #include "utility.h" /* for double_t, index_t */
 #include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY */
 #include "stats.h" /* for get_stats */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
+#include "vardump.h" /* for save_vardump */
 
+#include <mex.h> /* for mexPrintf */
+#include <stdlib.h> /* for size_t, malloc, free */
+#include <string.h> /* for memset */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* Input and output arguments. */
+/*============================================================================*/
 #define DATA_IN             prhs[0]
 #define K_IN                prhs[1]
 #define N_IN                prhs[2]
 #define BLOCKSIZE_IN        prhs[3]
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
-
-#define SUCCESS             (0)
-#define FILE_NOT_FOUND      (1)
-#define FILE_IO_ERROR       (2)
-
-/*
- * Save the input and output parameters of the top_n_outlier_pruning_block 
- * function to a binary file.
- */
-int save_variables_to_file(const char * const filename,
-                           const size_t * const num_vectors,
-                           const size_t * const vector_dims,
-                           const double_t (* const data)[*num_vectors][*vector_dims],
-                           const size_t * const k,
-                           const size_t * const N,
-                           const size_t * const block_size,
-                           index_t (* const outliers)[*N],
-                           double_t (* const outlier_scores)[*N]) {
-    if (filename == NULL) {
-        mexErrMsgTxt("No filename specified.\n");
-        return FILE_NOT_FOUND;
-    }
-    FILE * const fp = fopen(filename, "wb");
-    if (fp == NULL) {
-        mexErrMsgTxt("Error opening file.");
-        return FILE_NOT_FOUND;
-    }
-    
-    size_t size;
-    size_t count;
-    
-    /* num_vectors */
-    size = sizeof(size_t);
-    count = 1;
-    if (fwrite(num_vectors, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing num_vectors to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* vector_dims */
-    size = sizeof(size_t);
-    count = 1;
-    if (fwrite(vector_dims, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing vector_dims to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* data */
-    size = sizeof(double_t);
-    count = *num_vectors * *vector_dims;
-    if (fwrite(data, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing data to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* k */
-    size = sizeof(size_t);
-    count = 1;
-    if (fwrite(k, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing k to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* N */
-    size = sizeof(size_t);
-    count = 1;
-    if (fwrite(N, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing N to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* block_size */
-    size = sizeof(size_t);
-    count = 1;
-    if (fwrite(block_size, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing block_size to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* outliers */
-    size = sizeof(index_t);
-    count = *N;
-    if (fwrite(outliers, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing outliers to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    /* outlier_scores */
-    size = sizeof(double_t);
-    count = *N;
-    if (fwrite(outlier_scores, size, count, fp) != count) {
-        mexErrMsgTxt("Error writing outlier_scores to file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    if (fclose(fp) != 0) {
-        mexErrMsgTxt("Error closing file.\n");
-        return FILE_IO_ERROR;
-    }
-    
-    return SUCCESS;
-}
+/*----------------------------------------------------------------------------*/
 
 /*
  * Gateway function
@@ -209,7 +115,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
     
     /* Save input and output parameters. */
-    save_variables_to_file("vars.dat", &num_vectors, &vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
+    save_vardump("vars.dat", &num_vectors, &vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
     
     /* Free dynamic memory. */
     if (data_in != NULL)

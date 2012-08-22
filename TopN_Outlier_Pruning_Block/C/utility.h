@@ -4,6 +4,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
+#include "arch.h" /* for _POINTER_COMPARISON_ */
 #include <assert.h> /* for assert */
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
@@ -27,11 +28,11 @@
  * AutoESL.
  */
 #ifndef ASSERT_NOT_NULL
-    #ifdef __AUTOESL__
+    #if _POINTER_COMPARISON_
         #define ASSERT_NOT_NULL(p)  ASSERT(p != NULL)
     #else
         #define ASSERT_NOT_NULL(p)  EMPTY_STATEMENT()
-    #endif /* #ifdef __AUTOESL__ */
+    #endif /* #if _POINTER_COMPARISON */
 #endif /* #ifndef ASSERT_NOT_NULL */
 
 /* Declare an unused variable. */
