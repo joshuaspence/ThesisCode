@@ -3,16 +3,12 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
-#include "stats.h" /* for algorithm statistics - STATS_INCREMENT_CALLS_COUNTER */
+#include "stats.h"
 #include "top_n_outlier_pruning_block.h"
-#include "utility.h" /* for double_t, index_t, uint_t, ASSERT, ASSERT_NOT_NULL, int_t, MIN */
+#include "utility.h"
 
-#include <float.h> /* for DBL_MIN */
-#include <stdlib.h> /* for size_t */
-
-#if _MEMSET_
-    #include <string.h> /* for memset, memcpy */
-#endif /* #if _MEMSET_ */
+#include <float.h>
+#include <stddef.h>
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -281,18 +277,8 @@ static inline void best_outliers(const size_t N, size_t * outliers_size,
     merge(N, *outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, &new_outliers, &new_outlier_scores);
     
     /* Copy values from temporary vectors to real vectors. */
-#if _MEMSET_
-    memcpy(*outliers,       new_outliers,       N * sizeof(index_t));
-    memcpy(*outlier_scores, new_outlier_scores, N * sizeof(double_t));
-#else
-    do {
-        uint_t i;
-        for (i = 0; i < N; i++) {
-            outliers      [i] = new_outliers      [i];
-            outlier_scores[i] = new_outlier_scores[i];
-        }
-    } while (0);
-#endif /* #if _MEMSET_ */
+    MEMCPY(*outliers,       new_outliers,       N, sizeof(index_t));
+    MEMCPY(*outlier_scores, new_outlier_scores, N, sizeof(double_t));
     *outliers_size = new_outliers_size;
 }
 
@@ -435,18 +421,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT_NOT_NULL(outlier_scores);
     
     /* Set output to zero. */
-#if _MEMSET_
-    memset(*outliers,       null_index, N * sizeof(index_t));
-    memset(*outlier_scores,          0, N * sizeof(double_t));
-#else
-    do {
-        uint_t i;
-        for (i = 0; i < N; i++) {
-            (*outliers      )[i] = null_index;
-            (*outlier_scores)[i] = 0;
-        }
-    } while (0);
-#endif /* #if _MEMSET_ */
+    MEMSET(*outliers,       null_index, N, sizeof(index_t));
+    MEMSET(*outlier_scores,          0, N, sizeof(double_t));
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
@@ -471,24 +447,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
             for (i = 0; i < block_size; i++)
                 current_block[i] = (index_t)((block_begin + i) + start_index);
         } while (0);
-#if _MEMSET_
-        memset(&neighbours,      null_index, block_size * k * sizeof(index_t));
-        memset(&neighbours_dist,          0, block_size * k * sizeof(double));
-        memset(&score,                    0, block_size * sizeof(double));
-        memset(&found,                    0, block_size * sizeof(uint_t));
-#else
-        do {
-            uint_t i, j;
-            for (i = 0; i < block_size; i++) {
-                for (j = 0; j < k; j++) {
-                    neighbours     [i][j] = 0;
-                    neighbours_dist[i][j] = 0;
-                }
-                score[i] = 0;
-                found[i] = 0;
-            }
-        } while (0);
-#endif /* #if _MEMSET_ */
+        MEMSET(&neighbours,      null_index, block_size * k, sizeof(index_t));
+        MEMSET(&neighbours_dist,          0, block_size * k, sizeof(double));
+        MEMSET(&score,                    0, block_size,     sizeof(double));
+        MEMSET(&found,                    0, block_size,     sizeof(uint_t));
         
         index_t vector1;
         for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
@@ -548,18 +510,8 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         uint_t   found = 0;             /* how many nearest neighbours we have found */
         boolean  removed = false;       /* true if vector1 has been pruned */
         
-#if _MEMSET_
-        memset(neighbours,      null_index, k * sizeof(index_t));
-        memset(neighbours_dist,          0, k * sizeof(double_t));
-#else
-        do {
-            uint_t i;
-            for (i = 0; i < k; i++) {
-                neighbours     [i] = null_index;
-                neighbours_dist[i] = 0;
-            }
-        } while (0);
-#endif /* #ifndef _MEMSET_ */
+        MEMSET(neighbours,      null_index, k, sizeof(index_t));
+        MEMSET(neighbours_dist,          0, k, sizeof(double_t));
         
         index_t vector2;
         for (vector2 = start_index; vector2 < num_vectors + start_index && !removed; vector2++) {

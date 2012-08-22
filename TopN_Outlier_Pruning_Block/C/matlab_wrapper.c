@@ -1,18 +1,24 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "matlab.h" /* for IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, COLUMNS, ARRAY_ELEMENT, CREATE_REAL_DOUBLE_VECTOR, VECTOR_ELEMENT, m_double_t */
-#include "stats.h" /* for get_stats */
-#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for double_t, index_t, uint_t, lint_t */
-#include "vardump.h" /* for save_vardump */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+#include "matlab.h"
+#include "stats.h"
+#include "top_n_outlier_pruning_block.h"
+#include "utility.h"
+#include "vardump.h"
 
-#include <mex.h> /* for mexPrintf, mexErrMsgTxt */
-#include <stdlib.h> /* for size_t, malloc, free */
+#include <mex.h>
+#include <stdlib.h>
+/*----------------------------------------------------------------------------*/
 
-#if _MEMSET_
-    #include <string.h> /* for memset */
-#endif /* #if _MEMSET_ */
+/*============================================================================*/
+/* Checks                                                                     */
+/*============================================================================*/
+#ifndef __MEX__
+    #error "This file should only be included in MEX builds."
+#endif /* #ifndef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -25,11 +31,6 @@
 #define OUTLIERS_OUT        plhs[0]
 #define OUTLIERSCORES_OUT   plhs[1]
 /*----------------------------------------------------------------------------*/
-
-/* Additional check. */
-#ifndef __MEX__
-    #error "This file should only be included in MEX builds."
-#endif /* #ifndef __MEX__ */
 
 /*
  * Gateway function

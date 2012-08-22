@@ -4,9 +4,11 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "arch.h" /* for _POINTER_COMPARISON_ */
-#include <assert.h> /* for assert */
-#include <stddef.h> /* for size_t */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+
+#include <assert.h>
+#include <stddef.h>
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -23,10 +25,7 @@
     #define ASSERT(x)               assert(x)
 #endif /* #ifndef ASSERT */
 
-/* 
- * Assert that a variable is not null. Note that we cannot compare pointers in
- * AutoESL.
- */
+/* Assert that a variable is not null. */
 #ifndef ASSERT_NOT_NULL
     #if _POINTER_COMPARISON_
         #define ASSERT_NOT_NULL(p)  ASSERT(p != NULL)

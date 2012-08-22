@@ -1,9 +1,16 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "test.h" /* for test_all */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+
+#include "test.h"
+#include "utility.h"
 /*----------------------------------------------------------------------------*/
 
-int main(int argc, char * argv[]) {
+/*
+ * TODO
+ */
+int main(int UNUSED argc, char * UNUSED argv[]) {
     return test_all();
 }

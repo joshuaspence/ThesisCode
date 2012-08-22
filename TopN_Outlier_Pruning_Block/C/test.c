@@ -9,12 +9,11 @@
 
 #include <stdlib.h> /* for size_t, free */
 #include <stdio.h> /* for printf */
-
-#if _MEMSET_
-    #include <string.h> /* for memset */
-#endif /* #if _MEMSET_ */
 /*----------------------------------------------------------------------------*/
 
+/*
+ * TODO
+ */
 int test_all(void) {
     const size_t num_datasets = sizeof(all_datasets) / sizeof(all_datasets[0]);
     uint_t failures = 0;
@@ -28,6 +27,9 @@ int test_all(void) {
     return failures;
 }
 
+/*
+ *
+ */
 int test(const char * const data_file) {
     boolean failed = false;
        
@@ -48,18 +50,8 @@ int test(const char * const data_file) {
     /* Create the output arrays. */
     index_t  outliers      [N];
     double_t outlier_scores[N];
-#if _MEMSET_
-    memset(outliers,       0, N * sizeof(index_t));
-    memset(outlier_scores, 0, N * sizeof(double_t));
-#else
-    do {
-        uint_t i;
-        for (i = 0; i < N; i++) {
-            outliers      [i] = 0;
-            outlier_scores[i] = 0;
-        }
-    } while (0);
-#endif /* #if _MEMSET_ */
+    MEMSET(outliers,       0, N, sizeof(index_t));
+    MEMSET(outlier_scores, 0, N, sizeof(double_t));
     
     /* Call the function. */
     printf("Running top_n_outlier_pruning_block(...) for data set '%s'.\n", data_file);

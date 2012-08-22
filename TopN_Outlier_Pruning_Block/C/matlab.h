@@ -2,11 +2,19 @@
 #define MATLAB_H_
 
 /*============================================================================*/
+/* Checks                                                                     */
+/*============================================================================*/
+#ifndef __MEX__
+    #error "This file should only be included in MEX builds."
+#endif /* #ifndef __MEX__ */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include <mex.h> /* for mxIsComplex, mxGetNumberOfDimensions, mxIsDouble, mxGetNumberOfElements, mxIsSparse, mxGetM, mxGetN, mxArray, mxGetData, mxDestroyArray, mxCreateDoubleMatrix */
-#include <stddef.h> /* for size_t */
-#include "utility.h" /* for UNUSED, EMPTY_STATEMENT */
+#include "utility.h"
+#include <mex.h>
+#include <stddef.h>
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
