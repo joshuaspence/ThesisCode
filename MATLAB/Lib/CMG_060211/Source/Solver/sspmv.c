@@ -9,7 +9,7 @@
  */
 
 /* CMG, Copyright (c) 2008-2010  Ioannis Koutis, Gary Miller                */
-/* 
+/*                                                                          */
 /* The CMG solver is distributed under the terms of the GNU General Public  */
 /* Lincense Version 3.0 of the Free Software Foundation.                    */
 /* CMG is also available under other licenses; contact authors for details. */

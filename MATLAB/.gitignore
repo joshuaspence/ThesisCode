@@ -9,7 +9,6 @@ TopN_Outlier_Pruning_Block.mat
 TopN_Outlier_Pruning_Block.txt
 
 # C outputs
-top_n_outlier_pruning_block.log
 vars.dat
 
 # MATLAB script outputs

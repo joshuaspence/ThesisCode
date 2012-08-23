@@ -1,4 +1,9 @@
-function [] = save_profile(output_dir)
+%==========================================================================
+% This script saves the MATLAB profiler output to a specified output 
+% directory.
+%==========================================================================
+
+function save_profile(output_dir)
     % NOTE: This throws an error for some reason (hence the try/catch).
     fprintf('Saving profiler data to "%s".\n', output_dir);
     try
