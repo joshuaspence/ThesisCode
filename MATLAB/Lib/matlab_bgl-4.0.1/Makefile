@@ -65,7 +65,7 @@ endef
 define private-target
 ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(MEXEXT)
 
-$$(OUTPUT_DIR)/$(1).$$(MEXEXT): $$(SOURCE_DIR)/$(1).c $$(LIB_OUTPUT_DIR)/$$($(LIB)_OUTPUT).a
+$$(OUTPUT_DIR)/$(1).$$(MEXEXT): $$(SOURCE_DIR)/$(1).c $$(LIB_OUTPUT_DIR)/lib$$(LIB).a
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(MXX) $$(MXXFLAGS) $$(PRIVATE_MXXFLAGS) CFLAGS='$$(CFLAGS) $$(PRIVATE_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$(PRIVATE_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$<)
 	-@echo
