@@ -17,4 +17,5 @@
 *.bin
 *.autoesl
 
+# Log files
 *.log

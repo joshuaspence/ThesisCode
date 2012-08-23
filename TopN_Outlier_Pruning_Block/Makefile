@@ -3,21 +3,65 @@
 #                                MAKE OPTIONS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
-ALL_TARGETS :=
-
 .SUFFIXES:
-.DEFAULT: release
-release:
+.DEFAULT: help
 
 
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                               DEFAULT TARGET                                 #
+#                                                                              #
+#------------------------------------------------------------------------------#
+.PHONY: help
+help:
+	$(help_text)
+
+ALL_TARGETS:= abc def ghi
+
+define help_text
+-@$(ECHO) "|==============================================================================|"
+-@$(ECHO) "|                          TopN_Outlier_Pruning_Block                          |"
+-@$(ECHO) "|==============================================================================|"
+-@$(ECHO) ""
+-@$(ECHO) " USAGE:"
+-@$(ECHO) ""
+-@$(ECHO) "     make help"
+-@$(ECHO) "     make ARCHITECTURE[-BUILD_TYPE]"
+-@$(ECHO) "     make TARGET"
+-@$(ECHO) ""
+-@$(ECHO) " ARCHITECTURE:"
+-@$(ECHO) ""
+-@$(ECHO) "     all"
+-@$(ECHO) "     autoesl"
+-@$(ECHO) "     binary"
+-@$(ECHO) "     mex"
+-@$(ECHO) ""
+-@$(ECHO) " BUILD_TYPE:"
+-@$(ECHO) "     all"
+-@$(ECHO) "     debug"
+-@$(ECHO) "     release"
+-@$(ECHO) ""
+-@$(ECHO) " TARGET:"
+-@$(ECHO) ""
+-@$(foreach TARGET,$(ALL_TARGETS),$(ECHO) "     $(TARGET)";)
+-@$(ECHO) ""
+endef
+
+
+#------------------------------------------------------------------------------#
+#                                                                             #
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-AUTOESL_DIR := AutoESL
-OUTPUT_DIR  := bin
-SOURCE_DIR  := source
+ALL_TARGETS     :=
+AUTOESL_TARGETS :=
+BINARY_TARGETS  :=
+MEX_TARGETS     :=
+
+AUTOESL_OUTPUT_DIR := AutoESL
+BIN_OUTPUT_DIR     := bin
+MEX_OUTPUT_DIR     :=
+SOURCE_DIR         := source
 
 BINARY_EXT  := bin
 AUTOESL_EXT := autoesl
