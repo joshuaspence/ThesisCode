@@ -19,18 +19,19 @@ AUTOESL_DIR := AutoESL
 OUTPUT_DIR  := bin
 SOURCE_DIR  := source
 
-BIN_EXT     := bin
+BINARY_EXT  := bin
 AUTOESL_EXT := autoesl
 
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                                FIND MATLAB                                   #
+#                                 PROGRAMS                                     #
 #                                                                              #
 #------------------------------------------------------------------------------#
-MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
-ARCH       := $(shell matlab -e 2>/dev/null | sed -n 's/ARCH=\(.\+\)/\1/p')
-
+DELETE := rm
+ECHO   := echo
+GREP   := egrep
+TEST   := test
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -75,24 +76,30 @@ define remove-flag
 $(shell echo -n $1 | sed 's/-$2\s\+//')
 endef
 
+# $(call autoesl-ready)
+# Check that AutoESL can communicate with the licensing server correctly.
+define autoesl-ready
+$(shell echo 'exit' | $(AUTOESL) | egrep -q 'FLEXnet Licensing error')
+endef
+
 #-------------------------------------------------------------------------------
 
 # $(eval $(call target-template,TARGET))
 define target-template
-ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(BIN_EXT)
-$$(OUTPUT_DIR)/$(1).$$(BIN_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
+ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(BINARY_EXT)
+$$(OUTPUT_DIR)/$(1).$$(BINARY_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(CC) -D__C__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@echo
 
-#ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT)
-#$$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT): $$(COMMON_SOURCES) $$(AUTOESL_SOURCES)
-#	-@echo "Compiling: $$@"
-#	$$(call pretty,$$(CC) -D__AUTOESL__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
-#	-@echo
+ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT)
+$$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT): $$(COMMON_SOURCES) $$(AUTOESL_SOURCES)
+	-@echo "Compiling: $$@"
+	$$(if $$(call autoesl-ready),$$(call pretty,$$(CC) -D__AUTOESL__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^),-@$$(ECHO) "AutoESL not ready.")
+	-@echo
 
-ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(MEXEXT)
-$$(OUTPUT_DIR)/$(1).$$(MEXEXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
+ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(MEX_EXT)
+$$(OUTPUT_DIR)/$(1).$$(MEX_EXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(MXX) -D__MEX__ $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	-@echo
@@ -101,60 +108,71 @@ endef
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                            ARCHITECTURE VARIABLES                            #
+#                             MATLAB CONFIGURATION                             #
 #                                                                              #
 #------------------------------------------------------------------------------#
+MATLAB_DIR := $(shell matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
+ARCH       := $(shell matlab -e 2>/dev/null | sed -n 's/ARCH=\(.\+\)/\1/p')
+
 ifndef MXX
 	ifeq ($(shell uname),Darwin)
 		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MEX_EXT  := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell uname),Linux)
 		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
-		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
+		MEX_EXT  := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 else
-	MEXEXT := $(shell MEXEXT)
+	MEX_EXT := $(shell mexext)
 endif
 
 ifeq ($(ARCH),glnx86)
-	MEXEXT    := mexglx
+	MEX_EXT   := mexglx
 	ARCH_TYPE := x86
 endif
 ifeq ($(ARCH),glnxa64)
-	MEXEXT    := mexa64
+	MEX_EXT   := mexa64
 	ARCH_TYPE := x64
 endif
 ifeq ($(ARCH),mac)
-	MEXEXT    := mexmac
+	MEX_EXT   := mexmac
 	ARCH_TYPE := x86
 endif
 ifeq ($(ARCH),maci)
-	MEXEXT    := mexmaci
+	MEX_EXT   := mexmaci
 	ARCH_TYPE := x86
-endif
+ endif
 ifeq ($(ARCH),maci64)
-	MEXEXT    := mexmaci64
+	MEX_EXT   := mexmaci64
 	ARCH_TYPE := x64
 endif
 ifeq ($(ARCH),sol2)
-	MEXEXT    := mexsol
+	MEX_EXT   := mexsol
 	ARCH_TYPE := x86
 endif
 ifeq ($(ARCH),sol64)
-	MEXEXT    := mexs64
+	MEX_EXT   := mexs64
 	ARCH_TYPE := x64
 endif
 ifeq ($(ARCH),win64)
-	MEXEXT    := mexw64
+	MEX_EXT   := mexw64
 	ARCH_TYPE := x64
 endif
 ifeq ($(ARCH),win32)
-	MEXEXT    := mexw32
+	MEX_EXT   := mexw32
 	ARCH_TYPE := x86
 endif
+
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                            AUTOESL CONFIGURATION                             #
+#                                                                              #
+#------------------------------------------------------------------------------#
+AUTOESL := autoesl -i
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -262,7 +280,11 @@ debug:   all
 
 .PHONY: all
 all: $(ALL_TARGETS)
-	-@echo "Done."
+	-@$(ECHO) "Done."
+
+.PHONY: test
+test:
+	$(call try-autoesl)
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -271,9 +293,9 @@ all: $(ALL_TARGETS)
 #------------------------------------------------------------------------------#
 .PHONY: clean
 clean:
-	-@echo "Cleaning..."
-	$(call pretty,rm -f $(ALL_TARGETS))
-	-@echo "Clean completed."
+	-@$(ECHO) "Cleaning..."
+	$(call pretty,$(DELETE) -f $(ALL_TARGETS))
+	-@$(ECHO) "Clean completed."
 
 .PHONY: distclean
 distclean: clean

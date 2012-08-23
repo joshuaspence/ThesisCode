@@ -16,3 +16,5 @@
 # Binary outputs
 *.bin
 *.autoesl
+
+*.log
