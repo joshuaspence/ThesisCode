@@ -12,6 +12,19 @@ release:
 
 #------------------------------------------------------------------------------#
 #                                                                              #
+#                                CONFIGURATION                                 #
+#                                                                              #
+#------------------------------------------------------------------------------#
+AUTOESL_DIR := AutoESL
+OUTPUT_DIR  := bin
+SOURCE_DIR  := source
+
+BIN_EXT     := bin
+AUTOESL_EXT := autoesl
+
+
+#------------------------------------------------------------------------------#
+#                                                                              #
 #                                FIND MATLAB                                   #
 #                                                                              #
 #------------------------------------------------------------------------------#
@@ -66,20 +79,20 @@ endef
 
 # $(eval $(call target-template,TARGET))
 define target-template
-ALL_TARGETS += $(1).$$(BIN_EXT)
-$(1).$$(BIN_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
+ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(BIN_EXT)
+$$(OUTPUT_DIR)/$(1).$$(BIN_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(CC) -D__C__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@echo
 
-ALL_TARGETS += $(1).$$(AUTOESL_EXT)
-$(1).$$(AUTOESL_EXT): $$(COMMON_SOURCES) $$(BINARY_SOURCES)
-	-@echo "Compiling: $$@"
-	$$(call pretty,$$(CC) -D__AUTOESL__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
-	-@echo
+#ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT)
+#$$(OUTPUT_DIR)/$(1).$$(AUTOESL_EXT): $$(COMMON_SOURCES) $$(AUTOESL_SOURCES)
+#	-@echo "Compiling: $$@"
+#	$$(call pretty,$$(CC) -D__AUTOESL__ $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+#	-@echo
 
-ALL_TARGETS += $(1).$$(MEXEXT)
-$(1).$$(MEXEXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
+ALL_TARGETS += $$(OUTPUT_DIR)/$(1).$$(MEXEXT)
+$$(OUTPUT_DIR)/$(1).$$(MEXEXT): $$(COMMON_SOURCES) $$(MATLAB_SOURCES)
 	-@echo "Compiling: $$@"
 	$$(call pretty,$$(MXX) -D__MEX__ $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	-@echo
@@ -143,9 +156,6 @@ ifeq ($(ARCH),win32)
 	ARCH_TYPE := x86
 endif
 
-BIN_EXT     := bin
-AUTOESL_EXT := autoesl
-
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              COMPILER FLAGS                                  #
@@ -207,9 +217,12 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-COMMON_SOURCES := top_n_outlier_pruning_block.c stats.c vardump.c
-MATLAB_SOURCES := matlab_wrapper.c
-BINARY_SOURCES := wrapper.c test.c
+COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
+                  $(SOURCE_DIR)/stats.c \
+                  $(SOURCE_DIR)/vardump.c
+MATLAB_SOURCES := $(SOURCE_DIR)/matlab_wrapper.c
+BINARY_SOURCES := $(SOURCE_DIR)/wrapper.c \
+                  $(SOURCE_DIR)/test.c
 
 TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := -DSORTED_INSERT
 TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := -DSORTED_INSERT

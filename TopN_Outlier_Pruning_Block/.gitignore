@@ -13,5 +13,6 @@
 *.bak
 *.d
 
-# GCC outputs
+# Binary outputs
 *.bin
+*.autoesl
