@@ -8,6 +8,9 @@
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
+#ifdef __AUTOESL__
+void top_n_outlier_pruning_block(int * dummy);
+#else
 void top_n_outlier_pruning_block(
     const size_t num_vectors,
     const size_t vector_dims,
@@ -18,5 +21,6 @@ void top_n_outlier_pruning_block(
     index_t (* const outliers)[N],
     double_t (* const outlier_scores)[N]
     );
+#endif /* #ifdef __AUTOESL__ */
 
 #endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */

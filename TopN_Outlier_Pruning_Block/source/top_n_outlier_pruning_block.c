@@ -398,6 +398,11 @@ static inline void merge(const size_t N,
  *     - outlier_scores: A vector used to score the score associated with
  *           each of the outliers stored in the outliers array.
  */
+#ifdef __AUTOESL__
+void top_n_outlier_pruning_block(int * dummy) {
+	*dummy = 0;
+}
+#else
 void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_dims,
                                  const double_t (* const data)[num_vectors][vector_dims],
                                  const size_t k, const size_t N, const UNUSED size_t default_block_size,
@@ -552,3 +557,4 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     }
 #endif /* #ifndef NO_BLOCKING */
 }
+#endif /* #ifdef __AUTOESL__ */

@@ -15,21 +15,26 @@ help:
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-BUILD_TYPES        := autoesl binary matlab
+BUILD_TYPES          := autoesl binary matlab
 
-autoesl_OUTPUT_DIR := bin
-autoesl_EXT        := esl
-autoesl_FLAGS      := -D__AUTOESL__
+autoesl_OUTPUT_DIR   := AutoESL
+autoesl_TCL          := tcl
+autoesl_FLAGS        := -D__AUTOESL__
 
-binary_OUTPUT_DIR  := bin
-binary_EXT         := bin
-binary_FLAGS       := -D__C__
+autoesl_TOP          := top_n_outlier_pruning_block
+autoesl_PART         := xc6vlx240tff1156-1
+autoesl_CLOCK_PERIOD := 10
+autoesl_SOLUTION     := solution1
 
-matlab_OUTPUT_DIR  := bin
-matlab_EXT          = $(MEXEXT)
-matlab_FLAGS       := -D__MEX__
+binary_OUTPUT_DIR    := bin
+binary_EXT           := bin
+binary_FLAGS         := -D__C__
 
-SOURCE_DIR         := source
+matlab_OUTPUT_DIR    := bin
+matlab_EXT            = $(MEXEXT)
+matlab_FLAGS         := -D__MEX__
+
+SOURCE_DIR           := source
 
 
 #------------------------------------------------------------------------------#
@@ -179,7 +184,7 @@ $(1)-debug: set-debug $$($(1)_TARGETS)
 .PHONY: clean-$(1) distclean-$(1)
 clean-$(1) distclean-$(1):
 	-@$$(ECHO) "Cleaning $(1)..."
-	$$(DELETE) -f $$($(1)_TARGETS)
+	$$(DELETE) -r -f $$($(1)_TARGETS)
 	-@$$(ECHO) "Clean completed."
 	-@$$(ECHO)
 
@@ -198,18 +203,38 @@ distclean distclean-all: $$(foreach BUILD_TYPE,$$(BUILD_TYPES),clean-$$(BUILD_TY
 
 endef
 
+# $(call autoesl-tcl,PROJECT,SOLUTION)
+define autoesl-tcl
+$(ECHO) "cd $(autoesl_OUTPUT_DIR)"; \
+$(ECHO) "open_project $(1)"; \
+$(ECHO) "set_top $(autoesl_TOP)"; \
+$(foreach FILE,$(COMMON_SOURCES) $(autoesl_SOURCES),$(ECHO) "add_file \"../$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
+$(foreach FILE,$(autoesl_TESTBENCH),$(ECHO) "add_file -tb \"$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
+$(ECHO) "open_solution \"$(2)\""; \
+$(ECHO) "set_part {$(autoesl_PART)}"; \
+$(ECHO) "create_clock -period $(autoesl_CLOCK_PERIOD)"; \
+$(ECHO); \
+$(ECHO) "elaborate"; \
+$(ECHO) "autosyn"; \
+$(ECHO) "exit";
+endef
+
 # $(eval $(call target-template,TARGET))
 define target-template
 # TARGET = $(1)
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
-#ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
-$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT): $$(COMMON_SOURCES) $$(autoesl_SOURCES)
-	@if $$(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
+$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL):
+	-@if $$(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
 		$$(ECHO) "Creating directory: $$(autoesl_OUTPUT_DIR)"; \
 		$$(MAKEDIR) $$(autoesl_OUTPUT_DIR); \
 	fi
+	-@$$(ECHO) "Creating TCL script: $$@"
+	($$(call autoesl-tcl,$(1),$$(autoesl_SOLUTION))) > $$@
+	-@$$(ECHO)
+$$(autoesl_OUTPUT_DIR)/$(1): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
 	-@$$(ECHO) "Compiling: $$@"
-	$$(call pretty,$$(CC) $$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	$$(AUTOESL) -f $$^
 	-@$$(ECHO)
 
 binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
@@ -328,7 +353,7 @@ endif
 #                            AUTOESL CONFIGURATION                             #
 #                                                                              #
 #------------------------------------------------------------------------------#
-AUTOESL := autoesl -i
+AUTOESL := autoesl
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -396,26 +421,30 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-COMMON_SOURCES  := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
-                   $(SOURCE_DIR)/stats.c \
-                   $(SOURCE_DIR)/vardump.c
-autoesl_SOURCES :=
-binary_SOURCES  := $(SOURCE_DIR)/wrapper.c \
-                   $(SOURCE_DIR)/test.c
-matlab_SOURCES  := $(SOURCE_DIR)/matlab_wrapper.c
+COMMON_SOURCES    := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
+                     $(SOURCE_DIR)/stats.c \
+                     $(SOURCE_DIR)/vardump.c
+autoesl_SOURCES   :=
+autoesl_TESTBENCH :=
+binary_SOURCES    := $(SOURCE_DIR)/wrapper.c \
+                     $(SOURCE_DIR)/test.c
+matlab_SOURCES    := $(SOURCE_DIR)/matlab_wrapper.c
 
 
 TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call add-flags,,DSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call add-flags,,DSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call add-flags,,DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call add-flags,,DSORTED_INSERT)
 
 TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call add-flags,,DUNSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
 
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_ESLFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
 
 
 #------------------------------------------------------------------------------#
