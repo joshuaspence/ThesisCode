@@ -5,7 +5,7 @@ function echo_and_exec {
 	$@
 }
 
-XILINX_DIR=/opt/Xilinx/
+XILINX_DIR=/opt/Xilinx
 
 AUTOESL_DIR=$XILINX_DIR/2012.1/AutoESL
 AUTOESL_COMMON_DIR=$XILINX_DIR/2012.1/common
