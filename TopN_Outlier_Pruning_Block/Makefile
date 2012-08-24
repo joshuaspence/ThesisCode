@@ -1,17 +1,10 @@
- #------------------------------------------------------------------------------#
-#                                                                              #
-#                                MAKE OPTIONS                                  #
-#                                                                              #
-#------------------------------------------------------------------------------#
-.SUFFIXES:
-.DEFAULT: help
-
-
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                               DEFAULT TARGET                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
+.SUFFIXES:
+.DEFAULT: help
 .PHONY: help
 help:
 	$(help_text)
@@ -24,7 +17,7 @@ help:
 #------------------------------------------------------------------------------#
 BUILD_TYPES        := autoesl binary matlab
 
-autoesl_OUTPUT_DIR := AutoESL
+autoesl_OUTPUT_DIR := bin
 autoesl_EXT        := esl
 autoesl_FLAGS      := -D__AUTOESL__
 
@@ -57,7 +50,7 @@ TEST    := test
 #                                                                              #
 #------------------------------------------------------------------------------#
 
-# $(call add-flags,CURRENT_FLAGS,FLAG1 FLAG2 ...)
+# $(call add-flags,CURRENT_FLAGS,FLAG FLAG ...)
 # Add flags to a CFLAG-style string.
 define add-flags
 $(call pretty,
@@ -71,7 +64,8 @@ $(call pretty,
 endef
 
 # $(call evaluate,EVAL_CMD)
-# An alternative to $(eval) that will call $(info) as well as $(eval).
+# An alternative to $(eval) that will call $(info) as well as $(eval), if DEBUG
+# is defined.
 ifdef DEBUG
 define evaluate
 $(info $(1))$(eval $(1))
@@ -90,28 +84,29 @@ define help_text
 -@$(ECHO) "\\==============================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make <TASK>"
--@$(ECHO) "     make all[-<BUILD_MODE>]"
--@$(ECHO) "     make <BUILD_TYPE>[-<BUILD_MODE>]"
--@$(ECHO) "     make <TARGET>[-<BUILD_MODE>]"
+-@$(ECHO) "     make [DEBUG=.] ("
+-@$(ECHO) "                     <TASK> |"
+-@$(ECHO) "                     <BUILD_TYPE>[-<BUILD_MODE>] |"
+-@$(ECHO) "                     <TARGET>[-<BUILD_MODE>]"
+-@$(ECHO) "                    )"
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
+-@$(ECHO) "     clean"
+-@$(ECHO) "     clean-<BUILD_TYPE>"
+-@$(ECHO) "     distclean"
+-@$(ECHO) "     distclean-<BUILD_TYPE>"
 -@$(ECHO) "     help"
--@$(ECHO) "     clean | clean-all"
--@$(ECHO) "     clean-<ARCHITECTURE>"
--@$(ECHO) "     distclean | distclean-all"
--@$(ECHO) "     distclean-<ARCHITECTURE>"
 -@$(ECHO) "     info"
 -@$(ECHO)
 -@$(ECHO) " BUILD_TYPES:"
+-@$(ECHO) "     all"
 -@$(foreach TYPE,$(BUILD_TYPES),$(ECHO) "     $(TYPE)";)
 -@$(ECHO) ""
 -@$(ECHO) " BUILD_MODES:"
--@$(ECHO) "     (none)"
 -@$(ECHO) "     debug"
--@$(ECHO) "     release"
+-@$(ECHO) "     release (default)"
 -@$(ECHO)
--@$(ECHO) " TARGET:"
+-@$(ECHO) " TARGETS:"
 -@$(foreach TARGET,$(ALL_TARGETS),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
 endef
@@ -152,7 +147,7 @@ $(foreach VAR,$(sort $(filter-out print-variable%,$(.VARIABLES))),
 		$(call print-variable,$(VAR))))
 endef
 
-# $(call remove-flag,FLAGS,FLAG)
+# $(call remove-flag,CURRENT_FLAGS,FLAG FLAG ...)
 # Remove a flag from a CFLAG-style string.
 define remove-flags
 $(shell \
@@ -170,6 +165,7 @@ define all-template
 .PHONY: all all-release release all-debug debug
 all all-release release: set-release $$(ALL_TARGETS)
 all-debug debug: set-debug $$(ALL_TARGETS)
+
 
 endef
 
@@ -205,24 +201,24 @@ endef
 # $(eval $(call target-template,TARGET))
 define target-template
 # TARGET = $(1)
-#autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
+#ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
 $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT): $$(COMMON_SOURCES) $$(autoesl_SOURCES)
-#	@if [ $(TEST) -d $$(autoesl_OUTPUT_DIR) ]; then \
-#		$$(ECHO) "Creating directory: $$(autoesl_OUTPUT_DIR)"; \
-#		$$(MAKEDIR) $$(autoesl_OUTPUT_DIR); \
-#	fi
+	@if $(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
+		$$(ECHO) "Creating directory: $$(autoesl_OUTPUT_DIR)"; \
+		$$(MAKEDIR) $$(autoesl_OUTPUT_DIR); \
+	fi
 	-@$$(ECHO) "Compiling: $$@"
-	$$(if $$(call autoesl-ready),$$(call pretty,$$(CC) $$(autoesl_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^),-@$$(ECHO) "AutoESL not ready.")
+	$$(call pretty,$$(CC) $$(autoesl_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@$$(ECHO)
 
 binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 ALL_TARGETS    += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
-#	-@if [ $(TEST) -d $$(binary_OUTPUT_DIR) ]; then \
-#		$$(ECHO) "Creating directory: $$(binary_OUTPUT_DIR)"; \
-#		$$(MAKEDIR) $$(binary_OUTPUT_DIR); \
-#	fi
+	-@if $(TEST) ! -d $$(binary_OUTPUT_DIR); then \
+		$$(ECHO) "Creating directory: $$(binary_OUTPUT_DIR)"; \
+		$$(MAKEDIR) $$(binary_OUTPUT_DIR); \
+	fi
 	-@$$(ECHO) "Compiling: $$@"
 	$$(call pretty,$$(CC) $$(binary_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@$$(ECHO)
@@ -230,10 +226,10 @@ $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
 matlab_TARGETS += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 ALL_TARGETS    += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
-#	-@if [ $(TEST) -d $$(matlab_OUTPUT_DIR) ]; then \
-#		$$(ECHO) "Creating directory: $$(matlab_OUTPUT_DIR)"; \
-#		$$(MAKEDIR) $$(matlab_OUTPUT_DIR); \
-#	fi
+	-@if $(TEST) ! -d $$(matlab_OUTPUT_DIR); then \
+		$$(ECHO) "Creating directory: $$(matlab_OUTPUT_DIR)"; \
+		$$(MAKEDIR) $$(matlab_OUTPUT_DIR); \
+	fi
 	-@$$(ECHO) "Compiling: $$@"
 	$$(call pretty,$$(MXX) $$(matlab_FLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	-@$$(ECHO)
@@ -241,6 +237,7 @@ $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 
 endef
 
+# $(eval set-debug-template)
 define set-debug-template
 # Enable debug flags
 .PHONY: set-debug
@@ -252,6 +249,7 @@ set-debug: ESLFLAGS += $$(ESLFLAGS_DEBUG)
 
 endef
 
+# $(eval set-release-template)
 define set-release-template
 # Enable optimisation flags
 .PHONY: set-release
