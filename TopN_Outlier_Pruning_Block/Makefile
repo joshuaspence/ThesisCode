@@ -204,18 +204,18 @@ define target-template
 autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
 #ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT)
 $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_EXT): $$(COMMON_SOURCES) $$(autoesl_SOURCES)
-	@if $(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
+	@if $$(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
 		$$(ECHO) "Creating directory: $$(autoesl_OUTPUT_DIR)"; \
 		$$(MAKEDIR) $$(autoesl_OUTPUT_DIR); \
 	fi
 	-@$$(ECHO) "Compiling: $$@"
-	$$(call pretty,$$(CC) $$(autoesl_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	$$(call pretty,$$(CC) $$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	-@$$(ECHO)
 
 binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 ALL_TARGETS    += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
-	-@if $(TEST) ! -d $$(binary_OUTPUT_DIR); then \
+	-@if $$(TEST) ! -d $$(binary_OUTPUT_DIR); then \
 		$$(ECHO) "Creating directory: $$(binary_OUTPUT_DIR)"; \
 		$$(MAKEDIR) $$(binary_OUTPUT_DIR); \
 	fi
@@ -226,7 +226,7 @@ $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
 matlab_TARGETS += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 ALL_TARGETS    += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
-	-@if $(TEST) ! -d $$(matlab_OUTPUT_DIR); then \
+	-@if $$(TEST) ! -d $$(matlab_OUTPUT_DIR); then \
 		$$(ECHO) "Creating directory: $$(matlab_OUTPUT_DIR)"; \
 		$$(MAKEDIR) $$(matlab_OUTPUT_DIR); \
 	fi
