@@ -11,7 +11,7 @@
 void top_n_outlier_pruning_block(
     const size_t num_vectors,
     const size_t vector_dims,
-    const double_t data[MAX_VECTOR_COUNT(num_vectors)][MAX_VECTOR_DIMS(vector_dims)],
+    const double_t data[MAX_NUM_VECTORS(num_vectors)][MAX_VECTOR_DIMS(vector_dims)],
     const size_t k,
     const size_t N,
     const UNUSED size_t default_block_size,

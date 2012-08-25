@@ -46,7 +46,7 @@ int test(const char * const data_file) {
     
     /* Call the function. */
     PRINTF_STDOUT("Running top_n_outlier_pruning_block(...) for data set '%s'.\n", data_file);
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data, k, N, block_size, &outliers, &outlier_scores);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[MAX_NUM_VECTORS(num_vectors) * MAX_VECTOR_DIMS(vector_dims)]) data, k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
