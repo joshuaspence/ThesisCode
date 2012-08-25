@@ -151,7 +151,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     MEMSET(outlier_scores_out,          0, N, sizeof(double_t));
     
     /* Call the function. */
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, k, N, block_size, &outliers_out, &outlier_scores_out);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[num_vectors * vector_dims]) data_in, k, N, block_size, outliers_out, outlier_scores_out);
     
 #ifdef VARDUMP
     /* Save input and output parameters. */

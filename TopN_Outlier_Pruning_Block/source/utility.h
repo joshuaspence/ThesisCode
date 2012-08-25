@@ -7,7 +7,6 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include <assert.h> /* for assert */
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
@@ -22,17 +21,13 @@
 
 /* Create an assertion. */
 #ifndef ASSERT
-    #define ASSERT(x)               assert(x)
+	#if _ASSERT_
+		#include <assert.h> /* for assert */
+    	#define ASSERT(x)           assert(x)
+	#else
+		#define ASSERT(x)			EMPTY_STATEMENT()
+	#endif /* #if _ASSERT_ */
 #endif /* #ifndef ASSERT */
-
-/* Assert that a variable is not null. */
-#ifndef ASSERT_NOT_NULL
-    #if _POINTER_COMPARISON_
-        #define ASSERT_NOT_NULL(p)  ASSERT(p != NULL)
-    #else
-        #define ASSERT_NOT_NULL(p)  EMPTY_STATEMENT()
-    #endif /* #if _POINTER_COMPARISON */
-#endif /* #ifndef ASSERT_NOT_NULL */
 
 #ifndef ASSERT
     #define ASSERT(x) \
