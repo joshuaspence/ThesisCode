@@ -15,7 +15,7 @@
 
 # Binary outputs
 *.bin
-*.autoesl
 
-# Log files
-*.log
+# AutoESL files
+autoesl.log
+AutoESL/*.tcl

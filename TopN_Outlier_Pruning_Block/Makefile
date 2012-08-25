@@ -15,10 +15,8 @@ help:
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-BUILD_TYPES          := autoesl binary matlab
-
 autoesl_OUTPUT_DIR   := AutoESL
-autoesl_TCL          := tcl
+autoesl_TCLEXT       := tcl
 autoesl_FLAGS        := -D__AUTOESL__
 
 autoesl_TOP          := top_n_outlier_pruning_block
@@ -42,12 +40,15 @@ SOURCE_DIR           := source
 #                                 PROGRAMS                                     #
 #                                                                              #
 #------------------------------------------------------------------------------#
-DELETE  := rm
-ECHO    := echo
-GREP    := egrep
-MAKEDIR := mkdir -p
-SED     := sed
-TEST    := test
+DELETE   := rm
+DIRNAME  := dirname
+ECHO     := echo
+GREP     := egrep
+MAKEDIR  := mkdir -p
+READLINK := readlink -f
+SED      := sed
+TEST     := test
+UNAME    := uname
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -81,6 +82,28 @@ $(eval $(1))
 endef
 endif
 
+# $(call flags,FLAG FLAG ...)
+define flags
+$(call pretty,$(foreach FLAG,$(1), -$(FLAG)))
+endef
+
+# $(call get-relative-path,FROM,TO)
+get-relative-path = $(shell \
+source="$$($(READLINK) $1)"; \
+target="$$($(READLINK) $2)"; \
+\
+common_part="$$source"; \
+back="."; \
+while [ "$${target\#$$common_part}" = "$${target}" ]; do \
+	common_part="$$($(DIRNAME) $$common_part)"; \
+	back="$${back}/.."; \
+done; \
+\
+back=$$($(ECHO) $$back | $(SED) 's/\.\///'); \
+\
+$(ECHO) $${back}$${target\#$$common_part}; \
+)
+
 # $(help-text)
 # The text to be displayed when make is run without any targets.
 define help_text
@@ -89,7 +112,7 @@ define help_text
 -@$(ECHO) "\\==============================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=.] ("
+-@$(ECHO) "     make [DEBUG=1] ("
 -@$(ECHO) "                     <TASK> |"
 -@$(ECHO) "                     <BUILD_TYPE>[-<BUILD_MODE>] |"
 -@$(ECHO) "                     <TARGET>[-<BUILD_MODE>]"
@@ -105,7 +128,9 @@ define help_text
 -@$(ECHO)
 -@$(ECHO) " BUILD_TYPES:"
 -@$(ECHO) "     all"
--@$(foreach TYPE,$(BUILD_TYPES),$(ECHO) "     $(TYPE)";)
+-@$(ECHO) "     autoesl"
+-@$(ECHO) "     binary"
+-@$(ECHO) "     matlab"
 -@$(ECHO) ""
 -@$(ECHO) " BUILD_MODES:"
 -@$(ECHO) "     debug"
@@ -161,6 +186,19 @@ $(shell \
 )
 endef
 
+# $(call trace-message,msg)
+# Print a message to STDOUT.
+trace-message = -@$(ECHO) $1
+
+# Characters that are hard to specify in certain places
+space := $(empty) $(empty)
+colon := \:
+comma := ,
+
+# Useful shell definitions
+sh_true	 := :
+sh_false := ! :
+
 #-------------------------------------------------------------------------------
 
 # $(eval $(all-template))
@@ -183,10 +221,10 @@ $(1)-debug: set-debug $$($(1)_TARGETS)
 
 .PHONY: clean-$(1) distclean-$(1)
 clean-$(1) distclean-$(1):
-	-@$$(ECHO) "Cleaning $(1)..."
-	$$(DELETE) -r -f $$($(1)_TARGETS)
-	-@$$(ECHO) "Clean completed."
-	-@$$(ECHO)
+	$(call trace-message,"Cleaning $(1)...")
+	$$(DELETE) -r -f $$($(1)_CLEAN)
+	$(call trace-message,"Clean completed.")
+	$(call trace-message,)
 
 
 endef
@@ -195,12 +233,20 @@ endef
 define clean-all-template
 # Clean targets
 .PHONY: clean clean-$(1)
-clean clean-all: $$(foreach BUILD_TYPE,$$(BUILD_TYPES),clean-$$(BUILD_TYPE))
+clean clean-all: clean-autoesl clean-binary clean-matlab
 
 .PHONY: distclean distclean-all
-distclean distclean-all: $$(foreach BUILD_TYPE,$$(BUILD_TYPES),clean-$$(BUILD_TYPE))
+distclean distclean-all: distclean-autoesl distclean-binary distclean-matlab
 
 
+endef
+
+# $(call create-directory,DIRECTORY)
+define create-directory
+-@if $$(TEST) ! -d $(1); then \
+	$(call trace-message,"Creating directory: $(1)"); \
+	$(MAKEDIR) $(1); \
+fi
 endef
 
 # $(call autoesl-tcl,PROJECT,SOLUTION)
@@ -211,6 +257,7 @@ $(ECHO) "set_top $(autoesl_TOP)"; \
 $(foreach FILE,$(COMMON_SOURCES) $(autoesl_SOURCES),$(ECHO) "add_file \"../$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
 $(foreach FILE,$(autoesl_TESTBENCH),$(ECHO) "add_file -tb \"$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
 $(ECHO) "open_solution \"$(2)\""; \
+$(foreach TCL,$(autoesl_TCLSOURCES),$(ECHO) "source $(TCL)";) \
 $(ECHO) "set_part {$(autoesl_PART)}"; \
 $(ECHO) "create_clock -period $(autoesl_CLOCK_PERIOD)"; \
 $(ECHO); \
@@ -222,42 +269,39 @@ endef
 # $(eval $(call target-template,TARGET))
 define target-template
 # TARGET = $(1)
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
-$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL):
-	-@if $$(TEST) ! -d $$(autoesl_OUTPUT_DIR); then \
-		$$(ECHO) "Creating directory: $$(autoesl_OUTPUT_DIR)"; \
-		$$(MAKEDIR) $$(autoesl_OUTPUT_DIR); \
-	fi
-	-@$$(ECHO) "Creating TCL script: $$@"
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
+autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
+ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
+$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
 	($$(call autoesl-tcl,$(1),$$(autoesl_SOLUTION))) > $$@
-	-@$$(ECHO)
-$$(autoesl_OUTPUT_DIR)/$(1): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCL)
-	-@$$(ECHO) "Compiling: $$@"
+	$(call trace-message,)
+$$(autoesl_OUTPUT_DIR)/$(1): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
+	$(call trace-message,"Compiling: $$@")
 	$$(AUTOESL) -f $$^
-	-@$$(ECHO)
+	$(call trace-message,)
 
 binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
+binary_CLEAN   += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 ALL_TARGETS    += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
+ALL_CLEAN      += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
-	-@if $$(TEST) ! -d $$(binary_OUTPUT_DIR); then \
-		$$(ECHO) "Creating directory: $$(binary_OUTPUT_DIR)"; \
-		$$(MAKEDIR) $$(binary_OUTPUT_DIR); \
-	fi
-	-@$$(ECHO) "Compiling: $$@"
+	$(call create-directory,$$(binary_OUTPUT_DIR))
+	$(call trace-message,"Compiling: $$@")
 	$$(call pretty,$$(CC) $$(binary_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
-	-@$$(ECHO)
+	$(call trace-message,)
 
 matlab_TARGETS += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
+matlab_CLEAN   += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 ALL_TARGETS    += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
+ALL_CLEAN      += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
-	-@if $$(TEST) ! -d $$(matlab_OUTPUT_DIR); then \
-		$$(ECHO) "Creating directory: $$(matlab_OUTPUT_DIR)"; \
-		$$(MAKEDIR) $$(matlab_OUTPUT_DIR); \
-	fi
-	-@$$(ECHO) "Compiling: $$@"
+	$(call create-directory,$$(matlab_OUTPUT_DIR))
+	$(call trace-message,"Compiling: $$@")
 	$$(call pretty,$$(MXX) $$(matlab_FLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
-	-@$$(ECHO)
+	$(call trace-message,)
 
 
 endef
@@ -296,12 +340,12 @@ MATLAB_DIR := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/MATLAB=\(.\+\)/\1/
 ARCH       := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/ARCH=\(.\+\)/\1/p')
 
 ifndef MXX
-	ifeq ($(shell uname),Darwin)
+	ifeq ($(shell $(UNAME)),Darwin)
 		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
-	ifeq ($(shell uname),Linux)
+	ifeq ($(shell $(UNAME)),Linux)
 		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
@@ -353,8 +397,8 @@ endif
 #                            AUTOESL CONFIGURATION                             #
 #                                                                              #
 #------------------------------------------------------------------------------#
-AUTOESL := autoesl
-
+AUTOESL  := autoesl
+ESLFLAGS :=
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              COMPILER FLAGS                                  #
@@ -376,38 +420,27 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall pedantic fmessage-length=0)
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall pedantic fmessage-length=0)
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),DVARDUMP)
-#LDFLAGS  := $(call add-flags,$(ESLFLAGS),)
-#ESLFLAGS := $(call add-flags,$(ESLFLAGS),)
 
 # Architecture specific
 ifeq ($(ARCH_TYPE), x86)
-#CFLAGS   := $(call add-flags,$(CFLAGS),)
-#CXXFLAGS := $(call add-flags,$(CXXFLAGS),)
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),compatibleArrayDims)
-#LDFLAGS  := $(call add-flags,$(LDFLAGS),)
-#ESLFLAGS := $(call add-flags,$(ESLFLAGS),)
 endif
 ifeq ($(ARCH_TYPE), x64)
-#CFLAGS   := $(call add-flags,$(CFLAGS),)
-#CXXFLAGS := $(call add-flags,$(CXXFLAGS),)
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
-#LDFLAGS  := $(call add-flags,$(LDFLAGS),)
-#ESLFLAGS := $(call add-flags,$(ESLFLAGS),)
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := $(call add-flags,,g O0 DDEBUG DSTATS)
-CXXFLAGS_DEBUG := $(call add-flags,,g O0 DDEBUG DSTATS)
-MXXFLAGS_DEBUG := $(call add-flags,,DDEBUG DSTATS)
-LDFLAGS_DEBUG  := $(call add-flags,,g)
+CFLAGS_DEBUG   := $(call flags,g O0 DDEBUG DSTATS)
+CXXFLAGS_DEBUG := $(call flags,g O0 DDEBUG DSTATS)
+MXXFLAGS_DEBUG := $(call flags,DDEBUG DSTATS)
+LDFLAGS_DEBUG  := $(call flags,g)
 ESLFLAGS_DEBUG :=
 
 # Optimization flags
-CFLAGS_OPT   := $(call add-flags,,O3 DNDEBUG)
-CXXFLAGS_OPT := $(call add-flags,,O3 DNDEBUG)
-MXXFLAGS_OPT := $(call add-flags,,O DNDEBUG)
-LDFLAGS_OPT  := $(call add-flags,,O3)
+CFLAGS_OPT   := $(call flags,O3 DNDEBUG)
+CXXFLAGS_OPT := $(call flags,O3 DNDEBUG)
+MXXFLAGS_OPT := $(call flags,O DNDEBUG)
+LDFLAGS_OPT  := $(call flags,O3)
 ESLFLAGS_OPT :=
 
 
@@ -421,30 +454,33 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-COMMON_SOURCES    := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
-                     $(SOURCE_DIR)/stats.c \
-                     $(SOURCE_DIR)/vardump.c
-autoesl_SOURCES   :=
-autoesl_TESTBENCH :=
-binary_SOURCES    := $(SOURCE_DIR)/wrapper.c \
-                     $(SOURCE_DIR)/test.c
-matlab_SOURCES    := $(SOURCE_DIR)/matlab_wrapper.c
+TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call flags,DVARDUMP DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
 
+TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call flags,DVARDUMP DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
 
-TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call add-flags,,DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call add-flags,,DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call add-flags,,DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call add-flags,,DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_NO_BLOCKING_ESLFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
 
-TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call add-flags,,DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call add-flags,,DUNSORTED_INSERT)
+COMMON_SOURCES     := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
+                      $(SOURCE_DIR)/stats.c \
+                      $(SOURCE_DIR)/vardump.c
 
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_ESLFLAGS := $(call add-flags,,DNO_BLOCKING DSORTED_INSERT)
+autoesl_SOURCES    :=
+autoesl_TBSOURCES  :=
+autoesl_TCLSOURCES := $(SOURCE_DIR)/directives.tcl
+
+binary_SOURCES     := $(SOURCE_DIR)/wrapper.c \
+                      $(SOURCE_DIR)/test.c
+
+matlab_SOURCES     := $(SOURCE_DIR)/matlab_wrapper.c
 
 
 #------------------------------------------------------------------------------#
@@ -453,7 +489,10 @@ TopN_Outlier_Pruning_Block_C_NO_BLOCKING_ESLFLAGS := $(call add-flags,,DNO_BLOCK
 #                                                                              #
 #------------------------------------------------------------------------------#
 $(foreach t,$(TARGETS),$(call evaluate,$(call target-template,$t)))
-$(foreach BUILD_TYPE,$(BUILD_TYPES),$(call evaluate,$(call build-type-template,$(BUILD_TYPE))))
+
+$(call evaluate,$(call build-type-template,autoesl))
+$(call evaluate,$(call build-type-template,binary))
+$(call evaluate,$(call build-type-template,matlab))
 
 $(call evaluate,$(all-template))
 $(call evaluate,$(clean-all-template))
@@ -469,4 +508,4 @@ $(call evaluate,$(set-release-template))
 .PHONY: info
 info:
 	$(print-variables)
-	-@:
+	-@$(sh_true)
