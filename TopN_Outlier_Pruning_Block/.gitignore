@@ -17,5 +17,4 @@
 *.bin
 
 # AutoESL files
-autoesl.log
 AutoESL/*.tcl

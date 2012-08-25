@@ -19,7 +19,7 @@ autoesl_OUTPUT_DIR   := AutoESL
 autoesl_TCLEXT       := tcl
 autoesl_FLAGS        := -D__AUTOESL__
 
-autoesl_TOP          := top_n_outlier_pruning_block
+autoesl_TOP_FUNC     := top_n_outlier_pruning_block
 autoesl_PART         := xc6vlx240tff1156-1
 autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution1
@@ -50,6 +50,7 @@ SED      := sed
 TEST     := test
 UNAME    := uname
 
+
 #------------------------------------------------------------------------------#
 #                                                                              #
 #                              UTILITY MACROS                                  #
@@ -69,6 +70,15 @@ $(call pretty,
 )
 endef
 
+# $(call create-directory,DIRECTORY)
+# Create a directory, if it does not yet e
+define create-directory
+-@if $$(TEST) ! -d $(1); then \
+	$(call trace-message,"Creating directory: $(1)"); \
+	$$(MAKEDIR) $(1); \
+fi
+endef
+
 # $(call evaluate,EVAL_CMD)
 # An alternative to $(eval) that will call $(info) as well as $(eval), if DEBUG
 # is defined.
@@ -83,11 +93,13 @@ endef
 endif
 
 # $(call flags,FLAG FLAG ...)
+# Create a CFLAG-style string.
 define flags
 $(call pretty,$(foreach FLAG,$(1), -$(FLAG)))
 endef
 
 # $(call get-relative-path,FROM,TO)
+# Get the relative file path between two directories.
 get-relative-path = $(shell \
 source="$$($(READLINK) $1)"; \
 target="$$($(READLINK) $2)"; \
@@ -137,7 +149,7 @@ define help_text
 -@$(ECHO) "     release (default)"
 -@$(ECHO)
 -@$(ECHO) " TARGETS:"
--@$(foreach TARGET,$(ALL_TARGETS),$(ECHO) "     $(TARGET)";)
+-@$(foreach TARGET,$(sort $(ALL_TARGETS)),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
 endef
 
@@ -202,7 +214,6 @@ sh_false := ! :
 #-------------------------------------------------------------------------------
 
 # $(eval $(all-template))
-# Create an "all" targets, along with associated release and debug targets.
 define all-template
 # All targets
 .PHONY: all all-release release all-debug debug
@@ -232,7 +243,7 @@ endef
 # $(eval $(clean-all-template))
 define clean-all-template
 # Clean targets
-.PHONY: clean clean-$(1)
+.PHONY: clean clean-all
 clean clean-all: clean-autoesl clean-binary clean-matlab
 
 .PHONY: distclean distclean-all
@@ -241,47 +252,116 @@ distclean distclean-all: distclean-autoesl distclean-binary distclean-matlab
 
 endef
 
-# $(call create-directory,DIRECTORY)
-define create-directory
--@if $$(TEST) ! -d $(1); then \
-	$(call trace-message,"Creating directory: $(1)"); \
-	$(MAKEDIR) $(1); \
-fi
-endef
+# $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
+define autoesl-target-template
+autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1)
+ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1)
 
-# $(call autoesl-tcl,PROJECT,SOLUTION)
-define autoesl-tcl
-$(ECHO) "cd $(autoesl_OUTPUT_DIR)"; \
-$(ECHO) "open_project $(1)"; \
-$(ECHO) "set_top $(autoesl_TOP)"; \
-$(foreach FILE,$(COMMON_SOURCES) $(autoesl_SOURCES),$(ECHO) "add_file \"../$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
-$(foreach FILE,$(autoesl_TESTBENCH),$(ECHO) "add_file -tb \"$(FILE)\" -cflags \"$(autoesl_FLAGS) $(ESLFLAGS) $($(1)_ESLFLAGS)\"";) \
-$(ECHO) "open_solution \"$(2)\""; \
-$(foreach TCL,$(autoesl_TCLSOURCES),$(ECHO) "source $(TCL)";) \
-$(ECHO) "set_part {$(autoesl_PART)}"; \
-$(ECHO) "create_clock -period $(autoesl_CLOCK_PERIOD)"; \
-$(ECHO); \
-$(ECHO) "elaborate"; \
-$(ECHO) "autosyn"; \
-$(ECHO) "exit";
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
+                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+
+$$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
+	( \
+		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
+		$$(ECHO) "open_project $(1)"; \
+		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
+		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_ESLFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_ESLFLAGS)\"";) \
+		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
+		$$(ECHO) "exit"; \
+	) > $$@
+	$(call trace-message,)
+$$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
+	( \
+		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
+		$$(ECHO) "open_project $(1)"; \
+		$$(ECHO) "open_solution $(2)"; \
+		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
+		$$(ECHO) "create_clock -period $$(autoesl_CLOCK_PERIOD)"; \
+		$$(ECHO) "exit"; \
+	) > $$@
+	$(call trace-message,)
+$$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
+	( \
+		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
+		$$(ECHO) "open_project $(1)"; \
+		$$(ECHO) "open_solution $(2)"; \
+		$$(ECHO) "elaborate"; \
+		$$(ECHO) "exit"; \
+	) > $$@
+	$(call trace-message,)
+$$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
+	( \
+		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
+		$$(ECHO) "open_project $(1)"; \
+		$$(ECHO) "open_solution $(2)"; \
+		$$(ECHO) "elaborate"; \
+		$$(ECHO) "autosyn"; \
+		$$(ECHO) "exit"; \
+	) > $$@
+	$(call trace-message,)
+
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
+$$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app: $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT)
+	$(call trace-message,"Creating project: $$@")
+	$$(AUTOESL) -f $$<
+	$(call trace-message,)
+
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
+$$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps: $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
+	$(call trace-message,"Creating solution: $$@")
+	$$(AUTOESL) -f $$<
+	$(call trace-message,)
+
+autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
+ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
+$$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive: $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
+	$(call trace-message,"Elaborating: $$@")
+	$$(AUTOESL) -f $$<
+	$(call trace-message,)
+
+$(1)_AUTOESL_TARGETS := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/systemc/$$(autoesl_TOP_FUNC).cpp \
+                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/systemc/$$(autoesl_TOP_FUNC).h \
+                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/verilog/$$(autoesl_TOP_FUNC).v \
+                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/vhdl/AESL_pkg.vhd \
+                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/vhdl/$$(autoesl_TOP_FUNC).vhd
+autoesl_TARGETS += $$($(1)_AUTOESL_TARGETS)
+ALL_TARGETS     += $$($(1)_AUTOESL_TARGETS)
+$$($(1)_AUTOESL_TARGETS): $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
+	$(call trace-message,"Synthesising: $$@")
+	$$(AUTOESL) -f $$<
+	$(call trace-message,)
+
 endef
 
 # $(eval $(call target-template,TARGET))
 define target-template
 # TARGET = $(1)
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1) $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	($$(call autoesl-tcl,$(1),$$(autoesl_SOLUTION))) > $$@
-	$(call trace-message,)
-$$(autoesl_OUTPUT_DIR)/$(1): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-	$(call trace-message,"Compiling: $$@")
-	$$(AUTOESL) -f $$^
-	$(call trace-message,)
+$(call autoesl-target-template,$(1),$(autoesl_SOLUTION))
 
 binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 binary_CLEAN   += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
