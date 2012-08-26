@@ -91,12 +91,12 @@ UNAME    := uname
 # Add flags to a CFLAG-style string.
 define add-flags
 $(call pretty,
-    $(shell $(ECHO) -n "$(1)")
-	$(foreach FLAG,$(2),$(shell \
-		$(ECHO) -n "$(1)" | \
-		$(GREP) -q "\-$(FLAG)" || \
-			$(ECHO) -n "-$(FLAG)"
-	))
+$(shell $(ECHO) -n "$(1) ")
+$(foreach FLAG,$(2),$(shell \
+$(ECHO) -n "$(1)" | \
+$(GREP) -q "\-$(FLAG)" || \
+$(ECHO) -n "-$(FLAG)"
+))
 )
 endef
 
@@ -154,11 +154,7 @@ define help_text
 -@$(ECHO) "\\==============================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] ("
--@$(ECHO) "                     <TASK> |"
--@$(ECHO) "                     <BUILD_TYPE>[-<BUILD_MODE>] |"
--@$(ECHO) "                     <TARGET>[-<BUILD_MODE>]"
--@$(ECHO) "                    )"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] (<TASK> | <BUILD_TYPE> | <TARGET> )"
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -248,9 +244,8 @@ define all-template
 ################################################################################
 # All targets
 ################################################################################
-.PHONY: all all-release release all-debug debug
-all all-release release: set-release $$(ALL_TARGETS)
-all-debug debug: set-debug $$(ALL_TARGETS)
+.PHONY: all
+all: $$(ALL_TARGETS)
 
 
 endef
@@ -260,9 +255,8 @@ define build-type-template
 ################################################################################
 # BUILD_TYPE = $(1)
 ################################################################################
-.PHONY: $(1) $(1)-release $(1)-debug
-$(1) $(1)-release: set-release $$($(1)_TARGETS)
-$(1)-debug: set-debug $$($(1)_TARGETS)
+.PHONY: $(1)
+$(1): $$($(1)_TARGETS)
 
 .PHONY: clean-$(1) distclean-$(1)
 clean-$(1) distclean-$(1):
@@ -432,28 +426,6 @@ $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 
 endef
 
-# $(eval set-debug-template)
-define set-debug-template
-# Enable debug flags
-.PHONY: set-debug
-set-debug: CFLAGS   += $$(CFLAGS_DEBUG)
-set-debug: CXXFLAGS += $$(CXXFLAGS_DEBUG)
-set-debug: MXXFLAGS += $$(MXXFLAGS_DEBUG)
-set-debug: LDFLAGS  += $$(LDFLAGS_DEBUG)
-
-endef
-
-# $(eval set-release-template)
-define set-release-template
-# Enable optimisation flags
-.PHONY: set-release
-set-release: CFLAGS   += $$(CFLAGS_OPT)
-set-release: CXXFLAGS += $$(CXXFLAGS_OPT)
-set-release: MXXFLAGS += $$(MXXFLAGS_OPT)
-set-release: LDFLAGS  += $$(LDFLAGS_OPT)
-
-endef
-
 
 #------------------------------------------------------------------------------#
 #                                                                              #
@@ -555,16 +527,39 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG    := $(call flags,g O0 DDEBUG DSTATS)
-CXXFLAGS_DEBUG  := $(call flags,g O0 DDEBUG DSTATS)
-MXXFLAGS_DEBUG  := $(call flags,DDEBUG DSTATS)
-LDFLAGS_DEBUG   := $(call flags,g)
+CFLAGS_DEBUG   := g O0 DDEBUG DSTATS
+CXXFLAGS_DEBUG := g O0 DDEBUG DSTATS
+MXXFLAGS_DEBUG := DDEBUG DSTATS
+LDFLAGS_DEBUG  := g
 
 # Optimization flags
-CFLAGS_OPT    := $(call flags,O3 DNDEBUG)
-CXXFLAGS_OPT  := $(call flags,O3 DNDEBUG)
-MXXFLAGS_OPT  := $(call flags,O DNDEBUG)
-LDFLAGS_OPT   := $(call flags,O3)
+CFLAGS_OPT     := O3 DNDEBUG
+CXXFLAGS_OPT   := O3 DNDEBUG
+MXXFLAGS_OPT   := O DNDEBUG
+LDFLAGS_OPT    := O3
+
+ifeq ($(mode),)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_OPT))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_OPT))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_OPT))
+else
+ifeq ($(mode),debug)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_DEBUG))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_DEBUG))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_DEBUG))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_DEBUG))
+else
+ifeq ($(mode),release)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_OPT))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_OPT))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_OPT))
+else
+$(error Invalid mode specified. Valid modes are 'debug' and 'release')
+endif
+endif
+endif
 
 
 #------------------------------------------------------------------------------#
@@ -576,12 +571,10 @@ $(foreach t,$(TARGETS),$(call evaluate,$(call target-template,$t)))
 
 $(call evaluate,$(call build-type-template,autoesl))
 $(call evaluate,$(call build-type-template,binary))
-$(call evaluate,$(call build-type-template,matlab))
+$(eval $(call build-type-template,matlab))
 
 $(call evaluate,$(all-template))
 $(call evaluate,$(clean-all-template))
-$(call evaluate,$(set-debug-template))
-$(call evaluate,$(set-release-template))
 
 
 #------------------------------------------------------------------------------#
@@ -592,4 +585,4 @@ $(call evaluate,$(set-release-template))
 .PHONY: info
 info:
 	$(print-variables)
-	$(sh_true)
+	$(sh_true)	
