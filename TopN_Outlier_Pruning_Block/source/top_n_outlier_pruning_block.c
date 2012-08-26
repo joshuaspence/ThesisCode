@@ -23,9 +23,9 @@ static inline double_t distance_squared(
 static inline double_t insert(
     const size_t k,
     index_t neighbours[ARRAYSIZE_K(k)],
-    double_t neighbours_dist[ARRAYSIZE_K(k)],    
+    double_t neighbours_dist[ARRAYSIZE_K(k)],
     uint_t * const found,
-    const index_t new_neighbour, 
+    const index_t new_neighbour,
     const double_t new_neighbour_dist
     );
 static inline void best_outliers(
@@ -64,9 +64,9 @@ static inline void merge(
  *     - vector_dims: The dimensionality of the vectors.
  *     - vectors: The array containg the vectors between which to calculate the
  *           distance.
- *     - vector1: An array of floating point numbers representing the first 
+ *     - vector1: An array of floating point numbers representing the first
  *           vector.
- *     - vector1: An array of floating point numbers representing the second 
+ *     - vector1: An array of floating point numbers representing the second
  *           vector.
  *
  * Return:
@@ -78,30 +78,30 @@ static inline double_t distance_squared(const size_t vector_dims,
     ASSERT(vector_dims > 0);
     
     STATS_INCREMENT_CALLS_COUNTER();
-	
+    
     double_t sum_of_squares = 0;
     
     uint_t dim;
     for (dim = 0; dim < vector_dims; dim++) {
-        const double_t val         = vector1[dim] - vector2[dim];
-        const double_t val_squared = val * val;
-        sum_of_squares            += val_squared;
+        const double_t diff         = vector1[dim] - vector2[dim];
+        const double_t diff_squared = val * val;
+        sum_of_squares             += val_squared;
     }
     
     return sum_of_squares;
 }
 
 /*
- * Insert a neighbouring vector into the k nearest neighbours array for a 
- * particular vector. Returns the distance value that was removed from the 
+ * Insert a neighbouring vector into the k nearest neighbours array for a
+ * particular vector. Returns the distance value that was removed from the
  * "neighbours_dist" vector, else -1 if no vector was removed.
  *
  * Parameters:
  *     - k: The number of neighbours to keep track of for each vector.
  *     - neighbours: The k nearest neighbours for the current vector.
- *     - neighbours_dist: The distances to the k nearest neighbours for the 
+ *     - neighbours_dist: The distances to the k nearest neighbours for the
  *           current vector.
- *     - found: The number of initialised entries in the neighbours and 
+ *     - found: The number of initialised entries in the neighbours and
  *           neighbours_dist arrays.
  *     - new_neighbour: The new value to be inserted into the neighbours array.
  *     - new_neighbour_dist: The new value to be inserted into the 
@@ -111,7 +111,7 @@ static inline double_t insert(const size_t k,
                               index_t neighbours[ARRAYSIZE_K(k)],
                               double_t neighbours_dist[ARRAYSIZE_K(k)],
                               uint_t * const found,
-                              const index_t new_neighbour, 
+                              const index_t new_neighbour,
                               const double_t new_neighbour_dist) {
     /* Error checking. */
     ASSERT(k > 0);
@@ -232,16 +232,16 @@ static inline double_t insert(const size_t k,
  *
  * Parameters:
  *     - N: The number of outliers to locate.
- *     - outliers_size: The number of initialised entries in the outliers and 
+ *     - outliers_size: The number of initialised entries in the outliers and
  *           outlier_scores arrays.
- *     - outliers: A vector containing the indexes of the current global 
+ *     - outliers: A vector containing the indexes of the current global
  *           outliers.
- *     - outlier_scores: A vector containing the scores of the current global 
+ *     - outlier_scores: A vector containing the scores of the current global
  *           outliers.
  *     - block_size: The number of vectors in the current block.
  *     - current_block: An array containing the indexes of the vectors in the
              current block.
- *     - scores: A vector containing the outlier scores for each element in the 
+ *     - scores: A vector containing the outlier scores for each element in the
  *           current block.
  */
 static inline void best_outliers(const size_t N, size_t * const outliers_size,
@@ -298,8 +298,8 @@ static inline void sort_vectors_descending(const size_t block_size,
     uint_t i;
 #ifndef __AUTOESL__ /* not working with AutoESL */
     for (i = 0; i < block_size; i++) {
-    	int_t j;
-    	index_t  ind = indexes[i];
+        int_t j;
+        index_t  ind = indexes[i];
         double_t val = values [i];
         for (j = i-1; j >= 0; j--) {
             if (values[j] >= val)
@@ -389,7 +389,7 @@ static inline void merge(const size_t N,
  *
  * Parameters:
  *     - num_vectors: The number of vectors contained in the data array.
- *     - vector_dims: The dimensionality of each vector contained in the data 
+ *     - vector_dims: The dimensionality of each vector contained in the data
  *           array.
  *     - data: The input data set.
  *     - k: The number of k-nearest neighbours for outlier detection.
@@ -416,18 +416,18 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT(N <= ARRAYSIZE_N(N));
     ASSERT(default_block_size > 0);
     ASSERT(default_block_size <= ARRAYSIZE_BLOCK_SIZE(default_block_size));
-	
+    
     /* Set output to zero. */
     MEMSET_1D(outliers,       null_index, ARRAYSIZE_N(N), sizeof(index_t));
     MEMSET_1D(outlier_scores,          0, ARRAYSIZE_N(N), sizeof(double_t));
-	
+    
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
     
 #ifndef NO_BLOCKING
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
-	
+    
     for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         ASSERT(block_size <= ARRAYSIZE_BLOCK_SIZE(default_block_size));
@@ -437,7 +437,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         double_t neighbours_dist[ARRAYSIZE_BLOCK_SIZE(block_size)][ARRAYSIZE_K(k)]; /* the distance of the "k" nearest neighbours for each vector in the current block */
         double_t score[ARRAYSIZE_BLOCK_SIZE(block_size)];                     /* the average distance to the "k" neighbours */
         uint_t   found[ARRAYSIZE_BLOCK_SIZE(block_size)];                     /* how many nearest neighbours we have found, for each vector in the block */
-		
+        
         /* Reset array contents */
         do {
             uint_t i;
@@ -448,7 +448,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         MEMSET_2D(neighbours_dist,          0, ARRAYSIZE_BLOCK_SIZE(block_size), ARRAYSIZE_K(k), sizeof(double_t));
         MEMSET_1D(score,                     0, ARRAYSIZE_BLOCK_SIZE(block_size),           sizeof(double_t));
         MEMSET_1D(found,                     0, ARRAYSIZE_BLOCK_SIZE(block_size),           sizeof(uint_t));
-		
+        
         index_t vector1;
         for (vector1 = start_index; vector1 < ARRAYSIZE_NUM_VECTORS(num_vectors) + start_index; vector1++) {
             uint_t block_index;
@@ -542,9 +542,9 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         }
         
         if (!removed) {
-        	index_t block_array[]  = { vector1 };
-        	double_t score_array[] = { score };
-        	
+            index_t block_array[]  = { vector1 };
+            double_t score_array[] = { score };
+
             /* Keep track of the top "N" outliers. */
             best_outliers(N, &outliers_found, outliers, outlier_scores, 1, block_array, score_array);
             

@@ -27,7 +27,7 @@
 /*============================================================================*/
 #ifdef __C__
     #define _ASSERT_                ENABLED
-    #define _DYNAMIC_ARRAY_SIZE_	ENABLED
+    #define _DYNAMIC_ARRAY_SIZE_    ENABLED
     #define _MEMSET_                ENABLED
     
     #include <stdio.h>
@@ -41,7 +41,7 @@
 /*============================================================================*/
 #ifdef __MEX__
     #define _ASSERT_                ENABLED
-    #define _DYNAMIC_ARRAY_SIZE_	ENABLED
+    #define _DYNAMIC_ARRAY_SIZE_    ENABLED
     #define _MEMSET_                ENABLED
     
     #include <mex.h>
@@ -60,7 +60,7 @@
 /*============================================================================*/
 #ifdef __AUTOESL__
     #define _ASSERT_                DISABLED
-    #define _DYNAMIC_ARRAY_SIZE_	DISABLED
+    #define _DYNAMIC_ARRAY_SIZE_    DISABLED
     #define _MEMSET_                DISABLED
     
     #define PRINTF_STDOUT(...)
@@ -94,8 +94,8 @@
         do { \
             uint_t i; \
             for (i = 0; i < _count1_; i++) { \
-            	uint_t j; \
-            	for (j = 0; j < _count2_; j++) \
+                uint_t j; \
+                for (j = 0; j < _count2_; j++) \
                     (_var_)[i][j] = _value_; \
             } \
         } while (0)
@@ -113,17 +113,17 @@
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
 #if _DYNAMIC_
-	#define ARRAYSIZE_NUM_VECTORS(N)    N
-	#define ARRAYSIZE_VECTOR_DIMS(N)    N
-	#define ARRAYSIZE_K(N)              N
-	#define ARRAYSIZE_N(N)              N
-	#define ARRAYSIZE_BLOCK_SIZE(N)     N
+    #define ARRAYSIZE_NUM_VECTORS(N)    N
+    #define ARRAYSIZE_VECTOR_DIMS(N)    N
+    #define ARRAYSIZE_K(N)              N
+    #define ARRAYSIZE_N(N)              N
+    #define ARRAYSIZE_BLOCK_SIZE(N)     N
 #else
-	#define ARRAYSIZE_NUM_VECTORS(N)    1000
-	#define ARRAYSIZE_VECTOR_DIMS(N)    200
-	#define ARRAYSIZE_K(N)              15
-	#define ARRAYSIZE_N(N)              40
-	#define ARRAYSIZE_BLOCK_SIZE(N)     40
+    #define ARRAYSIZE_NUM_VECTORS(N)    1000
+    #define ARRAYSIZE_VECTOR_DIMS(N)    200
+    #define ARRAYSIZE_K(N)              15
+    #define ARRAYSIZE_N(N)              40
+    #define ARRAYSIZE_BLOCK_SIZE(N)     40
 #endif /* #if _DYNAMIC_ */
 /*----------------------------------------------------------------------------*/
 

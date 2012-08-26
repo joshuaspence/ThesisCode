@@ -10,7 +10,9 @@
 #endif /* #ifdef STATS */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
 #include "utility.h" /* for double_t, index_t, lint_t, null_index, uint_t */
-#include "vardump.h"
+#ifdef VARDUMP
+    #include "vardump.h" /* save_vardump */
+#endif /* #ifdef VARDUMP */
 
 #include <mex.h> /* for mxGetScalar */
 #include <stdlib.h> /* for free, malloc, size_t */

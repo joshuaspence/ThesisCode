@@ -24,12 +24,11 @@
     
     extern lint_t calls_counter;
     extern uint_t num_pruned;
-
+    
     void get_stats(
         lint_t * const counter,
         uint_t * const prune_count
         );
-
 #else
     #define STATS_INCREMENT_CALLS_COUNTER()     EMPTY_STATEMENT()
     #define STATS_INCREMENT_NUM_PRUNED()        EMPTY_STATEMENT()
