@@ -149,12 +149,12 @@ $(ECHO) $${back}$${target\#$$common_part}; \
 # $(help-text)
 # The text to be displayed when make is run without any targets.
 define help_text
--@$(ECHO) "/==============================================================================\\"
--@$(ECHO) "|                          TopN_Outlier_Pruning_Block                          |"
--@$(ECHO) "\\==============================================================================/"
+-@$(ECHO) "/==================================================================================================\\"
+-@$(ECHO) "|                                    TopN_Outlier_Pruning_Block                                    |"
+-@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] (<TASK> | <BUILD_TYPE> | <TARGET> )"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] (<TASKS> | <BUILD_TYPE> | <HELPER_TARGET> | <TARGET> )"
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -173,6 +173,9 @@ define help_text
 -@$(ECHO) " BUILD_MODES:"
 -@$(ECHO) "     debug"
 -@$(ECHO) "     release (default)"
+-@$(ECHO)
+-@$(ECHO) " HELER_TARGETS:"
+-@$(foreach TARGET,$(sort $(HELPER_TARGETS)),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
 -@$(ECHO) " TARGETS:"
 -@$(foreach TARGET,$(sort $(ALL_TARGETS)),$(ECHO) "     $(TARGET)";)
@@ -250,60 +253,28 @@ all: $$(ALL_TARGETS)
 
 endef
 
-# $(eval $(call build-type-template,BUILD_TYPE))
-define build-type-template
-################################################################################
-# BUILD_TYPE = $(1)
-################################################################################
-.PHONY: $(1)
-$(1): $$($(1)_TARGETS)
-
-.PHONY: clean-$(1) distclean-$(1)
-clean-$(1) distclean-$(1):
-	$(call trace-message,"Cleaning $(1)...")
-	$$(DELETE) -r -f $$($(1)_CLEAN)
-	$(call trace-message,"Clean completed.")
-	$(call trace-message,)
-
-
-endef
-
-# $(eval $(clean-all-template))
-define clean-all-template
-################################################################################
-# Clean targets
-################################################################################
-.PHONY: clean clean-all
-clean clean-all: clean-autoesl clean-binary clean-matlab
-
-.PHONY: distclean distclean-all
-distclean distclean-all: distclean-autoesl distclean-binary distclean-matlab
-
-
-endef
-
 # $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
 define autoesl-target-template
 autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1) autoesl.log $$(autoesl_OUTPUT_DIR)/autobuild.log
 ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1)
 
+HELPER_TARGETS  += $(1)-autoesl
+.PHONY: $(1)-autoesl
+$(1)-autoesl: $(1)-autoesl-tcl $(1)-autoesl-project $(1)-autoesl-solution $(1)-autoesl-elaborate $(1)-autoesl-synthesise
+
 # AutoESL: TCL scripts
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
-autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
-ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
-                   $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                    $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
+                    $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
+                    $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+autoesl_TARGETS  += $$($(1)_AUTOESL_TCL)
+autoesl_CLEAN    += $$($(1)_AUTOESL_TCL)
+ALL_TARGETS      += $$($(1)_AUTOESL_TCL)
+ALL_CLEAN        += $$($(1)_AUTOESL_TCL)
+
+HELPER_TARGETS  += $(1)-autoesl-tcl
+.PHONY: $(1)-autoesl-tcl
+$(1)-autoesl-tcl: $$($(1)_AUTOESL_TCL)
 
 $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 	$(call create-directory,$$(autoesl_OUTPUT_DIR))
@@ -355,25 +326,43 @@ $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT):
 	$(call trace-message,)
 
 # AutoESL: Create project
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
-$$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app: $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT)
+$(1)_AUTOESL_PROJECT := $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
+autoesl_TARGETS      += $$($(1)_AUTOESL_PROJECT)
+ALL_TARGETS          += $$($(1)_AUTOESL_PROJECT)
+
+HELPER_TARGETS  += $(1)-autoesl-project
+.PHONY: $(1)-autoesl-project
+$(1)-autoesl-project: $$($(1)_AUTOESL_PROJECT)
+
+$$($(1)_AUTOESL_PROJECT): $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT)
 	$(call trace-message,"Creating project: $$@")
 	$$(AUTOESL) -f $$<
 	$(call trace-message,)
 
 # AutoESL: Create solution
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
-$$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps: $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
+$(1)_AUTOESL_SOLUTION := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
+autoesl_TARGETS       += $$($(1)_AUTOESL_SOLUTION)
+ALL_TARGETS           += $$($(1)_AUTOESL_SOLUTION)
+
+HELPER_TARGETS  += $(1)-autoesl-solution
+.PHONY: $(1)-autoesl-solution
+$(1)-autoesl-solution: $$($(1)_AUTOESL_SOLUTION)
+
+$$($(1)_AUTOESL_SOLUTION): $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_PROJECT)
 	$(call trace-message,"Creating solution: $$@")
 	$$(AUTOESL) -f $$<
 	$(call trace-message,)
 
 # AutoESL: Elaborate
-autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
-ALL_TARGETS     += $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
-$$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive: $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
+$(1)_AUTOESL_ELABORATE := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
+autoesl_TARGETS        += $$($(1)_AUTOESL_ELABORATE)
+ALL_TARGETS            += $$($(1)_AUTOESL_ELABORATE)
+
+HELPER_TARGETS  += $(1)-autoesl-elaborate
+.PHONY: $(1)-autoesl-elaborate
+$(1)-autoesl-elaborate: $$($(1)_AUTOESL_ELABORATE)
+
+$$($(1)_AUTOESL_ELABORATE): $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_PROJECT)
 	$(call trace-message,"Elaborating: $$@")
 	$$(AUTOESL) -f $$<
 	$(call trace-message,)
@@ -386,10 +375,47 @@ $(1)_AUTOESL_TARGETS := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/systemc/$$(autoesl_
                         $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/vhdl/$$(autoesl_TOP_FUNC).vhd
 autoesl_TARGETS += $$($(1)_AUTOESL_TARGETS)
 ALL_TARGETS     += $$($(1)_AUTOESL_TARGETS)
-$$($(1)_AUTOESL_TARGETS): $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT) $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
+
+HELPER_TARGETS  += $(1)-autoesl-synthesise
+.PHONY: $(1)-autoesl-synthesise
+$(1)-autoesl-synthesise: $$($(1)_AUTOESL_TARGETS)
+
+$$($(1)_AUTOESL_TARGETS): $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_ELABORATE)
 	$(call trace-message,"Synthesising: $$@")
 	$$(AUTOESL) -f $$<
 	$(call trace-message,)
+
+endef
+
+# $(eval $(call build-type-template,BUILD_TYPE))
+define build-type-template
+################################################################################
+# BUILD_TYPE = $(1)
+################################################################################
+.PHONY: $(1)
+$(1): $$($(1)_TARGETS)
+
+.PHONY: clean-$(1) distclean-$(1)
+clean-$(1) distclean-$(1):
+	$(call trace-message,"Cleaning $(1)...")
+	$$(DELETE) -r -f $$($(1)_CLEAN)
+	$(call trace-message,"Clean completed.")
+	$(call trace-message,)
+
+
+endef
+
+# $(eval $(clean-all-template))
+define clean-all-template
+################################################################################
+# Clean targets
+################################################################################
+.PHONY: clean clean-all
+clean clean-all: clean-autoesl clean-binary clean-matlab
+
+.PHONY: distclean distclean-all
+distclean distclean-all: distclean-autoesl distclean-binary distclean-matlab
+
 
 endef
 
@@ -402,22 +428,34 @@ define target-template
 $(call autoesl-target-template,$(1),$(autoesl_SOLUTION))
 
 # Binary
-binary_TARGETS += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
-binary_CLEAN   += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
-ALL_TARGETS    += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
-ALL_CLEAN      += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
-$$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
+$(1)_BINARY    := $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
+binary_TARGETS += $$($(1)_BINARY)
+binary_CLEAN   += $$($(1)_BINARY)
+ALL_TARGETS    += $$($(1)_BINARY)
+ALL_CLEAN      += $$($(1)_BINARY)
+
+HELPER_TARGETS  += $(1)-binary
+.PHONY: $(1)-binary
+$(1)-binary: $$($(1)_BINARY)
+
+$$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	$(call trace-message,)
 
 # Matlab
-matlab_TARGETS += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
-matlab_CLEAN   += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
-ALL_TARGETS    += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
-ALL_CLEAN      += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
-$$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
+$(1)_MATLAB    := $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
+matlab_TARGETS += $$($(1)_MATLAB)
+matlab_CLEAN   += $$($(1)_MATLAB)
+ALL_TARGETS    += $$($(1)_MATLAB)
+ALL_CLEAN      += $$($(1)_MATLAB)
+
+HELPER_TARGETS  += $(1)-matlab
+.PHONY: $(1)-matlab
+$(1)-matlab: $$($(1)_MATLAB)
+
+$$($(1)_MATLAB): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(call pretty,$$(MXX) $$(matlab_CFLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
