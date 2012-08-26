@@ -1,6 +1,9 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+
 #include "stats.h" /* for get_stats */
 #include "test.h" /* main header file */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
@@ -93,7 +96,7 @@ int test(const char * const data_file) {
     
     /* Compare scores. */
     do {
-        printf("Comparing scores... ");
+        PRINTF_STDOUT("Comparing scores... ");
         
         uint_t i;
         uint_t similarity = 0;
