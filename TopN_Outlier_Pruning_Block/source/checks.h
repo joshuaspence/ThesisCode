@@ -1,4 +1,4 @@
-ith/*
+/*
  * This header files checks for invalid combinations of preprocessor macros. It
  * also ensures that required preprocessor macros have been defined.
  */
