@@ -84,8 +84,8 @@ static inline double_t distance_squared(const size_t vector_dims,
     uint_t dim;
     for (dim = 0; dim < vector_dims; dim++) {
         const double_t diff         = vector1[dim] - vector2[dim];
-        const double_t diff_squared = val * val;
-        sum_of_squares             += val_squared;
+        const double_t diff_squared = diff * diff;
+        sum_of_squares             += diff_squared;
     }
     
     return sum_of_squares;
