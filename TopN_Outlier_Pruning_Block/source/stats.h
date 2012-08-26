@@ -20,20 +20,14 @@
             const UNUSED uint_t old_num_pruned = num_pruned; \
             num_pruned++; \
             ASSERT(num_pruned > old_num_pruned); \
-            \
-            const UNUSED lint_t old_num_scaled_pruned = num_scaled_pruned; \
-            num_scaled_pruned++; \
-            ASSERT(num_scaled_pruned > old_num_scaled_pruned); \
         } while (0)
     
     extern lint_t calls_counter;
     extern uint_t num_pruned;
-    extern lint_t num_scaled_pruned;
 
     void get_stats(
         lint_t * const counter,
-        uint_t * const prune_count,
-        lint_t * const scaled_prune_count
+        uint_t * const prune_count
         );
 
 #else

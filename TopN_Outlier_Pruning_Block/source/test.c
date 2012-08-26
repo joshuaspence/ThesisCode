@@ -101,12 +101,10 @@ int test(const char * const data_file) {
     /* Print the number of calls to the distance function */
     lint_t num_calls;
     uint_t num_pruned;
-    lint_t num_scaled_pruned;
     
-    get_stats(&num_calls, &num_pruned, &num_scaled_pruned);
+    get_stats(&num_calls, &num_pruned);
     PRINTF_STDOUT("Calls to distance function = %llu\n", num_calls);
     PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
-    PRINTF_STDOUT("Number of pruned vectors (scaled) = %llu\n", num_scaled_pruned);
 #endif /* #ifdef STATS */
     
     return failed;
