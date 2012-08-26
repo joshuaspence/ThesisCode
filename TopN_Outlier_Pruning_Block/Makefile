@@ -15,24 +15,54 @@ help:
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
+TARGETS := TopN_Outlier_Pruning_Block_SORTED \
+           TopN_Outlier_Pruning_Block_UNSORTED \
+           TopN_Outlier_Pruning_Block_NO_BLOCKING \
+           TopN_Outlier_Pruning_Block_HARDCODED
+
+TopN_Outlier_Pruning_Block_SORTED_CFLAGS         = $(call flags,DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS       = $(call flags,DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS       = $(call flags,DBLOCKING DSORTED_INSERT)
+
+TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS       = $(call flags,DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS     = $(call flags,DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS     = $(call flags,DBLOCKING DUNSORTED_INSERT)
+
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT)
+
+TopN_Outlier_Pruning_Block_HARDCODED_CFLAGS     = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_HARDCODED_CXXFLAGS   = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_HARDCODED_MXXFLAGS   = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+
+SOURCE_DIR           := source
+COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
+                        $(SOURCE_DIR)/stats.c
+
 autoesl_OUTPUT_DIR   := AutoESL
 autoesl_TCLEXT       := tcl
-autoesl_FLAGS        := -D__AUTOESL__
-
+autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
 autoesl_TOP_FUNC     := top_n_outlier_pruning_block
 autoesl_PART         := xc6vlx240tff1156-1
 autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution1
+autoesl_SOURCES      :=
+autoesl_TBSOURCES    :=
+autoesl_TCLSOURCES   := $(SOURCE_DIR)/directives.tcl
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
-binary_FLAGS         := -D__C__
+binary_CFLAGS         = $(call flags,D__C__ DVARDUMP)
+binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
+                        $(SOURCE_DIR)/test.c \
+                        $(SOURCE_DIR)/vardump.c
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
-matlab_FLAGS         := -D__MEX__
-
-SOURCE_DIR           := source
+matlab_CFLAGS         = $(call flags,D__MEX__ DVARDUMP)
+matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.c \
+                        $(SOURCE_DIR)/vardump.c
 
 
 #------------------------------------------------------------------------------#
@@ -61,11 +91,11 @@ UNAME    := uname
 # Add flags to a CFLAG-style string.
 define add-flags
 $(call pretty,
+    $(shell $(ECHO) -n "$(1)")
 	$(foreach FLAG,$(2),$(shell \
 		$(ECHO) -n "$(1)" | \
-		$(GREP) -q "\-$(FLAG)" && \
-			$(ECHO) -n "$(1)" || \
-			$(ECHO) -n "$(1) -$(FLAG)"
+		$(GREP) -q "\-$(FLAG)" || \
+			$(ECHO) -n "-$(FLAG)"
 	))
 )
 endef
@@ -95,7 +125,7 @@ endif
 # $(call flags,FLAG FLAG ...)
 # Create a CFLAG-style string.
 define flags
-$(call pretty,$(foreach FLAG,$(1), -$(FLAG)))
+$(call pretty,$(foreach FLAG,$(1),-$(FLAG)))
 endef
 
 # $(call get-relative-path,FROM,TO)
@@ -288,8 +318,8 @@ $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
 		$$(ECHO) "open_project $(1)"; \
 		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
-		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_ESLFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_FLAGS) $$(ESLFLAGS) $$($(1)_ESLFLAGS)\"";) \
+		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
 		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
 		$$(ECHO) "exit"; \
 	) > $$@
@@ -385,7 +415,7 @@ ALL_CLEAN      += $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(CC) $$(binary_FLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
 	$(call trace-message,)
 
 # Matlab
@@ -396,7 +426,7 @@ ALL_CLEAN      += $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(MXX) $$(matlab_FLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
+	$$(call pretty,$$(MXX) $$(matlab_CFLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	$(call trace-message,)
 
 
@@ -410,7 +440,6 @@ set-debug: CFLAGS   += $$(CFLAGS_DEBUG)
 set-debug: CXXFLAGS += $$(CXXFLAGS_DEBUG)
 set-debug: MXXFLAGS += $$(MXXFLAGS_DEBUG)
 set-debug: LDFLAGS  += $$(LDFLAGS_DEBUG)
-set-debug: ESLFLAGS += $$(ESLFLAGS_DEBUG)
 
 endef
 
@@ -422,7 +451,6 @@ set-release: CFLAGS   += $$(CFLAGS_OPT)
 set-release: CXXFLAGS += $$(CXXFLAGS_OPT)
 set-release: MXXFLAGS += $$(MXXFLAGS_OPT)
 set-release: LDFLAGS  += $$(LDFLAGS_OPT)
-set-release: ESLFLAGS += $$(ESLFLAGS_OPT)
 
 endef
 
@@ -493,8 +521,7 @@ endif
 #                            AUTOESL CONFIGURATION                             #
 #                                                                              #
 #------------------------------------------------------------------------------#
-AUTOESL  := autoesl
-ESLFLAGS :=
+AUTOESL   := autoesl
 
 
 #------------------------------------------------------------------------------#
@@ -528,57 +555,16 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := $(call flags,g O0 DDEBUG DSTATS)
-CXXFLAGS_DEBUG := $(call flags,g O0 DDEBUG DSTATS)
-MXXFLAGS_DEBUG := $(call flags,DDEBUG DSTATS)
-LDFLAGS_DEBUG  := $(call flags,g)
-ESLFLAGS_DEBUG :=
+CFLAGS_DEBUG    := $(call flags,g O0 DDEBUG DSTATS)
+CXXFLAGS_DEBUG  := $(call flags,g O0 DDEBUG DSTATS)
+MXXFLAGS_DEBUG  := $(call flags,DDEBUG DSTATS)
+LDFLAGS_DEBUG   := $(call flags,g)
 
 # Optimization flags
-CFLAGS_OPT   := $(call flags,O3 DNDEBUG)
-CXXFLAGS_OPT := $(call flags,O3 DNDEBUG)
-MXXFLAGS_OPT := $(call flags,O DNDEBUG)
-LDFLAGS_OPT  := $(call flags,O3)
-ESLFLAGS_OPT :=
-
-
-#------------------------------------------------------------------------------#
-#                                                                              #
-#                                   TARGETS                                    #
-#                                                                              #
-#------------------------------------------------------------------------------#
-
-TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
-           TopN_Outlier_Pruning_Block_C_UNSORTED \
-           TopN_Outlier_Pruning_Block_C_NO_BLOCKING
-
-TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
-
-TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
-
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_MXXFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_NO_BLOCKING_ESLFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
-
-COMMON_SOURCES     := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
-                      $(SOURCE_DIR)/stats.c \
-                      $(SOURCE_DIR)/vardump.c
-
-autoesl_SOURCES    :=
-autoesl_TBSOURCES  :=
-autoesl_TCLSOURCES := $(SOURCE_DIR)/directives.tcl
-
-binary_SOURCES     := $(SOURCE_DIR)/wrapper.c \
-                      $(SOURCE_DIR)/test.c
-
-matlab_SOURCES     := $(SOURCE_DIR)/matlab_wrapper.c
+CFLAGS_OPT    := $(call flags,O3 DNDEBUG)
+CXXFLAGS_OPT  := $(call flags,O3 DNDEBUG)
+MXXFLAGS_OPT  := $(call flags,O DNDEBUG)
+LDFLAGS_OPT   := $(call flags,O3)
 
 
 #------------------------------------------------------------------------------#
