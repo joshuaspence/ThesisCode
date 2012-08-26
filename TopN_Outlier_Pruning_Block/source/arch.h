@@ -12,9 +12,9 @@
 #define DISABLED    0
 #define ENABLED     1
 
-#undef _ASSERT_
-#undef _DYNAMIC_
-#undef _MEMSET_
+#undef _ASSERT_             /* enable/disable the assert() function .*/
+#undef _DYNAMIC_ARRAY_SIZE_ /* if enabled, use dynamically-sized arrays; if disabled, used statically-sized arrays, where necessary. */
+#undef _MEMSET_             /* if enabled, use memset() to set the value of a memory range; if disabled, use a for-loop instead. */
 
 /*============================================================================*/
 /* Includes                                                                   */
@@ -27,7 +27,7 @@
 /*============================================================================*/
 #ifdef __C__
     #define _ASSERT_                ENABLED
-    #define _DYNAMIC_				ENABLED
+    #define _DYNAMIC_ARRAY_SIZE_	ENABLED
     #define _MEMSET_                ENABLED
     
     #include <stdio.h>
@@ -41,7 +41,7 @@
 /*============================================================================*/
 #ifdef __MEX__
     #define _ASSERT_                ENABLED
-    #define _DYNAMIC_				ENABLED
+    #define _DYNAMIC_ARRAY_SIZE_	ENABLED
     #define _MEMSET_                ENABLED
     
     #include <mex.h>
@@ -60,12 +60,11 @@
 /*============================================================================*/
 #ifdef __AUTOESL__
     #define _ASSERT_                DISABLED
-    #define _DYNAMIC_				DISABLED
+    #define _DYNAMIC_ARRAY_SIZE_	DISABLED
     #define _MEMSET_                DISABLED
     
-    #include <stdio.h>
-    #define PRINTF_STDOUT(...)      fprintf(stdout, __VA_ARGS__)
-    #define PRINTF_STDERR(...)      fprintf(stderr, __VA_ARGS__)
+    #define PRINTF_STDOUT(...)
+    #define PRINTF_STDERR(...)
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
@@ -73,25 +72,25 @@
 /* MEMSET and MEMCPY macros                                                   */
 /*============================================================================*/
 #if _MEMSET_
-    #include <string.h>
+    #include <string.h> /* for memset */
     
-    #define MEMSET(_var_, _value_, _count_, _size_) \
+    #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         memset(_var_, _value_, (_count_) * (_size_))
-    #define MEMSET2(_var_, _value_, _count1_, _count2_, _size_) \
-        MEMSET(_var_, _value_, (_count1_)*(_count2_), _size_)
+    #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
+        MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
         
-    #define MEMCPY(_dst_, _src_, _count_, _size_) \
+    #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         memcpy(_dst_, _src_, (_count_) * (_size_))
 #else
-    #include "utility.h"
+    #include "utility.h" /* for uint_t */
     
-    #define MEMSET(_var_, _value_, _count_, _size_) \
+    #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         do { \
             uint_t i; \
             for (i = 0; i < _count_; i++) \
                 (_var_)[i] = _value_; \
         } while (0)
-    #define MEMSET2(_var_, _value_, _count1_, _count2_, _size_) \
+    #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
         do { \
             uint_t i; \
             for (i = 0; i < _count1_; i++) { \
@@ -101,30 +100,30 @@
             } \
         } while (0)
     
-    #define MEMCPY(_dst_, _src_, _count_, _size_) \
+    #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         do { \
             uint_t i; \
             for (i = 0; i < _count_; i++) \
                 (_dst_)[i] = (_src_)[i]; \
-        } while (0);
+        } while (0)
 #endif /* #if _MEMSET_ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
-/* Static or dynamic arrays                                                   */
+/* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
 #if _DYNAMIC_
-	#define MAX_NUM_VECTORS(X)  X
-	#define MAX_VECTOR_DIMS(X)  X
-	#define MAX_K(X)            X
-	#define MAX_N(X)            X
-	#define MAX_BLOCK_SIZE(X)   X
+	#define ARRAYSIZE_NUM_VECTORS(N)    N
+	#define ARRAYSIZE_VECTOR_DIMS(N)    N
+	#define ARRAYSIZE_K(N)              N
+	#define ARRAYSIZE_N(N)              N
+	#define ARRAYSIZE_BLOCK_SIZE(N)     N
 #else
-	#define MAX_NUM_VECTORS(X)  1000
-	#define MAX_VECTOR_DIMS(X)  200
-	#define MAX_K(X)            15
-	#define MAX_N(X)            40
-	#define MAX_BLOCK_SIZE(X)   40
+	#define ARRAYSIZE_NUM_VECTORS(N)    1000
+	#define ARRAYSIZE_VECTOR_DIMS(N)    200
+	#define ARRAYSIZE_K(N)              15
+	#define ARRAYSIZE_N(N)              40
+	#define ARRAYSIZE_BLOCK_SIZE(N)     40
 #endif /* #if _DYNAMIC_ */
 /*----------------------------------------------------------------------------*/
 

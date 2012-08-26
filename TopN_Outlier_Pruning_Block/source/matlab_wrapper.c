@@ -9,7 +9,7 @@
     #include "stats.h" /* for get_stats */
 #endif /* #ifdef STATS */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for double_t, index_t, lint_t, MEMSET, null_index, uint_t */
+#include "utility.h" /* for double_t, index_t, lint_t, null_index, uint_t */
 #include "vardump.h"
 
 #include <mex.h> /* for mxGetScalar */
@@ -147,8 +147,8 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Create the output arrays. */
     index_t  outliers_out      [N];
     double_t outlier_scores_out[N];
-    MEMSET(outliers_out,       null_index, N, sizeof(index_t));
-    MEMSET(outlier_scores_out,          0, N, sizeof(double_t));
+    MEMSET_1D(outliers_out,       null_index, N, sizeof(index_t));
+    MEMSET_1D(outlier_scores_out,          0, N, sizeof(double_t));
     
     /* Call the function. */
     top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[num_vectors * vector_dims]) data_in, k, N, block_size, outliers_out, outlier_scores_out);

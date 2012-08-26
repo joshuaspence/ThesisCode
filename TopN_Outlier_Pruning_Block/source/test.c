@@ -4,7 +4,7 @@
 #include "stats.h" /* for get_stats */
 #include "test.h" /* main header file */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for boolean, index_t, double_t, false, lint_t, MEMSET, PRINTF_STDOUT, true, uint_t */
+#include "utility.h" /* for boolean, index_t, double_t, false, lint_t, PRINTF_STDOUT, true, uint_t */
 #include "vardump.h" /* for read_vardump */
 
 #include <stdlib.h> /* for size_t, free */
@@ -41,12 +41,12 @@ int test(const char * const data_file) {
     /* Create the output arrays. */
     index_t  outliers      [N];
     double_t outlier_scores[N];
-    MEMSET(outliers,       0, N, sizeof(index_t));
-    MEMSET(outlier_scores, 0, N, sizeof(double_t));
+    MEMSET_1D(outliers,       0, N, sizeof(index_t));
+    MEMSET_1D(outlier_scores, 0, N, sizeof(double_t));
     
     /* Call the function. */
     PRINTF_STDOUT("Running top_n_outlier_pruning_block(...) for data set '%s'.\n", data_file);
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[MAX_NUM_VECTORS(num_vectors) * MAX_VECTOR_DIMS(vector_dims)]) data, k, N, block_size, outliers, outlier_scores);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[ARRAYSIZE_VECTOR_DIMS(vector_dims)]) data, k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
