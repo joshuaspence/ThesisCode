@@ -553,8 +553,8 @@ CFLAGS   := $(call remove-flags,$(CFLAGS),ansi)
 CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 
 # Additional flags
-CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall pedantic fmessage-length=0)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall pedantic fmessage-length=0)
+CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0)
 
 # Architecture specific
 ifeq ($(ARCH_TYPE), x86)
