@@ -12,10 +12,6 @@ if [[ "$(readlink -f $(pwd))" != "$(readlink -f $(dirname $0))" ]]; then
     exit 1
 fi
 
-# Clean the MATLAB directory first
-echo "Cleaning MATLAB directory."
-./clean.sh >/dev/null
-
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
 if [[ -z "$DESCRIPTION" ]]; then
