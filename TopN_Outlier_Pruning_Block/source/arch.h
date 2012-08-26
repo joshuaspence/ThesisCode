@@ -112,7 +112,7 @@
 /*============================================================================*/
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
-#if _DYNAMIC_
+#if _DYNAMIC_ARRAY_SIZE_
     #define ARRAYSIZE_NUM_VECTORS(N)    N
     #define ARRAYSIZE_VECTOR_DIMS(N)    N
     #define ARRAYSIZE_K(N)              N

@@ -52,7 +52,10 @@ int test(const char * const data_file) {
     
     /* Call the function. */
     PRINTF_STDOUT("Running top_n_outlier_pruning_block(...) for data set '%s'.\n", data_file);
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[ARRAYSIZE_VECTOR_DIMS(vector_dims)]) data, k, N, block_size, outliers, outlier_scores);
+    set_k(k);
+    set_N(N);
+    set_block_size(block_size);
+    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[vector_dims]) data, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
