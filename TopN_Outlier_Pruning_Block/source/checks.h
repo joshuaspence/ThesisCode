@@ -1,4 +1,4 @@
-/*
+ith/*
  * This header files checks for invalid combinations of preprocessor macros. It
  * also ensures that required preprocessor macros have been defined.
  */
@@ -97,14 +97,6 @@
 #ifndef _BLOCKING_MODE_SET_
     #error "Blocking mode not set. Define one of: BLOCKING, NO_BLOCKING"
 #endif /* #ifndef _BLOCKING_MODE_SET_ */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* Stats                                                                      */
-/*============================================================================*/
-#if !defined(DEBUG) && defined(STATS)
-    #error "STATS should only be defined in DEBUG mode."
-#endif /* #if !defined(DEBUG) && defined(STATS) */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef CHECKS_H_ */
