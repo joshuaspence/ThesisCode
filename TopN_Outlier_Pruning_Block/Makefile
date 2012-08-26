@@ -254,7 +254,7 @@ endef
 
 # $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
 define autoesl-target-template
-autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1)
+autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1) $(CURDIR)/autoesl.log
 ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1)
 
 autoesl_TARGETS += $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
