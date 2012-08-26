@@ -6,7 +6,7 @@
 
 #include "stats.h" /* for STATS_INCREMENT_CALLS_COUNTER, STATS_INCREMENT_NUM_PRUNED */
 #include "top_n_outlier_pruning_block.h"
-#include "utility.h" /* for ASSERT, boolean, double_t, false, index_t, int_t, MIN, null_index, start_index, true, uint_t */
+#include "utility.h" /* for ASSERT, boolean, double_t, false, index_t, int_t, MIN, NULL_INDEX, START_INDEX, true, uint_t */
 
 #include <float.h> /* for DBL_MIN */
 #include <stddef.h> /* for size_t */
@@ -118,7 +118,7 @@ static inline double_t insert(const size_t k,
     ASSERT(k <= ARRAYSIZE_K(k));
     ASSERT(found != NULL);
     ASSERT(*found <= k);
-    ASSERT(new_neighbour >= start_index);
+    ASSERT(new_neighbour >= START_INDEX);
     
     int_t    insert_index  = -1; /* the index at which the new outlier will be inserted */
     double_t removed_value = -1; /* the value that was removed from the neighbours_dist array */
@@ -266,7 +266,7 @@ static inline void best_outliers(const size_t N, size_t * const outliers_size,
     size_t   new_outliers_size = 0;
     
 #ifndef __AUTOESL__ /* not working with AutoESL */
-    MEMSET_1D(new_outliers,       null_index, ARRAYSIZE_N(N), sizeof(index_t));
+    MEMSET_1D(new_outliers,       NULL_INDEX, ARRAYSIZE_N(N), sizeof(index_t));
     MEMSET_1D(new_outlier_scores,          0, ARRAYSIZE_N(N), sizeof(double_t));
 #endif /* #ifndef __AUTOESL__ */
     
@@ -418,13 +418,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     ASSERT(default_block_size <= ARRAYSIZE_BLOCK_SIZE(default_block_size));
     
     /* Set output to zero. */
-    MEMSET_1D(outliers,       null_index, ARRAYSIZE_N(N), sizeof(index_t));
-    MEMSET_1D(outlier_scores,          0, ARRAYSIZE_N(N), sizeof(double_t));
+    MEMSET_1D(outliers,       NULL_INDEX, N, sizeof(index_t));
+    MEMSET_1D(outlier_scores,          0, N, sizeof(double_t));
     
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
     
-#ifndef NO_BLOCKING
+#if defined(BLOCKING)
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
     
@@ -432,35 +432,35 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         block_size = MIN(block_begin + default_block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         ASSERT(block_size <= ARRAYSIZE_BLOCK_SIZE(default_block_size));
         
-        index_t  current_block[ARRAYSIZE_BLOCK_SIZE(block_size)];             /* the indexes of the vectors in the current block */
+        index_t  current_block[ARRAYSIZE_BLOCK_SIZE(block_size)];                   /* the indexes of the vectors in the current block */
         index_t  neighbours[ARRAYSIZE_BLOCK_SIZE(block_size)][ARRAYSIZE_K(k)];      /* the "k" nearest neighbours for each vector in the current block */
         double_t neighbours_dist[ARRAYSIZE_BLOCK_SIZE(block_size)][ARRAYSIZE_K(k)]; /* the distance of the "k" nearest neighbours for each vector in the current block */
-        double_t score[ARRAYSIZE_BLOCK_SIZE(block_size)];                     /* the average distance to the "k" neighbours */
-        uint_t   found[ARRAYSIZE_BLOCK_SIZE(block_size)];                     /* how many nearest neighbours we have found, for each vector in the block */
+        double_t score[ARRAYSIZE_BLOCK_SIZE(block_size)];                           /* the average distance to the "k" neighbours */
+        uint_t   found[ARRAYSIZE_BLOCK_SIZE(block_size)];                           /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
         do {
             uint_t i;
-            for (i = 0; i < ARRAYSIZE_BLOCK_SIZE(block_size); i++)
-                current_block[i] = (index_t) ((block_begin + i) + start_index);
+            for (i = 0; i < block_size; i++)
+                current_block[i] = (index_t) ((block_begin + i) + START_INDEX);
         } while (0);
-        MEMSET_2D(neighbours,      null_index, ARRAYSIZE_BLOCK_SIZE(block_size), ARRAYSIZE_K(k), sizeof(index_t));
-        MEMSET_2D(neighbours_dist,          0, ARRAYSIZE_BLOCK_SIZE(block_size), ARRAYSIZE_K(k), sizeof(double_t));
-        MEMSET_1D(score,                     0, ARRAYSIZE_BLOCK_SIZE(block_size),           sizeof(double_t));
-        MEMSET_1D(found,                     0, ARRAYSIZE_BLOCK_SIZE(block_size),           sizeof(uint_t));
+        MEMSET_2D(neighbours,      NULL_INDEX, block_size, k, sizeof(index_t));
+        MEMSET_2D(neighbours_dist,          0, block_size, k, sizeof(double_t));
+        MEMSET_1D(score,                    0, block_size,    sizeof(double_t));
+        MEMSET_1D(found,                    0, block_size,    sizeof(uint_t));
         
         index_t vector1;
-        for (vector1 = start_index; vector1 < ARRAYSIZE_NUM_VECTORS(num_vectors) + start_index; vector1++) {
+        for (vector1 = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
             uint_t block_index;
             for (block_index = 0; block_index < block_size; block_index++) {
                 const index_t vector2 = current_block[block_index];
-                if (vector1 != vector2 && vector2 >= start_index) {
+                if (vector1 != vector2 && vector2 >= START_INDEX) {
                     
                     /*
                      * Calculate the square of the distance between the two
                      * vectors (indexed by "vector1" and "vector2")
                      */
-                    const double_t dist_squared = distance_squared(vector_dims, data[vector1-start_index], data[vector2-start_index]);
+                    const double_t dist_squared = distance_squared(vector_dims, data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
                     
                     /*
                      * Insert the new (index, distance) pair into the neighbours
@@ -479,7 +479,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                      * then prune this vector from the block.
                      */
                     if (found[block_index] >= k && score[block_index] < cutoff) {
-                        current_block[block_index] = null_index;
+                        current_block[block_index] = NULL_INDEX;
                         score        [block_index] = 0;
                         STATS_INCREMENT_NUM_PRUNED();
                     }
@@ -498,26 +498,26 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         cutoff = outlier_scores[N-1];
         
     }
-#else
+#elif defined(NO_BLOCKING)
     index_t vector1;
-    for (vector1 = start_index; vector1 < num_vectors + start_index; vector1++) {
+    for (vector1 = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
         index_t  neighbours[k];         /* the "k" nearest neighbours for the current vector */
         double_t neighbours_dist[k];    /* the distance of the "k" nearest neighbours for the current vector */
         double_t score = 0;             /* the average distance to the "k" neighbours */
         uint_t   found = 0;             /* how many nearest neighbours we have found */
         boolean  removed = false;       /* true if vector1 has been pruned */
         
-        MEMSET_1D(neighbours,      null_index, k, sizeof(index_t));
+        MEMSET_1D(neighbours,      NULL_INDEX, k, sizeof(index_t));
         MEMSET_1D(neighbours_dist,          0, k, sizeof(double_t));
         
         index_t vector2;
-        for (vector2 = start_index; vector2 < num_vectors + start_index && !removed; vector2++) {
+        for (vector2 = START_INDEX; vector2 < num_vectors + START_INDEX && !removed; vector2++) {
             if (vector1 != vector2) {
                 /*
                  * Calculate the square of the distance between the two
                  * vectors (indexed by "vector1" and "vector2")
                  */
-                const double_t dist_squared = distance_squared(vector_dims, data[vector1-start_index], data[vector2-start_index]);
+                const double_t dist_squared = distance_squared(vector_dims, data[vector1-START_INDEX], data[vector2-START_INDEX]);
                 
                 /*
                  * Insert the new (index, distance) pair into the neighbours
@@ -556,5 +556,5 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
             cutoff = outlier_scores[N-1];
         }
     }
-#endif /* #ifndef NO_BLOCKING */
+#endif /* #if defined(BLOCKING) */
 }

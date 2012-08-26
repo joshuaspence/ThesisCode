@@ -64,8 +64,8 @@ typedef size_t              index_t; /* a type to index into arrays */
 typedef double              double_t;
 typedef unsigned long long  lint_t; /* large integer type */
 
-static const index_t null_index  = 0;
-static const index_t start_index = 1;
+#define NULL_INDEX          0
+#define START_INDEX         1
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
