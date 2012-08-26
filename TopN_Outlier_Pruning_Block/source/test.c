@@ -54,7 +54,7 @@ int test(const char * const data_file) {
     MEMSET_1D(outlier_scores, 0, N, sizeof(double_t));
     
     /* Call the function. */
-    PRINTF_STDOUT("Running top_n_outlier_pruning_block(...) for data set '%s'.\n", data_file);
+    PRINTF_STDOUT("Running top_n_outlier_pruning_block() for data set '%s'.\n", data_file);
 #ifndef HARDCODED_NUM_VECTORS
     set_num_vectors(num_vectors);
 #endif /* #ifndef HARDCODED_NUM_VECTORS */
@@ -70,7 +70,7 @@ int test(const char * const data_file) {
 #ifndef HARDCODED_BLOCK_SIZE
     set_block_size(block_size);
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
-    top_n_outlier_pruning_block(data, outliers, outlier_scores);
+    top_n_outlier_pruning_block((void *) data, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {

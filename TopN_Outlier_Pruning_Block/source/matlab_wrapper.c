@@ -168,11 +168,11 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 #ifndef HARDCODED_BLOCK_SIZE
     set_block_size(block_size);
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
-    top_n_outlier_pruning_block(data_in, outliers_out, outlier_scores_out);
+    top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
     
 #ifdef VARDUMP
     /* Save input and output parameters. */
-    save_vardump("vars.dat", &num_vectors, &vector_dims, (const double_t (* const)[num_vectors][vector_dims]) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
+    save_vardump("vars.dat", &num_vectors, &vector_dims, (void *) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
 #endif /* #ifdef VARDUMP */
     
     /* Free dynamic memory. */
