@@ -72,6 +72,34 @@
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
+/* Blocking mode                                                              */
+/*============================================================================*/
+#undef _BLOCKING_MODE_SET_
+
+/* BLOCKING */
+#ifdef BLOCKING
+    #ifdef _BLOCKING_MODE_SET_
+        #error "Only one blocking mode should be specified."
+    #else
+        #define _BLOCKING_MODE_SET_
+    #endif /* #ifdef _BLOCKING_MODE_SET_ */
+#endif /* #ifdef BLOCKING */
+
+/* NO_BLOCKING */
+#ifdef NO_BLOCKING
+    #ifdef _BLOCKING_MODE_SET_
+        #error "Only one blocking mode should be specified."
+    #else
+        #define _BLOCKING_MODE_SET_
+    #endif /* #ifdef _BLOCKING_MODE_SET_ */
+#endif /* #ifdef NO_BLOCKING */
+
+#ifndef _BLOCKING_MODE_SET_
+    #error "Blocking mode not set. Define one of: BLOCKING, NO_BLOCKING"
+#endif /* #ifndef _BLOCKING_MODE_SET_ */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
 /* Stats                                                                      */
 /*============================================================================*/
 #if !defined(DEBUG) && defined(STATS)

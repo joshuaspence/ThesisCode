@@ -534,15 +534,15 @@ TARGETS := TopN_Outlier_Pruning_Block_C_SORTED \
            TopN_Outlier_Pruning_Block_C_UNSORTED \
            TopN_Outlier_Pruning_Block_C_NO_BLOCKING
 
-TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call flags,DVARDUMP DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call flags,DVARDUMP DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_CFLAGS        := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_CXXFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_MXXFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_SORTED_ESLFLAGS      := $(call flags,DVARDUMP DBLOCKING DSORTED_INSERT)
 
-TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call flags,DVARDUMP DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call flags,DVARDUMP DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_CFLAGS      := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_CXXFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_MXXFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_C_UNSORTED_ESLFLAGS    := $(call flags,DVARDUMP DBLOCKING DUNSORTED_INSERT)
 
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CFLAGS   := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
 TopN_Outlier_Pruning_Block_C_NO_BLOCKING_CXXFLAGS := $(call flags,DVARDUMP DNO_BLOCKING DSORTED_INSERT)
