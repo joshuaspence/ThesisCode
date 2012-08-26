@@ -2,7 +2,7 @@
 /* Includes                                                                   */
 /*============================================================================*/
 #include "stats.h" /* main header file */
-#include "utility.h" /* for lint_t, uint_t, ASSERT_NOT_NULL */
+#include "utility.h" /* for lint_t, uint_t, ASSERT */
 /*----------------------------------------------------------------------------*/
 
 lint_t calls_counter     = 0;
@@ -19,8 +19,8 @@ lint_t num_scaled_pruned = 0;
  *           algorithm.
  */
 void get_stats(lint_t * const counter, uint_t * const prune_count, lint_t * const scaled_prune_count) {
-    ASSERT_NOT_NULL(counter);
-    ASSERT_NOT_NULL(prune_count);
+    ASSERT(counter != NULL);
+    ASSERT(prune_count != NULL);
     
     *counter            = calls_counter;
     *prune_count        = num_pruned;

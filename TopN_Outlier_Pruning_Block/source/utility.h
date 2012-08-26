@@ -29,20 +29,6 @@
 	#endif /* #if _ASSERT_ */
 #endif /* #ifndef ASSERT */
 
-#ifndef ASSERT
-    #define ASSERT(x) \
-        assert(x)
-#endif /* #ifndef ASSERT */
-
-#ifndef ASSERT_NOT_NULL
-    #ifdef __AUTOESL__
-        #define ASSERT_NOT_NULL(p) \
-            ASSERT(p != NULL)
-    #else
-        #define ASSERT_NOT_NULL(p)
-    #endif /* #ifdef __AUTOESL__ */
-#endif /* #ifndef ASSERT_NOT_NULL */
-
 /* Declare an unused variable. */
 #ifndef UNUSED
     #if defined(__GNUC__)
