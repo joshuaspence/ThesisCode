@@ -39,7 +39,7 @@
 #endif /* #ifdef __AUTOESL__ */
 
 #ifndef _ARCH_SET_
-    #error "No architecture set. Define one of: __PURE_C__, __MEX__, __AUTOESL__"
+    #error "No architecture set. Define one of: __C__, __MEX__, __AUTOESL__"
 #endif /* #ifndef _ARCH_SET_ */
 /*----------------------------------------------------------------------------*/
 

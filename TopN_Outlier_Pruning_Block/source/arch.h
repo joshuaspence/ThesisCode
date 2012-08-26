@@ -30,7 +30,8 @@
     #define _DYNAMIC_ARRAY_SIZE_    ENABLED
     #define _MEMSET_                ENABLED
     
-    #include <stdio.h>
+    #include <stdio.h> /* for fprintf */
+    
     #define PRINTF_STDOUT(...)      fprintf(stdout, __VA_ARGS__)
     #define PRINTF_STDERR(...)      fprintf(stderr, __VA_ARGS__)
 #endif /* #ifdef __C__ */
@@ -44,7 +45,9 @@
     #define _DYNAMIC_ARRAY_SIZE_    ENABLED
     #define _MEMSET_                ENABLED
     
-    #include <mex.h>
+    #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
+    #include <stdio.h> /* for sprintf */
+    
     #define PRINTF_STDOUT(...)      mexPrintf(__VA_ARGS__)
     #define PRINTF_STDERR(...)      \
         do { \
@@ -75,35 +78,35 @@
     #include <string.h> /* for memset */
     
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
-        memset(_var_, _value_, (_count_) * (_size_))
+        memset(_var_, _value_, (_count_)*(_size_))
     #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
         MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
         
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
-        memcpy(_dst_, _src_, (_count_) * (_size_))
+        memcpy(_dst_, _src_, (_count_)*(_size_))
 #else
     #include "utility.h" /* for uint_t */
     
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         do { \
             uint_t i; \
-            for (i = 0; i < _count_; i++) \
-                (_var_)[i] = _value_; \
+            for (i = 0; i < (_count_); i++) \
+                (_var_)[i] = (_value_); \
         } while (0)
     #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
         do { \
             uint_t i; \
-            for (i = 0; i < _count1_; i++) { \
+            for (i = 0; i < (_count1_); i++) { \
                 uint_t j; \
-                for (j = 0; j < _count2_; j++) \
-                    (_var_)[i][j] = _value_; \
+                for (j = 0; j < (_count2_); j++) \
+                    (_var_)[i][j] = (_value_); \
             } \
         } while (0)
     
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         do { \
             uint_t i; \
-            for (i = 0; i < _count_; i++) \
+            for (i = 0; i < (_count_); i++) \
                 (_dst_)[i] = (_src_)[i]; \
         } while (0)
 #endif /* #if _MEMSET_ */
@@ -113,17 +116,14 @@
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
 #if _DYNAMIC_ARRAY_SIZE_
-    #define ARRAYSIZE_NUM_VECTORS(N)    N
-    #define ARRAYSIZE_VECTOR_DIMS(N)    N
-    #define ARRAYSIZE_K(N)              N
-    #define ARRAYSIZE_N(N)              N
-    #define ARRAYSIZE_BLOCK_SIZE(N)     N
+    #define MAX_NUM_VECTORS(N)          N
 #else
-    #define ARRAYSIZE_NUM_VECTORS(N)    1000
-    #define ARRAYSIZE_VECTOR_DIMS(N)    200
-    #define ARRAYSIZE_K(N)              15
-    #define ARRAYSIZE_N(N)              40
-    #define ARRAYSIZE_BLOCK_SIZE(N)     40
+    #define MAX_NUM_VECTORS(N)          67557
+    
+    #define HARDCODED_VECTOR_DIMS       200
+    #define HARDCODED_K                 15
+    #define HARDCODED_N                 40
+    #define HARDCODED_BLOCK_SIZE        40
 #endif /* #if _DYNAMIC_ */
 /*----------------------------------------------------------------------------*/
 

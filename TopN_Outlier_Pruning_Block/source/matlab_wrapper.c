@@ -153,10 +153,22 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     MEMSET_1D(outlier_scores_out,          0, N, sizeof(double_t));
     
     /* Call the function. */
+#ifndef HARDCODED_NUM_VECTORS
+    set_num_vectors(num_vectors);
+#endif /* #ifndef HARDCODED_NUM_VECTORS */
+#ifndef HARDCODED_VECTOR_DIMS
+    set_vector_dims(vector_dims);
+#endif /* #ifndef HARDCODED_VECTOR_DIMS */
+#ifndef HARDCODED_K
     set_k(k);
+#endif /* #ifndef HARDCODED_K */
+#ifndef HARDCODED_N
     set_N(N);
+#endif /* #ifndef HARDCODED_N */
+#ifndef HARDCODED_BLOCK_SIZE
     set_block_size(block_size);
-    top_n_outlier_pruning_block(num_vectors, vector_dims, (const double_t (*)[vector_dims]) data_in, outliers_out, outlier_scores_out);
+#endif /* #ifndef HARDCODED_BLOCK_SIZE */
+    top_n_outlier_pruning_block(data_in, outliers_out, outlier_scores_out);
     
 #ifdef VARDUMP
     /* Save input and output parameters. */

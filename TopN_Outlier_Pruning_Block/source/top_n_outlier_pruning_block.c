@@ -13,6 +13,33 @@
 /*----------------------------------------------------------------------------*/
 
 /*
+ * Set the number of vectors in the input data set.
+ *
+ * Parameters:
+ *     - num_vectors: The number of vectors in the input data set.
+ */
+#ifndef HARDCODED_NUM_VECTORS
+size_t num_vectors_value = 0;
+void set_num_vectors(const size_t num_vectors) {
+    num_vectors_value = num_vectors;
+}
+#endif /* #ifndef HARDCODED_NUM_VECTORS */
+
+/*
+ * Set the number of dimensions of the vectors in the input data set.
+ *
+ * Parameters:
+ *     - vector_dims: The number of dimensions of the vectors in the input data 
+ *                    set.
+ */
+#ifndef HARDCODED_VECTOR_DIMS
+size_t vector_dims_value = 0;
+void set_vector_dims(const size_t vector_dims) {
+    vector_dims_value = vector_dims;
+}
+#endif /* #ifndef HARDCODED_VECTOR_DIMS */
+
+/*
  * Set the number of k-nearest neighbours to use for outlier detection.
  *
  * Parameters:
@@ -60,9 +87,8 @@ void set_block_size(const size_t block_size) {
 /* Forward declarations                                                       */
 /*============================================================================*/
 static inline double_t distance_squared(
-    const size_t vector_dims,
-    const double_t vector1[ARRAYSIZE_VECTOR_DIMS(vector_dims)],
-    const double_t vector2[ARRAYSIZE_VECTOR_DIMS(vector_dims)]
+    const double_t vector1[vector_dims_value],
+    const double_t vector2[vector_dims_value]
     );
 static inline double_t add_neighbour(
     index_t neighbours[k_value],
@@ -102,28 +128,24 @@ static inline void merge(
  * sum of the squares of the distance in each dimension).
  *
  * Parameters:
- *     - vector_dims: The dimensionality of the vectors.
- *     - vectors: The array containg the vectors between which to calculate the
- *           distance.
  *     - vector1: An array of floating point numbers representing the first
  *           vector.
- *     - vector1: An array of floating point numbers representing the second
+ *     - vector2: An array of floating point numbers representing the second
  *           vector.
  *
  * Return:
  *    The square of the distance between the two vectors.
  */
-static inline double_t distance_squared(const size_t vector_dims,
-                                        const double_t vector1[ARRAYSIZE_VECTOR_DIMS(vector_dims)],
-                                        const double_t vector2[ARRAYSIZE_VECTOR_DIMS(vector_dims)]) {
-    ASSERT(vector_dims > 0);
+static inline double_t distance_squared(const double_t vector1[vector_dims_value],
+                                        const double_t vector2[vector_dims_value]) {
+    ASSERT(vector_dims_value > 0);
     
     STATS_INCREMENT_CALLS_COUNTER();
     
     double_t sum_of_squares = 0;
     
     uint_t dim;
-    for (dim = 0; dim < vector_dims; dim++) {
+    for (dim = 0; dim < vector_dims_value; dim++) {
         const double_t diff         = vector1[dim] - vector2[dim];
         const double_t diff_squared = diff * diff;
         sum_of_squares             += diff_squared;
@@ -414,9 +436,6 @@ static inline void merge(const size_t global_outliers_size, index_t global_outli
  * set_block_size functions(), respectively.
  *
  * Parameters:
- *     - num_vectors: The number of vectors contained in the data array.
- *     - vector_dims: The dimensionality of each vector contained in the data
- *           array.
  *     - data: The input data set.
  *     - outliers: A vector used to store the top N outliers identified by this
  *           function. Each entry in this vector will be an index (to the data
@@ -424,12 +443,11 @@ static inline void merge(const size_t global_outliers_size, index_t global_outli
  *     - outlier_scores: A vector used to score the score associated with
  *           each of the outliers stored in the outliers array.
  */
-void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_dims,
-                                 const double_t data[ARRAYSIZE_NUM_VECTORS(num_vectors)][ARRAYSIZE_VECTOR_DIMS(vector_dims)],
+void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
                                  index_t outliers[N_value], double_t outlier_scores[N_value]) {
     /* Error checking. */
-    ASSERT(num_vectors > 0);
-    ASSERT(vector_dims > 0);
+    ASSERT(num_vectors_value > 0);
+    ASSERT(vector_dims_value > 0);
     ASSERT(k_value > 0);
     ASSERT(N_value > 0);
     ASSERT(block_size_value > 0);
@@ -443,10 +461,10 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     
 #if defined(BLOCKING)
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
-    size_t   block_size;            /* block_size may be smaller than devfault_block_size if "num_vectors mod default_block_size != 0" */
+    size_t   block_size;            /* block_size may be smaller than default_block_size if "num_vectors_value mod default_block_size != 0" */
     
-    for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
-        block_size = MIN(block_begin + block_size_value, num_vectors) - block_begin; /* the number of vectors in the current block */
+    for (block_begin = 0; block_begin < num_vectors_value; block_begin += block_size) { /* while there are still blocks to process */
+        block_size = MIN(block_begin + block_size_value, num_vectors_value) - block_begin; /* the number of vectors in the current block */
         ASSERT(block_size <= block_size_value);
         
         index_t  current_block[block_size_value];               /* the indexes of the vectors in the current block */
@@ -467,7 +485,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         MEMSET_1D(found,                    0, block_size,          sizeof(uint_t));
         
         index_t vector1;
-        for (vector1 = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
+        for (vector1 = START_INDEX; vector1 < num_vectors_value + START_INDEX; vector1++) {
             uint_t block_index;
             for (block_index = 0; block_index < block_size; block_index++) {
                 const index_t vector2 = current_block[block_index];
@@ -476,7 +494,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
                      * Calculate the square of the distance between the two
                      * vectors (indexed by "vector1" and "vector2")
                      */
-                    const double_t dist_squared = distance_squared(vector_dims, data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
+                    const double_t dist_squared = distance_squared(data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
                     
                     /*
                      * Insert the new (index, distance) pair into the neighbours
@@ -515,7 +533,7 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
     }
 #elif defined(NO_BLOCKING)
     index_t vector1;
-    for (vector1 = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
+    for (vector1 = START_INDEX; vector1 < num_vectors_value + START_INDEX; vector1++) {
         index_t  neighbours[k_value];       /* the "k" nearest neighbours for the current vector */
         double_t neighbours_dist[k_value];  /* the distance of the "k" nearest neighbours for the current vector */
         double_t score = 0;                 /* the average distance to the "k" neighbours */
@@ -526,13 +544,13 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         MEMSET_1D(neighbours_dist,          0, k_value, sizeof(double_t));
         
         index_t vector2;
-        for (vector2 = START_INDEX; vector2 < num_vectors + START_INDEX && !removed; vector2++) {
+        for (vector2 = START_INDEX; vector2 < num_vectors_value + START_INDEX && !removed; vector2++) {
             if (vector1 != vector2) {
                 /*
                  * Calculate the square of the distance between the two
                  * vectors (indexed by "vector1" and "vector2")
                  */
-                const double_t dist_squared = distance_squared(vector_dims, data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
+                const double_t dist_squared = distance_squared(data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
                 
                 /*
                  * Insert the new (index, distance) pair into the neighbours
@@ -572,4 +590,21 @@ void top_n_outlier_pruning_block(const size_t num_vectors, const size_t vector_d
         }
     }
 #endif /* #if defined(BLOCKING) */
+
+    /* Reset algorithm parameters. */
+#ifndef HARDCODED_NUM_VECTORS
+    set_num_vectors(0);
+#endif /* #ifndef HARDCODED_NUM_VECTORS */
+#ifndef HARDCODED_VECTOR_DIMS
+    set_vector_dims(0);
+#endif /* #ifndef HARDCODED_VECTOR_DIMS */
+#ifndef HARDCODED_K
+    set_k(0);
+#endif /* #ifndef HARDCODED_K */
+#ifndef HARDCODED_N
+    set_N(0);
+#endif /* #ifndef HARDCODED_N */
+#ifndef HARDCODED_BLOCK_SIZE
+    set_block_size(0);
+#endif /* #ifndef HARDCODED_BLOCK_SIZE */
 }
