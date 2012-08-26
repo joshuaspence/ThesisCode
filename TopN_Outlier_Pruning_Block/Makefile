@@ -94,8 +94,8 @@ $(call pretty,
 $(shell $(ECHO) -n "$(1) ")
 $(foreach FLAG,$(2),$(shell \
 $(ECHO) -n "$(1)" | \
-$(GREP) -q "\-$(FLAG)" || \
-$(ECHO) -n "-$(FLAG)"
+$(GREP) -q "\-$(FLAG:-%=%)" || \
+$(ECHO) -n "-$(FLAG:-%=%)"
 ))
 )
 endef
@@ -125,7 +125,7 @@ endif
 # $(call flags,FLAG FLAG ...)
 # Create a CFLAG-style string.
 define flags
-$(call pretty,$(foreach FLAG,$(1),-$(FLAG)))
+$(call pretty,$(foreach FLAG,$(1),-$(FLAG:-%=%)))
 endef
 
 # $(call get-relative-path,FROM,TO)
@@ -223,7 +223,7 @@ endef
 define remove-flags
 $(shell \
 	$(ECHO) -n "$(1)" | \
-	$(SED) $(foreach FLAG,$(2), -e 's/-$(FLAG)\s\+//')
+	$(SED) $(foreach FLAG,$(2), -e 's/-$(FLAG:-%=%)\s\+//')
 )
 endef
 
@@ -232,6 +232,7 @@ endef
 trace-message = -@$(ECHO) $1
 
 # Characters that are hard to specify in certain places
+empty :=
 space := $(empty) $(empty)
 colon := \:
 comma := ,
@@ -565,16 +566,16 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := g O0 DDEBUG DSTATS
-CXXFLAGS_DEBUG := g O0 DDEBUG DSTATS
-MXXFLAGS_DEBUG := DDEBUG DSTATS
-LDFLAGS_DEBUG  := g
+CFLAGS_DEBUG   := $(call flags,g O0 DDEBUG DSTATS)
+CXXFLAGS_DEBUG := $(call flags,g O0 DDEBUG DSTATS)
+MXXFLAGS_DEBUG := $(call flags,DDEBUG DSTATS)
+LDFLAGS_DEBUG  := $(call flags,g)
 
 # Optimization flags
-CFLAGS_OPT     := O3 DNDEBUG
-CXXFLAGS_OPT   := O3 DNDEBUG
-MXXFLAGS_OPT   := O DNDEBUG
-LDFLAGS_OPT    := O3
+CFLAGS_OPT     := $(call flags,O3 DNDEBUG)
+CXXFLAGS_OPT   := $(call flags,O3 DNDEBUG)
+MXXFLAGS_OPT   := $(call flags,O DNDEBUG)
+LDFLAGS_OPT    := $(call flags,O3)
 
 ifeq ($(mode),)
 CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
