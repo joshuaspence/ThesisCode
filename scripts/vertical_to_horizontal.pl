@@ -24,6 +24,10 @@ use warnings;
 use Set::Scalar;
 use Text::CSV;
 
+use FindBin;
+use lib $FindBin::Bin;
+require "util.pl";
+
 # The argument should be the input file
 scalar(@ARGV) >= 1 || die("No file specified!\n");
 open FILE, "<", $ARGV[0] or die $!;

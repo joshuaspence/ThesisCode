@@ -34,7 +34,9 @@ use HTML::TableExtract;
 use constant PROFILE_HTML_FILE => "file0.html";
 use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function Name,Calls,Total Time,Self Time\n";
 
-require "./util.pl";
+use FindBin;
+use lib $FindBin::Bin;
+require "util.pl";
 
 # Get command line options
 Getopt::Long::Configure('bundling');

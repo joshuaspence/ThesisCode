@@ -27,7 +27,9 @@ use constant PROFILE_HTML_FILE => "file0.html";
 use constant MATLAB_LOG_FILE   => "matlab_output.log";
 use constant OUTPUT_HEADER     => "Data set,Block size,log(Block size),Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Distance calls,Pruned\n";
 
-require "./util.pl";
+use FindBin;
+use lib $FindBin::Bin;
+require "util.pl";
 
 # The argument should be the base directory for the profiling data
 scalar(@ARGV) >= 1 || die("No directory specified!\n");
