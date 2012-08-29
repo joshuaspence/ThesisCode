@@ -39,17 +39,20 @@ void set_N(const size_t N);
     #define N_value             (HARDCODED_N)
 #endif /* #ifndef HARDCODED_N */
 
+#ifdef BLOCKING
 #ifndef HARDCODED_BLOCK_SIZE
 extern size_t block_size_value;
 void set_block_size(const size_t block_size);
 #else
     #define block_size_value    (HARDCODED_BLOCK_SIZE)
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
+#elif defined(NO_BLOCKING)
+    #define block_size_value    (1)
+#endif /* #ifdef BLOCKING */
 
 void top_n_outlier_pruning_block(
     const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
     index_t outliers[N_value],
     double_t outlier_scores[N_value]
     );
-
 #endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */
