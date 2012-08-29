@@ -123,9 +123,8 @@ static inline void merge(
     index_t local_outliers[block_size_value],
     double_t local_outlier_scores[block_size_value],
 #elif defined(NO_BLOCKING)
-    const size_t block_size,
-    index_t local_outliers,
-    double_t local_outlier_scores,
+    index_t local_outlier,
+    double_t local_outlier_score,
 #endif /* #if defined(BLOCKING) */
     size_t * const new_outliers_size,
     index_t new_outliers[N_value],
@@ -331,7 +330,11 @@ static inline void best_outliers(size_t * const outliers_size,
     MEMSET_1D(new_outlier_scores,          0, N_value, sizeof(double_t));
     
     /* Merge the two vectors. */
+#if defined(BLOCKING)
     merge(*outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, new_outliers, new_outlier_scores);
+#elif defined(NO_BLOCKING)
+    merge(*outliers_size, outliers, outlier_scores,             current_block[0], scores[0], &new_outliers_size, new_outliers, new_outlier_scores);
+#endif /* #if defined(BLOCKING) */
     
     /* Copy values from temporary vectors to real vectors. */
     MEMCPY_1D(outliers,       new_outliers,       N_value, sizeof(index_t));
@@ -395,7 +398,7 @@ static inline void merge(const size_t global_outliers_size, index_t global_outli
 #if defined(BLOCKING)
                          const size_t block_size,           index_t local_outliers[block_size_value], double_t local_outlier_scores[block_size_value],
 #elif defined(NO_BLOCKING)
-                         const size_t block_size,           index_t local_outliers,                   double_t local_outlier_scores,
+                                                            index_t local_outlier,                    double_t local_outlier_score,
 #endif /* #if defined(BLOCKING) */
                          size_t * const new_outliers_size,  index_t new_outliers[N_value],            double_t new_outlier_scores[N_value]) {
     /* Error checking. */
@@ -412,57 +415,76 @@ static inline void merge(const size_t global_outliers_size, index_t global_outli
     uint_t global       = 0; /* iterator through global array */
 #if defined(BLOCKING)
     uint_t local        = 0; /* iterator through local array */
-    
-    /* Some macros to replace excessive #ifdef statements */
-    #define LOCAL_FALSE     (local < block_size)
-    #define LOCAL_TRUE      (local >= block_size)
-    #define LOCAL_ELEM(x)   x[local]
 #elif defined(NO_BLOCKING)
     boolean local       = false;
-    
-    /* Some macros to replace excessive #ifdef statements */
-    #define LOCAL_FALSE     (!local)
-    #define LOCAL_TRUE      (local)
-    #define LOCAL_ELEM(x)   x
 #endif /* #if defined(BLOCKING) */
     
-    while (iter < N_value && (global < global_outliers_size || LOCAL_FALSE)) {
-        if (global >= global_outliers_size && LOCAL_FALSE) {
+#if defined(BLOCKING)
+    while (iter < N_value && (global < global_outliers_size || local < block_size)) {
+        if (global >= global_outliers_size && local < block_size) {
+#elif defined(NO_BLOCKING)
+    while (iter < N_value && (global < global_outliers_size || !local)) {
+        if (global >= global_outliers_size && !local) {
+#endif /* #if defined(BLOCKING) */
             /* There are no remaining elements in the global arrays. */
-            new_outliers      [iter] = LOCAL_ELEM(local_outliers);
-            new_outlier_scores[iter] = LOCAL_ELEM(local_outlier_scores);
+#if defined(BLOCKING)
+            new_outliers      [iter] = local_outliers      [local];
+            new_outlier_scores[iter] = local_outlier_scores[local];
             local++;
+#elif defined(NO_BLOCKING)
+            new_outliers      [iter] = local_outlier;
+            new_outlier_scores[iter] = local_outlier_score;
+            local = true;
+#endif /* #if defined(BLOCKING) */
             global++;
-        } else if (global < global_outliers_size && LOCAL_TRUE) {
+#if defined(BLOCKING)
+        } else if (global < global_outliers_size && local >= block_size) {
+#elif defined(NO_BLOCKING)
+        } else if (global < global_outliers_size && local) {
+#endif /* #if defined(BLOCKING) */
             /* There are no remaining elements in the local arrays. */
             new_outliers      [iter] = global_outliers      [global];
             new_outlier_scores[iter] = global_outlier_scores[global];
+#if defined(BLOCKING)
             local++;
+#elif defined(NO_BLOCKING)
+            local = true;
+#endif /* #if defined(BLOCKING) */
             global++;
+#if defined(BLOCKING)
         } else if (global >= global_outliers_size && local >= block_size) {
+#elif defined(NO_BLOCKING)
+        } else if (global >= global_outliers_size && local) {
+#endif /* #if defined(BLOCKING) */
             /*
              * There are no remaining elements in either the global or local 
              * arrays.
              */
             break;
+#if defined(BLOCKING)
         } else if (global_outlier_scores[global] >= local_outlier_scores[local]) {
+#elif defined(NO_BLOCKING)
+        } else if (global_outlier_scores[global] >= local_outlier_score) {
+#endif /* #if defined(BLOCKING) */
             new_outliers      [iter] = global_outliers      [global];
             new_outlier_scores[iter] = global_outlier_scores[global];
             global++;
+#if defined(BLOCKING)
         } else if (global_outlier_scores[global] <= local_outlier_scores[local]) {
             new_outliers      [iter] = local_outliers      [local];
             new_outlier_scores[iter] = local_outlier_scores[local];
             local++;
+#elif defined(NO_BLOCKING)
+        } else if (global_outlier_scores[global] <= local_outlier_score) {
+            new_outliers      [iter] = local_outlier;
+            new_outlier_scores[iter] = local_outlier_score;
+            local = true;
+#endif /* #if defined(BLOCKING) */
         }
         
         iter++;
         (*new_outliers_size)++;
     }
-#if defined(BLOCKING) || defined(NO_BLOCKING)
-    #undef LOCAL_FALSE
-    #undef LOCAL_TRUE
- 	#undef LOCAL_ELEM	
-#endif /* #if defined(BLOCKING) || defined(NO_BLOCKING) */
 }
 
 /*
