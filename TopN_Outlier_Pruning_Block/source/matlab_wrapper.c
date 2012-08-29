@@ -165,9 +165,9 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 #ifndef HARDCODED_N
     set_N(N);
 #endif /* #ifndef HARDCODED_N */
-#ifndef HARDCODED_BLOCK_SIZE
+#if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
     set_block_size(block_size);
-#endif /* #ifndef HARDCODED_BLOCK_SIZE */
+#endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
     const uint_t num_pruned = top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
     
 #ifdef VARDUMP
@@ -198,6 +198,4 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     }
     
     PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
-    
-    PRINTF_STDOUT("Numb = %llu\n", num_calls);
 }
