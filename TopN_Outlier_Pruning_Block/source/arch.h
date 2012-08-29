@@ -12,9 +12,17 @@
 #define DISABLED    0
 #define ENABLED     1
 
-#undef _ASSERT_             /* enable/disable the assert() function .*/
-#undef _DYNAMIC_ARRAY_SIZE_ /* if enabled, use dynamically-sized arrays; if disabled, used statically-sized arrays, where necessary. */
-#undef _MEMSET_             /* if enabled, use memset() to set the value of a memory range; if disabled, use a for-loop instead. */
+/*
+ * Explanation of #define macros:
+ *
+ *     USE_ASSERT               Enable/disable the assert() function.
+ *     USE_DYNAMIC_ARRAY_SIZE   If enabled, use dynamically-sized arrays; if
+ *                              disabled, used statically-sized arrays, where
+ *                              necessary.
+ *     USE_MEMSET               If enabled, use memset() to set the value of a
+ *                              memory range; if disabled, use a for-loop 
+ *                              instead.
+ */
 
 /*============================================================================*/
 /* Includes                                                                   */
@@ -26,9 +34,17 @@
 /* __C__ = Stand-alone C program                                              */
 /*============================================================================*/
 #ifdef __C__
-    #define _ASSERT_                ENABLED
-    #define _DYNAMIC_ARRAY_SIZE_    ENABLED
-    #define _MEMSET_                ENABLED
+    #ifndef USE_ASSERT
+        #define USE_ASSERT              ENABLED
+    #endif /* #ifndef USE_ASSERT */
+    
+    #ifndef USE_DYNAMIC_ARRAY_SIZE
+        #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
+    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
+    
+    #ifndef USE_MEMSET
+        #define USE_MEMSET              ENABLED
+    #endif /* #ifndef USE_MEMSET */
     
     #include <stdio.h> /* for fprintf */
     
@@ -41,9 +57,17 @@
 /* __MEX__ = MEX file for MATLAB                                              */
 /*============================================================================*/
 #ifdef __MEX__
-    #define _ASSERT_                ENABLED
-    #define _DYNAMIC_ARRAY_SIZE_    ENABLED
-    #define _MEMSET_                ENABLED
+    #ifndef USE_ASSERT
+        #define USE_ASSERT              ENABLED
+    #endif /* #ifndef USE_ASSERT */
+    
+    #ifndef USE_DYNAMIC_ARRAY_SIZE
+        #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
+    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
+    
+    #ifndef USE_MEMSET
+        #define USE_MEMSET              ENABLED
+    #endif /* #ifndef USE_MEMSET */
     
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
     #include <stdio.h> /* for sprintf */
@@ -62,9 +86,17 @@
 /* __AUTOESL__ = AutoESL project                                              */
 /*============================================================================*/
 #ifdef __AUTOESL__
-    #define _ASSERT_                DISABLED
-    #define _DYNAMIC_ARRAY_SIZE_    DISABLED
-    #define _MEMSET_                DISABLED
+    #ifndef USE_ASSERT
+        #define USE_ASSERT              DISABLED
+    #endif /* #ifndef USE_ASSERT */
+    
+    #ifndef USE_DYNAMIC_ARRAY_SIZE
+        #define USE_DYNAMIC_ARRAY_SIZE  DISABLED
+    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
+    
+    #ifndef USE_MEMSET
+        #define USE_MEMSET              DISABLED
+    #endif /* #ifndef USE_MEMSET */
     
     #define PRINTF_STDOUT(...)
     #define PRINTF_STDERR(...)
@@ -74,14 +106,14 @@
 /*============================================================================*/
 /* MEMSET and MEMCPY macros                                                   */
 /*============================================================================*/
-#if _MEMSET_
+#if USE_MEMSET
     #include <string.h> /* for memset */
     
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         memset(_var_, _value_, (_count_)*(_size_))
     #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
         MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
-        
+    
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         memcpy(_dst_, _src_, (_count_)*(_size_))
 #else
@@ -109,22 +141,35 @@
             for (i = 0; i < (_count_); i++) \
                 (_dst_)[i] = (_src_)[i]; \
         } while (0)
-#endif /* #if _MEMSET_ */
+#endif /* #if USE_MEMSET */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
-#if _DYNAMIC_ARRAY_SIZE_
-    #define MAX_NUM_VECTORS(N)          N
+#if USE_DYNAMIC_ARRAY_SIZE
+    #define MAX_NUM_VECTORS(N)              N
 #else
-    #define MAX_NUM_VECTORS(N)          67557
+    #ifndef MAX_NUM_VECTORS
+        #define MAX_NUM_VECTORS(N)          67557
+    #endif /* #ifndef MAX_NUM_VECTORS */
     
-    #define HARDCODED_VECTOR_DIMS       200
-    #define HARDCODED_K                 15
-    #define HARDCODED_N                 40
-    #define HARDCODED_BLOCK_SIZE        40
-#endif /* #if _DYNAMIC_ */
+    #ifndef HARDCODED_VECTOR_DIMS
+        #define HARDCODED_VECTOR_DIMS       200
+    #endif /* #ifndef HARDCODED_VECTOR_DIMS */
+    
+    #ifndef HARDCODED_K
+        #define HARDCODED_K                 15
+    #endif /* #ifndef HARDCODED_K */
+    
+    #ifndef HARDCODED_N
+        #define HARDCODED_N                 40
+    #endif /* #ifndef HARDCODED_N */
+    
+    #ifndef HARDCODED_BLOCK_SIZE
+        #define HARDCODED_BLOCK_SIZE        40
+    #endif /* HARDCODED_BLOCK_SIZE */
+#endif /* #if USE_DYNAMIC_ARRAY_SIZE */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef ARCH_H_ */

@@ -21,12 +21,12 @@
 
 /* Create an assertion. */
 #ifndef ASSERT
-    #if _ASSERT_
+    #if USE_ASSERT
         #include <assert.h> /* for assert */
         #define ASSERT(x)           assert(x)
     #else
         #define ASSERT(x)           EMPTY_STATEMENT()
-    #endif /* #if _ASSERT_ */
+    #endif /* #if USE_ASSERT */
 #endif /* #ifndef ASSERT */
 
 /* Declare an unused variable. */
