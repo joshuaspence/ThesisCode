@@ -342,6 +342,7 @@ static inline void best_outliers(size_t * const outliers_size,
     *outliers_size = new_outliers_size;
 }
 
+#ifdef BLOCKING
 /*
  * Sort paired vectors in descending order. This function uses bubble sort.
  *
@@ -374,6 +375,7 @@ static inline void sort_block_scores_descending(const size_t block_size,
         values [j+1] = value;
     }
 }
+#endif /* #ifdef BLOCKING */
 
 /*
  * Merge two sorted vector in descending order. Takes two pairs of vectors and
