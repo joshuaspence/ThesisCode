@@ -21,3 +21,6 @@ AutoESL/*.tcl
 
 # gprof output
 gmon.out
+
+# Profiling script output
+Profiling/
