@@ -22,7 +22,6 @@ use strict;
 use warnings;
 
 use Set::Scalar;
-use Text::CSV;
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -31,7 +30,6 @@ require "util.pl";
 # The argument should be the input file
 scalar(@ARGV) >= 1 || die("No file specified!\n");
 open FILE, "<", $ARGV[0] or die $!;
-my $csv = Text::CSV->new();
 
 # A hash of hashes, hashing a function name to a hash containing each dataset,
 # mapping to the self-time of this function for that dataset
@@ -41,22 +39,15 @@ my %functions = ();
 my $datasets = new Set::Scalar->new;
 
 # Parse the data
-while(<FILE>) {
+for my $line (<FILE>) {
     # Skip the first line (which is a header)
     next if 1 .. 1;
 
     # Extract data from this line
-    chomp; # remove newline characters
-    my @fields;
-    if ($csv->parse($_)) {
-        @fields = $csv->fields();
-    } else {
-        my $err = $csv->error_input;
-        die("Failed to parse line: $err");
-    }
-    my $dataset = $fields[0];
-    my $function = $fields[2];
-    my $self_time = $fields[5];
+    chomp($line); # remove newline characters
+    my $dataset = csv_parse_dataset($line);
+    my $function = csv_parse_function($line);
+    my $self_time = csv_parse_self_time($line);
 
     # Add data set to list
     $datasets->insert($dataset);
