@@ -67,9 +67,9 @@ int test(const char * const data_file) {
 #ifndef HARDCODED_N
     set_N(N);
 #endif /* #ifndef HARDCODED_N */
-#ifndef HARDCODED_BLOCK_SIZE
+#if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
     set_block_size(block_size);
-#endif /* #ifndef HARDCODED_BLOCK_SIZE */
+#endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
     top_n_outlier_pruning_block((void *) data, outliers, outlier_scores);
     
     /* Compare outliers. */
@@ -81,7 +81,7 @@ int test(const char * const data_file) {
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
-                if (outliers_expected[i] != outliers[j]) {
+                if (outliers_expected[i] == outliers[j]) {
                     similarity++;
                     break;
                 }
@@ -103,7 +103,7 @@ int test(const char * const data_file) {
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
-                if (outlier_scores_expected[i] != outlier_scores[j]) {
+                if (outlier_scores_expected[i] == outlier_scores[j]) {
                     similarity++;
                     break;
                 }
