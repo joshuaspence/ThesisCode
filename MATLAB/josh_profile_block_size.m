@@ -16,7 +16,7 @@ function [] = josh_profile_block_size(base_dir)
 
     % Root output directory.
     root_dir = 'Profiling';
-    base_dir = strcat(root_dir, filesep, base_dir);
+    base_dir = strcat('.', filesep, root_dir, filesep, base_dir);
     if exist(base_dir, 'dir') == 7
         rmdir(base_dir, 's');
     end
