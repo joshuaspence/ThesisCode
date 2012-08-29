@@ -20,25 +20,23 @@ TARGETS := TopN_Outlier_Pruning_Block_SORTED \
            TopN_Outlier_Pruning_Block_NO_BLOCKING \
            TopN_Outlier_Pruning_Block_HARDCODED
 
-TopN_Outlier_Pruning_Block_SORTED_CFLAGS         = $(call flags,DBLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS       = $(call flags,DBLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS       = $(call flags,DBLOCKING DSORTED_INSERT)
+TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
 
-TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS       = $(call flags,DBLOCKING DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS     = $(call flags,DBLOCKING DUNSORTED_INSERT)
-TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS     = $(call flags,DBLOCKING DUNSORTED_INSERT)
+TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DBLOCKING DUNSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DBLOCKING DUNSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DBLOCKING DUNSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
 
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT)
-
-TopN_Outlier_Pruning_Block_HARDCODED_CFLAGS     = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
-TopN_Outlier_Pruning_Block_HARDCODED_CXXFLAGS   = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
-TopN_Outlier_Pruning_Block_HARDCODED_MXXFLAGS   = $(call flags,DBLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DNO_BLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT DHARDCODED_VECTOR_DIMS=200 DHARDCODED_K=15 DHARDCODED_N=40)
 
 SOURCE_DIR           := source
 COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
                         $(SOURCE_DIR)/stats.c
+
+BUILD_TYPES          := autoesl binary matlab
 
 autoesl_OUTPUT_DIR   := AutoESL
 autoesl_TCLEXT       := tcl
@@ -46,7 +44,7 @@ autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
 autoesl_TOP_FUNC     := top_n_outlier_pruning_block
 autoesl_PART         := xc6vlx240tff1156-1
 autoesl_CLOCK_PERIOD := 10
-autoesl_SOLUTION     := solution1
+autoesl_SOLUTION     := solution
 autoesl_SOURCES      :=
 autoesl_TBSOURCES    :=
 autoesl_TCLSOURCES   := $(SOURCE_DIR)/directives.tcl
@@ -101,7 +99,7 @@ $(ECHO) -n "-$(FLAG:-%=%)"
 endef
 
 # $(call create-directory,DIRECTORY)
-# Create a directory, if it does not yet e
+# Create a directory, if it does not yet exist
 define create-directory
 -@if $$(TEST) ! -d $(1); then \
 	$(call trace-message,"Creating directory: $(1)"); \
@@ -166,17 +164,15 @@ define help_text
 -@$(ECHO)
 -@$(ECHO) " BUILD_TYPES:"
 -@$(ECHO) "     all"
--@$(ECHO) "     autoesl"
--@$(ECHO) "     binary"
--@$(ECHO) "     matlab"
--@$(ECHO) ""
+-@$(foreach BUILD_TYPE,$(sort $(BUILD_TYPES)),$(ECHO) "     $(BUILD_TYPE)";)
+-@$(ECHO)
 -@$(ECHO) " BUILD_MODES:"
 -@$(ECHO) "     debug"
 -@$(ECHO) "     release (default)"
 -@$(ECHO)
--@$(ECHO) " HELER_TARGETS:"
+-@$(ECHO) " HELPER_TARGETS:"
 -@$(foreach TARGET,$(sort $(HELPER_TARGETS)),$(ECHO) "     $(TARGET)";)
--@$(ECHO)
+-@$(ECHO) ""
 -@$(ECHO) " TARGETS:"
 -@$(foreach TARGET,$(sort $(ALL_TARGETS)),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
@@ -264,7 +260,8 @@ HELPER_TARGETS  += $(1)-autoesl
 $(1)-autoesl: $(1)-autoesl-tcl $(1)-autoesl-project $(1)-autoesl-solution $(1)-autoesl-elaborate $(1)-autoesl-synthesise
 
 # AutoESL: TCL scripts
-$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT) \
+                    $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
                     $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
                     $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
                     $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
@@ -277,6 +274,24 @@ HELPER_TARGETS  += $(1)-autoesl-tcl
 .PHONY: $(1)-autoesl-tcl
 $(1)-autoesl-tcl: $$($(1)_AUTOESL_TCL)
 
+$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
+	$(call create-directory,$$(autoesl_OUTPUT_DIR))
+	$(call trace-message,"Creating TCL script: $$@")
+	( \
+		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
+		$$(ECHO) "open_project $(1)"; \
+		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
+		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
+		$$(ECHO) "open_solution $(2)"; \
+		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
+		$$(ECHO) "create_clock -period $$(autoesl_CLOCK_PERIOD)"; \
+		$$(ECHO) "elaborate"; \
+		$$(ECHO) "autosyn"; \
+		$$(ECHO) "exit"; \
+	) > $$@
+	$(call trace-message,)
 $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 	$(call create-directory,$$(autoesl_OUTPUT_DIR))
 	$(call trace-message,"Creating TCL script: $$@")
@@ -529,17 +544,12 @@ endif
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                            AUTOESL CONFIGURATION                             #
-#                                                                              #
-#------------------------------------------------------------------------------#
-AUTOESL   := autoesl
-
-
-#------------------------------------------------------------------------------#
-#                                                                              #
 #                              COMPILER FLAGS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
+
+# AutoESL
+AUTOESL  := autoesl
 
 # C compiler
 CC       := gcc
@@ -578,6 +588,7 @@ MXXFLAGS_OPT   := $(call flags,O DNDEBUG)
 LDFLAGS_OPT    := $(call flags,O3)
 
 ifeq ($(mode),)
+# Default mode is release
 CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_OPT))
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_OPT))
@@ -608,9 +619,7 @@ endif
 #------------------------------------------------------------------------------#
 $(foreach t,$(TARGETS),$(call evaluate,$(call target-template,$t)))
 
-$(call evaluate,$(call build-type-template,autoesl))
-$(call evaluate,$(call build-type-template,binary))
-$(eval $(call build-type-template,matlab))
+$(foreach BUILD_TYPE,$(BUILD_TYPES),$(call evaluate,$(call build-type-template,$(BUILD_TYPE))))
 
 $(call evaluate,$(all-template))
 $(call evaluate,$(clean-all-template))
@@ -624,4 +633,4 @@ $(call evaluate,$(clean-all-template))
 .PHONY: info
 info:
 	$(print-variables)
-	$(sh_true)	
+	@$(sh_true)
