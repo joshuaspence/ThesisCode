@@ -39,6 +39,15 @@
         #define UNUSED
     #endif /* #if defined(__GNUC__) */
 #endif /* #ifndef UNUSED */
+
+/* Declare a function as inline. */
+#ifndef INLINE
+    #ifdef _MSC_VER
+        #define INLINE              __forceinline
+    #else
+        #define INLINE              inline
+    #endif /* #ifdef _MSC_VER */
+#endif /* #ifndef INLINE */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/

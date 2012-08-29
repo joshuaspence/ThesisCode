@@ -87,18 +87,18 @@ void set_block_size(const size_t block_size) {
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
-static inline double_t distance_squared(
+static INLINE double_t distance_squared(
     const double_t vector1[vector_dims_value],
     const double_t vector2[vector_dims_value]
     );
-static inline double_t add_neighbour(
+static INLINE double_t add_neighbour(
     index_t neighbours[k_value],
     double_t neighbours_dist[k_value],
     uint_t * const found,
     const index_t new_neighbour,
     const double_t new_neighbour_dist
     );
-static inline void best_outliers(
+static INLINE void best_outliers(
     size_t * const outliers_size,
     index_t outliers[N_value],
     double_t outlier_scores[N_value],
@@ -112,13 +112,13 @@ static inline void best_outliers(
 #endif /* #if defined(BLOCKING) */
     );
 #ifdef BLOCKING
-static inline void sort_block_scores_descending(
+static INLINE void sort_block_scores_descending(
     const size_t block_size,
     index_t indexes[block_size_value],
     double_t values[block_size_value]
     );
 #endif /* #ifdef BLOCKING */
-static inline void merge(
+static INLINE void merge(
     const size_t global_outliers_size,
     index_t global_outliers[N_value],
     double_t global_outlier_scores[N_value],
@@ -149,7 +149,7 @@ static inline void merge(
  * Return:
  *    The square of the distance between the two vectors.
  */
-static inline double_t distance_squared(const double_t vector1[vector_dims_value],
+static INLINE double_t distance_squared(const double_t vector1[vector_dims_value],
                                         const double_t vector2[vector_dims_value]) {
     ASSERT(vector_dims_value > 0);
     
@@ -180,7 +180,7 @@ static inline double_t distance_squared(const double_t vector1[vector_dims_value
  *     - new_neighbour_dist: The new value to be inserted into the 
  *           neighbours_dist array.
  */
-static inline double_t add_neighbour(index_t neighbours[k_value],
+static INLINE double_t add_neighbour(index_t neighbours[k_value],
                                      double_t neighbours_dist[k_value],
                                      uint_t * const found,
                                      const index_t new_neighbour,
@@ -304,7 +304,7 @@ static inline double_t add_neighbour(index_t neighbours[k_value],
  *     - scores: A vector containing the outlier scores for each element in the
  *           current block.
  */
-static inline void best_outliers(size_t * const outliers_size,
+static INLINE void best_outliers(size_t * const outliers_size,
                                  index_t outliers[N_value],
                                  double_t outlier_scores[N_value],
 #if defined(BLOCKING)
@@ -360,7 +360,7 @@ static inline void best_outliers(size_t * const outliers_size,
  *     - indexes: A vector containing the indexes of the paired vectors.
  *     - values: A vector containing the values of the paired vectors.
  */
-static inline void sort_block_scores_descending(const size_t block_size,
+static INLINE void sort_block_scores_descending(const size_t block_size,
                                                index_t indexes[block_size_value],
                                                double_t values[block_size_value]) {
     /* Error checking. */
@@ -405,7 +405,7 @@ static inline void sort_block_scores_descending(const size_t block_size,
  *     - new_outlier_scores: The scores associated with the resultant merged 
  *           outliers array.
  */
-static inline void merge(const size_t global_outliers_size, index_t global_outliers[N_value],         double_t global_outlier_scores[N_value],
+static INLINE void merge(const size_t global_outliers_size, index_t global_outliers[N_value],         double_t global_outlier_scores[N_value],
 #if defined(BLOCKING)
                          const size_t block_size,           index_t local_outliers[block_size_value], double_t local_outlier_scores[block_size_value],
 #elif defined(NO_BLOCKING)
