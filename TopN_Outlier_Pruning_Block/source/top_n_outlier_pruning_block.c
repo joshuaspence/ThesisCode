@@ -103,9 +103,14 @@ static inline void best_outliers(
     size_t * const outliers_size,
     index_t outliers[N_value],
     double_t outlier_scores[N_value],
+#if defined(BLOCKING)
     const size_t block_size,
     index_t current_block[block_size_value],
     double_t scores[block_size_value]
+#elif defined(NO_BLOCKING)
+    index_t vector,
+    double_t score
+#endif /* #if defined(BLOCKING) */
     );
 #ifdef BLOCKING
 static inline void sort_block_scores_descending(
@@ -305,9 +310,14 @@ static inline double_t add_neighbour(index_t neighbours[k_value],
 static inline void best_outliers(size_t * const outliers_size,
                                  index_t outliers[N_value],
                                  double_t outlier_scores[N_value],
+#if defined(BLOCKING)
                                  const size_t block_size,
                                  index_t current_block[block_size_value],
                                  double_t scores[block_size_value]
+#elif defined(NO_BLOCKING)
+                                 const index_t vector,
+                                 const double_t score
+#endif /* #if defined(BLOCKING) */
                                  ) {
     /* Error checking. */
     ASSERT(outliers_size != NULL);
@@ -333,7 +343,7 @@ static inline void best_outliers(size_t * const outliers_size,
 #if defined(BLOCKING)
     merge(*outliers_size, outliers, outlier_scores, block_size, current_block, scores, &new_outliers_size, new_outliers, new_outlier_scores);
 #elif defined(NO_BLOCKING)
-    merge(*outliers_size, outliers, outlier_scores,             current_block[0], scores[0], &new_outliers_size, new_outliers, new_outlier_scores);
+    merge(*outliers_size, outliers, outlier_scores,             vector,        score,  &new_outliers_size, new_outliers, new_outlier_scores);
 #endif /* #if defined(BLOCKING) */
     
     /* Copy values from temporary vectors to real vectors. */
@@ -637,11 +647,8 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
         }
         
         if (!removed) {
-            index_t block_array[]  = { vector1 };
-            double_t score_array[] = { score };
-
             /* Keep track of the top "N" outliers. */
-            best_outliers(&outliers_found, outliers, outlier_scores, 1, block_array, score_array);
+            best_outliers(&outliers_found, outliers, outlier_scores, vector1, score);
             
             /*
              * Set "cutoff" to the score of the weakest outlier. There is no need to
