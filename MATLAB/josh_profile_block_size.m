@@ -10,7 +10,7 @@
 
 function [] = josh_profile_block_size(base_dir)
     [data, data_file] = all_datasets;
-    profiles = all_profiles;
+    [~, blocking_profile, nonblocking_profile] = all_profiles;
     block_sizes = all_block_sizes;
     iterations = 1;
 
@@ -21,10 +21,6 @@ function [] = josh_profile_block_size(base_dir)
         rmdir(base_dir, 's');
     end
     mkdir(base_dir);
-    
-    % Each data set will be profiled with the following profile.
-    blocking_profile    = struct('name', 'C_sorted',      'func', 'TopN_Outlier_Pruning_Block_C_SORTED');
-    nonblocking_profile = struct('name', 'C_no_blocking', 'func', 'TopN_Outlier_Pruning_Block_C_NO_BLOCKING');
 
     % Iterate over all data sets.
     for d = 1 : length(data)
