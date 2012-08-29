@@ -575,10 +575,10 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := $(call flags,g O0 DDEBUG DSTATS)
-CXXFLAGS_DEBUG := $(call flags,g O0 DDEBUG DSTATS)
+CFLAGS_DEBUG   := $(call flags,g pg O0 DDEBUG DSTATS)
+CXXFLAGS_DEBUG := $(call flags,g pg O0 DDEBUG DSTATS)
 MXXFLAGS_DEBUG := $(call flags,DDEBUG DSTATS)
-LDFLAGS_DEBUG  := $(call flags,g)
+LDFLAGS_DEBUG  := $(call flags,g pg)
 
 # Optimization flags
 CFLAGS_OPT     := $(call flags,O3 DNDEBUG)
