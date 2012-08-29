@@ -75,10 +75,13 @@ int test(const char * const data_file) {
         
         uint_t i;
         uint_t similarity = 0;
+        boolean used[N];
+        MEMSET_1D(used, false, N, sizeof(boolean));
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
-                if (outliers_expected[i] == outliers[j]) {
+                if (!used[j] && outliers_expected[i] == outliers[j]) {
+                    used[j] = true;
                     similarity++;
                     break;
                 }
@@ -97,10 +100,13 @@ int test(const char * const data_file) {
         
         uint_t i;
         uint_t similarity = 0;
+        boolean used[N];
+        MEMSET_1D(used, false, N, sizeof(boolean));
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
-                if (outlier_scores_expected[i] == outlier_scores[j]) {
+                if (!used[j] && outlier_scores_expected[i] == outlier_scores[j]) {
+                    used[j] = true;
                     similarity++;
                     break;
                 }
