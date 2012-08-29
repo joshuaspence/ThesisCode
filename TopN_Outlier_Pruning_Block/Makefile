@@ -166,6 +166,7 @@ define help_text
 -@$(ECHO)
 -@$(ECHO) " BUILD_MODES:"
 -@$(ECHO) "     debug"
+-@$(ECHO) "     debugopt"
 -@$(ECHO) "     release (default)"
 -@$(ECHO)
 -@$(ECHO) " HELPER_TARGETS:"
@@ -424,11 +425,12 @@ define clean-all-template
 ################################################################################
 # Clean targets
 ################################################################################
-.PHONY: clean clean-all
-clean clean-all: clean-autoesl clean-binary clean-matlab
-
-.PHONY: distclean distclean-all
-distclean distclean-all: distclean-autoesl distclean-binary distclean-matlab
+.PHONY: clean clean-all distclean distclean-all
+clean clean-all distclean distclean-all:
+	$(call trace-message,"Cleaning $(1)...")
+	$$(DELETE) -r -f $$(ALL_CLEAN)
+	$(call trace-message,"Clean completed.")
+	$(call trace-message,)
 
 
 endef
@@ -574,16 +576,25 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG   := $(call flags,g pg O0 DDEBUG)
-CXXFLAGS_DEBUG := $(call flags,g pg O0 DDEBUG)
-MXXFLAGS_DEBUG := $(call flags,DDEBUG)
-LDFLAGS_DEBUG  := $(call flags,g pg)
+CFLAGS_DEBUG      := $(call flags,g pg O0 DDEBUG)
+CXXFLAGS_DEBUG    := $(call flags,g pg O0 DDEBUG)
+MXXFLAGS_DEBUG    := $(call flags,DDEBUG)
+LDFLAGS_DEBUG     := $(call flags,g pg)
+
+# Optimized debug flags
+CFLAGS_DEBUGOPT   := $(call flags,g pg O3 DDEBUG)
+CXXFLAGS_DEBUGOPT := $(call flags,g pg O3 DDEBUG)
+MXXFLAGS_DEBUGOPT := $(call flags,O DDEBUG)
+LDFLAGS_DEBUGOPT  := $(call flags,g pg)
 
 # Optimization flags
-CFLAGS_OPT     := $(call flags,O3 DNDEBUG)
-CXXFLAGS_OPT   := $(call flags,O3 DNDEBUG)
-MXXFLAGS_OPT   := $(call flags,O DNDEBUG)
-LDFLAGS_OPT    := $(call flags,O3)
+CFLAGS_OPT        := $(call flags,O3 DNDEBUG)
+CXXFLAGS_OPT      := $(call flags,O3 DNDEBUG)
+MXXFLAGS_OPT      := $(call flags,O DNDEBUG)
+LDFLAGS_OPT       := $(call flags,O3)
+
+# Add gmon output to cleanable files
+ALL_CLEAN += gmon.out
 
 ifeq ($(mode),)
 # Default mode is release
@@ -598,13 +609,20 @@ CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_DEBUG))
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_DEBUG))
 LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_DEBUG))
 else
+ifeq ($(mode),debugopt)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_DEBUGOPT))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_DEBUGOPT))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_DEBUGOPT))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_DEBUGOPT))
+else
 ifeq ($(mode),release)
 CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(CXXFLAGS_OPT))
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_OPT))
 LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_OPT))
 else
-$(error Invalid mode specified. Valid modes are 'debug' and 'release')
+$(error Invalid mode specified. Valid modes are 'debug', 'debugopt' and 'release')
+endif
 endif
 endif
 endif

@@ -20,4 +20,4 @@
 AutoESL/*.tcl
 
 # gprof output
-gprof.out
+gmon.out
