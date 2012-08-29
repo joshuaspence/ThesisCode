@@ -127,10 +127,10 @@ for my $dataset_dir (@dataset_dirs) {
 
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
-                my $function = parse_function_name($row);
-                my $calls = parse_function_calls($row);
-                my $total_time = parse_function_total_time($row);
-                my $self_time = parse_function_self_time($row);
+                my $function = html_parse_function_name($row);
+                my $calls = html_parse_function_calls($row);
+                my $total_time = html_parse_function_total_time($row);
+                my $self_time = html_parse_function_self_time($row);
                 
                 $results{$profile}{'dataset_calls'}{$dataset}{$function} += $calls;
                 $results{$profile}{'calls'}{$function} += $calls;

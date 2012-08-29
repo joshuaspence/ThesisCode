@@ -58,7 +58,7 @@ for my $dataset_dir (@dataset_dirs) {
         
         # Loop through each profile subdirectory
         for my $block_size_dir (@block_size_dirs) {
-            my $block_size = parse_block_size($block_size_dir);
+            my $block_size = html_parse_block_size($block_size_dir);
             my $log_block_size = log10($block_size);
             
             my $dimensions;
@@ -75,8 +75,8 @@ for my $dataset_dir (@dataset_dirs) {
 
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
-                my $function_name = parse_function_name($row);
-                my $time = parse_function_total_time($row);
+                my $function_name = html_parse_function_name($row);
+                my $time = html_parse_function_total_time($row);
                 
                 if ($function_name =~ m/^commute_distance_anomaly_profiling$/) {
                     $total_time = $time;
