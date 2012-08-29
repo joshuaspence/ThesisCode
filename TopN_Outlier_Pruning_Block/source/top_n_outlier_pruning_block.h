@@ -46,8 +46,6 @@ void set_block_size(const size_t block_size);
 #else
     #define block_size_value    (HARDCODED_BLOCK_SIZE)
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
-#elif defined(NO_BLOCKING)
-    #define block_size_value    (1)
 #endif /* #ifdef BLOCKING */
 
 void top_n_outlier_pruning_block(
