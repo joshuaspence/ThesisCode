@@ -323,8 +323,10 @@ static inline void best_outliers(size_t * const outliers_size,
     ASSERT(outliers_size != NULL);
     ASSERT(*outliers_size <= N_value);
     ASSERT(N_value > 0);
+#ifdef BLOCKING
     ASSERT(block_size > 0);
     ASSERT(block_size <= block_size_value);
+#endif /* #ifdef BLOCKING */
     
 #ifdef BLOCKING
     /* Sort the (current_block, scores) vectors in descending order of value. */
@@ -522,7 +524,9 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
     ASSERT(vector_dims_value > 0);
     ASSERT(k_value > 0);
     ASSERT(N_value > 0);
+#ifdef BLOCKING
     ASSERT(block_size_value > 0);
+#endif /* #ifdef BLOCKING */
     
     /* Set output to zero. */
     MEMSET_1D(outliers,       NULL_INDEX, N_value, sizeof(index_t));
