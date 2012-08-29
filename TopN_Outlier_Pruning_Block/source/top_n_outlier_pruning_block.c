@@ -4,9 +4,8 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "stats.h" /* for STATS_INCREMENT_CALLS_COUNTER, STATS_INCREMENT_NUM_PRUNED */
-#include "top_n_outlier_pruning_block.h"
-#include "utility.h" /* for ASSERT, boolean, double_t, false, index_t, int_t, MIN, NULL_INDEX, START_INDEX, true, uint_t */
+#include "top_n_outlier_pruning_block.h" /* main include file */
+#include "utility.h" /* for ASSERT, boolean, double_t, false, INCREMENT_UINT_T, index_t, int_t, MIN, NULL_INDEX, START_INDEX, true, uint_t */
 
 #include <float.h> /* for DBL_MIN */
 #include <stddef.h> /* for size_t */
@@ -153,8 +152,6 @@ static inline void merge(
 static inline double_t distance_squared(const double_t vector1[vector_dims_value],
                                         const double_t vector2[vector_dims_value]) {
     ASSERT(vector_dims_value > 0);
-    
-    STATS_INCREMENT_CALLS_COUNTER();
     
     double_t sum_of_squares = 0;
     
@@ -516,9 +513,12 @@ static inline void merge(const size_t global_outliers_size, index_t global_outli
  *           array) of the outlying vector.
  *     - outlier_scores: A vector used to score the score associated with
  *           each of the outliers stored in the outliers array.
+ *
+ * Return:
+ *     The number of vectors pruned whilst executing this algorithm.
  */
-void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
-                                 index_t outliers[N_value], double_t outlier_scores[N_value]) {
+uint_t top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
+                                   index_t outliers[N_value], double_t outlier_scores[N_value]) {
     /* Error checking. */
     ASSERT(num_vectors_value > 0);
     ASSERT(vector_dims_value > 0);
@@ -527,6 +527,9 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
 #ifdef BLOCKING
     ASSERT(block_size_value > 0);
 #endif /* #ifdef BLOCKING */
+
+    /* Number of pruned vectors. */
+    uint_t num_pruned = 0;
     
     /* Set output to zero. */
     MEMSET_1D(outliers,       NULL_INDEX, N_value, sizeof(index_t));
@@ -591,7 +594,7 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
                     if (found[block_index] >= k_value && score[block_index] < cutoff) {
                         current_block[block_index] = NULL_INDEX;
                         score        [block_index] = 0;
-                        STATS_INCREMENT_NUM_PRUNED();
+                        INCREMENT_UINT_T(num_pruned);
                     }
                 }
             }
@@ -644,7 +647,7 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
                  */
                 if (found >= k_value && score < cutoff) {
                     removed = true;
-                    STATS_INCREMENT_NUM_PRUNED();
+                    INCREMENT_UINT_T(num_pruned);
                     break;
                 }
             }
@@ -680,4 +683,6 @@ void top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors
 #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
     set_block_size(0);
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
+    
+    return num_pruned;
 }

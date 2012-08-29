@@ -4,13 +4,10 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "stats.h" /* for get_stats */
 #include "test.h" /* main header file */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
 #include "utility.h" /* for boolean, index_t, double_t, false, lint_t, PRINTF_STDOUT, true, uint_t */
-#ifdef VARDUMP
-    #include "vardump.h" /* for read_vardump */
-#endif /* #ifdef VARDUMP */
+#include "vardump.h" /* for read_vardump */
 
 #include <stdlib.h> /* for size_t, free */
 /*----------------------------------------------------------------------------*/
@@ -70,7 +67,7 @@ int test(const char * const data_file) {
 #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
     set_block_size(block_size);
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
-    top_n_outlier_pruning_block((void *) data, outliers, outlier_scores);
+    const uint_t num_pruned = top_n_outlier_pruning_block((void *) data, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
@@ -121,15 +118,7 @@ int test(const char * const data_file) {
     free(outliers_expected);
     free(outlier_scores_expected);
     
-#ifdef STATS
-    /* Print the number of calls to the distance function */
-    lint_t num_calls;
-    uint_t num_pruned;
-    
-    get_stats(&num_calls, &num_pruned);
-    PRINTF_STDOUT("Calls to distance function = %llu\n", num_calls);
     PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
-#endif /* #ifdef STATS */
     
     return failed;
 }

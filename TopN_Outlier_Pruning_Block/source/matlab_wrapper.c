@@ -168,7 +168,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 #ifndef HARDCODED_BLOCK_SIZE
     set_block_size(block_size);
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
-    top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
+    const uint_t num_pruned = top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
     
 #ifdef VARDUMP
     /* Save input and output parameters. */
@@ -197,13 +197,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
     }
     
-#ifdef STATS
-    /* Print the number of calls to the distance function */
-    lint_t num_calls;
-    uint_t num_pruned;
-    
-    get_stats(&num_calls, &num_pruned);
-    PRINTF_STDOUT("Calls to distance function = %llu\n", num_calls);
     PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
-#endif /* #ifdef STATS */
+    
+    PRINTF_STDOUT("Numb = %llu\n", num_calls);
 }

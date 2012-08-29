@@ -32,8 +32,7 @@ TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DNO_BLOCKING DSOR
 TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 
 SOURCE_DIR           := source
-COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.c \
-                        $(SOURCE_DIR)/stats.c
+COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.c
 
 BUILD_TYPES          := autoesl binary matlab
 

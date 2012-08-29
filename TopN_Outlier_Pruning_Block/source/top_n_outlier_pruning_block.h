@@ -7,7 +7,7 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "utility.h" /* for double_t, index_t */
+#include "utility.h" /* for double_t, index_t, uint_t */
 #include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
@@ -48,7 +48,7 @@ void set_block_size(const size_t block_size);
 #endif /* #ifndef HARDCODED_BLOCK_SIZE */
 #endif /* #ifdef BLOCKING */
 
-void top_n_outlier_pruning_block(
+uint_t top_n_outlier_pruning_block(
     const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
     index_t outliers[N_value],
     double_t outlier_scores[N_value]

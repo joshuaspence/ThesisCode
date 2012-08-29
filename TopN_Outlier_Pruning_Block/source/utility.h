@@ -62,7 +62,6 @@ typedef int                 int_t;
 typedef unsigned int        uint_t;
 typedef size_t              index_t; /* a type to index into arrays */
 typedef double              double_t;
-typedef unsigned long long  lint_t; /* large integer type */
 
 #define NULL_INDEX          0
 #define START_INDEX         1
@@ -76,6 +75,17 @@ typedef unsigned long long  lint_t; /* large integer type */
 #define FILE_IO_ERROR       (2)
 #define MALLOC_FAILED       (3)
 #define FILE_EXPECTED_EOF   (4)
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* Stats                                                                      */
+/*============================================================================*/
+#define INCREMENT_UINT_T(_var_) \
+    do { \
+        const UNUSED uint_t old_var_ = (_var_); \
+        (_var_)++; \
+        ASSERT((_var_) > (old_var_)); \
+    } while (0)
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef UTILITY_H_ */
