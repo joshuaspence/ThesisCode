@@ -134,6 +134,9 @@ int save_vardump(const char * const filename,
  * Read the input and output parameters of the top_n_outlier_pruning_block 
  * function from a binary file.
  *
+ * NOTE: The caller must free the memory allocated for data, outliers and 
+ * outlier scores.
+ *
  * Parameters:
  *     - filename: The file to read the variable dump file.
  *     - num_vectors: A variable to read from the variable dump file.
