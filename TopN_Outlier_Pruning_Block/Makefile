@@ -150,7 +150,7 @@ define help_text
 -@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] (<TASKS> | <BUILD_TYPE> | <HELPER_TARGET> | <TARGET> )"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -576,16 +576,42 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
 # Debug flags
-CFLAGS_DEBUG      := $(call flags,g pg O0 DDEBUG)
-CXXFLAGS_DEBUG    := $(call flags,g pg O0 DDEBUG)
+CFLAGS_DEBUG      := $(call flags,g O0 DDEBUG)
+CXXFLAGS_DEBUG    := $(call flags,g O0 DDEBUG)
 MXXFLAGS_DEBUG    := $(call flags,DDEBUG)
-LDFLAGS_DEBUG     := $(call flags,g pg)
+LDFLAGS_DEBUG     := $(call flags,g)
+ifeq ($(gprof),)
+else
+ifeq ($(gprof),on)
+CFLAGS_DEBUG      := $(call add-flags,$(CFLAGS_DEBUG),pg)
+CXXFLAGS_DEBUG    := $(call add-flags,$(CXXFLAGS_DEBUG),pg)
+LDFLAGS_DEBUG     := $(call add-flags,$(LDFLAGS_DEBUG),pg)
+else
+ifeq ($(gprof),off)
+else
+$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
 
 # Optimized debug flags
-CFLAGS_DEBUGOPT   := $(call flags,g pg O3 DDEBUG)
-CXXFLAGS_DEBUGOPT := $(call flags,g pg O3 DDEBUG)
+CFLAGS_DEBUGOPT   := $(call flags,g O3 DDEBUG)
+CXXFLAGS_DEBUGOPT := $(call flags,g O3 DDEBUG)
 MXXFLAGS_DEBUGOPT := $(call flags,O DDEBUG)
-LDFLAGS_DEBUGOPT  := $(call flags,g pg)
+LDFLAGS_DEBUGOPT  := $(call flags,g)
+ifeq ($(gprof),)
+else
+ifeq ($(gprof),on)
+CFLAGS_DEBUGOPT   := $(call add-flags,$(CFLAGS_DEBUGOPT),pg)
+CXXFLAGS_DEBUGOPT := $(call add-flags,$(CXXFLAGS_DEBUGOPT),pg)
+LDFLAGS_DEBUGOPT  := $(call add-flags,$(LDFLAGS_DEBUGOPT),pg)
+else
+ifeq ($(gprof),off)
+else
+$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
 
 # Optimization flags
 CFLAGS_OPT        := $(call flags,O3 DNDEBUG)
