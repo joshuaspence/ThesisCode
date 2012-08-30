@@ -6,11 +6,17 @@
 # ended.
 #===============================================================================
 
-SCRIPT_NAME=$(basename $0)
-if [[ "$(readlink -f $(pwd))" != "$(readlink -f $(dirname $0))" ]]; then
-    echo "This script must be run from the directory '$(readlink -f $(dirname $0))'." >&2
-    exit 1
-fi
+#===============================================================================
+# Configuration
+#===============================================================================
+MATLAB_CMD=josh_profile
+MATLAB_DIR=../MATLAB
+ROOT_OUTPUT_DIR=../../Profiling
+#===============================================================================
+
+SCRIPT_DIR=$(dirname $0)
+MATLAB_DIR=$SCRIPT_DIR/$MATLAB_DIR
+ROOT_OUTPUT_DIR=$SCRIPT_DIR/$ROOT_OUTPUT_DIR
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
@@ -25,14 +31,12 @@ OLD_DISPLAY=$DISPLAY
 unset DISPLAY
 
 # MATLAB script
-MATLAB_CMD=josh_profile
 MATLAB_CMD_ARGS=$DESCRIPTION
 MATLAB_SCRIPT=$MATLAB_CMD.m
 
 # Output directory
-ROOT_DIR=$(sed -n "s/.*root_dir\s*=\s*'\(.*\)'\s*;.*$/\1/p" $MATLAB_SCRIPT)
-OUTPUT_DIR=$ROOT_DIR/$DESCRIPTION
-LOGFILE=$ROOT_DIR/$DESCRIPTION.log
+OUTPUT_DIR=$ROOT_OUTPUT_DIR/$DESCRIPTION
+LOGFILE=$ROOT_OUTPUT_DIR/$DESCRIPTION.log
 mkdir --parents $(dirname $LOGFILE)
 
 echo "Running MATLAB..."
@@ -40,7 +44,7 @@ echo "Output directory is '$OUTPUT_DIR'"
 echo "Logging to '$LOGFILE'"
 echo "GIT commit hash: $(git rev-parse HEAD)" >> $LOGFILE
 echo "Running MATLAB command: '$MATLAB_CMD('$MATLAB_CMD_ARGS')'"
-nohup matlab -nodesktop -nosplash -r "addpath(genpath('.')); $MATLAB_CMD('$MATLAB_CMD_ARGS')" 1>>$LOGFILE 2>&1 &
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('$MATLAB_DIR')); $MATLAB_CMD('$MATLAB_CMD_ARGS')" 1>>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY

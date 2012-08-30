@@ -1,24 +1,23 @@
 #!/bin/bash
 
 #===============================================================================
-# This script can be used to profile MATLAB execution. MATLAB will be run with 
-# "nohup" so that the profiling will continue even when the TTY session is 
-# ended.
+# This script can be used to profile C execution.
 #===============================================================================
 
 #===============================================================================
 # Configuration
 #===============================================================================
-DATA_DIR=data
+DATA_DIR=../TopN_Outlier_Pruning_Block/data
 DATA_EXT=dat
 GPROF_OUT=gmon.out
-MAKEFILE=Makefile
-ROOT_OUTPUT_DIR=Profiling
+MAKEFILE=../TopN_Outlier_Pruning_Block/Makefile
+ROOT_OUTPUT_DIR=../../Profiling
 #===============================================================================
 
 SCRIPT_DIR=$(dirname $0)
 DATA_DIR=$SCRIPT_DIR/$DATA_DIR
 MAKEFILE=$SCRIPT_DIR/$MAKEFILE
+ROOT_OUTPUT_DIR=$SCRIPT_DIR/$ROOT_OUTPUT_DIR
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
@@ -43,9 +42,15 @@ BIN_DIR=$(dirname $MAKEFILE)/$(sed -n -e 's/\s*binary_OUTPUT_DIR\s*[:]\?=\s*\(.*
 BIN_EXT=$(sed -n -e 's/\s*binary_EXT\s*[:]\?=\s*\(.*\)$/\1/p' $MAKEFILE)
 ALL_TARGETS=$(find $BIN_DIR -name "*.$BIN_EXT")
 
+# Make sure there are some targets
+if [[ -z $ALL_TARGETS ]]; then
+    echo "No targets found at '$BIN_DIR'" >&2
+    exit 1
+fi
+
 # Make sure binary directory exists
 if [[ ! -d "$BIN_DIR" ]]; then
-    echo "Binary directory not found: '$BIN_DIR'"
+    echo "Binary directory not found: '$BIN_DIR'" >&2
     exit 1
 fi
 

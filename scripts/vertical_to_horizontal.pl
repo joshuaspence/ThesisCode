@@ -31,41 +31,64 @@ require "util.pl";
 scalar(@ARGV) >= 1 || die("No file specified!\n");
 open FILE, "<", $ARGV[0] or die $!;
 
-# A hash of hashes, hashing a function name to a hash containing each dataset,
-# mapping to the self-time of this function for that dataset
-my %functions = ();
-
 # A set containing all data sets
-my $datasets = new Set::Scalar->new;
+my $columns = new Set::Scalar->new;
+
+# A hashmap for the profiling results
+#     functions{'function_name'}{'profile'}{'data_set'}{'iteration'}{'data'}
+#
+# Where 'data' is one of the following:
+#     - calls               Total number of calls to each function, across all data sets.
+#     - total_time          Total time for each function, across all data sets.
+#     - self_time           Total self time for each function, across all data sets.
+my %functions = ();
 
 # Parse the data
 for my $line (<FILE>) {
     # Skip the first line (which is a header)
     next if 1 .. 1;
-
+    
     # Extract data from this line
     chomp($line); # remove newline characters
+    my $profile = csv_parse_profile($line);
     my $dataset = csv_parse_dataset($line);
     my $function = csv_parse_function($line);
     my $self_time = csv_parse_self_time($line);
-
-    # Add data set to list
-    $datasets->insert($dataset);
-
-    # Create a new subhash if it doesn't yet exist
-    if (!exists($functions{$function})) {
-        %{$functions{$function}} = ();
-    }
+    my $total_time = csv_parse_total_time($line);
+    my $calls = csv_parse_calls($line);
     
-    # Add this function to the hash of hashes
-    $functions{$function}{$dataset} = $self_time;
+    # Add data set to list
+    my $column = ();
+    $column{'profile'} = $profile;
+    $column{'dataset'} = $dataset;
+    $column{'iteration'} = $iteration;
+    $columns->insert($column);
+    
+    # Create a new subhash if it doesn't yet exist
+    if (!exists $functions{$function}) {
+        $functions{$function} = ();
+    }
+    if (!exists $functions{$function}{$profile}) {
+        $functions{$function}{$profile} = ();
+    }
+    if (!exists $functions{$function}{$dataset}) {
+        $functions{$function}{$profile}{$dataset} = ();
+    }
+    if (!exists $functions{$function}{$dataset}{$iteration}) {
+        $functions{$function}{$profile}{$dataset}{$iteration} = ()
+        $functions{$function}{$profile}{$dataset}{$iteration}{'calls'} = $calls;
+        $functions{$function}{$profile}{$dataset}{$iteration}{'total_time'} = $total_time;
+        $functions{$function}{$profile}{$dataset}{$iteration}{'self_time'} = $self_time;
+    }
 }
 
 # Close the file
 close(FILE);
 
 # Print the header
-print("\"Function\"");
+my $profile_header_row   = "Function";
+my $dataset_header_row   = "Function";
+my $iteration_header_row = "Function";
 foreach my $dataset (sort $datasets->elements) {
     print(",\"$dataset\"");
 }
