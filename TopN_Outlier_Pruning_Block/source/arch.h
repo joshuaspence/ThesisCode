@@ -48,8 +48,8 @@
     
     #include <stdio.h> /* for fprintf */
     
-    #define PRINTF_STDOUT(...)      fprintf(stdout, __VA_ARGS__)
-    #define PRINTF_STDERR(...)      fprintf(stderr, __VA_ARGS__)
+    #define PRINTF_STDOUT(...)          fprintf(stdout, __VA_ARGS__)
+    #define PRINTF_STDERR(...)          fprintf(stderr, __VA_ARGS__)
 #endif /* #ifdef __C__ */
 /*----------------------------------------------------------------------------*/
 
@@ -72,8 +72,8 @@
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
     #include <stdio.h> /* for sprintf */
     
-    #define PRINTF_STDOUT(...)      mexPrintf(__VA_ARGS__)
-    #define PRINTF_STDERR(...)      \
+    #define PRINTF_STDOUT(...)          mexPrintf(__VA_ARGS__)
+    #define PRINTF_STDERR(...)          \
         do { \
             char buffer[1024]; \
             sprintf(buffer, __VA_ARGS__); \
@@ -107,13 +107,12 @@
 /* MEMSET and MEMCPY macros                                                   */
 /*============================================================================*/
 #if USE_MEMSET
-    #include <string.h> /* for memset */
+    #include <string.h> /* for memset, memcpy */
     
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         memset(_var_, _value_, (_count_)*(_size_))
     #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
         MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
-    
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         memcpy(_dst_, _src_, (_count_)*(_size_))
 #else
@@ -134,7 +133,6 @@
                     (_var_)[i][j] = (_value_); \
             } \
         } while (0)
-    
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         do { \
             uint_t i; \

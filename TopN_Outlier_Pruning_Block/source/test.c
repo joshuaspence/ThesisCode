@@ -41,7 +41,7 @@ int test(const char * const data_file) {
     
     PRINTF_STDOUT("Reading variables from '%s'.\n", data_file); 
     int result;
-    if ((result = read_vardump(data_file, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
+        if ((result = read_vardump(data_file, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
         return result;
     
     /* Create the output arrays. */
@@ -72,7 +72,6 @@ int test(const char * const data_file) {
     /* Compare outliers. */
     do {
         PRINTF_STDOUT("Comparing outliers... ");
-        
         uint_t i;
         uint_t similarity = 0;
         boolean used[N];
@@ -89,7 +88,6 @@ int test(const char * const data_file) {
         }
         
         PRINTF_STDOUT("%u out of %u\n", (unsigned int) similarity, (unsigned int) N);
-        
         if (similarity != N)
             failed = true;
     } while (0);
@@ -97,7 +95,6 @@ int test(const char * const data_file) {
     /* Compare scores. */
     do {
         PRINTF_STDOUT("Comparing scores... ");
-        
         uint_t i;
         uint_t similarity = 0;
         boolean used[N];
@@ -114,7 +111,6 @@ int test(const char * const data_file) {
         }
         
         PRINTF_STDOUT("%u out of %u\n", (unsigned int) similarity, (unsigned int) N);
-        
         if (similarity != N)
             failed = true;
     } while (0);
@@ -125,6 +121,5 @@ int test(const char * const data_file) {
     free(outlier_scores_expected);
     
     PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
-    
     return failed;
 }

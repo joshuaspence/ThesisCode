@@ -17,7 +17,8 @@ int save_vardump(
     const size_t * const N,
     const size_t * const block_size,
     index_t (* const outliers)[*N],
-    double_t (* const outlier_scores)[*N]);
+    double_t (* const outlier_scores)[*N]
+    );
     
 int read_vardump(
     const char * const filename,
@@ -28,6 +29,7 @@ int read_vardump(
     size_t * const N,
     size_t * const block_size,
     index_t ** const outliers,
-    double_t ** const outlier_scores);
+    double_t ** const outlier_scores
+    );
 
 #endif /* #ifndef VARDUMP_H_ */

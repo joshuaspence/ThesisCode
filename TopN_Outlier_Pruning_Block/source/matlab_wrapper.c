@@ -132,7 +132,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
      */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    double_t * data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    double_t * const data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
     if (data_in == NULL) {
         PRINTF_STDERR("Unable to allocate memory for data array.");
         return;

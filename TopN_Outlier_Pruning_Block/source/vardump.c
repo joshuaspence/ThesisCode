@@ -15,47 +15,54 @@
 /*============================================================================*/
 #define WRITE_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
     do { \
-        const size_t size  = _size_; \
-        const size_t count = _count_; \
+        const size_t size  = (_size_); \
+        const size_t count = (_count_); \
         size_t result; \
         \
-        if ((result = fwrite(_var_, size, count, _fp_)) != count) { \
-            PRINTF_STDERR("Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", #_var_, _filename_, (unsigned int) count, (unsigned int) result); \
-            _cleanup_code_ \
+        if ((result = fwrite((_var_), size, count, (_fp_))) != count) { \
+            PRINTF_STDERR("Error writing %s to file %s. Expected count = %u. Actual count = %u.\n", (#_var_), (_filename_), (unsigned int) count, (unsigned int) result); \
+            do { \
+                _cleanup_code_ \
+            } while (0); \
             return FILE_IO_ERROR; \
         } \
     } while (0)
 
 #define READ_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
     do { \
-        const size_t size  = _size_; \
-        const size_t count = _count_; \
+        const size_t size  = (_size_); \
+        const size_t count = (_count_); \
         size_t result; \
         \
-        if ((result = fread(_var_, size, count, _fp_)) != count) { \
-            PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", #_var_, _filename_, (unsigned int) count, (unsigned int) result); \
-            _cleanup_code_ \
+        if ((result = fread((_var_), size, count, (_fp_))) != count) { \
+            PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", (#_var_), (_filename_), (unsigned int) count, (unsigned int) result); \
+            do { \
+                _cleanup_code_ \
+            } while (0); \
             return FILE_IO_ERROR; \
         } \
     } while (0)
 
 #define MALLOC_READ_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
     do { \
-        const size_t size  = _size_; \
-        const size_t count = _count_; \
+        const size_t size  = (_size_); \
+        const size_t count = (_count_); \
         size_t result; \
-        *_var_ = malloc(count * size); \
-        if (*_var_ == NULL) { \
-            PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), #_var_); \
-            _cleanup_code_ \
-            return MALLOC_FAILED; \
-        } else { \
-            if ((result = fread(*_var_, size, count, fp)) != count) { \
-                PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", #_var_, filename, (unsigned int) count, (unsigned int) result); \
-                free(*_var_); \
+        \
+        *(_var_) = malloc(count * size); \
+        if (*(_var_) == NULL) { \
+            PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), (#_var_)); \
+            do { \
                 _cleanup_code_ \
-                return FILE_IO_ERROR; \
-            } \
+            } while (0); \
+            return MALLOC_FAILED; \
+        } else if ((result = fread(*(_var_), size, count, (_fp_))) != count) { \
+            PRINTF_STDERR("Error reading %s from file %s. Expected count = %u. Actual count = %u.\n", (#_var_), filename, (unsigned int) count, (unsigned int) result); \
+            free(*(_var_)); \
+            do { \
+                _cleanup_code_ \
+            } while (0); \
+            return FILE_IO_ERROR; \
         } \
     } while (0)
 /*----------------------------------------------------------------------------*/
@@ -99,28 +106,28 @@ int save_vardump(const char * const filename,
     }
     
     /* num_vectors */
-    WRITE_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp,);
+    WRITE_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* vector_dims */
-    WRITE_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp,);
+    WRITE_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* data */
-    WRITE_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp,);
+    WRITE_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, /* no cleanup code */);
     
     /* k */
-    WRITE_VARIABLE(k, sizeof(size_t), 1, filename, fp,);
+    WRITE_VARIABLE(k, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* N */
-    WRITE_VARIABLE(N, sizeof(size_t), 1, filename, fp,);
+    WRITE_VARIABLE(N, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* block_size */
-    WRITE_VARIABLE(block_size, sizeof(size_t), 1, filename, fp,);
+    WRITE_VARIABLE(block_size, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* outliers */
-    WRITE_VARIABLE(outliers, sizeof(index_t), (*N), filename, fp,);
+    WRITE_VARIABLE(outliers, sizeof(index_t), *N, filename, fp, /* no cleanup code */);
     
     /* outlier_scores */
-    WRITE_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp,);
+    WRITE_VARIABLE(outlier_scores, sizeof(double_t), *N, filename, fp, /* no cleanup code */);
     
     if (fclose(fp) != 0) {
         PRINTF_STDERR("Error closing file.\n");
@@ -168,19 +175,19 @@ int read_vardump(const char * const filename,
     }
     
     /* num_vectors */
-    READ_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp,);
+    READ_VARIABLE(num_vectors, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* vector_dims */
-    READ_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp,);
+    READ_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* data */
-    MALLOC_READ_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp,);
+    MALLOC_READ_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, /* no cleanup code */);
     
     /* k */
     READ_VARIABLE(k, sizeof(size_t), 1, filename, fp, free(*data););
     
     /* N */
-    READ_VARIABLE(N, sizeof(size_t), 1, filename, fp,);
+    READ_VARIABLE(N, sizeof(size_t), 1, filename, fp, free(*data););
     
     /* block_size */
     READ_VARIABLE(block_size, sizeof(size_t), 1, filename, fp, free(*data););
