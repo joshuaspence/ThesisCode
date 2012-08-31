@@ -5,7 +5,7 @@ function echo_and_exec {
 	$@
 }
 
-pathadd() {
+function pathadd {
     if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
         export PATH="$PATH:$1"
     fi
@@ -49,6 +49,5 @@ echo ""
 echo_and_exec export XILINXD_LICENSE_FILE=$XILIND_LICENSE_PORT@$XILIND_LICENSE_SERVER
 echo_and_exec export LM_LICENSE_FILE=$XILIND_LICENSE_PORT@$XILIND_LICENSE_SERVER
 echo ""
-
 
 echo "Done!"
