@@ -25,7 +25,7 @@ use File::Spec;
 
 use constant PROFILE_HTML_FILE => "file0.html";
 use constant MATLAB_LOG_FILE   => "matlab_output.log";
-use constant OUTPUT_HEADER     => "Data set,Block size,log(Block size),Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Pruned\n";
+use constant OUTPUT_HEADER     => "Data set,Block size,log(Block size),Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Distance calls,Pruned\n";
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -66,6 +66,7 @@ for my $dataset_dir (@dataset_dirs) {
             my $projected_dimensions;
             my $projected_vectors;
             my $pruned;
+            my $distance_calls = 0;
             my $total_time;
             my $function_time;
             
@@ -97,12 +98,14 @@ for my $dataset_dir (@dataset_dirs) {
                     $projected_dimensions = $2;
                 } elsif ($line =~ m/Number of pruned vectors\s*=\s*([0-9]+)/) {
                     $pruned = $1;
+                } elsif ($line =~ m/Calls to distance function\s*=\s*([0-9]+)/) {
+                    $distance_calls = $1;
                 }
             }
             close(LOG);
             
             # Print output
-            print("\"$dataset\",$block_size,$log_block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$pruned\n");
+            print("\"$dataset\",$block_size,$log_block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$distance_calls,$pruned\n");
         }
     }
 }
