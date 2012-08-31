@@ -8,8 +8,8 @@
 %
 %==========================================================================
 
-function [] = josh_test(base_dir)
-    [data, data_file] = all_datasets;
+function josh_test(base_dir, dataset_dir)
+    [data, data_file] = all_datasets(dataset_dir);
     allprofiles = all_profiles;
     base_profile = allprofiles(1);
     profiles = allprofiles(2 : size(allprofiles, 2));

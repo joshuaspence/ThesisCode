@@ -8,8 +8,8 @@
 %
 %==========================================================================
 
-function [] = josh_profile_block_size(base_dir)
-    [data, data_file] = all_datasets;
+function josh_profile_block_size(base_dir, dataset_dir)
+    [data, data_file] = all_datasets(dataset_dir);
     [~, blocking_profile, nonblocking_profile] = all_profiles;
     block_sizes = all_block_sizes;
     iterations = 1;

@@ -11,12 +11,13 @@
 #===============================================================================
 MATLAB_CMD=josh_profile
 MATLAB_DIR=../MATLAB
-ROOT_OUTPUT_DIR=../../Profiling
+ROOT_OUTPUT_DIR=Profiling
+DATASET_DIR=$MATLAB_DIR/Datasets
 #===============================================================================
 
 SCRIPT_DIR=$(dirname $0)
 MATLAB_DIR=$SCRIPT_DIR/$MATLAB_DIR
-ROOT_OUTPUT_DIR=$SCRIPT_DIR/$ROOT_OUTPUT_DIR
+DATASET_DIR=$SCRIPT_DIR/$DATASET_DIR
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
@@ -31,7 +32,7 @@ OLD_DISPLAY=$DISPLAY
 unset DISPLAY
 
 # MATLAB script
-MATLAB_CMD_ARGS=$DESCRIPTION
+MATLAB_CMD_ARGS="'$DESCRIPTION', '$DATASET_DIR'"
 MATLAB_SCRIPT=$MATLAB_CMD.m
 
 # Output directory
@@ -43,8 +44,8 @@ echo "Running MATLAB..."
 echo "Output directory is '$OUTPUT_DIR'"
 echo "Logging to '$LOGFILE'"
 echo "GIT commit hash: $(git rev-parse HEAD)" >> $LOGFILE
-echo "Running MATLAB command: '$MATLAB_CMD('$MATLAB_CMD_ARGS')'"
-nohup matlab -nodesktop -nosplash -r "addpath(genpath('$MATLAB_DIR')); $MATLAB_CMD('$MATLAB_CMD_ARGS')" 1>>$LOGFILE 2>&1 &
+echo "Running MATLAB command: '$MATLAB_CMD($MATLAB_CMD_ARGS)'"
+nohup matlab -nodesktop -nosplash -r "addpath(genpath('$MATLAB_DIR')); $MATLAB_CMD($MATLAB_CMD_ARGS)" 1>>$LOGFILE 2>&1 &
 
 echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY

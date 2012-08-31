@@ -8,8 +8,8 @@
 %
 %==========================================================================
 
-function [] = josh_profile(base_dir)
-    [data, data_file] = all_datasets;
+function josh_profile(base_dir, dataset_dir)
+    [data, data_file] = all_datasets(dataset_dir);
     profiles = all_profiles;
     iterations = 3;
     
