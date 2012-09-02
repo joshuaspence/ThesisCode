@@ -197,20 +197,6 @@ sub next_subdirectory_level($) {
 }
 
 #===============================================================================
-# Take the logarithm of a number in base-10.
-#
-# Usage:
-#     log10($number)
-#===============================================================================
-sub log10($) {
-    if ($_[0] == 0) {
-        return -1;
-    } else {
-        return log($_[0]) / log(10);
-    }
-}
-
-#===============================================================================
 # Retrieve an array containing the rows from a HTML table.
 #
 # Usage:

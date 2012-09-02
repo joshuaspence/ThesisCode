@@ -25,7 +25,7 @@ use File::Spec;
 
 use constant PROFILE_HTML_FILE => "file0.html";
 use constant MATLAB_LOG_FILE   => "matlab_output.log";
-use constant OUTPUT_HEADER     => "Data set,Block size,log(Block size),Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Distance calls,Pruned\n";
+use constant OUTPUT_HEADER     => "Data set,Block size,Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Distance calls,Pruned\n";
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -59,7 +59,6 @@ for my $dataset_dir (@dataset_dirs) {
         # Loop through each profile subdirectory
         for my $block_size_dir (@block_size_dirs) {
             my $block_size = html_parse_block_size($block_size_dir);
-            my $log_block_size = log10($block_size);
             
             my $dimensions;
             my $vectors;
@@ -92,7 +91,7 @@ for my $dataset_dir (@dataset_dirs) {
             while (my $line = <LOG>) {                
                 if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
                     $vectors = $1;
-                     $dimensions = $2;
+                    $dimensions = $2;
                 } elsif ($line =~ m/Projected data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
                     $projected_vectors = $1;
                     $projected_dimensions = $2;
@@ -105,7 +104,7 @@ for my $dataset_dir (@dataset_dirs) {
             close(LOG);
             
             # Print output
-            print("\"$dataset\",$block_size,$log_block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$distance_calls,$pruned\n");
+            print("\"$dataset\",$block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$distance_calls,$pruned\n");
         }
     }
 }
