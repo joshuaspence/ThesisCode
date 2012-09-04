@@ -49,8 +49,8 @@ void set_block_size(const size_t block_size);
 #endif /* #ifdef BLOCKING */
 
 uint_t top_n_outlier_pruning_block(
-    const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
-    index_t outliers[N_value],
-    double_t outlier_scores[N_value]
+    const double_in_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
+    index_out_t outliers[N_value],
+    double_out_t outlier_scores[N_value]
     );
 #endif /* #ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_ */

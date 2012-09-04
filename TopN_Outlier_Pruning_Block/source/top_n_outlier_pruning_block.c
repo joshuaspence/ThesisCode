@@ -517,8 +517,8 @@ static INLINE void merge(const size_t global_outliers_size, index_t global_outli
  * Return:
  *     The number of vectors pruned whilst executing this algorithm.
  */
-uint_t top_n_outlier_pruning_block(const double_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
-                                   index_t outliers[N_value], double_t outlier_scores[N_value]) {
+uint_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
+                                   index_out_t outliers[N_value], double_out_t outlier_scores[N_value]) {
     /* Error checking. */
     ASSERT(num_vectors_value > 0);
     ASSERT(vector_dims_value > 0);

@@ -68,9 +68,25 @@ typedef int boolean;
 /* Types                                                                      */
 /*============================================================================*/
 typedef int                 int_t;
+typedef int                 int_in_t;
+typedef int                 int_out_t;
+typedef int                 int_io_t;
+
 typedef unsigned int        uint_t;
-typedef size_t              index_t; /* a type to index into arrays */
+typedef unsigned int        uint_in_t;
+typedef unsigned int        uint_out_t;
+typedef unsigned int        uint_io_t;
+
+/* a type to index into arrays */
+typedef size_t              index_t;
+typedef size_t              index_in_t;
+typedef size_t              index_out_t;
+typedef size_t              index_io_t;
+
 typedef double              double_t;
+typedef double              double_in_t;
+typedef double              double_out_t;
+typedef double              double_io_t;
 
 #define NULL_INDEX          0
 #define START_INDEX         1
