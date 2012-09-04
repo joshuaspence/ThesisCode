@@ -98,8 +98,10 @@
         #define USE_MEMSET              DISABLED
     #endif /* #ifndef USE_MEMSET */
     
-    #define PRINTF_STDOUT(...)
-    #define PRINTF_STDERR(...)
+	#include <stdio.h> /* for fprintf */
+
+    #define PRINTF_STDOUT(...)          fprintf(stdout, __VA_ARGS__)
+    #define PRINTF_STDERR(...)          fprintf(stderr, __VA_ARGS__)
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 

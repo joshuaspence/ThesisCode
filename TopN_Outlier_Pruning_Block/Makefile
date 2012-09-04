@@ -19,17 +19,17 @@ TARGETS := TopN_Outlier_Pruning_Block_SORTED \
            TopN_Outlier_Pruning_Block_UNSORTED \
            TopN_Outlier_Pruning_Block_NO_BLOCKING
 
-TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DBLOCKING DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DBLOCKING DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DBLOCKING DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 
-TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DBLOCKING DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DBLOCKING DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DBLOCKING DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DUNSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DNO_BLOCKING DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DNO_BLOCKING DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 
 SOURCE_DIR           := source
 DATA_DIR             := data
@@ -49,6 +49,7 @@ autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.c \
                         $(SOURCE_DIR)/test.c \
                         $(SOURCE_DIR)/vardump.c \
                         $(DATA_DIR)/*.dat
+autoesl_TBFLAGS      := $(call flags,DVARDUMP)
 autoesl_TCLSOURCES   := $(SOURCE_DIR)/directives.tcl
 
 binary_OUTPUT_DIR    := bin
@@ -285,7 +286,7 @@ $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
 		$$(ECHO) "open_project $(1)"; \
 		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
 		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS) $$(autoesl_TBFLAGS)\"";) \
 		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
 		$$(ECHO) "open_solution $(2)"; \
 		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
