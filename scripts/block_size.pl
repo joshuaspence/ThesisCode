@@ -3,7 +3,7 @@
 ################################################################################
 #
 # Script to convert MATLAB profiler output into CSV format. Processes data as
-# produced by the `josh_profile_block_size' script.
+# produced by the `matlab_profile_block_size.sh' script.
 #
 # Usage:
 #     ./block_size.pl input
@@ -11,7 +11,7 @@
 # Input:  Base directory where the profiler output is found. Should contain 
 #         subdirectories named after the data sets that the data pertains to.
 #         Each data set subdirectory should contain a single subdirectory for 
-#         each iteration of the Matlab code. The input format should be a 
+#         each iteration of the MATLAB code. The input format should be a 
 #         directory hierarchy with the following structure:
 #             `{data-set}/{iteration}/{block-size}`
 # Output: Profiler data in CSV format. Outputs to STDOUT.
@@ -22,10 +22,11 @@ use strict;
 use warnings;
 
 use File::Spec;
+use List::Util qw[min max];
 
 use constant PROFILE_HTML_FILE => "file0.html";
 use constant MATLAB_LOG_FILE   => "matlab_output.log";
-use constant OUTPUT_HEADER     => "Data set,Block size,Iteration,Dimensions,Vectors,Total time,Projected dimensions,Projected vectors,Function time,Distance calls,Pruned\n";
+use constant OUTPUT_HEADER     => "Data set,Block size,Iteration,Dimensions,Vectors,Total time,Total time (normalised),Projected dimensions,Projected vectors,Function time,Function time (normalised),Distance calls,Distance calls (normalised),Pruned,Pruned (normalised)\n";
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -46,12 +47,38 @@ print(OUTPUT_HEADER);
 for my $dataset_dir (@dataset_dirs) {
     my $dataset = strip_directory($dataset_dir);
     
+    my $dimensions;
+    my $vectors;
+    my $max_total_time     = 0;
+    my $max_function_time  = 0;
+    my $max_distance_calls = 0;
+    my $max_pruned         = 0;
+    
+    # A hashmap for the profiling results
+    #     results{'iteration'}{'block_size'}{<data>}
+    #
+    # Where <data> is one of the following:
+    #     - dimensions
+    #     - vectors
+    #     - total_time
+    #     - projected_dimensions
+    #     - projected_vectors
+    #     - function_time
+    #     - distance_calls
+    #     - pruned
+    my %results = ();
+    
     # Get iterations from next subdirectory level
     my @iteration_dirs = next_subdirectory_level($dataset_dir);
     
     # Loop through each iteration subdirectory
     for my $iteration_dir (@iteration_dirs) {
         my $iteration = strip_directory($iteration_dir);
+        
+        # Check if this iteration exists in the results hash
+        if (!exists $results{$iteration}) {
+            $results{$iteration} = ();
+        }
         
         # Get block sizes from next subdirectory level
         my @block_size_dirs = next_subdirectory_level($iteration_dir);
@@ -60,8 +87,11 @@ for my $dataset_dir (@dataset_dirs) {
         for my $block_size_dir (@block_size_dirs) {
             my $block_size = html_parse_block_size($block_size_dir);
             
-            my $dimensions;
-            my $vectors;
+            # Check if this data exists in the results hash
+            if (!exists $results{$iteration}{$block_size}) {
+                $results{$iteration}{$block_size} = ();
+            }
+            
             my $projected_dimensions;
             my $projected_vectors;
             my $pruned;
@@ -72,7 +102,7 @@ for my $dataset_dir (@dataset_dirs) {
             # Retrieve the input HTML file
             my $profile_html_file = File::Spec->catfile($block_size_dir, PROFILE_HTML_FILE);
             my @data_rows = get_table_rows($profile_html_file);
-
+            
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
                 my $function_name = html_parse_function_name($row);
@@ -103,8 +133,39 @@ for my $dataset_dir (@dataset_dirs) {
             }
             close(LOG);
             
-            # Print output
-            print("\"$dataset\",$block_size,$iteration,$dimensions,$vectors,$total_time,$projected_dimensions,$projected_vectors,$function_time,$distance_calls,$pruned\n");
+            $max_total_time     = max($total_time, $max_total_time);
+            $max_function_time  = max($function_time, $max_function_time);
+            $max_distance_calls = max($distance_calls, $max_distance_calls);
+            $max_pruned         = max($pruned, $max_pruned);
+            
+            $results{$iteration}{$block_size}{'dimensions'}           = $dimensions;
+            $results{$iteration}{$block_size}{'vectors'}              = $vectors;
+            $results{$iteration}{$block_size}{'total_time'}           = $total_time;
+            $results{$iteration}{$block_size}{'projected_dimensions'} = $projected_dimensions;
+            $results{$iteration}{$block_size}{'projected_vectors'}    = $projected_vectors;
+            $results{$iteration}{$block_size}{'function_time'}        = $function_time;
+            $results{$iteration}{$block_size}{'distance_calls'}       = $distance_calls;
+            $results{$iteration}{$block_size}{'pruned'}               = $pruned;
+        }
+    }
+    
+    # Print output
+    my @iterations = keys %results;
+    foreach my $iteration (@iterations) {
+        my @block_sizes = sort { $a <=> $b } keys %{$results{$iteration}};
+        foreach my $block_size (@block_sizes) {
+            my $total_time = $results{$iteration}{$block_size}{'total_time'};
+            my $total_time_normalised = $total_time / $max_total_time;
+            my $projected_dimensions = $results{$iteration}{$block_size}{'projected_dimensions'};
+            my $projected_vectors = $results{$iteration}{$block_size}{'projected_vectors'};
+            my $function_time = $results{$iteration}{$block_size}{'function_time'};
+            my $function_time_normalised = $function_time / $max_function_time;
+            my $distance_calls = $results{$iteration}{$block_size}{'distance_calls'};
+            my $distance_calls_normalised = $distance_calls / $max_distance_calls;
+            my $pruned = $results{$iteration}{$block_size}{'pruned'};
+            my $pruned_normalised = $pruned / $max_pruned;
+            
+            print("\"$dataset\",$block_size,$iteration,$dimensions,$vectors,$total_time,$total_time_normalised,$projected_dimensions,$projected_vectors,$function_time,$function_time_normalised,$distance_calls,$distance_calls_normalised,$pruned,$pruned_normalised\n");
         }
     }
 }
