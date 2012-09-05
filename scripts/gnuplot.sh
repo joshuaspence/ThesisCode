@@ -1,9 +1,9 @@
 #!/bin/bash
 
 NO_BLOCKING_BLOCKSIZE=0
-DATA_FILE=block_size2.csv
+DATA_FILE=block_size.csv
 
-DATASETS=$(cat $DATA_FILE | awk --field-separator ',' "{ if (NR!=1) { print \$1 } }" | uniq)
+DATASETS=$(cat $DATA_FILE | awk --field-separator ',' "{ if (NR!=1) { print \$1 } }" | sed -e 's/"\(.\+\)"/\1/' | uniq)
 BLOCKSIZES=$(cat $DATA_FILE | awk --field-separator ',' "{ if (NR!=1) { print \$2 } }" | sed -e "/^$NO_BLOCKING_BLOCKSIZE\$/d" | sort --numeric-sort | uniq)
 
 # Line colours: -1=black 1=red 2=grn 3=blue 4=purple 5=aqua 6=brn 7=orange 8=light-brn
@@ -33,7 +33,7 @@ unset key
 
 plot \
     $(for DATASET in $DATASETS; do \
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$7 } }"); \
+        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$1); if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$7 } }"); \
         echo "'$DATA_FILE' using (\$2 != 0 ? \$2 : 1/0):(stringcolumn(1) eq '$DATASET' ? \$7 : 1/0) title '$DATASET'               with linespoints lt 1 lc $COLOUR, \\"; \
         echo "$NO_BLOCKING_VALUE                                                                    title '$DATASET (no blocking)' with line        lt 0 lc $COLOUR, \\"; \
         COLOUR=$(expr $COLOUR + 1); \
@@ -56,7 +56,7 @@ unset key
 
 plot \
     $(for DATASET in $DATASETS; do \
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$11 } }"); \
+        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$1); if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$11 } }"); \
         echo "'$DATA_FILE' using (\$2 != 0 ? \$2 : 1/0):(stringcolumn(1) eq '$DATASET' ? \$11 : 1/0) title '$DATASET'               with linespoints lt 1 lc $COLOUR, \\"; \
         echo "$NO_BLOCKING_VALUE                                                                     title '$DATASET (no blocking)' with line        lt 0 lc $COLOUR, \\"; \
         COLOUR=$(expr $COLOUR + 1); \
@@ -79,7 +79,7 @@ unset key
 
 plot \
     $(for DATASET in $DATASETS; do \
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$13 } }"); \
+        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$1); if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$13 } }"); \
         echo "'$DATA_FILE' using (\$2 != 0 ? \$2 : 1/0):(stringcolumn(1) eq '$DATASET' ? \$13 : 1/0) title '$DATASET'               with linespoints lt 1 lc $COLOUR, \\"; \
         echo "$NO_BLOCKING_VALUE                                                                     title '$DATASET (no blocking)' with line        lt 0 lc $COLOUR, \\"; \
         COLOUR=$(expr $COLOUR + 1); \
@@ -102,11 +102,10 @@ unset key
 
 plot \
     $(for DATASET in $DATASETS; do \
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$15 } }"); \
+        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$1); if (NR!=1 && \$1==\"$DATASET\" && \$2==$NO_BLOCKING_BLOCKSIZE) { print \$15 } }"); \
         echo "'$DATA_FILE' using (\$2 != 0 ? \$2 : 1/0):(stringcolumn(1) eq '$DATASET' ? \$15 : 1/0) title '$DATASET'               with linespoints lt 1 lc $COLOUR, \\"; \
         echo "$NO_BLOCKING_VALUE                                                                     title '$DATASET (no blocking)' with line        lt 0 lc $COLOUR, \\"; \
         COLOUR=$(expr $COLOUR + 1); \
     done)
     1/0
-EOF
 EOF
