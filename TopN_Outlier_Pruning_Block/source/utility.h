@@ -42,11 +42,13 @@
 
 /* Declare a function as inline. */
 #ifndef INLINE
-    #ifdef _MSC_VER
+    #if defined(_MSC_VER)
         #define INLINE              __forceinline
+	#elif defined(__AUTOESL__)
+		#define INLINE
     #else
         #define INLINE              inline
-    #endif /* #ifdef _MSC_VER */
+    #endif /* #if defined(_MSC_VER) */
 #endif /* #ifndef INLINE */
 /*----------------------------------------------------------------------------*/
 
@@ -77,7 +79,6 @@ typedef unsigned int        uint_in_t;
 typedef unsigned int        uint_out_t;
 typedef unsigned int        uint_io_t;
 
-/* a type to index into arrays */
 typedef size_t              index_t;
 typedef size_t              index_in_t;
 typedef size_t              index_out_t;
