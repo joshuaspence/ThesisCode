@@ -178,7 +178,7 @@ define help_text
 -@$(foreach TARGET,$(sort $(HELPER_TARGETS)),$(ECHO) "     $(TARGET)";)
 -@$(ECHO) ""
 -@$(ECHO) " TARGETS:"
--@$(foreach TARGET,$(sort $(ALL_TARGETS)),$(ECHO) "     $(TARGET)";)
+-@$(foreach TARGET,$(sort $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_TARGETS))),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
 endef
 
@@ -243,59 +243,25 @@ sh_false := ! :
 
 #-------------------------------------------------------------------------------
 
-# $(eval $(all-template))
-define all-template
-################################################################################
-# All targets
-################################################################################
-.PHONY: all
-all: $$(ALL_TARGETS)
-
-
-endef
-
 # $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
 define autoesl-target-template
-autoesl_CLEAN   += $$(autoesl_OUTPUT_DIR)/$(1) autoesl.log $$(autoesl_OUTPUT_DIR)/autobuild.log
-ALL_CLEAN       += $$(autoesl_OUTPUT_DIR)/$(1)
+autoesl_CLEAN     += autoesl.log
+autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
 
-HELPER_TARGETS  += $(1)-autoesl
+HELPER_TARGETS += $(1)-autoesl
 .PHONY: $(1)-autoesl
-$(1)-autoesl: $(1)-autoesl-tcl $(1)-autoesl-project $(1)-autoesl-solution $(1)-autoesl-elaborate $(1)-autoesl-synthesise
+$(1)-autoesl: $(1)-autoesl-project $(1)-autoesl-solution
 
 # AutoESL: TCL scripts
-$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT) \
-                    $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                    $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) \
-                    $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) \
-                    $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT)
+$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
+                    $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT)
 autoesl_TARGETS  += $$($(1)_AUTOESL_TCL)
 autoesl_CLEAN    += $$($(1)_AUTOESL_TCL)
-ALL_TARGETS      += $$($(1)_AUTOESL_TCL)
-ALL_CLEAN        += $$($(1)_AUTOESL_TCL)
 
 HELPER_TARGETS  += $(1)-autoesl-tcl
 .PHONY: $(1)-autoesl-tcl
 $(1)-autoesl-tcl: $$($(1)_AUTOESL_TCL)
 
-$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	( \
-		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
-		$$(ECHO) "open_project $(1)"; \
-		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
-		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS) $$(autoesl_TBFLAGS)\"";) \
-		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
-		$$(ECHO) "open_solution $(2)"; \
-		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
-		$$(ECHO) "create_clock -period $$(autoesl_CLOCK_PERIOD)"; \
-		$$(ECHO) "elaborate"; \
-		$$(ECHO) "autosyn"; \
-		$$(ECHO) "exit"; \
-	) > $$@
-	$(call trace-message,)
 $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 	$(call create-directory,$$(autoesl_OUTPUT_DIR))
 	$(call trace-message,"Creating TCL script: $$@")
@@ -321,36 +287,12 @@ $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT):
 		$$(ECHO) "exit"; \
 	) > $$@
 	$(call trace-message,)
-$$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	( \
-		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
-		$$(ECHO) "open_project $(1)"; \
-		$$(ECHO) "open_solution $(2)"; \
-		$$(ECHO) "elaborate"; \
-		$$(ECHO) "exit"; \
-	) > $$@
-	$(call trace-message,)
-$$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	( \
-		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
-		$$(ECHO) "open_project $(1)"; \
-		$$(ECHO) "open_solution $(2)"; \
-		$$(ECHO) "elaborate"; \
-		$$(ECHO) "autosyn"; \
-		$$(ECHO) "exit"; \
-	) > $$@
-	$(call trace-message,)
 
 # AutoESL: Create project
 $(1)_AUTOESL_PROJECT := $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
 autoesl_TARGETS      += $$($(1)_AUTOESL_PROJECT)
-ALL_TARGETS          += $$($(1)_AUTOESL_PROJECT)
 
-HELPER_TARGETS  += $(1)-autoesl-project
+HELPER_TARGETS += $(1)-autoesl-project
 .PHONY: $(1)-autoesl-project
 $(1)-autoesl-project: $$($(1)_AUTOESL_PROJECT)
 
@@ -362,46 +304,13 @@ $$($(1)_AUTOESL_PROJECT): $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT)
 # AutoESL: Create solution
 $(1)_AUTOESL_SOLUTION := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
 autoesl_TARGETS       += $$($(1)_AUTOESL_SOLUTION)
-ALL_TARGETS           += $$($(1)_AUTOESL_SOLUTION)
 
-HELPER_TARGETS  += $(1)-autoesl-solution
+HELPER_TARGETS += $(1)-autoesl-solution
 .PHONY: $(1)-autoesl-solution
 $(1)-autoesl-solution: $$($(1)_AUTOESL_SOLUTION)
 
 $$($(1)_AUTOESL_SOLUTION): $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_PROJECT)
 	$(call trace-message,"Creating solution: $$@")
-	$$(AUTOESL) -f $$<
-	$(call trace-message,)
-
-# AutoESL: Elaborate
-$(1)_AUTOESL_ELABORATE := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).directive
-autoesl_TARGETS        += $$($(1)_AUTOESL_ELABORATE)
-ALL_TARGETS            += $$($(1)_AUTOESL_ELABORATE)
-
-HELPER_TARGETS  += $(1)-autoesl-elaborate
-.PHONY: $(1)-autoesl-elaborate
-$(1)-autoesl-elaborate: $$($(1)_AUTOESL_ELABORATE)
-
-$$($(1)_AUTOESL_ELABORATE): $$(autoesl_OUTPUT_DIR)/$(1).elaborate.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_PROJECT)
-	$(call trace-message,"Elaborating: $$@")
-	$$(AUTOESL) -f $$<
-	$(call trace-message,)
-
-# AutoESL: Synthesise
-$(1)_AUTOESL_TARGETS := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/systemc/$$(autoesl_TOP_FUNC).cpp \
-                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/systemc/$$(autoesl_TOP_FUNC).h \
-                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/verilog/$$(autoesl_TOP_FUNC).v \
-                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/vhdl/AESL_pkg.vhd \
-                        $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/syn/vhdl/$$(autoesl_TOP_FUNC).vhd
-autoesl_TARGETS += $$($(1)_AUTOESL_TARGETS)
-ALL_TARGETS     += $$($(1)_AUTOESL_TARGETS)
-
-HELPER_TARGETS  += $(1)-autoesl-synthesise
-.PHONY: $(1)-autoesl-synthesise
-$(1)-autoesl-synthesise: $$($(1)_AUTOESL_TARGETS)
-
-$$($(1)_AUTOESL_TARGETS): $$(autoesl_OUTPUT_DIR)/$(1).autosyn.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_ELABORATE)
-	$(call trace-message,"Synthesising: $$@")
 	$$(AUTOESL) -f $$<
 	$(call trace-message,)
 
@@ -415,25 +324,17 @@ define build-type-template
 .PHONY: $(1)
 $(1): $$($(1)_TARGETS)
 
-.PHONY: clean-$(1) distclean-$(1)
-clean-$(1) distclean-$(1):
+.PHONY: clean-$(1)
+clean-$(1):
 	$(call trace-message,"Cleaning $(1)...")
 	$$(DELETE) -r -f $$($(1)_CLEAN)
 	$(call trace-message,"Clean completed.")
 	$(call trace-message,)
 
-
-endef
-
-# $(eval $(clean-all-template))
-define clean-all-template
-################################################################################
-# Clean targets
-################################################################################
-.PHONY: clean clean-all distclean distclean-all
-clean clean-all distclean distclean-all:
+.PHONY: distclean-$(1)
+distclean-$(1):
 	$(call trace-message,"Cleaning $(1)...")
-	$$(DELETE) -r -f $$(ALL_CLEAN)
+	$$(DELETE) -r -f $$($(1)_CLEAN) $$($(1)_DISTCLEANCLEAN)
 	$(call trace-message,"Clean completed.")
 	$(call trace-message,)
 
@@ -452,10 +353,8 @@ $(call autoesl-target-template,$(1),$(autoesl_SOLUTION))
 $(1)_BINARY    := $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 binary_TARGETS += $$($(1)_BINARY)
 binary_CLEAN   += $$($(1)_BINARY)
-ALL_TARGETS    += $$($(1)_BINARY)
-ALL_CLEAN      += $$($(1)_BINARY)
 
-HELPER_TARGETS  += $(1)-binary
+HELPER_TARGETS += $(1)-binary
 .PHONY: $(1)-binary
 $(1)-binary: $$($(1)_BINARY)
 
@@ -469,10 +368,8 @@ $$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 $(1)_MATLAB    := $$(matlab_OUTPUT_DIR)/$(1).$$(matlab_EXT)
 matlab_TARGETS += $$($(1)_MATLAB)
 matlab_CLEAN   += $$($(1)_MATLAB)
-ALL_TARGETS    += $$($(1)_MATLAB)
-ALL_CLEAN      += $$($(1)_MATLAB)
 
-HELPER_TARGETS  += $(1)-matlab
+HELPER_TARGETS += $(1)-matlab
 .PHONY: $(1)-matlab
 $(1)-matlab: $$($(1)_MATLAB)
 
@@ -491,17 +388,17 @@ endef
 #                             MATLAB CONFIGURATION                             #
 #                                                                              #
 #------------------------------------------------------------------------------#
-MATLAB_DIR := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/MATLAB=\(.\+\)/\1/p')
-ARCH       := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/ARCH=\(.\+\)/\1/p')
+MATLAB_DIR  := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/MATLAB=\(.\+\)/\1/p')
+MATLAB_ARCH := $(shell matlab -e 2>/dev/null | $(SED) -n -e 's/ARCH=\(.\+\)/\1/p')
 
 ifndef MXX
 	ifeq ($(shell $(UNAME)),Darwin)
-		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(MATLAB_ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
 	ifeq ($(shell $(UNAME)),Linux)
-		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(ARCH))
+		MXX      := $(call pretty,$(MATLAB_DIR)/bin/mex -$(MATLAB_ARCH))
 		MEXEXT   := $(shell $(MATLAB_DIR)/bin/mexext)
 		MXXFLAGS := -I$(MATLAB_DIR)/extern/include
 	endif
@@ -509,41 +406,41 @@ else
 	MEXEXT := $(shell mexext)
 endif
 
-ifeq ($(ARCH),glnx86)
-	MEXEXT    := mexglx
-	ARCH_TYPE := x86
+ifeq ($(MATLAB_ARCH),glnx86)
+	MEXEXT          := mexglx
+	MATLAB_ARCHTYPE := x86
 endif
-ifeq ($(ARCH),glnxa64)
-	MEXEXT    := mexa64
-	ARCH_TYPE := x64
+ifeq ($(MATLAB_ARCH),glnxa64)
+	MEXEXT          := mexa64
+	MATLAB_ARCHTYPE := x64
 endif
-ifeq ($(ARCH),mac)
-	MEXEXT    := mexmac
-	ARCH_TYPE := x86
+ifeq ($(MATLAB_ARCH),mac)
+	MEXEXT      := mexmac
+	MATLAB_ARCH := x86
 endif
-ifeq ($(ARCH),maci)
-	MEXEXT    := mexmaci
-	ARCH_TYPE := x86
+ifeq ($(MATLAB_ARCH),maci)
+	MEXEXT          := mexmaci
+	MATLAB_ARCHTYPE := x86
  endif
-ifeq ($(ARCH),maci64)
-	MEXEXT    := mexmaci64
-	ARCH_TYPE := x64
+ifeq ($(MATLAB_ARCH),maci64)
+	MEXEXT          := mexmaci64
+	MATLAB_ARCHTYPE := x64
 endif
-ifeq ($(ARCH),sol2)
-	MEXEXT    := mexsol
-	ARCH_TYPE := x86
+ifeq ($(MATLAB_ARCH),sol2)
+	MEXEXT          := mexsol
+	MATLAB_ARCHTYPE := x86
 endif
-ifeq ($(ARCH),sol64)
-	MEXEXT    := mexs64
-	ARCH_TYPE := x64
+ifeq ($(MATLAB_ARCH),sol64)
+	MEXEXT          := mexs64
+	MATLAB_ARCHTYPE := x64
 endif
-ifeq ($(ARCH),win64)
-	MEXEXT    := mexw64
-	ARCH_TYPE := x64
+ifeq ($(MATLAB_ARCH),win64)
+	MEXEXT          := mexw64
+	MATLAB_ARCHTYPE := x64
 endif
-ifeq ($(ARCH),win32)
-	MEXEXT    := mexw32
-	ARCH_TYPE := x86
+ifeq ($(MATLAB_ARCH),win32)
+	MEXEXT          := mexw32
+	MATLAB_ARCHTYPE := x86
 endif
 
 
@@ -558,6 +455,7 @@ AUTOESL  := autoesl
 
 # C compiler
 CC       := gcc
+CXX      := g++
 
 # Default flags (these will be overridden)
 CFLAGS   := $(call parse-mex-options,CFLAGS)
@@ -573,10 +471,10 @@ CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-l
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0)
 
 # Architecture specific
-ifeq ($(ARCH_TYPE), x86)
+ifeq ($(MATLAB_ARCHTYPE), x86)
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),compatibleArrayDims)
 endif
-ifeq ($(ARCH_TYPE), x64)
+ifeq ($(MATLAB_ARCHTYPE), x64)
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),largeArrayDims)
 endif
 
@@ -668,8 +566,28 @@ $(foreach t,$(TARGETS),$(call evaluate,$(call target-template,$t)))
 
 $(foreach BUILD_TYPE,$(BUILD_TYPES),$(call evaluate,$(call build-type-template,$(BUILD_TYPE))))
 
-$(call evaluate,$(all-template))
-$(call evaluate,$(clean-all-template))
+################################################################################
+# All targets
+################################################################################
+.PHONY: all
+all: $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_TARGETS))
+
+################################################################################
+# Clean targets
+################################################################################
+.PHONY: clean clean-all
+clean clean-all:
+	$(call trace-message,"Cleaning $(1)...")
+	$(DELETE) -r -f $(ALL_CLEAN) $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_CLEAN))
+	$(call trace-message,"Clean completed.")
+	$(call trace-message,)
+
+.PHONY: distclean distclean-all
+distclean distclean-all:
+	$(call trace-message,"Cleaning $(1)...")
+	$(DELETE) -r -f $(ALL_CLEAN) $(ALL_DISTCLEAN) $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_CLEAN) $($(BUILD_TYPE)_DISTCLEAN))
+	$(call trace-message,"Clean completed.")
+	$(call trace-message,)
 
 
 #------------------------------------------------------------------------------#
