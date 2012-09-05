@@ -37,7 +37,7 @@ gnuplot -persist <<- EOF
 #!/usr/bin/gnuplot
 
 reset
-set terminal epslatex size 8.89cm,6.65cm color colortext
+set terminal tikz size 8.89cm,6.65cm color
 set datafile separator ","
 
 # Define axis
@@ -53,11 +53,9 @@ set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green
 ################################################################################
 # TOTAL EXECUTION TIME
 ################################################################################
-set title "Total execution time"
 set log x
-set xtics
 set xlabel "Block size"
-set ytics
+set format x "\$10^{%L}\$"
 set ylabel "Total execution time (normalised)"
 set autoscale
 set key right center
@@ -78,11 +76,9 @@ plot \
 ################################################################################
 # FUNCTION EXECUTION TIME
 ################################################################################
-set title "Function execution time"
 set log x
-set xtics
 set xlabel "Block size"
-set ytics
+set format x "\$10^{%L}\$"
 set ylabel "Function execution time (normalised)"
 set autoscale
 set key right center
@@ -103,11 +99,9 @@ plot \
 ################################################################################
 # DISTANCE CALLS
 ################################################################################
-set title "Distance calls"
 set log x
-set xtics
 set xlabel "Block size"
-set ytics
+set format x "\$10^{%L}\$"
 set ylabel "Calls to the distance function (normalised)"
 set autoscale
 set key right center
@@ -128,11 +122,9 @@ plot \
 ################################################################################
 # NUMBER OF VECTORS PRUNED
 ################################################################################
-set title "Number of vectors pruned"
 set log x
-set xtics
 set xlabel "Block size"
-set ytics
+set format x "\$10^{%L}\$"
 set ylabel "Number of vectors pruned (normalised)"
 set autoscale
 set key right center
