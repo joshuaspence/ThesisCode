@@ -1,10 +1,18 @@
 #!/bin/bash
 
+if [[ $# -lt 1 ]]; then
+    echo "No CSV file specified" >&2
+    exit 1
+elif [[ ! -f $1 ]]; then
+    echo "File not found: '$1'" >&2
+    exit 1
+fi
+
 #===============================================================================
 # Configuration
 #===============================================================================
 NO_BLOCKING_BLOCKSIZE=0
-DATA_FILE=block_size.csv
+DATA_FILE=$1
 
 COL_DATASET=1
 COL_BLOCKSIZE=2
@@ -26,9 +34,21 @@ ALL_DATASETS=( $(seq 0 $(expr ${#DATASET_NAMES[*]} - 1) ) )
 BLOCKSIZES=$(cat $DATA_FILE | awk --field-separator ',' "{ if (NR!=1) { print \$$COL_BLOCKSIZE } }" | sed -e "/^$NO_BLOCKING_BLOCKSIZE\$/d" | sort --numeric-sort | uniq)
 
 gnuplot -persist <<- EOF
-set term png
+#!/usr/bin/gnuplot
 
+reset
+set terminal epslatex size 8.89cm,6.65cm color colortext
 set datafile separator ","
+
+# Define axis
+# Remove border on top and right and set color to gray
+set style line 11 lc rgb '#808080' lt 1
+set border 3 back ls 11
+set tics nomirror
+
+# Style definitions
+set style line 1 lc rgb '#8b1a0e' pt 1 ps 1 lt 1 lw 2 # --- red
+set style line 2 lc rgb '#5e9c36' pt 6 ps 1 lt 1 lw 2 # --- green
 
 ################################################################################
 # TOTAL EXECUTION TIME
@@ -43,7 +63,7 @@ set autoscale
 set key right center
 unset key
 
-set output "total_execution_time.png"
+set output "total_execution_time.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do \
         DATASET=${DATASET_NAMES[$i]}; \
@@ -68,7 +88,7 @@ set autoscale
 set key right center
 unset key
 
-set output "function_execution_time.png"
+set output "function_execution_time.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do \
         DATASET=${DATASET_NAMES[$i]}; \
@@ -93,7 +113,7 @@ set autoscale
 set key right center
 unset key
 
-set output "distance_calls.png"
+set output "distance_calls.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do \
         DATASET=${DATASET_NAMES[$i]}; \
@@ -118,7 +138,7 @@ set autoscale
 set key right center
 unset key
 
-set output "vectors_pruned.png"
+set output "vectors_pruned.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do \
         DATASET=${DATASET_NAMES[$i]}; \
