@@ -6,8 +6,6 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
-
-#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -69,25 +67,74 @@ typedef int boolean;
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
+
+#ifndef __AUTOESL__
 typedef int                 int_t;
 typedef int                 int_in_t;
 typedef int                 int_out_t;
 typedef int                 int_io_t;
+#else
+typedef int                 int_t;
+typedef int                 int_in_t;
+typedef int                 int_out_t;
+typedef int                 int_io_t;
+#endif /* #ifndef __AUTOESL__ */
 
+#ifndef __AUTOESL__
 typedef unsigned int        uint_t;
 typedef unsigned int        uint_in_t;
 typedef unsigned int        uint_out_t;
 typedef unsigned int        uint_io_t;
+#else
+typedef unsigned int        uint_t;
+typedef unsigned int        uint_in_t;
+typedef unsigned int        uint_out_t;
+typedef unsigned int        uint_io_t;
+#endif /* #ifndef __AUTOESL__ */
 
+#ifndef __AUTOESL__
 typedef size_t              index_t;
 typedef size_t              index_in_t;
 typedef size_t              index_out_t;
 typedef size_t              index_io_t;
+#else
+typedef size_t              index_t;
+typedef size_t              index_in_t;
+typedef size_t              index_out_t;
+typedef size_t              index_io_t;
+#endif /* #ifndef __AUTOESL__ */
 
+#ifndef __AUTOESL__
 typedef double              double_t;
 typedef double              double_in_t;
 typedef double              double_out_t;
 typedef double              double_io_t;
+#else
+typedef double              double_t;
+typedef double              double_in_t;
+typedef double              double_out_t;
+typedef double              double_io_t;
+#endif /* #ifndef __AUTOESL__ */
+
+#ifndef __SIZE_TYPE__
+    #define __SIZE_TYPE__ long unsigned int
+#endif /* #ifndef __SIZE_TYPE */
+
+#if defined (_STDDEF_H) || defined (__need_size_t)
+    #error size_t already defined.
+#else
+    #ifndef __AUTOESL__
+typedef __SIZE_TYPE__       size_t;
+typedef __SIZE_TYPE__       size_in_t;
+typedef __SIZE_TYPE__       size_out_t;
+typedef __SIZE_TYPE__       size_io_t;
+    #else
+typedef __SIZE_TYPE__       size_t;
+typedef __SIZE_TYPE__       size_in_t;
+typedef __SIZE_TYPE__       size_out_t;
+typedef __SIZE_TYPE__       size_io_t;
+    #endif /* #ifndef __AUTOESL__ */
+#endif /* #if defined (_STDDEF_H) || defined (__need_size_t) */
 
 #define NULL_INDEX          0
 #define START_INDEX         1
