@@ -36,7 +36,8 @@ FUNCTION_NAMES=( $(cat $DATA_FILE | $UNIQUE_FROM_CSV $(expr $COL_FUNCTION - 1) )
 FUNCTION_COLOURS=( $(for i in $(seq 0 ${#FUNCTION_NAMES[*]}); do echo "$(expr 1 + $i)"; done) )
 ALL_FUNCTIONS=( $(seq 0 $(expr ${#FUNCTION_NAMES[*]} - 1) ) )
 
-gnuplot -persist <<-END_OF_GNUPLOT
+#gnuplot -persist <<-END_OF_GNUPLOT
+cat <<END_OF_GNUPLOT
 reset
 #set terminal tikz size 8.89cm,6.65cm color
 set terminal wxt
@@ -89,11 +90,12 @@ $(
     for i in ${ALL_FUNCTIONS[*]}; do
         FUNCTION=${FUNCTION_NAMES[$i]};
         COLOUR=${FUNCTION_COLOURS[$i]};
-        PROPORTION=$(perl <<-END_OF_PERL
+        PROPORTION=$(perl <<END_OF_PERL
 use strict;
 use warnings;
 use Text::CSV;
 
+my \$func_name = "$FUNCTION";
 my \$csv = Text::CSV->new();
 open(FILE, "< $DATA_FILE") || die "Can't open file: $DATA_FILE";
 my \$in_header = 1;
@@ -105,7 +107,7 @@ while (<FILE>) {
     
     if (\$csv->parse(\$_)) {
         my @columns = \$csv->fields();
-        if (\$columns[$(expr $COL_FUNCTION - 1)] =~ m/\Q$FUNCTION\E/) {
+        if (\$columns[$(expr $COL_FUNCTION - 1)] eq \$func_name) {
             print \$columns[$(expr $COL_TOTALTIMEREL - 1)];
             exit;
         }
@@ -117,6 +119,7 @@ while (<FILE>) {
 close FILE;
 END_OF_PERL
 );
+        [[ -z "$PROPORTION" || $PROPORTION == 0 ]] && continue;
         U_END=$(echo "$U_BEGIN + $PROPORTION" | bc | sed -e 's/^\./0./');
         ANGLE=$(echo "($U_BEGIN + $U_END) * $PI" | bc -l);
         
@@ -127,7 +130,7 @@ END_OF_PERL
         COLOUR=${DATASET_COLOURS[$i]};
         \
         echo "set urange [${U_BEGIN}*2*pi : ${U_END}*2*pi]";
-        #echo "set label $(expr $i + 1) center \"$FUNCTION\" at $X,$Y rotate by $ANGLE*180/pi";
+        echo "set label $(expr $i + 1) center \"$FUNCTION\" at $X,$Y rotate by $ANGLE*180/pi";
         echo "splot cos(u)*v,sin(u)*v,$i w pm3d notitle";
         
         U_BEGIN=$U_END
