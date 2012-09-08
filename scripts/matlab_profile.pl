@@ -3,16 +3,10 @@
 ################################################################################
 #
 # Script to convert MATLAB profiler output into CSV format. Processes data as
-# produced by the `josh_profile' script.
+# produced by the `matlab_profile.sh' script.
 #
 # Usage:
-#     ./matlab-profile.pl [OPTIONS] input
-# 
-# Scripts options:
-#     -a, --all-data
-#         Outputs all iteration data. Without this flag, only the 
-#         average for each data set (across all iterations) will be 
-#         output.
+#     ./matlab-profile.pl input
 #
 # Input:  Base directory where the profiler output is found. Should contain 
 #         subdirectories named after the data sets that the data pertains to.
@@ -27,9 +21,7 @@
 use strict;
 use warnings;
 
-use Getopt::Std;
-use Getopt::Long;
-use HTML::TableExtract;
+use File::Spec;
 
 use constant PROFILE_HTML_FILE => "file0.html";
 use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function Name,Calls,Total Time,Self Time\n";
@@ -38,18 +30,10 @@ use FindBin;
 use lib $FindBin::Bin;
 require "util.pl";
 
-# Get command line options
-Getopt::Long::Configure('bundling');
-my $all_data;
-GetOptions('a|all-data' => \$all_data);
-
 # The argument should be the base directory for the profiling data
 scalar(@ARGV) >= 1 || die("No directory specified!\n");
 my $base_dir = $ARGV[0];
 -d $base_dir || die("Directory doesn't exist: $base_dir\n");
-
-# HTML::TableExtract used to traverse HTML tables
-my $html_table_extract = HTML::TableExtract->new();
 
 # Get data sets from subdirectories below base directory
 my @dataset_dirs = next_subdirectory_level($base_dir);
@@ -144,20 +128,6 @@ for my $dataset_dir (@dataset_dirs) {
                 # Output the data
                 my $this_output = [$function, $calls, $total_time, $self_time];
                 push(@output, $this_output);
-            }
-            
-            # Output data for this iteration
-            if ($all_data) {
-                # Sort output on function name
-                @output = sort {@$a[0] cmp @$b[0]} @output;
-                
-                foreach my $this_output (@output) {
-                    my $function = @$this_output[0];
-                    my $calls = @$this_output[1];
-                    my $total_time = @$this_output[2];
-                    my $self_time = @$this_output[3];
-                    print("\"$profile\",\"$dataset\",\"$iteration\",\"$function\",$calls,$total_time,$self_time\n");
-                }
             }
         }
     }
