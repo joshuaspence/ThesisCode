@@ -40,7 +40,7 @@ ALL_BLOCKSIZES=( $(seq 0 $(expr ${#BLOCKSIZE_NAMES[*]} - 1) ) )
 
 gnuplot -persist <<END_OF_GNUPLOT
 reset
-set terminal tikz size 8.89cm,6.65cm color
+set terminal tikz solid color size 10cm, 20.88cm
 set datafile separator ","
 
 # Define axis
@@ -60,19 +60,46 @@ set xlabel "Block size"
 set format x "\$10^{%L}\$"
 set ylabel "Total execution time (normalised)"
 set autoscale
-unset key
+set key below
 
 set output "total_execution_time.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do
         DATASET=${DATASET_NAMES[$i]};
         COLOUR=${DATASET_COLOURS[$i]};
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$$COL_DATASET); if (NR!=1 && \$$COL_DATASET==\"$DATASET\" && \$$COL_BLOCKSIZE==$NO_BLOCKING_BLOCKSIZE) { print \$$COL_TOTALTIME_NORM } }");
-        \
-        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_TOTALTIME_NORM : 1/0) smooth unique title '$DATASET' with linespoints lt 1 lc $COLOUR, \\";
-        echo "$NO_BLOCKING_VALUE title '$DATASET (no blocking)' with line lt 0 lc $COLOUR, \\";
+        NO_BLOCKING_VALUE=$(perl <<END_OF_PERL
+use strict;
+use warnings;
+use Text::CSV;
+
+my \$csv = Text::CSV->new();
+open(FILE, "< $DATA_FILE") || die "Can't open file: $DATA_FILE";
+my \$in_header = 1;
+while (<FILE>) {
+    if (\$in_header) {
+        \$in_header = 0;
+        next;
+    }
+    
+    if (\$csv->parse(\$_)) {
+        my @columns = \$csv->fields();
+        if (\$columns[$(expr $COL_DATASET - 1)] eq "$DATASET" && \$columns[$(expr $COL_BLOCKSIZE - 1)] eq $NO_BLOCKING_BLOCKSIZE) {
+            print \$columns[$(expr $COL_TOTALTIME_NORM - 1)];
+            exit;
+        }
+    } else {
+        my \$err = \$csv->error_input;
+        die("Failed to parse line: \$err");
+    }
+}
+close FILE;
+END_OF_PERL
+);
+        
+        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_TOTALTIME_NORM : 1/0) smooth unique title '$(echo $DATASET | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
+        echo "$NO_BLOCKING_VALUE title '$(echo $DATASET | sed -e 's/_/\\_/g')*' with line lt 0 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 
 ################################################################################
 # FUNCTION EXECUTION TIME
@@ -82,19 +109,46 @@ set xlabel "Block size"
 set format x "\$10^{%L}\$"
 set ylabel "Function execution time (normalised)"
 set autoscale
-unset key
+set key below
 
 set output "function_execution_time.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do
         DATASET=${DATASET_NAMES[$i]};
         COLOUR=${DATASET_COLOURS[$i]};
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$$COL_DATASET); if (NR!=1 && \$$COL_DATASET==\"$DATASET\" && \$$COL_BLOCKSIZE==$NO_BLOCKING_BLOCKSIZE) { print \$$COL_FUNCTIME_NORM } }");
+        NO_BLOCKING_VALUE=$(perl <<END_OF_PERL
+use strict;
+use warnings;
+use Text::CSV;
+
+my \$csv = Text::CSV->new();
+open(FILE, "< $DATA_FILE") || die "Can't open file: $DATA_FILE";
+my \$in_header = 1;
+while (<FILE>) {
+    if (\$in_header) {
+        \$in_header = 0;
+        next;
+    }
+    
+    if (\$csv->parse(\$_)) {
+        my @columns = \$csv->fields();
+        if (\$columns[$(expr $COL_DATASET - 1)] eq "$DATASET" && \$columns[$(expr $COL_BLOCKSIZE - 1)] eq $NO_BLOCKING_BLOCKSIZE) {
+            print \$columns[$(expr $COL_FUNCTIME_NORM - 1)];
+            exit;
+        }
+    } else {
+        my \$err = \$csv->error_input;
+        die("Failed to parse line: \$err");
+    }
+}
+close FILE;
+END_OF_PERL
+);
         
-        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_FUNCTIME_NORM : 1/0) smooth unique title '$DATASET' with linespoints lt 1 lc $COLOUR, \\";
-        echo "$NO_BLOCKING_VALUE title '$DATASET (no blocking)' with line lt 0 lc $COLOUR, \\";
+        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_FUNCTIME_NORM : 1/0) smooth unique title '$(echo $DATASET | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
+        echo "$NO_BLOCKING_VALUE title '$(echo $DATASET | sed -e 's/_/\\_/g')*' with line lt 0 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 
 ################################################################################
 # DISTANCE CALLS
@@ -104,20 +158,46 @@ set xlabel "Block size"
 set format x "\$10^{%L}\$"
 set ylabel "Calls to the distance function (normalised)"
 set autoscale
-set key right center
-#unset key
+set key below
 
 set output "distance_calls.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do
         DATASET=${DATASET_NAMES[$i]};
         COLOUR=${DATASET_COLOURS[$i]};
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$$COL_DATASET); if (NR!=1 && \$$COL_DATASET==\"$DATASET\" && \$$COL_BLOCKSIZE==$NO_BLOCKING_BLOCKSIZE) { print \$$COL_DISTCALLS_NORM } }");
+        NO_BLOCKING_VALUE=$(perl <<END_OF_PERL
+use strict;
+use warnings;
+use Text::CSV;
+
+my \$csv = Text::CSV->new();
+open(FILE, "< $DATA_FILE") || die "Can't open file: $DATA_FILE";
+my \$in_header = 1;
+while (<FILE>) {
+    if (\$in_header) {
+        \$in_header = 0;
+        next;
+    }
+    
+    if (\$csv->parse(\$_)) {
+        my @columns = \$csv->fields();
+        if (\$columns[$(expr $COL_DATASET - 1)] eq "$DATASET" && \$columns[$(expr $COL_BLOCKSIZE - 1)] eq $NO_BLOCKING_BLOCKSIZE) {
+            print \$columns[$(expr $COL_DISTCALLS_NORM - 1)];
+            exit;
+        }
+    } else {
+        my \$err = \$csv->error_input;
+        die("Failed to parse line: \$err");
+    }
+}
+close FILE;
+END_OF_PERL
+);
         
-        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_DISTCALLS_NORM : 1/0) smooth unique title '$DATASET' with linespoints lt 1 lc $COLOUR, \\";
-        echo "$NO_BLOCKING_VALUE title '$DATASET (no blocking)' with line lt 0 lc $COLOUR, \\";
+        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_DISTCALLS_NORM : 1/0) smooth unique title '$(echo $DATASET | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
+        echo "$NO_BLOCKING_VALUE title '$(echo $DATASET | sed -e 's/_/\\_/g')*' with line lt 0 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 
 ################################################################################
 # NUMBER OF VECTORS PRUNED
@@ -127,19 +207,46 @@ set xlabel "Block size"
 set format x "\$10^{%L}\$"
 set ylabel "Number of vectors pruned (normalised)"
 set autoscale
-unset key
+set key below
 
 set output "vectors_pruned.tex"
 plot \
     $(for i in ${ALL_DATASETS[*]}; do
         DATASET=${DATASET_NAMES[$i]};
         COLOUR=${DATASET_COLOURS[$i]};
-        NO_BLOCKING_VALUE=$(cat $DATA_FILE | awk --field-separator ','  "{ gsub(/\"/,\"\",\$$COL_DATASET); if (NR!=1 && \$$COL_DATASET==\"$DATASET\" && \$$COL_BLOCKSIZE==$NO_BLOCKING_BLOCKSIZE) { print \$$COL_PRUNED_NORM } }");
+        NO_BLOCKING_VALUE=$(perl <<END_OF_PERL
+use strict;
+use warnings;
+use Text::CSV;
+
+my \$csv = Text::CSV->new();
+open(FILE, "< $DATA_FILE") || die "Can't open file: $DATA_FILE";
+my \$in_header = 1;
+while (<FILE>) {
+    if (\$in_header) {
+        \$in_header = 0;
+        next;
+    }
+    
+    if (\$csv->parse(\$_)) {
+        my @columns = \$csv->fields();
+        if (\$columns[$(expr $COL_DATASET - 1)] eq "$DATASET" && \$columns[$(expr $COL_BLOCKSIZE - 1)] eq $NO_BLOCKING_BLOCKSIZE) {
+            print \$columns[$(expr $COL_PRUNED_NORM - 1)];
+            exit;
+        }
+    } else {
+        my \$err = \$csv->error_input;
+        die("Failed to parse line: \$err");
+    }
+}
+close FILE;
+END_OF_PERL
+);
         
-        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_PRUNED_NORM : 1/0) smooth unique title '$DATASET' with linespoints lt 1 lc $COLOUR, \\";
-        echo "$NO_BLOCKING_VALUE title '$DATASET (no blocking)' with line lt 0 lc $COLOUR, \\";
+        echo "'$DATA_FILE' using (\$$COL_BLOCKSIZE != 0 ? \$$COL_BLOCKSIZE : 1/0):(stringcolumn($COL_DATASET) eq '$DATASET' ? \$$COL_PRUNED_NORM : 1/0) smooth unique title '$(echo $DATASET | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
+        echo "$NO_BLOCKING_VALUE title '$(echo $DATASET | sed -e 's/_/\\_/g')*' with line lt 0 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 
 ################################################################################
 # TOTAL RUN TIME COMPLEXITY
@@ -149,7 +256,7 @@ set xlabel "Problem size"
 set format x "\$10^{%L}\$"
 set ylabel "Execution time"
 set autoscale
-unset key
+set key below
 
 set output "total_run_time_complexity.tex"
 plot \
@@ -158,9 +265,9 @@ plot \
         BLOCKSIZE_NAME="block_size=$BLOCKSIZE_VALUE";
         COLOUR=${BLOCKSIZE_COLOURS[$i]};
         
-        echo "'$DATA_FILE' using $COL_VECTORS:(\$$COL_BLOCKSIZE == $BLOCKSIZE_VALUE ? \$$COL_TOTALTIME : 1/0) smooth unique title '$BLOCKSIZE_NAME' with linespoints lt 1 lc $COLOUR, \\";
+        echo "'$DATA_FILE' using $COL_VECTORS:(\$$COL_BLOCKSIZE == $BLOCKSIZE_VALUE ? \$$COL_TOTALTIME : 1/0) smooth unique title '$(echo $BLOCKSIZE_NAME | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 
 ################################################################################
 # FUNCTION RUN TIME COMPLEXITY
@@ -170,7 +277,7 @@ set xlabel "Problem size"
 set format x "\$10^{%L}\$"
 set ylabel "Execution time"
 set autoscale
-unset key
+set key below
 
 set output "function_run_time_complexity.tex"
 plot \
@@ -179,7 +286,7 @@ plot \
         BLOCKSIZE_NAME="block_size=$BLOCKSIZE_VALUE";
         COLOUR=${BLOCKSIZE_COLOURS[$i]};
         
-        echo "'$DATA_FILE' using $COL_VECTORS:(\$$COL_BLOCKSIZE == $BLOCKSIZE_VALUE ? \$$COL_FUNCTIME : 1/0) smooth unique title '$BLOCKSIZE_NAME' with linespoints lt 1 lc $COLOUR, \\";
+        echo "'$DATA_FILE' using $COL_VECTORS:(\$$COL_BLOCKSIZE == $BLOCKSIZE_VALUE ? \$$COL_FUNCTIME : 1/0) smooth unique title '$(echo $BLOCKSIZE_NAME | sed -e 's/_/\\_/g')' with linespoints lt 1 lc $COLOUR, \\";
     done)
-    1/0
+    1/0 notitle
 END_OF_GNUPLOT
