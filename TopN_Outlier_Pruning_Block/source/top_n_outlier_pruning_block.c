@@ -93,7 +93,7 @@ static INLINE double_out_t distance_squared(
 static INLINE double_out_t add_neighbour(
     index_io_t neighbours[k_value],
     double_io_t neighbours_dist[k_value],
-    size_io_t * const found,
+    uint_t * const found,
     const index_in_t new_neighbour,
     const double_in_t new_neighbour_dist
     );
@@ -181,7 +181,7 @@ static INLINE double_out_t distance_squared(const double_in_t vector1[vector_dim
  */
 static INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
                                          double_io_t neighbours_dist[k_value],
-                                         size_io_t * const found,
+                                         uint_t * const found,
                                          const index_in_t new_neighbour,
                                          const double_in_t new_neighbour_dist) {
     /* Error checking. */
@@ -560,7 +560,7 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
         index_t  neighbours[block_size_value][k_value];         /* the "k" nearest neighbours for each vector in the current block */
         double_t neighbours_dist[block_size_value][k_value];    /* the distance of the "k" nearest neighbours for each vector in the current block */
         double_t score[block_size_value];                       /* the average distance to the "k" neighbours */
-        size_t   found[block_size_value];                       /* how many nearest neighbours we have found, for each vector in the block */
+        uint_t   found[block_size_value];                       /* how many nearest neighbours we have found, for each vector in the block */
         
         /* Reset array contents */
         do {
@@ -626,7 +626,7 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
         index_t  neighbours[k_value];       /* the "k" nearest neighbours for the current vector */
         double_t neighbours_dist[k_value];  /* the distance of the "k" nearest neighbours for the current vector */
         double_t score = 0;                 /* the average distance to the "k" neighbours */
-        size_t   found = 0;                 /* how many nearest neighbours we have found */
+        uint_t   found = 0;                 /* how many nearest neighbours we have found */
         boolean  removed = false;           /* true if vector1 has been pruned */
         
         MEMSET_1D(neighbours,      NULL_INDEX, k_value, sizeof(index_t));
