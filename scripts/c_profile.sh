@@ -135,7 +135,7 @@ for DATASET_NAME in $ALL_DATASETS; do
                     
                     gcov --object-directory $ALGORITHM_DIR $GCDA >$PROFILE_OUTPUT_DIR/gcov/$GCDA.log 2>&1
                     mv *.gcov $GCOV_OUTPUT_DIR/
-                    rm $ALGORITHM_DIR/$GCDA.gcda
+                    mv $ALGORITHM_DIR/$GCDA.gcda $GCOV_OUTPUT_DIR/
                 done
             fi
         done
