@@ -9,7 +9,7 @@
 #===============================================================================
 # Configuration
 #===============================================================================
-BIN_DIR=../TopN_Outlier_Pruning_Block/bin
+ALGORITHM_DIR=../TopN_Outlier_Pruning_Block
 BIN_EXT=bin
 ROOT_OUTPUT_DIR=Profiling
 DATA_DIR=../TopN_Outlier_Pruning_Block/data
@@ -18,7 +18,8 @@ ITERATIONS=1
 #===============================================================================
 
 SCRIPT_DIR=$(dirname $0)
-BIN_DIR=$SCRIPT_DIR/$BIN_DIR
+ALGORITHM_DIR=$SCRIPT_DIR/$ALGORITHM_DIR
+BIN_DIR=$ALGORITHM_DIR/bin
 DATASET_DIR=$SCRIPT_DIR/$DATA_DIR
 
 ALL_PROFILES="
@@ -30,6 +31,8 @@ ALL_DATASETS="
     testoutrank
     ball1
     testCD
+"
+OTHER_DATASETS="
     runningex1k
     testCDST2
     testCDST3
@@ -58,11 +61,16 @@ fi
 
 # Output directory
 OUTPUT_DIR=$ROOT_OUTPUT_DIR/$DESCRIPTION
-MAIN_LOGFILE=$ROOT_OUTPUT_DIR/$DESCRIPTION.log
-mkdir --parents $(dirname $MAIN_LOGFILE)
+mkdir --parents $OUTPUT_DIR
 
+# Start profiling
 for DATASET_NAME in $ALL_DATASETS; do
     DATASET_FILE=$DATASET_DIR/$DATASET_NAME.$DATA_EXT
+    
+    if [[ ! -f "$DATASET_FILE" ]]; then
+        echo "Data set file not found: $DATASET_FILE" >&2
+        exit 1
+    fi
     
     for ITERATION in $(seq 1 $ITERATIONS); do
         for PROFILE_NAME in $ALL_PROFILES; do
@@ -72,28 +80,67 @@ for DATASET_NAME in $ALL_DATASETS; do
             PROFILE_EXE=$BIN_DIR/$PROFILE_NAME.$BIN_EXT
             PROFILE_LOG=$PROFILE_OUTPUT_DIR/output.log
             
-            echo "Date: $(date '+%d-%b-%Y %H:%M:%S')" | tee -a $MAIN_LOGFILE
-            echo "Data set: $DATASET_NAME" | tee -a $MAIN_LOGFILE
-            echo "Iteration: $ITERATION" | tee -a $MAIN_LOGFILE
-            echo "Profile: $PROFILE_NAME" | tee -a $MAIN_LOGFILE
-            echo "Output directory: $PROFILE_OUTPUT_DIR" | tee -a $MAIN_LOGFILE
-            echo "" | tee -a $MAIN_LOGFILE
-            
-            $PROFILE_EXE $DATASET_FILE >> $PROFILE_LOG
-            if [ $? -ne 0 ]; then
-                echo "Executable returned non-zero value" | tee -a $MAIN_LOGFILE
-                exit 1
+            if [[ ! -f $PROFILE_EXE ]]; then
+                echo "Profile not found: $PROFILE_EXE" >&2
+                exit 2
+            elif [[ ! -x $PROFILE_EXE ]]; then
+                echo "Profile not executable: $PROFILE_EXE" >&2
+                exit 3
             fi
             
-            if [ ! -f gmon.out ]; then
-                echo "Cannot find gmon.out" | tee -a $MAIN_LOGFILE
-                exit 2
+            # Output summary information
+            echo ""
+            echo "Date: $(date '+%d-%b-%Y %H:%M:%S')"
+            echo "Data set: $DATASET_NAME"
+            echo "Iteration: $ITERATION"
+            echo "Profile: $PROFILE_NAME"
+            echo "Output directory: $PROFILE_OUTPUT_DIR"
+            
+            # Execute the command
+            $PROFILE_EXE $DATASET_FILE >> $PROFILE_LOG
+            if [[ $? -ne 0 ]]; then
+                echo "Executable returned non-zero value!" >&2
+                exit 4
+            fi
+            
+            # gprof files
+            if [[ ! -f gmon.out ]]; then
+                echo "Cannot find gmon.out!" >&2
+                echo "Make sure that the '-pg' flags were used for compilation" >&2
+                exit 5
             else
-                cp gmon.out $PROFILE_OUTPUT_DIR/
-                gprof $PROFILE_EXE > $PROFILE_OUTPUT_DIR/gprof.txt
+                GPROF_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gprof
+                mkdir --parents $GPROF_OUTPUT_DIR
+                
+                cp gmon.out $GPROF_OUTPUT_DIR/
+                gprof $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof.txt
+                gprof --brief $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof_brief.txt
                 rm gmon.out
             fi
             
+            # gcov files
+            GCOV_DIR=$(readlink -f "$ALGORITHM_DIR")
+            GCDA_FILES=$(find $GCOV_DIR -maxdepth 1 -type f -name "*.gcda" -exec basename {} .gcda \;)
+            GCNO_FILES=$(find $GCOV_DIR -maxdepth 1 -type f -name "*.gcno" -exec basename {} .gcno \;)
+            if [[ -z "$GCNO_FILES" ]]; then
+                echo "Cannot find any *.gcno files!" >&2
+                echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
+                exit 6
+            fi
+            if [[ -z "$GCDA_FILES" ]]; then
+                echo "Cannot find any *.gcda files!" >&2
+                echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
+                exit 7
+            else
+                for FILE in $GCDA_FILES; do
+                    GCOV_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gcov/$FILE
+                    mkdir --parents $GCOV_OUTPUT_DIR
+                    
+                    gcov --object-directory $GCOV_DIR $FILE >$PROFILE_OUTPUT_DIR/gcov/$FILE.log 2>&1
+                    mv *.gcov $GCOV_OUTPUT_DIR/
+                    rm $GCOV_DIR/$FILE.gcda
+                done
+            fi
         done
     done
 done
