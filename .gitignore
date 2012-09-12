@@ -39,3 +39,10 @@ Thumbs.db
 # PROJECT SPECIFIC
 #===============================================================================
 
+# gcov output
+*.gcda
+*.gcno
+*.gcov
+
+# gprof output
+gmon.out

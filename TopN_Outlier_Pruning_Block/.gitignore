@@ -9,18 +9,11 @@
 *.mexw32
 *.mexw64
 
-# Make outputs
-*.bak
-*.d
-
 # Binary outputs
 *.bin
 
 # AutoESL files
 AutoESL/*.tcl
 
-# gprof output
-gmon.out
-
-# Profiling script output
-Profiling/
+# gcov output
+*.gcno
