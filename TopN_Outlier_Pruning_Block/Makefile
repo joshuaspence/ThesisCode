@@ -155,7 +155,8 @@ define help_text
 -@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [gcov=<on|off>] \\"
+-@$(ECHO) "             (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -476,9 +477,22 @@ CFLAGS   := $(call add-flags,$(CFLAGS),pg)
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),pg)
 LDFLAGS  := $(call add-flags,$(LDFLAGS),pg)
 else
-ifeq ($(gprof),off)
+ifeq ($(gcov),off)
 else
-$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+$(error Invalid gcov option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
+ifeq ($(gcov),)
+else
+ifeq ($(gcov),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),fprofile-arcs ftest-coverage)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),fprofile-arcs ftest-coverage)
+LDFLAGS  := $(call add-flags,$(LDFLAGS),fprofile-arcs ftest-coverage)
+else
+ifeq ($(gcov),off)
+else
+$(error Invalid gcov option specified. Valid values are 'on' and 'off')
 endif
 endif
 endif
