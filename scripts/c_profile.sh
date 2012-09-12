@@ -26,7 +26,29 @@ ALL_PROFILES="
     TopN_Outlier_Pruning_Block_SORTED
     TopN_Outlier_Pruning_Block_UNSORTED
 "
-ALL_DATASETS=$(find $DATA_DIR -type f -name "*.$DATA_EXT")
+ALL_DATASETS="
+    testoutrank
+    ball1
+    testCD
+    runningex1k
+    testCDST2
+    testCDST3
+    testCDST
+    runningex10k
+    runningex20k
+    segmentation
+    runningex30k
+    pendigits
+    runningex40k
+    spam_train
+    runningex50k
+    spam
+    letter-recognition
+    mesh_network
+    magicgamma
+    musk
+    connect4
+"
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
@@ -39,8 +61,8 @@ OUTPUT_DIR=$ROOT_OUTPUT_DIR/$DESCRIPTION
 MAIN_LOGFILE=$ROOT_OUTPUT_DIR/$DESCRIPTION.log
 mkdir --parents $(dirname $MAIN_LOGFILE)
 
-for DATASET in $ALL_DATASETS; do
-    DATASET_NAME=$(basename $DATASET .$DATA_EXT)
+for DATASET_NAME in $ALL_DATASETS; do
+    DATASET_FILE=$DATASET_DIR/$DATASET_NAME.$DATA_EXT
     
     for ITERATION in $(seq 1 $ITERATIONS); do
         for PROFILE_NAME in $ALL_PROFILES; do
@@ -51,13 +73,13 @@ for DATASET in $ALL_DATASETS; do
             PROFILE_LOG=$PROFILE_OUTPUT_DIR/output.log
             
             echo "Date: $(date '+%d-%b-%Y %H:%M:%S')" | tee -a $MAIN_LOGFILE
-            echo "Data set: $(basename $DATASET)" | tee -a $MAIN_LOGFILE
+            echo "Data set: $DATASET_NAME" | tee -a $MAIN_LOGFILE
             echo "Iteration: $ITERATION" | tee -a $MAIN_LOGFILE
             echo "Profile: $PROFILE_NAME" | tee -a $MAIN_LOGFILE
             echo "Output directory: $PROFILE_OUTPUT_DIR" | tee -a $MAIN_LOGFILE
             echo "" | tee -a $MAIN_LOGFILE
             
-            $PROFILE_EXE $DATASET >> $PROFILE_LOG
+            $PROFILE_EXE $DATASET_FILE >> $PROFILE_LOG
             if [ $? -ne 0 ]; then
                 echo "Executable returned non-zero value" | tee -a $MAIN_LOGFILE
                 exit 1
