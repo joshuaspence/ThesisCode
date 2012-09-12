@@ -486,6 +486,12 @@ LDFLAGS_DEBUG     := $(call flags,g)
 ifeq ($(gprof),)
 else
 ifeq ($(gprof),on)
+ifeq ($(mode),)
+$(warning gprof is disabled for release builds.)
+endif
+ifeq ($(mode),release)
+$(warning gprof is disabled for release builds.)
+endif
 CFLAGS_DEBUG      := $(call add-flags,$(CFLAGS_DEBUG),pg)
 CXXFLAGS_DEBUG    := $(call add-flags,$(CXXFLAGS_DEBUG),pg)
 LDFLAGS_DEBUG     := $(call add-flags,$(LDFLAGS_DEBUG),pg)
