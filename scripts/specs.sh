@@ -1,5 +1,10 @@
 #!/bin/bash
 
+#===============================================================================
+# This script gathers various specs regarding the host machine and outputs them
+# to files.
+#===============================================================================
+
 OUTPUT_DIRECTORY=specs
 MATLAB_DIR=$(matlab -e 2>/dev/null | sed -n 's/MATLAB=\(.\+\)/\1/p')
 
