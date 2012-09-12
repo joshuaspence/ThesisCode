@@ -68,73 +68,77 @@ typedef int boolean;
 /* Types                                                                      */
 /*============================================================================*/
 
-#ifndef __AUTOESL__
-typedef int                 int_t;
-typedef int                 int_in_t;
-typedef int                 int_out_t;
-typedef int                 int_io_t;
-#else
-typedef int                 int_t;
-typedef int                 int_in_t;
-typedef int                 int_out_t;
-typedef int                 int_io_t;
-#endif /* #ifndef __AUTOESL__ */
-
-#ifndef __AUTOESL__
-typedef unsigned int        uint_t;
-typedef unsigned int        uint_in_t;
-typedef unsigned int        uint_out_t;
-typedef unsigned int        uint_io_t;
-#else
-typedef unsigned int        uint_t;
-typedef unsigned int        uint_in_t;
-typedef unsigned int        uint_out_t;
-typedef unsigned int        uint_io_t;
-#endif /* #ifndef __AUTOESL__ */
-
-#ifndef __AUTOESL__
-typedef size_t              index_t;
-typedef size_t              index_in_t;
-typedef size_t              index_out_t;
-typedef size_t              index_io_t;
-#else
-typedef size_t              index_t;
-typedef size_t              index_in_t;
-typedef size_t              index_out_t;
-typedef size_t              index_io_t;
-#endif /* #ifndef __AUTOESL__ */
-
-#ifndef __AUTOESL__
-typedef double              double_t;
-typedef double              double_in_t;
-typedef double              double_out_t;
-typedef double              double_io_t;
-#else
-typedef double              double_t;
-typedef double              double_in_t;
-typedef double              double_out_t;
-typedef double              double_io_t;
-#endif /* #ifndef __AUTOESL__ */
-
+/* size_t */
 #ifndef __SIZE_TYPE__
     #define __SIZE_TYPE__ long unsigned int
 #endif /* #ifndef __SIZE_TYPE */
 
-#if defined (_STDDEF_H) || defined (__need_size_t)
-    #error size_t already defined.
+#if !defined (_STDDEF_H) && !defined (__need_size_t)
+typedef __SIZE_TYPE__       size_t;
+#endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
+
+/* size_t, size_in_t, size_out_t, size_io_t */
+#ifndef __AUTOESL__
+typedef __SIZE_TYPE__       size_in_t;
+typedef __SIZE_TYPE__       size_out_t;
+typedef __SIZE_TYPE__       size_io_t;
 #else
-    #ifndef __AUTOESL__
-typedef __SIZE_TYPE__       size_t;
 typedef __SIZE_TYPE__       size_in_t;
 typedef __SIZE_TYPE__       size_out_t;
 typedef __SIZE_TYPE__       size_io_t;
-    #else
-typedef __SIZE_TYPE__       size_t;
-typedef __SIZE_TYPE__       size_in_t;
-typedef __SIZE_TYPE__       size_out_t;
-typedef __SIZE_TYPE__       size_io_t;
-    #endif /* #ifndef __AUTOESL__ */
-#endif /* #if defined (_STDDEF_H) || defined (__need_size_t) */
+#endif /* #ifndef __AUTOESL__ */
+
+/* int_t, int_in_t, int_out_t, int_io_t */
+#ifndef __AUTOESL__
+typedef int                 int_t;
+typedef int                 int_in_t;
+typedef int                 int_out_t;
+typedef int                 int_io_t;
+#else
+typedef int                 int_t;
+typedef int                 int_in_t;
+typedef int                 int_out_t;
+typedef int                 int_io_t;
+#endif /* #ifndef __AUTOESL__ */
+
+/* uint_t, uint_in_t, uint_out_t, uint_io_t */
+#ifndef __AUTOESL__
+typedef unsigned int        uint_t;
+typedef unsigned int        uint_in_t;
+typedef unsigned int        uint_out_t;
+typedef unsigned int        uint_io_t;
+#else
+typedef unsigned int        uint_t;
+typedef unsigned int        uint_in_t;
+typedef unsigned int        uint_out_t;
+typedef unsigned int        uint_io_t;
+#endif /* #ifndef __AUTOESL__ */
+
+/* index_t, index_in_t, index_out_t, index_io_t */
+#ifndef __AUTOESL__
+typedef size_t              index_t;
+typedef size_t              index_in_t;
+typedef size_t              index_out_t;
+typedef size_t              index_io_t;
+#else
+typedef size_t              index_t;
+typedef size_t              index_in_t;
+typedef size_t              index_out_t;
+typedef size_t              index_io_t;
+#endif /* #ifndef __AUTOESL__ */
+
+/* double_t, double_in_t, double_out_t, intdoubleio_t */
+#ifndef __AUTOESL__
+typedef double              double_t;
+typedef double              double_in_t;
+typedef double              double_out_t;
+typedef double              double_io_t;
+#else
+typedef double              double_t;
+typedef double              double_in_t;
+typedef double              double_out_t;
+typedef double              double_io_t;
+#endif /* #ifndef __AUTOESL__ */
 
 #define NULL_INDEX          0
 #define START_INDEX         1

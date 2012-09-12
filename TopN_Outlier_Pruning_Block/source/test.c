@@ -6,15 +6,11 @@
 
 #include "test.h" /* main header file */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for boolean, index_t, double_t, false, lint_t, PRINTF_STDOUT, true, uint_t */
+#include "utility.h" /* for boolean, index_t, double_t, false, lint_t, PRINTF_STDOUT, size_t, true, uint_t */
 #include "vardump.h" /* for read_vardump */
 
-#include <stdlib.h> /* for size_t, free */
+#include <stdlib.h> /* for free */
 /*----------------------------------------------------------------------------*/
-
-#ifndef VARDUMP
-    #error "This file requires VARDUMP to be enabled."
-#endif /* #ifndef VARDUMP */
 
 /*
  * Reads variable from a variable dump file and runs the

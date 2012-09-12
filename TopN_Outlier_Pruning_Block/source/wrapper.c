@@ -5,9 +5,7 @@
 #include "arch.h" /* set architecture specific macros */
 
 #include "test.h" /* for test */
-#include "utility.h" /* for uint_t */
-
-#include <stddef.h> /* for size_t */
+#include "utility.h" /* for size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/

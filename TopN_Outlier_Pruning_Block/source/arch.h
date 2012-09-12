@@ -70,13 +70,13 @@
     #endif /* #ifndef USE_MEMSET */
     
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
-    #include <stdio.h> /* for sprintf */
+    //#include <stdio.h> /* for sprintf */
     
     #define PRINTF_STDOUT(...)          mexPrintf(__VA_ARGS__)
     #define PRINTF_STDERR(...)          \
         do { \
             char buffer[1024]; \
-            sprintf(buffer, __VA_ARGS__); \
+            /*sprintf(buffer, __VA_ARGS__);*/ \
             mexErrMsgTxt(buffer); \
         } while (0)
 #endif /* #ifdef __MEX__ */

@@ -4,18 +4,13 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
 
-#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, VECTOR, VECTOR_ELEMENT */
-#ifdef STATS
-    #include "stats.h" /* for get_stats */
-#endif /* #ifdef STATS */
+#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
 #include "utility.h" /* for double_t, index_t, lint_t, null_index, uint_t */
-#ifdef VARDUMP
-    #include "vardump.h" /* save_vardump */
-#endif /* #ifdef VARDUMP */
+#include "vardump.h" /* save_vardump */
 
 #include <mex.h> /* for mxGetScalar */
-#include <stdlib.h> /* for free, malloc, size_t */
+#include <stdlib.h> /* for free, malloc */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -170,10 +165,8 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
     const uint_t num_pruned = top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
     
-#ifdef VARDUMP
     /* Save input and output parameters. */
     save_vardump("vars.dat", &num_vectors, &vector_dims, (void *) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
-#endif /* #ifdef VARDUMP */
     
     /* Free dynamic memory. */
     if (data_in != NULL)

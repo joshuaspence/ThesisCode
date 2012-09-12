@@ -49,19 +49,19 @@ autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.c \
                         $(SOURCE_DIR)/test.c \
                         $(SOURCE_DIR)/vardump.c \
                         $(DATA_DIR)/*.dat
-autoesl_TBFLAGS      := $(call flags,DVARDUMP)
+autoesl_TBFLAGS      := 
 autoesl_TCLSOURCES   := $(SOURCE_DIR)/directives.tcl
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
-binary_CFLAGS         = $(call flags,D__C__ DVARDUMP)
+binary_CFLAGS         = $(call flags,D__C__)
 binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
                         $(SOURCE_DIR)/test.c \
                         $(SOURCE_DIR)/vardump.c
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
-matlab_CFLAGS         = $(call flags,D__MEX__ DVARDUMP)
+matlab_CFLAGS         = $(call flags,D__MEX__)
 matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.c \
                         $(SOURCE_DIR)/vardump.c
 
