@@ -469,6 +469,19 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
+ifeq ($(gprof),)
+else
+ifeq ($(gprof),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),pg)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),pg)
+LDFLAGS  := $(call add-flags,$(LDFLAGS),pg)
+else
+ifeq ($(gprof),off)
+else
+$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
 
 # Architecture specific
 ifeq ($(MATLAB_ARCHTYPE), x86)
@@ -483,25 +496,6 @@ CFLAGS_DEBUG      := $(call flags,g O0 DDEBUG)
 CXXFLAGS_DEBUG    := $(call flags,g O0 DDEBUG)
 MXXFLAGS_DEBUG    := $(call flags,DDEBUG)
 LDFLAGS_DEBUG     := $(call flags,g)
-ifeq ($(gprof),)
-else
-ifeq ($(gprof),on)
-ifeq ($(mode),)
-$(warning gprof is disabled for release builds.)
-endif
-ifeq ($(mode),release)
-$(warning gprof is disabled for release builds.)
-endif
-CFLAGS_DEBUG      := $(call add-flags,$(CFLAGS_DEBUG),pg)
-CXXFLAGS_DEBUG    := $(call add-flags,$(CXXFLAGS_DEBUG),pg)
-LDFLAGS_DEBUG     := $(call add-flags,$(LDFLAGS_DEBUG),pg)
-else
-ifeq ($(gprof),off)
-else
-$(error Invalid gprof option specified. Valid values are 'on' and 'off')
-endif
-endif
-endif
 
 # Optimized debug flags
 CFLAGS_DEBUGOPT   := $(call flags,g O3 DDEBUG)
