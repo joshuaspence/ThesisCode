@@ -18,9 +18,9 @@ ITERATIONS=1
 #===============================================================================
 
 SCRIPT_DIR=$(dirname $0)
-ALGORITHM_DIR=$SCRIPT_DIR/$ALGORITHM_DIR
-BIN_DIR=$ALGORITHM_DIR/bin
-DATASET_DIR=$SCRIPT_DIR/$DATA_DIR
+ALGORITHM_DIR=$(readlink -f $SCRIPT_DIR/$ALGORITHM_DIR)
+BIN_DIR=$(readlink -f $ALGORITHM_DIR/bin)
+DATASET_DIR=$(readlink -f $SCRIPT_DIR/$DATA_DIR)
 
 ALL_PROFILES="
     TopN_Outlier_Pruning_Block_NO_BLOCKING
@@ -31,8 +31,6 @@ ALL_DATASETS="
     testoutrank
     ball1
     testCD
-"
-OTHER_DATASETS="
     runningex1k
     testCDST2
     testCDST3
@@ -67,7 +65,7 @@ mkdir --parents $OUTPUT_DIR
 for DATASET_NAME in $ALL_DATASETS; do
     DATASET_FILE=$DATASET_DIR/$DATASET_NAME.$DATA_EXT
     
-    if [[ ! -f "$DATASET_FILE" ]]; then
+    if [ ! -f "$DATASET_FILE" ]; then
         echo "Data set file not found: $DATASET_FILE" >&2
         exit 1
     fi
@@ -80,10 +78,10 @@ for DATASET_NAME in $ALL_DATASETS; do
             PROFILE_EXE=$BIN_DIR/$PROFILE_NAME.$BIN_EXT
             PROFILE_LOG=$PROFILE_OUTPUT_DIR/output.log
             
-            if [[ ! -f $PROFILE_EXE ]]; then
+            if [ ! -f $PROFILE_EXE ]; then
                 echo "Profile not found: $PROFILE_EXE" >&2
                 exit 2
-            elif [[ ! -x $PROFILE_EXE ]]; then
+            elif [ ! -x $PROFILE_EXE ]; then
                 echo "Profile not executable: $PROFILE_EXE" >&2
                 exit 3
             fi
@@ -98,13 +96,13 @@ for DATASET_NAME in $ALL_DATASETS; do
             
             # Execute the command
             $PROFILE_EXE $DATASET_FILE >> $PROFILE_LOG
-            if [[ $? -ne 0 ]]; then
+            if [ $? -ne 0 ]; then
                 echo "Executable returned non-zero value!" >&2
                 exit 4
             fi
             
             # gprof files
-            if [[ ! -f gmon.out ]]; then
+            if [ ! -f gmon.out ]; then
                 echo "Cannot find gmon.out!" >&2
                 echo "Make sure that the '-pg' flags were used for compilation" >&2
                 exit 5
@@ -119,30 +117,30 @@ for DATASET_NAME in $ALL_DATASETS; do
             fi
             
             # gcov files
-            GCOV_DIR=$(readlink -f "$ALGORITHM_DIR")
-            GCDA_FILES=$(find $GCOV_DIR -maxdepth 1 -type f -name "*.gcda" -exec basename {} .gcda \;)
-            GCNO_FILES=$(find $GCOV_DIR -maxdepth 1 -type f -name "*.gcno" -exec basename {} .gcno \;)
-            if [[ -z "$GCNO_FILES" ]]; then
+            GCDA_FILES=$(find $ALGORITHM_DIR -maxdepth 1 -type f -name "*.gcda" -exec basename {} .gcda \;)
+            GCNO_FILES=$(find $ALGORITHM_DIR -maxdepth 1 -type f -name "*.gcno" -exec basename {} .gcno \;)
+            if [ -z "$GCNO_FILES" ]; then
                 echo "Cannot find any *.gcno files!" >&2
                 echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
                 exit 6
             fi
-            if [[ -z "$GCDA_FILES" ]]; then
+            if [ -z "$GCDA_FILES" ]; then
                 echo "Cannot find any *.gcda files!" >&2
                 echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
                 exit 7
             else
-                for FILE in $GCDA_FILES; do
-                    GCOV_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gcov/$FILE
+                for GCDA in $GCDA_FILES; do
+                    GCOV_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gcov/$GCDA
                     mkdir --parents $GCOV_OUTPUT_DIR
                     
-                    gcov --object-directory $GCOV_DIR $FILE >$PROFILE_OUTPUT_DIR/gcov/$FILE.log 2>&1
+                    gcov --object-directory $ALGORITHM_DIR $GCDA >$PROFILE_OUTPUT_DIR/gcov/$GCDA.log 2>&1
                     mv *.gcov $GCOV_OUTPUT_DIR/
-                    rm $GCOV_DIR/$FILE.gcda
+                    rm $ALGORITHM_DIR/$GCDA.gcda
                 done
             fi
         done
     done
 done
 
+echo ""
 echo "Done"
