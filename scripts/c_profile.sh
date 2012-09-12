@@ -14,7 +14,7 @@ BIN_EXT=bin
 ROOT_OUTPUT_DIR=Profiling
 DATA_DIR=../TopN_Outlier_Pruning_Block/data
 DATA_EXT=dat
-ITERATIONS=1
+ITERATIONS=3
 #===============================================================================
 
 SCRIPT_DIR=$(dirname $0)
