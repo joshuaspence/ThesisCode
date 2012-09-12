@@ -51,15 +51,21 @@ ALL_DATASETS="
     connect4
 "
 
-echo -n "Provide a description (defaults to date): "
-read DESCRIPTION
-if [[ -z "$DESCRIPTION" ]]; then
+# Get profile description from command line
+if [ $# -lt 1 ]; then
     DESCRIPTION=$(date '+%Y-%m-%d')
+else
+    DESCRIPTION="$1"
 fi
 
 # Output directory
 OUTPUT_DIR=$ROOT_OUTPUT_DIR/$DESCRIPTION
-mkdir --parents $OUTPUT_DIR
+if [ -e $OUTPUT_DIR ]; then
+    echo "Directory already exists: $OUTPUT_DIR" >&2
+    exit 1
+else
+    mkdir --parents $OUTPUT_DIR
+fi
 
 # Start profiling
 for DATASET_NAME in $ALL_DATASETS; do
@@ -67,7 +73,7 @@ for DATASET_NAME in $ALL_DATASETS; do
     
     if [ ! -f "$DATASET_FILE" ]; then
         echo "Data set file not found: $DATASET_FILE" >&2
-        exit 1
+        exit 2
     fi
     
     for ITERATION in $(seq 1 $ITERATIONS); do
@@ -80,10 +86,10 @@ for DATASET_NAME in $ALL_DATASETS; do
             
             if [ ! -f $PROFILE_EXE ]; then
                 echo "Profile not found: $PROFILE_EXE" >&2
-                exit 2
+                exit 3
             elif [ ! -x $PROFILE_EXE ]; then
                 echo "Profile not executable: $PROFILE_EXE" >&2
-                exit 3
+                exit 4
             fi
             
             # Output summary information
@@ -98,14 +104,14 @@ for DATASET_NAME in $ALL_DATASETS; do
             $PROFILE_EXE $DATASET_FILE >> $PROFILE_LOG
             if [ $? -ne 0 ]; then
                 echo "Executable returned non-zero value!" >&2
-                exit 4
+                exit 5
             fi
             
             # gprof files
             if [ ! -f gmon.out ]; then
                 echo "Cannot find gmon.out!" >&2
                 echo "Make sure that the '-pg' flags were used for compilation" >&2
-                exit 5
+                exit 6
             else
                 GPROF_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gprof
                 mkdir --parents $GPROF_OUTPUT_DIR
@@ -122,12 +128,12 @@ for DATASET_NAME in $ALL_DATASETS; do
             if [ -z "$GCNO_FILES" ]; then
                 echo "Cannot find any *.gcno files!" >&2
                 echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
-                exit 6
+                exit 7
             fi
             if [ -z "$GCDA_FILES" ]; then
                 echo "Cannot find any *.gcda files!" >&2
                 echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
-                exit 7
+                exit 8
             else
                 for GCDA in $GCDA_FILES; do
                     GCOV_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gcov/$GCDA
