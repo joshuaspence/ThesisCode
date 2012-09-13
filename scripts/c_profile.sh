@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#===============================================================================
+################################################################################
 #
 # This script can be used to profile C execution. This script should be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
@@ -9,7 +9,7 @@
 # Usage:
 #     `nohup c_profile.sh DESCRIPTION >LOG_FILE'
 #
-#===============================================================================
+################################################################################
 
 #===============================================================================
 # Configuration
@@ -22,7 +22,7 @@ DATA_EXT=dat
 ITERATIONS=3
 #===============================================================================
 
-SCRIPT_DIR=$(dirname $0)
+SCRIPT_DIR=$(readlink -f $(dirname $0))
 ALGORITHM_DIR=$(readlink -f $SCRIPT_DIR/$ALGORITHM_DIR)
 BIN_DIR=$(readlink -f $ALGORITHM_DIR/bin)
 DATASET_DIR=$(readlink -f $SCRIPT_DIR/$DATA_DIR)

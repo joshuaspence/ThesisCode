@@ -74,7 +74,7 @@ for my $dataset_dir (@dataset_dirs) {
     # Loop through each iteration subdirectory
     for my $iteration_dir (@iteration_dirs) {
         my $iteration = strip_directory($iteration_dir);
-    
+        
         # Get profiles from next subdirectory level
         my @profile_dirs = next_subdirectory_level($iteration_dir);
         
@@ -105,7 +105,7 @@ for my $dataset_dir (@dataset_dirs) {
                 $results{$profile}{'total_selftime'} = 0;
                 $results{$profile}{'iterations'} = 0;
             }
-    
+            
             # Retrieve the input HTML file
             my $profile_html_file = File::Spec->catfile($profile_dir, PROFILE_HTML_FILE);
             my @data_rows = get_table_rows($profile_html_file);
@@ -113,7 +113,7 @@ for my $dataset_dir (@dataset_dirs) {
             # We have seen another iteration
             ($all_results{$profile}{'iterations'})++;
             ($results{$profile}{'iterations'})++;
-
+            
             # Output the data, looping through each row
             foreach my $row (@data_rows) {
                 my $function   = html_parse_function_name($row);
@@ -159,4 +159,3 @@ for my $dataset_dir (@dataset_dirs) {
         }
     }
 }
-

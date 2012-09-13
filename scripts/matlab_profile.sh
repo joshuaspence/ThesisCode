@@ -1,10 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
-#===============================================================================
+################################################################################
+#
 # This script can be used to profile MATLAB execution. MATLAB will be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
-#===============================================================================
+#
+################################################################################
 
 #===============================================================================
 # Configuration
@@ -15,13 +17,14 @@ ROOT_OUTPUT_DIR=Profiling
 DATASET_DIR=$MATLAB_DIR/Datasets
 #===============================================================================
 
-SCRIPT_DIR=$(dirname $0)
-MATLAB_DIR=$SCRIPT_DIR/$MATLAB_DIR
-DATASET_DIR=$SCRIPT_DIR/$DATASET_DIR
+SCRIPT_DIR=$(readlink -f $(dirname $0)
+MATLAB_DIR=$(readlink -f $SCRIPT_DIR/$MATLAB_DIR)
+DATASET_DIR=$(readlink -f $SCRIPT_DIR/$DATASET_DIR)
 
+# Get profile description from command line
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
-if [[ -z "$DESCRIPTION" ]]; then
+if [ -z "$DESCRIPTION" ]; then
     DESCRIPTION=$(date '+%Y-%m-%d')
 fi
 
@@ -51,4 +54,4 @@ echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY
 export DISPLAY
 
-echo "Done"
+echo "Running in background..."

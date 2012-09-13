@@ -1,13 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
-#===============================================================================
+################################################################################
+#
 # This script can be used to test MATLAB execution. MATLAB will be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
 #
 # Usage:
 #     `./matlab_test.sh'
-#===============================================================================
+#
+################################################################################
 
 #===============================================================================
 # Configuration
@@ -24,7 +26,7 @@ DATASET_DIR=$(readlink -f $SCRIPT_DIR/$DATASET_DIR)
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
-if [[ -z "$DESCRIPTION" ]]; then
+if [ -z "$DESCRIPTION" ]; then
     DESCRIPTION=$(date '+%Y-%m-%d')
 fi
 
