@@ -1,9 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 
 #===============================================================================
 # This script can be used to profile C execution. This script should be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
+#
+# Usage:
+#     `nohup c_profile.sh DESCRIPTION >LOG_FILE'
 #===============================================================================
 
 #===============================================================================
@@ -60,7 +63,7 @@ fi
 
 # Output directory
 OUTPUT_DIR=$ROOT_OUTPUT_DIR/$DESCRIPTION
-if [ -e $OUTPUT_DIR ]; then
+if [ -e "$OUTPUT_DIR" ]; then
     echo "Directory already exists: $OUTPUT_DIR" >&2
     exit 1
 else
@@ -84,7 +87,7 @@ for DATASET_NAME in $ALL_DATASETS; do
             PROFILE_EXE=$BIN_DIR/$PROFILE_NAME.$BIN_EXT
             PROFILE_LOG=$PROFILE_OUTPUT_DIR/output.log
             
-            if [ ! -f $PROFILE_EXE ]; then
+            if [ ! -f "$PROFILE_EXE" ]; then
                 echo "Profile not found: $PROFILE_EXE" >&2
                 exit 3
             elif [ ! -x $PROFILE_EXE ]; then
@@ -116,10 +119,9 @@ for DATASET_NAME in $ALL_DATASETS; do
                 GPROF_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gprof
                 mkdir --parents $GPROF_OUTPUT_DIR
                 
-                cp gmon.out $GPROF_OUTPUT_DIR/
                 gprof $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof.txt
                 gprof --brief $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof_brief.txt
-                rm gmon.out
+                mv gmon.out $GPROF_OUTPUT_DIR/
             fi
             
             # gcov files
