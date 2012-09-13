@@ -137,7 +137,7 @@ for my $dataset_dir (@dataset_dirs) {
                 $all_results{$profile}{'total_selftime'}       += $self_time;
                 
                 # For testing
-                print("\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$total_time,,$self_time,\n");
+                #print("\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$total_time,,$self_time,\n");
             }
         }
     }
