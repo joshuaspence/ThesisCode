@@ -6,7 +6,7 @@
 # produced by the `matlab_profile_block_size.sh' script.
 #
 # Usage:
-#     ./block_size.pl input
+#     ./parse_block_size_results.pl input
 #
 # Input:  Base directory where the profiler output is found. Should contain 
 #         subdirectories named after the data sets that the data pertains to.

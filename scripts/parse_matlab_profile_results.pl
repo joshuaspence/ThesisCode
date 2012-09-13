@@ -6,7 +6,7 @@
 # produced by the `matlab_profile.sh' script.
 #
 # Usage:
-#     ./matlab-profile.pl input
+#     ./parse_matlab_profile_results.pl input
 #
 # Input:  Base directory where the profiler output is found. Should contain 
 #         subdirectories named after the data sets that the data pertains to.
