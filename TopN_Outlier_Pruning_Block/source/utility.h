@@ -40,13 +40,33 @@
 
 /* Declare a function as inline. */
 #ifndef INLINE
-    #if defined(_MSC_VER)
-        #define INLINE              __forceinline
-	#elif defined(__AUTOESL__)
-		#define INLINE
+    #ifdef USE_INLINE
+        #if USE_INLINE
+            #if defined(_MSC_VER)
+                #define INLINE              __forceinline
+	        #elif defined(__AUTOESL__)
+		        #define INLINE              inline
+            #else
+                #define INLINE              inline
+            #endif /* #if defined(_MSC_VER) */
+        #else
+            #if defined(_MSC_VER)
+                #define INLINE
+	        #elif defined(__AUTOESL__)
+		        #define INLINE
+            #else
+                #define INLINE
+            #endif /* #if defined(_MSC_VER) */
+        #endif /* #if USE_INLINE */
     #else
-        #define INLINE              inline
-    #endif /* #if defined(_MSC_VER) */
+        #if defined(_MSC_VER)
+            #define INLINE                  __forceinline
+        #elif defined(__AUTOESL__)
+	        #define INLINE
+        #else
+            #define INLINE                  inline
+        #endif /* #if defined(_MSC_VER) */
+    #endif /* #ifdef USE_INLINE */
 #endif /* #ifndef INLINE */
 /*----------------------------------------------------------------------------*/
 

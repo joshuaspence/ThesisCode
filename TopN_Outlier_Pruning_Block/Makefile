@@ -155,8 +155,13 @@ define help_text
 -@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [gcov=<on|off>] \\"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [gcov=<on|off>] [inline=<force|on|off>] \\"
 -@$(ECHO) "             (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
+-@$(ECHO)
+-@$(ECHO) " OPTIONS:"
+-@$(ECHO) "     gprof       Enables/disables compilation flags for gprof (default=off)."
+-@$(ECHO) "     gcov        Enables/disables compilation flags for gcov (default=off)."
+-@$(ECHO) "     inline      Enables/disables the inlining of functions (default=on)."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -470,27 +475,49 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
+
+# gprof
+GPROF_FLAGS_OFF :=
+GPROF_FLAGS_ON  := $(call flags,pg)
 ifeq ($(gprof),)
+# Default is off
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
 else
-ifeq ($(gprof),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),pg)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),pg)
-LDFLAGS  := $(call add-flags,$(LDFLAGS),pg)
-else
-ifeq ($(gcov),off)
-else
-$(error Invalid gcov option specified. Valid values are 'on' and 'off')
-endif
-endif
-endif
-ifeq ($(gcov),)
+ifeq ($(gprof),off)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
 else
 ifeq ($(gcov),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),fprofile-arcs ftest-coverage)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),fprofile-arcs ftest-coverage)
-LDFLAGS  := $(call add-flags,$(LDFLAGS),fprofile-arcs ftest-coverage)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_ON))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_ON))
+else
+$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
+
+# gcov
+GCOV_FLAGS_OFF :=
+GCOV_FLAGS_ON  := $(call flags,fprofile-arcs ftest-coverage)
+ifeq ($(gcov),)
+# Default is off
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_OFF))
 else
 ifeq ($(gcov),off)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_OFF))
+else
+ifeq ($(gcov),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_ON))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_ON))
 else
 $(error Invalid gcov option specified. Valid values are 'on' and 'off')
 endif
@@ -516,28 +543,12 @@ CFLAGS_DEBUGOPT   := $(call flags,g O3 DDEBUG)
 CXXFLAGS_DEBUGOPT := $(call flags,g O3 DDEBUG)
 MXXFLAGS_DEBUGOPT := $(call flags,O DDEBUG)
 LDFLAGS_DEBUGOPT  := $(call flags,g)
-ifeq ($(gprof),)
-else
-ifeq ($(gprof),on)
-CFLAGS_DEBUGOPT   := $(call add-flags,$(CFLAGS_DEBUGOPT),pg)
-CXXFLAGS_DEBUGOPT := $(call add-flags,$(CXXFLAGS_DEBUGOPT),pg)
-LDFLAGS_DEBUGOPT  := $(call add-flags,$(LDFLAGS_DEBUGOPT),pg)
-else
-ifeq ($(gprof),off)
-else
-$(error Invalid gprof option specified. Valid values are 'on' and 'off')
-endif
-endif
-endif
 
 # Optimization flags
 CFLAGS_OPT        := $(call flags,O3 DNDEBUG)
 CXXFLAGS_OPT      := $(call flags,O3 DNDEBUG)
 MXXFLAGS_OPT      := $(call flags,O DNDEBUG)
 LDFLAGS_OPT       := $(call flags,O3)
-
-# Add gmon output to cleanable files
-ALL_CLEAN += gmon.out
 
 ifeq ($(mode),)
 # Default mode is release
@@ -565,6 +576,37 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(MXXFLAGS_OPT))
 LDFLAGS  := $(call add-flags,$(LDFLAGS),$(LDFLAGS_OPT))
 else
 $(error Invalid mode specified. Valid modes are 'debug', 'debugopt' and 'release')
+endif
+endif
+endif
+endif
+
+# inline
+INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=0)
+INLINE_FLAGS_ON    :=
+INLINE_FLAGS_FORCE := $(call flags,DUSE_INLINE=1)
+ifeq ($(inline),)
+# Default is on
+CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
+else
+ifeq ($(inline),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
+else
+ifeq ($(inline),force)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_FORCE))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_FORCE))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_FORCE))
+else
+ifeq ($(inline),off)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_OFF))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_OFF))
+else
+$(error Invalid inline option specified. Valid options are 'force', 'on' and 'off')
 endif
 endif
 endif
