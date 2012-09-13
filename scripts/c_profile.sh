@@ -1,12 +1,14 @@
 #!/bin/sh
 
 #===============================================================================
+#
 # This script can be used to profile C execution. This script should be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
 #
 # Usage:
 #     `nohup c_profile.sh DESCRIPTION >LOG_FILE'
+#
 #===============================================================================
 
 #===============================================================================

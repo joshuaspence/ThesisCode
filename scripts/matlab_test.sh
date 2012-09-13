@@ -4,6 +4,9 @@
 # This script can be used to test MATLAB execution. MATLAB will be run with 
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
+#
+# Usage:
+#     `./matlab_test.sh'
 #===============================================================================
 
 #===============================================================================
@@ -15,9 +18,9 @@ ROOT_OUTPUT_DIR=Testing
 DATASET_DIR=$MATLAB_DIR/Datasets
 #===============================================================================
 
-SCRIPT_DIR=$(dirname $0)
-MATLAB_DIR=$SCRIPT_DIR/$MATLAB_DIR
-DATASET_DIR=$SCRIPT_DIR/$DATASET_DIR
+SCRIPT_DIR=$(readlink -f $(dirname $0))
+MATLAB_DIR=$(readlink -f $SCRIPT_DIR/$MATLAB_DIR)
+DATASET_DIR=$(readlink -f $SCRIPT_DIR/$DATASET_DIR)
 
 echo -n "Provide a description (defaults to date): "
 read DESCRIPTION
@@ -51,4 +54,4 @@ echo "Restoring DISPLAY environment variable."
 DISPLAY=$OLD_DISPLAY
 export DISPLAY
 
-echo "Done"
+echo "Running in background..."

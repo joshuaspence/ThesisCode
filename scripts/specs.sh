@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 
 #===============================================================================
+#
 # This script gathers various specs regarding the host machine and outputs them
 # to files.
+#
+# Usage:
+#     `./specs.sh'
+#
 #===============================================================================
 
 OUTPUT_DIRECTORY=specs
