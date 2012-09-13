@@ -50,7 +50,7 @@ autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.c \
                         $(SOURCE_DIR)/vardump.c \
                         $(DATA_DIR)/*.dat
 autoesl_TBFLAGS      := 
-autoesl_TCLSOURCES   := $(SOURCE_DIR)/directives.tcl
+autoesl_TCLSOURCES   := 
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
