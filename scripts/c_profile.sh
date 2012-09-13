@@ -6,6 +6,10 @@
 # "nohup" so that the profiling will continue even when the TTY session is 
 # ended.
 #
+# In order to correctly compile the executables for profiling, the following 
+# command should be used:
+#     `make mode=release gprof=on inline=force binary'
+#
 # Usage:
 #     `nohup c_profile.sh DESCRIPTION >LOG_FILE'
 #
@@ -118,35 +122,10 @@ for DATASET_NAME in $ALL_DATASETS; do
                 echo "Make sure that the '-pg' flags were used for compilation" >&2
                 exit 6
             else
-                GPROF_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gprof
-                mkdir --parents $GPROF_OUTPUT_DIR
-                
-                gprof $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof.txt
-                gprof --brief $PROFILE_EXE > $GPROF_OUTPUT_DIR/gprof_brief.txt
-                mv gmon.out $GPROF_OUTPUT_DIR/
-            fi
-            
-            # gcov files
-            GCDA_FILES=$(find $ALGORITHM_DIR -maxdepth 1 -type f -name "*.gcda" -exec basename {} .gcda \;)
-            GCNO_FILES=$(find $ALGORITHM_DIR -maxdepth 1 -type f -name "*.gcno" -exec basename {} .gcno \;)
-            if [ -z "$GCNO_FILES" ]; then
-                echo "Cannot find any *.gcno files!" >&2
-                echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
-                exit 7
-            fi
-            if [ -z "$GCDA_FILES" ]; then
-                echo "Cannot find any *.gcda files!" >&2
-                echo "Make sure that the '-fprofile-arcs' and '-ftest-coverage' flags were used for compilation" >&2
-                exit 8
-            else
-                for GCDA in $GCDA_FILES; do
-                    GCOV_OUTPUT_DIR=$PROFILE_OUTPUT_DIR/gcov/$GCDA
-                    mkdir --parents $GCOV_OUTPUT_DIR
-                    
-                    gcov --object-directory $ALGORITHM_DIR $GCDA >$PROFILE_OUTPUT_DIR/gcov/$GCDA.log 2>&1
-                    mv *.gcov $GCOV_OUTPUT_DIR/
-                    mv $ALGORITHM_DIR/$GCDA.gcda $GCOV_OUTPUT_DIR/
-                done
+                gprof $PROFILE_EXE > $PROFILE_OUTPUT_DIR/gprof.txt
+                gprof --line $PROFILE_EXE > $PROFILE_OUTPUT_DIR/gprof_line.txt
+                gprof --brief $PROFILE_EXE > $PROFILE_OUTPUT_DIR/gprof_brief.txt
+                mv gmon.out $PROFILE_OUTPUT_DIR/
             fi
         done
     done

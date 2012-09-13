@@ -155,12 +155,11 @@ define help_text
 -@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [gcov=<on|off>] [inline=<force|on|off>] \\"
+-@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [inline=<force|on|off>] \\"
 -@$(ECHO) "             (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " OPTIONS:"
 -@$(ECHO) "     gprof       Enables/disables compilation flags for gprof (default=off)."
--@$(ECHO) "     gcov        Enables/disables compilation flags for gcov (default=off)."
 -@$(ECHO) "     inline      Enables/disables the inlining of functions (default=on)."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
@@ -490,36 +489,12 @@ CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
 LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
 else
-ifeq ($(gcov),on)
+ifeq ($(gprof),on)
 CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_ON))
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_ON))
 LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_ON))
 else
 $(error Invalid gprof option specified. Valid values are 'on' and 'off')
-endif
-endif
-endif
-
-# gcov
-GCOV_FLAGS_OFF :=
-GCOV_FLAGS_ON  := $(call flags,fprofile-arcs ftest-coverage)
-ifeq ($(gcov),)
-# Default is off
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_OFF))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_OFF))
-else
-ifeq ($(gcov),off)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_OFF))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_OFF))
-else
-ifeq ($(gcov),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GCOV_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GCOV_FLAGS_ON))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GCOV_FLAGS_ON))
-else
-$(error Invalid gcov option specified. Valid values are 'on' and 'off')
 endif
 endif
 endif
