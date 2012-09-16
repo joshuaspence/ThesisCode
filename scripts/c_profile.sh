@@ -8,7 +8,7 @@
 #
 # In order to correctly compile the executables for profiling, the following 
 # command should be used:
-#     `make mode=release gprof=on inline=force binary'
+#     `make mode=debug gprof=on inline=force binary'
 #
 # Usage:
 #     `nohup c_profile.sh DESCRIPTION >LOG_FILE'
