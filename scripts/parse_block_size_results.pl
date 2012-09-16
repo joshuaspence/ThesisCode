@@ -21,21 +21,20 @@
 use strict;
 use warnings;
 
-use File::Spec;
 use List::Util qw[min max];
 
-use constant PROFILE_HTML_FILE => "file0.html";
-use constant MATLAB_LOG_FILE   => "matlab_output.log";
+use constant PROFILE_HTML_FILE => 'file0.html';
+use constant MATLAB_LOG_FILE   => 'matlab_output.log';
 use constant OUTPUT_HEADER     => "Data set,Block size,Iteration,Dimensions,Vectors,Total time,Total time (normalised),Projected dimensions,Projected vectors,Function time,Function time (normalised),Distance calls,Distance calls (normalised),Pruned,Pruned (normalised)\n";
 
 use FindBin;
 use lib $FindBin::Bin;
-require "util.pl";
+require 'util.pl';
 
 # The argument should be the base directory for the profiling data
-scalar(@ARGV) >= 1 || die("No directory specified!\n");
+scalar(@ARGV) >= 1 || die('No directory specified!');
 my $base_dir = $ARGV[0];
--d $base_dir || die("Directory doesn't exist: $base_dir\n");
+-d $base_dir || die("Directory doesn't exist: $base_dir");
 
 # Get data sets from subdirectories below base directory
 my @dataset_dirs = next_subdirectory_level($base_dir);
@@ -100,7 +99,7 @@ for my $dataset_dir (@dataset_dirs) {
             my $function_time;
             
             # Retrieve the input HTML file
-            my $profile_html_file = File::Spec->catfile($block_size_dir, PROFILE_HTML_FILE);
+            my $profile_html_file = "$block_size_dir/" . PROFILE_HTML_FILE;
             my @data_rows = get_table_rows($profile_html_file);
             
             # Output the data, looping through each row

@@ -21,19 +21,17 @@
 use strict;
 use warnings;
 
-use File::Spec;
-
-use constant PROFILE_HTML_FILE => "file0.html";
+use constant PROFILE_HTML_FILE => 'file0.html';
 use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function Name,Calls,Calls (relative),Total time,Total time (relative),Self time,Self time (relative)\n";
 
 use FindBin;
 use lib $FindBin::Bin;
-require "util.pl";
+require 'util.pl';
 
 # The argument should be the base directory for the profiling data
-scalar(@ARGV) >= 1 || die("No directory specified!\n");
+scalar(@ARGV) >= 1 || die('No directory specified!');
 my $base_dir = $ARGV[0];
--d $base_dir || die("Directory doesn't exist: $base_dir\n");
+-d $base_dir || die("Directory doesn't exist: $base_dir");
 
 # Get data sets from subdirectories below base directory
 my @dataset_dirs = next_subdirectory_level($base_dir);
@@ -107,7 +105,7 @@ for my $dataset_dir (@dataset_dirs) {
             }
             
             # Retrieve the input HTML file
-            my $profile_html_file = File::Spec->catfile($profile_dir, PROFILE_HTML_FILE);
+            my $profile_html_file = "$profile_dir/" . PROFILE_HTML_FILE;
             my @data_rows = get_table_rows($profile_html_file);
             
             # We have seen another iteration

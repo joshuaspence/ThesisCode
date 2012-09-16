@@ -25,11 +25,11 @@ use Set::Scalar;
 
 use FindBin;
 use lib $FindBin::Bin;
-require "util.pl";
+require 'util.pl';
 
 # The argument should be the input file
-scalar(@ARGV) >= 1 || die("No file specified!\n");
-open FILE, "<", $ARGV[0] or die $!;
+scalar(@ARGV) >= 1 || die('No file specified!');
+open FILE, "<$ARGV[0]" or die $!;
 
 # A set containing all data sets
 my $columns = new Set::Scalar->new;
@@ -86,9 +86,9 @@ for my $line (<FILE>) {
 close(FILE);
 
 # Print the header
-my $profile_header_row   = "Function";
-my $dataset_header_row   = "Function";
-my $iteration_header_row = "Function";
+my $profile_header_row   = 'Function';
+my $dataset_header_row   = 'Function';
+my $iteration_header_row = 'Function';
 foreach my $dataset (sort $datasets->elements) {
     print(",\"$dataset\"");
 }
@@ -105,7 +105,7 @@ foreach my $function (sort keys %functions) {
             print(",$data");
         } else {
             # If this dataset didn't use this function, print 0.
-            print(",0");
+            print(',0');
         }
     }
     print("\n");
