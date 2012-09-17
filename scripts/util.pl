@@ -141,7 +141,8 @@ sub html_parse_function_calls($) {
 #===============================================================================
 sub html_parse_function_total_time($) {
     my $row = $_[0];
-    (my $time = @$row[2]) =~ s/\s*s//;
+    my $time = @$row[2];
+    $time  =~ s/\s*s//;
     return $time;
 }
 
@@ -154,7 +155,8 @@ sub html_parse_function_total_time($) {
 #===============================================================================
 sub html_parse_function_self_time($) {
     my $row = $_[0];
-    (my $time = @$row[3]) =~ s/\s*s//;
+    my $time = @$row[3];
+    $time =~ s/\s*s//;
     return $time;
 }
 
@@ -162,9 +164,9 @@ sub html_parse_function_self_time($) {
 # Parse the block size from a profiling directory name.
 #
 # Usage:
-#     html_parse_block_size($directory_name)
+#     dir_parse_block_size($directory_name)
 #===============================================================================
-sub html_parse_block_size($) {
+sub dir_parse_block_size($) {
     my $dir_name = $_[0];
     if ($dir_name =~ m/no-blocking/) {
         return 0;
@@ -175,7 +177,8 @@ sub html_parse_block_size($) {
 }
 
 #===============================================================================
-# Retrieve the name of the most nested subdirectory from a directory path.
+# Retrieve the name of the most nested subdirectory from a directory path (ie. 
+# the name of the lowest subdirectory).
 #
 # Usage:
 #     strip_directory($path)

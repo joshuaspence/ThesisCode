@@ -84,7 +84,7 @@ for my $dataset_dir (@dataset_dirs) {
         
         # Loop through each profile subdirectory
         for my $block_size_dir (@block_size_dirs) {
-            my $block_size = html_parse_block_size($block_size_dir);
+            my $block_size = dir_parse_block_size($block_size_dir);
             
             # Check if this data exists in the results hash
             if (!exists $results{$iteration}{$block_size}) {
@@ -115,9 +115,9 @@ for my $dataset_dir (@dataset_dirs) {
             }
             
             # Parse the MATLAB log file
-            my $log_file = $block_size_dir . "/" . MATLAB_LOG_FILE;
-            open(LOG, $log_file) || die("Could not open $log_file");
-            while (my $line = <LOG>) {                
+            my $log_file = "$block_size_dir/" . MATLAB_LOG_FILE;
+            open(LOG, $log_file) || die("Could not open file: $log_file");
+            while (my $line = <LOG>) {
                 if ($line =~ m/Data set dimensions\s*=\s*([0-9]+)\*([0-9]+)/) {
                     $vectors = $1;
                     $dimensions = $2;
@@ -154,15 +154,15 @@ for my $dataset_dir (@dataset_dirs) {
         my @block_sizes = sort { $a <=> $b } keys %{$results{$iteration}};
         foreach my $block_size (@block_sizes) {
             my $total_time = $results{$iteration}{$block_size}{'total_time'};
-            my $total_time_normalised = $total_time / $max_total_time;
-            my $projected_dimensions = $results{$iteration}{$block_size}{'projected_dimensions'};
-            my $projected_vectors = $results{$iteration}{$block_size}{'projected_vectors'};
-            my $function_time = $results{$iteration}{$block_size}{'function_time'};
-            my $function_time_normalised = $function_time / $max_function_time;
-            my $distance_calls = $results{$iteration}{$block_size}{'distance_calls'};
+            my $total_time_normalised     = $total_time / $max_total_time;
+            my $projected_dimensions      = $results{$iteration}{$block_size}{'projected_dimensions'};
+            my $projected_vectors         = $results{$iteration}{$block_size}{'projected_vectors'};
+            my $function_time             = $results{$iteration}{$block_size}{'function_time'};
+            my $function_time_normalised  = $function_time / $max_function_time;
+            my $distance_calls            = $results{$iteration}{$block_size}{'distance_calls'};
             my $distance_calls_normalised = $distance_calls / $max_distance_calls;
-            my $pruned = $results{$iteration}{$block_size}{'pruned'};
-            my $pruned_normalised = $pruned / $max_pruned;
+            my $pruned                    = $results{$iteration}{$block_size}{'pruned'};
+            my $pruned_normalised         = $pruned / $max_pruned;
             
             print("\"$dataset\",$block_size,$iteration,$dimensions,$vectors,$total_time,$total_time_normalised,$projected_dimensions,$projected_vectors,$function_time,$function_time_normalised,$distance_calls,$distance_calls_normalised,$pruned,$pruned_normalised\n");
         }

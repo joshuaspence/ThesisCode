@@ -21,8 +21,8 @@
 use strict;
 use warnings;
 
-use constant GPROF_FILE        => 'gprof.txt';
-use constant OUTPUT_HEADER     => "Data set,Iteration,Profile,Function,Calls,Self time,Total time\n";
+use constant GPROF_FILE    => 'gprof.txt';
+use constant OUTPUT_HEADER => "Profile,Data set,Iteration,Function,Calls,Total time,Self time\n";
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -46,6 +46,19 @@ for my $dataset_dir (@dataset_dirs) {
     # Get iterations from next subdirectory level
     my @iteration_dirs = next_subdirectory_level($dataset_dir);
     
+    # A hashmap for the profiling results
+    #     results{$profile_name}{$data_type}
+    #
+    # Where '$data_type' is one of the following:
+    #     - calls{$function}     Total number of calls to each function.
+    #     - total_calls          Total number of function calls.
+    #     - totaltime{$function} Total time for each function.
+    #     - total_totaltime      Total time.
+    #     - selftime{$function}  Total self time for each function.
+    #     - total_selftime       Total self time.
+    #     - iterations           Total iterations.
+    my %results = ();
+    
     # Loop through each iteration subdirectory
     for my $iteration_dir (@iteration_dirs) {
         my $iteration = strip_directory($iteration_dir);
@@ -56,6 +69,14 @@ for my $dataset_dir (@dataset_dirs) {
         # Loop through each profile subdirectory
         for my $profile_dir (@profile_dirs) {
             my $profile = strip_directory($profile_dir);
+            
+            if (!exists $results{$profile}) {
+                $results{$profile}                = ();
+                $results{$profile}{'calls'}       = ();
+                $results{$profile}{'self_time'}   = ();
+                $results{$profile}{'total_time'}  = ();
+                $results{$profile}{'iterations'}  = 0;
+            }
             
             # Parse the gprof output file
             my $gprof_file = "$profile_dir/" . GPROF_FILE;
@@ -69,10 +90,32 @@ for my $dataset_dir (@dataset_dirs) {
                 }
                 
                 if ($data_active && $line =~ m/\s*(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(.+)/) {
-                    print "\"$dataset\",$iteration,\"$profile\",\"$6\",$3,$4,$5\n"
+                    my $function   = $6;
+                    my $calls      = $3;
+                    my $self_time  = $4;
+                    my $total_time = $5;
+                    
+                    $results{$profile}{'calls'}{$function}      = $calls;
+                    $results{$profile}{'self_time'}{$function}  = $self_time;
+                    $results{$profile}{'total_time'}{$function} = $total_time;
+                    ($results{$profile}{'iterations'})++;
                 }
             }
             close(GPROF);
+        }
+    }
+    
+    # Print output
+    my @profiles = sort keys %results;
+    foreach my $profile (@profiles) {
+        my @functions = sort keys %{$results{$profile}{'calls'}};
+        
+        foreach my $function (@functions) {
+            my $calls_average     = $results{$profile}{'calls'}{$function} / $results{$profile}{'iterations'};
+            my $selftime_average  = $results{$profile}{'self_time'}{$function} / $results{$profile}{'iterations'};
+            my $totaltime_average = $results{$profile}{'total_time'}{$function} / $results{$profile}{'iterations'};
+            
+            print("\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$totaltime_average,$selftime_average\n");
         }
     }
 }

@@ -141,9 +141,9 @@ for my $dataset_dir (@dataset_dirs) {
     }
     
     # Output averages over this data set
-    my @profiles = sort(keys(%results));
+    my @profiles = sort keys %results;
     foreach my $profile (@profiles) {
-        my @functions = sort(keys(%{$results{"$profile"}{'calls'}}));
+        my @functions = sort keys %{$results{$profile}{'calls'}};
         
         foreach my $function (@functions) {
             my $calls_average      = $results{$profile}{'calls'}{$function} / $results{$profile}{'iterations'};
