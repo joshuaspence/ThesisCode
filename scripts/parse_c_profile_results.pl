@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use constant GPROF_FILE    => 'gprof.txt';
-use constant OUTPUT_HEADER => "Profile,Data set,Iteration,Function name,Calls,Calls (relative),Total time,Total time (relative),Self time,Self time (relative)\n";
+use constant OUTPUT_HEADER => "Profile,Data set,Iteration,Function name,Calls,Calls (relative),Self time,Self time (relative),Proportion,Proportion (relative)\n";
 use constant EPSILON       => 1e-14;
 
 use FindBin;
@@ -83,26 +83,26 @@ for my $dataset_dir (@dataset_dirs) {
             
             # Check if the profile exists in the results hash
             if (!exists $all_results{$profile}) {
-                $all_results{$profile} = ();
-                $all_results{$profile}{'calls'} = ();
-                $all_results{$profile}{'totaltime'} = ();
-                $all_results{$profile}{'selftime'} = ();
+                $all_results{$profile}                     = ();
+                $all_results{$profile}{'calls'}            = ();
+                $all_results{$profile}{'selftime'}         = ();
+                $all_results{$profile}{'proportion'}       = ();
                 
-                $all_results{$profile}{'total_calls'} = 0;
-                $all_results{$profile}{'total_totaltime'} = 0;
-                $all_results{$profile}{'total_selftime'} = 0;
-                $all_results{$profile}{'iterations'} = 0;
+                $all_results{$profile}{'total_calls'}      = 0;
+                $all_results{$profile}{'total_selftime'}   = 0;
+                $all_results{$profile}{'total_proportion'} = 0;
+                $all_results{$profile}{'iterations'}       = 0;
             }
             if (!exists $results{$profile}) {
-                $results{$profile} = ();
-                $results{$profile}{'calls'} = ();
-                $results{$profile}{'totaltime'} = ();
-                $results{$profile}{'selftime'} = ();
+                $results{$profile}                         = ();
+                $results{$profile}{'calls'}                = ();
+                $results{$profile}{'selftime'}             = ();
+                $results{$profile}{'proportion'}           = ();
                 
-                $results{$profile}{'total_calls'} = 0;
-                $results{$profile}{'total_totaltime'} = 0;
-                $results{$profile}{'total_selftime'} = 0;
-                $results{$profile}{'iterations'} = 0;
+                $results{$profile}{'total_calls'}          = 0;
+                $results{$profile}{'total_selftime'}       = 0;
+                $results{$profile}{'total_proportion'}     = 0;
+                $results{$profile}{'iterations'}           = 0;
             }
             
             # We have seen another iteration
@@ -120,34 +120,29 @@ for my $dataset_dir (@dataset_dirs) {
                     $data_active = 0;
                 }
                 
-                if ($data_active && $line =~ m/\s*(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(.+)/) {
-                    my $function   = $6;
-                    my $calls      = $3;
-                    my $self_time  = $4;
-                    my $total_time = $5;
-                    
-                    $results{$profile}{'calls'}{$function}      = $calls;
-                    $results{$profile}{'self_time'}{$function}  = $self_time;
-                    $results{$profile}{'total_time'}{$function} = $total_time;
-                    ($results{$profile}{'iterations'})++;
+                if ($data_active && $line =~ m/^\s*(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+\.\d+)\s+(.+)$/) {
+                    my $function   = $7;
+                    my $calls      = $4;
+                    my $self_time  = $3;
+                    my $proportion = $1;
                     
                     $results    {$profile}{'calls'}{$function}     += $calls;
                     $all_results{$profile}{'calls'}{$function}     += $calls;
                     $results    {$profile}{'total_calls'}          += $calls;
                     $all_results{$profile}{'total_calls'}          += $calls;
                     
-                    $results    {$profile}{'totaltime'}{$function} += $total_time;
-                    $all_results{$profile}{'totaltime'}{$function} += $total_time;
-                    $results    {$profile}{'total_totaltime'}      += $total_time;
-                    $all_results{$profile}{'total_totaltime'}      += $total_time;
-                    
                     $results    {$profile}{'selftime'}{$function}  += $self_time;
                     $all_results{$profile}{'selftime'}{$function}  += $self_time;
                     $results    {$profile}{'total_selftime'}       += $self_time;
                     $all_results{$profile}{'total_selftime'}       += $self_time;
                     
+                    $results    {$profile}{'proportion'}{$function} += $proportion;
+                    $all_results{$profile}{'proportion'}{$function} += $proportion;
+                    $results    {$profile}{'total_proportion'}      += $proportion;
+                    $all_results{$profile}{'total_totaltime'}       += $proportion;
+                    
                     # For testing
-                    #print "\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$total_time,,$self_time,\n";
+                    #print "\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$self_time,,$proportion,\n";
                 }
             }
             close(GPROF);
@@ -160,14 +155,14 @@ for my $dataset_dir (@dataset_dirs) {
         my @functions = sort keys %{$results{$profile}{'calls'}};
         
         foreach my $function (@functions) {
-            my $calls_average      = $results{$profile}{'calls'}{$function} / $results{$profile}{'iterations'};
-            my $calls_relative     = $results{$profile}{'calls'}{$function} / $results{$profile}{'total_calls'};
-            my $totaltime_average  = $results{$profile}{'totaltime'}{$function} / $results{$profile}{'iterations'};
-            my $totaltime_relative = $results{$profile}{'totaltime'}{$function} / $results{$profile}{'total_totaltime'};
-            my $selftime_average   = $results{$profile}{'selftime'}{$function} / $results{$profile}{'iterations'};
-            my $selftime_relative  = $results{$profile}{'selftime'}{$function} / ($results{$profile}{'total_selftime'} + EPSILON);
+            my $calls_average       = $results{$profile}{'calls'}{$function} / $results{$profile}{'iterations'};
+            my $calls_relative      = $results{$profile}{'calls'}{$function} / $results{$profile}{'total_calls'};
+            my $selftime_average    = $results{$profile}{'selftime'}{$function} / $results{$profile}{'iterations'};
+            my $selftime_relative   = $results{$profile}{'selftime'}{$function} / ($results{$profile}{'total_selftime'} + EPSILON);
+            my $proportion_average  = $results{$profile}{'proportion'}{$function} / $results{$profile}{'iterations'};
+            my $proportion_relative = $results{$profile}{'proportion'}{$function} / $results{$profile}{'total_proportion'};
             
-            print "\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$calls_relative,$totaltime_average,$totaltime_relative,$selftime_average,$selftime_relative\n";
+            print "\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$calls_relative,$selftime_average,$selftime_relative,$proportion_average,$proportion_relative\n";
         }
     }
 }
