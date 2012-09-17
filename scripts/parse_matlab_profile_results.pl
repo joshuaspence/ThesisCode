@@ -22,7 +22,7 @@ use strict;
 use warnings;
 
 use constant PROFILE_HTML_FILE => 'file0.html';
-use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function Name,Calls,Calls (relative),Total time,Total time (relative),Self time,Self time (relative)\n";
+use constant OUTPUT_HEADER     => "Profile,Data set,Iteration,Function name,Calls,Calls (relative),Total time,Total time (relative),Self time,Self time (relative)\n";
 
 use FindBin;
 use lib $FindBin::Bin;
@@ -39,22 +39,22 @@ my @dataset_dirs = next_subdirectory_level($base_dir);
 # Print header of output
 print(OUTPUT_HEADER);
 
-# A hashmap for the profiling results
-#     all_results{'profile_name'}{'data_type'}
-#
-# Where 'data' is one of the following:
-#     - calls               Total number of calls to each function, across all data sets.
-#     - total_time          Total time for each function, across all data sets.
-#     - self_time           Total self time for each function, across all data sets.
-#     - iterations          Total iterations across all data sets.
-my %all_results = ();
-
 # Loop through each data set
 for my $dataset_dir (@dataset_dirs) {
     my $dataset = strip_directory($dataset_dir);
     
     # Get iterations from next subdirectory level
     my @iteration_dirs = next_subdirectory_level($dataset_dir);
+    
+    # A hashmap for the profiling results
+    #     all_results{'profile_name'}{'data_type'}
+    #
+    # Where 'data' is one of the following:
+    #     - calls               Total number of calls to each function, across all data sets.
+    #     - total_time          Total time for each function, across all data sets.
+    #     - self_time           Total self time for each function, across all data sets.
+    #     - iterations          Total iterations across all data sets.
+    my %all_results = ();
     
     # A hashmap for the profiling results
     #     results{$profile_name}{$data_type}
@@ -135,7 +135,7 @@ for my $dataset_dir (@dataset_dirs) {
                 $all_results{$profile}{'total_selftime'}       += $self_time;
                 
                 # For testing
-                #print("\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$total_time,,$self_time,\n");
+                #print "\"$profile\",\"$dataset\",$iteration,\"$function\",$calls,,$total_time,,$self_time,\n";
             }
         }
     }
@@ -153,7 +153,7 @@ for my $dataset_dir (@dataset_dirs) {
             my $selftime_average   = $results{$profile}{'selftime'}{$function} / $results{$profile}{'iterations'};
             my $selftime_relative  = $results{$profile}{'selftime'}{$function} / $results{$profile}{'total_selftime'};
             
-            print("\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$calls_relative,$totaltime_average,$totaltime_relative,$selftime_average,$selftime_relative\n");
+            print "\"$profile\",\"$dataset\",\"average\",\"$function\",$calls_average,$calls_relative,$totaltime_average,$totaltime_relative,$selftime_average,$selftime_relative\n";
         }
     }
 }
