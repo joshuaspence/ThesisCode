@@ -114,7 +114,7 @@ for my $dataset_dir (@dataset_dirs) {
             open(GPROF, $gprof_file) || die("Could not open file: $gprof_file");
             my $data_active = 0;
             while (my $line = <GPROF>) {
-                if ($line =~ m/^\s*time\s+seconds\s+seconds\s+calls\s+ms\/call\s+ms\/call\s+name\s*$/) {
+                if ($line =~ m/^\s*time\s+seconds\s+seconds\s+calls\s+m?s\/call\s+m?s\/call\s+name\s*$/) {
                     $data_active = 1;
                 } elsif ($line =~ m/^\s*$/) {
                     $data_active = 0;
