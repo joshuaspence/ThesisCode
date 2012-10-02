@@ -6,6 +6,9 @@
 /*============================================================================*/
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
+#ifdef __AUTOESL__
+    #include "ap_interfaces.h"
+#endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -44,16 +47,16 @@
         #if USE_INLINE
             #if defined(_MSC_VER)
                 #define INLINE              __forceinline
-	        #elif defined(__AUTOESL__)
-		        #define INLINE              inline
+            #elif defined(__AUTOESL__)
+            #define INLINE              inline
             #else
                 #define INLINE              inline
             #endif /* #if defined(_MSC_VER) */
         #else
             #if defined(_MSC_VER)
                 #define INLINE
-	        #elif defined(__AUTOESL__)
-		        #define INLINE
+            #elif defined(__AUTOESL__)
+            #define INLINE
             #else
                 #define INLINE
             #endif /* #if defined(_MSC_VER) */
@@ -62,7 +65,7 @@
         #if defined(_MSC_VER)
             #define INLINE                  __forceinline
         #elif defined(__AUTOESL__)
-	        #define INLINE
+            #define INLINE
         #else
             #define INLINE                  inline
         #endif /* #if defined(_MSC_VER) */
@@ -154,9 +157,20 @@ typedef double              double_in_t;
 typedef double              double_out_t;
 typedef double              double_io_t;
 #else
+#include "ap_int.h"
+
+template<int D, int U, int TI, int TD>
+struct ap_mm2s {
+    ap_int<D> data;
+    ap_uint<(D+7)/8> keep;
+    ap_uint<1> last;
+};
+
 typedef double              double_t;
 typedef double              double_in_t;
+//typedef ap_mm2s<64,1,1,1>   double_in_t;
 typedef double              double_out_t;
+//typedef ap_mm2s<64,1,1,1>   double_io_t;
 typedef double              double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 
@@ -183,6 +197,17 @@ typedef double              double_io_t;
         (_var_)++; \
         ASSERT((_var_) > (old_var_)); \
     } while (0)
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* AutoESL directives                                                         */
+/*============================================================================*/
+#ifndef __AUTOESL__
+    #define DIRECTIVE(x)
+#else
+    #define PRAGMA(x)       _Pragma(#x)
+    #define DIRECTIVE(x)    PRAGMA(x)
+#endif /* #ifndef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef UTILITY_H_ */

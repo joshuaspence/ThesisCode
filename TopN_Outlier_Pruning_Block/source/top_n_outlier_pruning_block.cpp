@@ -5,9 +5,13 @@
 #include "arch.h" /* set architecture specific macros */
 
 #include "top_n_outlier_pruning_block.h" /* main include file */
-#include "utility.h" /* for ASSERT, boolean, double_t, false, INCREMENT_UINT_T, index_t, int_t, MIN, NULL_INDEX, START_INDEX, size_t, size_in_t, true, uint_t */
+#include "utility.h" /* for ASSERT, boolean, double_t, double_in_t, double_io_t, double_out_t, false, INCREMENT_UINT_T, index_t, int_t, MIN, NULL_INDEX, START_INDEX, size_t, size_in_t, true, uint_t */
 
 #include <float.h> /* for DBL_MIN */
+
+#ifdef __AUTOESL__
+    #include "ap_interfaces.h" /* for AP_INTERFACE */
+#endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -86,18 +90,19 @@ void set_block_size(const size_in_t block_size) {
 /*============================================================================*/
 /* Forward declarations                                                       */
 /*============================================================================*/
-static INLINE double_out_t distance_squared(
+INLINE void distance_squared(
     const double_in_t vector1[vector_dims_value],
-    const double_in_t vector2[vector_dims_value]
+    const double_in_t vector2[vector_dims_value],
+    double_out_t * const sum
     );
-static INLINE double_out_t add_neighbour(
+INLINE double_out_t add_neighbour(
     index_io_t neighbours[k_value],
     double_io_t neighbours_dist[k_value],
     uint_t * const found,
     const index_in_t new_neighbour,
     const double_in_t new_neighbour_dist
     );
-static INLINE void best_outliers(
+INLINE void best_outliers(
     size_io_t * const outliers_size,
     index_io_t outliers[N_value],
     double_io_t outlier_scores[N_value],
@@ -110,14 +115,16 @@ static INLINE void best_outliers(
     const double_in_t score
 #endif /* #if defined(BLOCKING) */
     );
+
 #ifdef BLOCKING
-static INLINE void sort_block_scores_descending(
+INLINE void sort_block_scores_descending(
     const size_in_t block_size,
     index_io_t indexes[block_size_value],
     double_io_t values[block_size_value]
     );
 #endif /* #ifdef BLOCKING */
-static INLINE void merge(
+
+INLINE void merge(
     const size_in_t global_outliers_size,
     const index_in_t global_outliers[N_value],
     const double_in_t global_outlier_scores[N_value],
@@ -148,20 +155,66 @@ static INLINE void merge(
  * Return:
  *    The square of the distance between the two vectors.
  */
-static INLINE double_out_t distance_squared(const double_in_t vector1[vector_dims_value],
-                                            const double_in_t vector2[vector_dims_value]) {
+INLINE void distance_squared(/*const double_in_t vector1[vector_dims_value],
+                                const double_in_t vector2[vector_dims_value],*/
+                                const double_in_t vector1[200],
+                                const double_in_t vector2[200],
+                                double_out_t * const sum) {
+#pragma AP INTERFACE ap_ctrl_hs port=return
+
+#ifdef __AUTOESL__
+    /* Define AutoESL native interface behavior for val1 and val2. */
+    //AP_INTERFACE(vector1,none);
+    //AP_INTERFACE(vector2,none);
+    //AP_INTERFACE(sum,none);
+
+    /* Map val1 and val2 from a native AutoESL interface to AXI4-lite. */
+    //AP_BUS_AXI4_LITE(val1,BUS_A);
+    //AP_BUS_AXI4_LITE(val2,BUS_B);
+
+    /* Map the control of the function to AXI4-lite. */
+    //AP_CONTROL_BUS_AXI(CONTROL_BUS);
+
+    /* Create an AXI4-stream interface for arrays A and B. */
+    //AP_BUS_AXI_STREAMD(A,INPUT_STREAM);
+    //AP_BUS_AXI_STREAMD(B,OUTPUT_STREAM);
+#endif /* #ifdef __AUTOESL__ */
+
     ASSERT(vector_dims_value > 0);
+
+#ifndef __AUTOESL__
+    #define SUM_SPLIT (1)
+#else
+    #define SUM_SPLIT (8)
+#endif /* #ifndef __AUTOESL__ */
     
-    double_t sum_of_squares = 0;
+    double_t sum_of_squares__split[SUM_SPLIT] = { 0 };
     
     uint_t dim;
-    for (dim = 0; dim < vector_dims_value; dim++) {
-        const double_t diff         = vector1[dim] - vector2[dim];
-        const double_t diff_squared = diff * diff;
-        sum_of_squares             += diff_squared;
+    dimension_loop: for (dim = 0; dim < vector_dims_value; dim++) {
+#pragma AP PIPELINE II=1
+
+//#ifndef __AUTOESL__
+#if 1
+        const double_t vector1_data            = vector1[dim];
+        const double_t vector2_data            = vector2[dim];
+#else
+        const double_t vector1_data            = vector1[dim].data;
+        const double_t vector2_data            = vector2[dim].data;
+#endif /* #ifndef __AUTOESL__ */
+        const double_t diff                    = vector1_data - vector2_data;
+        const double_t diff_squared            = diff * diff;
+        sum_of_squares__split[dim % SUM_SPLIT] += diff_squared;
+    }
+
+    double_t sum_of_squares = 0;
+    uint_t i;
+    sum_loop: for (i = 0; i < SUM_SPLIT; i++) {
+#pragma AP UNROLL
+        sum_of_squares += sum_of_squares__split[i];
     }
     
-    return sum_of_squares;
+    *sum = sum_of_squares;
 }
 
 /*
@@ -179,11 +232,11 @@ static INLINE double_out_t distance_squared(const double_in_t vector1[vector_dim
  *     - new_neighbour_dist: The new value to be inserted into the 
  *           neighbours_dist array.
  */
-static INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
-                                         double_io_t neighbours_dist[k_value],
-                                         uint_t * const found,
-                                         const index_in_t new_neighbour,
-                                         const double_in_t new_neighbour_dist) {
+INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
+                                    double_io_t neighbours_dist[k_value],
+                                    uint_t * const found,
+                                    const index_in_t new_neighbour,
+                                    const double_in_t new_neighbour_dist) {
     /* Error checking. */
     ASSERT(k_value > 0);
     ASSERT(found != NULL);
@@ -303,16 +356,16 @@ static INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
  *     - scores: A vector containing the outlier scores for each element in the
  *           current block.
  */
-static INLINE void best_outliers(size_io_t * const outliers_size,
-                                 index_io_t outliers[N_value],
-                                 double_io_t outlier_scores[N_value],
+INLINE void best_outliers(size_io_t * const outliers_size,
+                            index_io_t outliers[N_value],
+                            double_io_t outlier_scores[N_value],
 #if defined(BLOCKING)
-                                 const size_in_t block_size,
-                                 const index_in_t current_block[block_size_value],
-                                 const double_in_t scores[block_size_value]
+                            const size_in_t block_size,
+                            const index_in_t current_block[block_size_value],
+                            const double_in_t scores[block_size_value]
 #elif defined(NO_BLOCKING)
-                                 const index_in_t vector,
-                                 const double_in_t score
+                            const index_in_t vector,
+                            const double_in_t score
 #endif /* #if defined(BLOCKING) */
                                  ) {
     /* Error checking. */
@@ -370,9 +423,9 @@ static INLINE void best_outliers(size_io_t * const outliers_size,
  *     - indexes: A vector containing the indexes of the paired vectors.
  *     - values: A vector containing the values of the paired vectors.
  */
-static INLINE void sort_block_scores_descending(const size_in_t block_size,
-                                                index_io_t indexes[block_size_value],
-                                                double_io_t values[block_size_value]) {
+INLINE void sort_block_scores_descending(const size_in_t block_size,
+                                          index_io_t indexes[block_size_value],
+                                          double_io_t values[block_size_value]) {
     /* Error checking. */
     ASSERT(block_size > 0);
     ASSERT(block_size <= block_size_value);
@@ -415,13 +468,13 @@ static INLINE void sort_block_scores_descending(const size_in_t block_size,
  *     - new_outlier_scores: The scores associated with the resultant merged 
  *           outliers array.
  */
-static INLINE void merge(const size_in_t global_outliers_size, const index_in_t global_outliers[N_value],         const double_in_t global_outlier_scores[N_value],
+INLINE void merge(const size_in_t global_outliers_size, const index_in_t global_outliers[N_value],         const double_in_t global_outlier_scores[N_value],
 #if defined(BLOCKING)
-                         const size_in_t block_size,           const index_in_t local_outliers[block_size_value], const double_in_t local_outlier_scores[block_size_value],
+                   const size_in_t block_size,           const index_in_t local_outliers[block_size_value], const double_in_t local_outlier_scores[block_size_value],
 #elif defined(NO_BLOCKING)
-                                                               const index_in_t local_outlier,                    const double_in_t local_outlier_score,
+                                                          const index_in_t local_outlier,                    const double_in_t local_outlier_score,
 #endif /* #if defined(BLOCKING) */
-                         size_out_t * const new_outliers_size, index_out_t new_outliers[N_value],                 double_out_t new_outlier_scores[N_value]) {
+                   size_out_t * const new_outliers_size, index_out_t new_outliers[N_value],                 double_out_t new_outlier_scores[N_value]) {
     /* Error checking. */
     ASSERT(global_outliers_size <= N_value);
     ASSERT(N_value > 0);
@@ -583,7 +636,16 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
                      * Calculate the square of the distance between the two
                      * vectors (indexed by "vector1" and "vector2")
                      */
-                    const double_t dist_squared = distance_squared(data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
+                    double_t dist_squared = 0;
+                    double_t vector1_in[num_vectors_value];
+                    double_t vector2_in[num_vectors_value];
+
+                    uint_t i;
+                    for (i = 0; i < num_vectors_value; i++) {
+                        vector1_in[i] = data[vector1 - START_INDEX][i];
+                        vector2_in[i] = data[vector2 - START_INDEX][i];
+                    }
+                    distance_squared(vector1_in, vector2_in, &dist_squared);
                     
                     /*
                      * Insert the new (index, distance) pair into the neighbours
@@ -634,12 +696,22 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
         
         index_t vector2;
         inner_loop: for (vector2 = START_INDEX; vector2 < num_vectors_value + START_INDEX && !removed; vector2++) {
-            if (vector1 != vector2) {
+            //if (vector1 != vector2) {
+            if (1) {
                 /*
                  * Calculate the square of the distance between the two
                  * vectors (indexed by "vector1" and "vector2")
                  */
-                const double_t dist_squared = distance_squared(data[vector1 - START_INDEX], data[vector2 - START_INDEX]);
+                double_t dist_squared = 0;
+                double_t vector1_in[num_vectors_value];
+                double_t vector2_in[num_vectors_value];
+
+                uint_t i;
+                for (i = 0; i < num_vectors_value; i++) {
+                    vector1_in[i] = data[vector1 - START_INDEX][i];
+                    vector2_in[i] = data[vector2 - START_INDEX][i];
+                }
+                distance_squared(vector1_in, vector2_in, &dist_squared);
                 
                 /*
                  * Insert the new (index, distance) pair into the neighbours
