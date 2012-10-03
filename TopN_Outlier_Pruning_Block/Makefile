@@ -376,7 +376,7 @@ $$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(filter %.cpp,$$^),\
-		$$(call pretty,$$(CXX) $$(binary_CXXFLAGS) $$(CXXFLAGS) -Dtest $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CXXFLAGS) -o $$@ $$^), \
+		$$(call pretty,$$(CXX) $$(binary_CXXFLAGS) $$(CXXFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CXXFLAGS) -o $$@ $$^), \
 		$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CFLAGS) -o $$@ $$^) \
 	)
 	$(call trace-message,)
@@ -485,7 +485,7 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label Wno-vla)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 fpermissive Wno-unused-label Wno-vla)
 
 # gprof
 GPROF_FLAGS_OFF :=

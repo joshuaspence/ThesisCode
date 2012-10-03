@@ -67,25 +67,6 @@
     } while (0)
 /*----------------------------------------------------------------------------*/
 
-/*
- * Save the input and output parameters of the top_n_outlier_pruning_block 
- * function to a binary file.
- * 
- * Parameters:
- *     - filename: The file to read the variable dump file.
- *     - num_vectors: A variable to read from the variable dump file.
- *     - vector_dims: A variable to read from the variable dump file.
- *     - data: A variable to read from the variable dump file.
- *     - k: A variable to read from the variable dump file.
- *     - N: A variable to read from the variable dump file.
- *     - block_size: A variable to read from the variable dump file.
- *     - outliers: A variable to read from the variable dump file.
- *     - outlier_scores: A variable to read from the variable dump file.
- *
- * Return:
- *     A return value indicating either success, or a non-zero integer 
- *     representing failure.
- */
 int save_vardump(const char * const filename,
                  const size_t * const num_vectors,
                  const size_t * const vector_dims,
@@ -137,28 +118,6 @@ int save_vardump(const char * const filename,
     return SUCCESS;
 }
 
-/*
- * Read the input and output parameters of the top_n_outlier_pruning_block 
- * function from a binary file.
- *
- * NOTE: The caller must free the memory allocated for data, outliers and 
- * outlier scores.
- *
- * Parameters:
- *     - filename: The file to read the variable dump file.
- *     - num_vectors: A variable to read from the variable dump file.
- *     - vector_dims: A variable to read from the variable dump file.
- *     - data: A variable to read from the variable dump file.
- *     - k: A variable to read from the variable dump file.
- *     - N: A variable to read from the variable dump file.
- *     - block_size: A variable to read from the variable dump file.
- *     - outliers: A variable to read from the variable dump file.
- *     - outlier_scores: A variable to read from the variable dump file.
- *
- * Return:
- *     A return value indicating either success, or a non-zero integer 
- *     representing failure.
- */
 int read_vardump(const char * const filename,
                  size_t * const num_vectors,
                  size_t * const vector_dims,
