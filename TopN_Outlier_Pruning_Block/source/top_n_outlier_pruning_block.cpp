@@ -516,8 +516,7 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
         
         index_t vector2;
         inner_loop: for (vector2 = START_INDEX; vector2 < num_vectors_value + START_INDEX && !removed; vector2++) {
-            //if (vector1 != vector2) {
-            if (1) {
+            if (vector1 != vector2) {
                 /*
                  * Calculate the square of the distance between the two
                  * vectors (indexed by "vector1" and "vector2")
