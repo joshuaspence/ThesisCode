@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
+  <source>
+    <originFiles name="top_n_outlier_pruning_block.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/top_n_outlier_pruning_block.cpp"/>
+  </source>
+  <testbench/>
+</autopilotfilemapping:AutoPilotFileMapping>
