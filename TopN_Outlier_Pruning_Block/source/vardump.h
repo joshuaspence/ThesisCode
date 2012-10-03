@@ -4,8 +4,10 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for double_t, index_t, size_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t */
 /*----------------------------------------------------------------------------*/
+
+__BEGIN_DECLS
 
 int save_vardump(
     const char * const filename,
@@ -30,5 +32,7 @@ int read_vardump(
     index_t ** const outliers,
     double_t ** const outlier_scores
     );
+
+__END_DECLS
 
 #endif /* #ifndef VARDUMP_H_ */

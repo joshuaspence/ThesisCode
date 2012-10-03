@@ -24,9 +24,9 @@
 
 #include <math.h>
 #ifndef __AESL_APDT_IN_SCFLOW__
-#include "ap_int_sim.h"
+#include "etc/ap_int_sim.h"
 #else
-#include"ap_private.h"
+#include"../etc/ap_private.h"
 #endif
 
 
@@ -636,31 +636,31 @@ af_bit_ref;
     }
 
     INLINE bool quantization_adjust(bool qb, bool r, bool s) {
-    bool carry=ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V);
-    switch (_AP_Q) {
-        case AP_TRN:
-        return false;
-        case AP_RND_ZERO:
-        qb &= s || r; 
-        break;
-        case AP_RND_MIN_INF:
-        qb &= r;
-        break;
-        case AP_RND_INF:
-        qb &= !s || r;
-        break;
-        case AP_RND_CONV:
-        qb &= ap_private_ops::get<_AP_W, _AP_S, 0>(V) || r;
-        break;
-        case AP_TRN_ZERO:
-        qb = s && ( qb || r );
-        break;
-        default:;
+	bool carry=ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V);
+	switch (_AP_Q) {
+	    case AP_TRN:
+		return false;
+	    case AP_RND_ZERO:
+		qb &= s || r; 
+		break;
+	    case AP_RND_MIN_INF:
+		qb &= r;
+		break;
+	    case AP_RND_INF:
+		qb &= !s || r;
+		break;
+	    case AP_RND_CONV:
+		qb &= ap_private_ops::get<_AP_W, _AP_S, 0>(V) || r;
+		break;
+	    case AP_TRN_ZERO:
+		qb = s && ( qb || r );
+		break;
+	    default:;
 
-    }
-    if(qb) ++V;
-    //only when old V[_AP_W-1]==1 && new V[_AP_W-1]==0 
-    return carry && !(ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V)); //(!V[_AP_W-1]); 
+	}
+	if(qb) ++V;
+	//only when old V[_AP_W-1]==1 && new V[_AP_W-1]==0 
+	return carry && !(ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V)); //(!V[_AP_W-1]); 
     }
     
     template<int _AP_W2, int _AP_I2, bool _AP_S2>
@@ -730,177 +730,177 @@ af_bit_ref;
     INLINE ap_fixed_base(const ap_fixed_base& op):V(op.V) {}
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_fixed_base(const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op):V(0) {
-    enum {N2=_AP_W2,_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2,QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN ||
-        (_AP_Q==AP_TRN_ZERO && !_AP_S2))};
-    if (!op) return;
-    bool carry=false;
-    //handle quantization
-    enum { sh_amt =(F2>_AP_F)?F2-_AP_F:_AP_F-F2};
-    const ap_private<_AP_W2, _AP_S2>& val = op.V;
-    bool neg_src=val.isNegative();
-    if (F2==_AP_F)
-        V=val;
+	enum {N2=_AP_W2,_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2,QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN ||
+		(_AP_Q==AP_TRN_ZERO && !_AP_S2))};
+	if (!op) return;
+	bool carry=false;
+	//handle quantization
+	enum { sh_amt =(F2>_AP_F)?F2-_AP_F:_AP_F-F2};
+	const ap_private<_AP_W2, _AP_S2>& val = op.V;
+	bool neg_src=val.isNegative();
+	if (F2==_AP_F)
+	    V=val;
 
-    else if (F2>_AP_F) {
-        if (sh_amt >= _AP_W2)
-        V = neg_src ? -1 : 0;
-        else
-        V = _AP_S2?val.ashr(sh_amt):val.lshr(sh_amt);
-        if (_AP_Q!=AP_TRN && !(_AP_Q==AP_TRN_ZERO && !_AP_S2)) {
-        bool qb = false;
-        if (F2-_AP_F>_AP_W2)
-            qb = neg_src;
-        else
-            qb = ap_private_ops::get<_AP_W2, _AP_S2, F2-_AP_F-1>(val); 
+	else if (F2>_AP_F) {
+	    if (sh_amt >= _AP_W2)
+		V = neg_src ? -1 : 0;
+	    else
+		V = _AP_S2?val.ashr(sh_amt):val.lshr(sh_amt);
+	    if (_AP_Q!=AP_TRN && !(_AP_Q==AP_TRN_ZERO && !_AP_S2)) {
+		bool qb = false;
+		if (F2-_AP_F>_AP_W2)
+		    qb = neg_src;
+		else
+		    qb = ap_private_ops::get<_AP_W2, _AP_S2, F2-_AP_F-1>(val); 
 
-        bool r=false;
-        enum { pos3 = F2-_AP_F-2};
-        if(pos3>=_AP_W2-1)
-            r=val!=0;
-        else if (pos3>=0)
-        r = (val<<(_AP_W2-1-pos3))!=0;
-        carry = quantization_adjust(qb,r,neg_src);
-        }
-    } else { //no quantization
-        if (sh_amt < _AP_W) {
-        V=val; 
-        V <<= sh_amt;
-        }
-    }
-    //hanle overflow/underflow
-    if ((_AP_O!=AP_WRAP || _AP_N != 0) && 
-        ((!_AP_S && _AP_S2) || _AP_I-_AP_S < 
-         _AP_I2 - _AP_S2 + (QUAN_INC|| (_AP_S2 &&
-             _AP_O==AP_SAT_SYM)))) {//saturation
-        bool deleted_zeros = _AP_S2?true:!carry, 
-         deleted_ones = true;
-        bool lD=(_AP_I2>_AP_I && _AP_W2-_AP_I2+_AP_I>=0) && 
-        ap_private_ops::get<_AP_W2, _AP_S2, _AP_W2-_AP_I2+_AP_I>(val);
-        enum { pos1=F2-_AP_F+_AP_W, pos2=F2-_AP_F+_AP_W+1};
-        if (pos1 < _AP_W2) {
-        bool Range1_all_ones= true;
-        bool Range1_all_zeros= true;
-        if (pos1 >= 0) {
-            enum { __W = (_AP_W2-pos1) > 0 ? (_AP_W2-pos1) : 1 };
-            const ap_private<__W, _AP_S2> Range1=ap_private<__W, _AP_S2>(val.lshr(pos1));
-            Range1_all_ones=Range1.isAllOnesValue();
-            Range1_all_zeros=Range1.isMinValue();
-        } else {
-            Range1_all_ones=false;
-            Range1_all_zeros=val.isMinValue();
-        }
-        bool Range2_all_ones=true;
-        if (pos2<_AP_W2 && pos2>=0) {
-            enum { __W = (_AP_W2-pos2)>0 ? (_AP_W2-pos2) : 1};
-            ap_private<__W, true> Range2=ap_private<__W, true>(val.lshr(pos2));                      
-            Range2_all_ones=Range2.isAllOnesValue();
-        } else if(pos2<0)
-            Range2_all_ones=false;
+		bool r=false;
+		enum { pos3 = F2-_AP_F-2};
+		if(pos3>=_AP_W2-1)
+		    r=val!=0;
+		else if (pos3>=0)
+		r = (val<<(_AP_W2-1-pos3))!=0;
+		carry = quantization_adjust(qb,r,neg_src);
+	    }
+	} else { //no quantization
+	    if (sh_amt < _AP_W) {
+		V=val; 
+		V <<= sh_amt;
+	    }
+	}
+	//hanle overflow/underflow
+	if ((_AP_O!=AP_WRAP || _AP_N != 0) && 
+		((!_AP_S && _AP_S2) || _AP_I-_AP_S < 
+		 _AP_I2 - _AP_S2 + (QUAN_INC|| (_AP_S2 &&
+		     _AP_O==AP_SAT_SYM)))) {//saturation
+	    bool deleted_zeros = _AP_S2?true:!carry, 
+		 deleted_ones = true;
+	    bool lD=(_AP_I2>_AP_I && _AP_W2-_AP_I2+_AP_I>=0) && 
+		ap_private_ops::get<_AP_W2, _AP_S2, _AP_W2-_AP_I2+_AP_I>(val);
+	    enum { pos1=F2-_AP_F+_AP_W, pos2=F2-_AP_F+_AP_W+1};
+	    if (pos1 < _AP_W2) {
+		bool Range1_all_ones= true;
+		bool Range1_all_zeros= true;
+		if (pos1 >= 0) {
+		    enum { __W = (_AP_W2-pos1) > 0 ? (_AP_W2-pos1) : 1 };
+		    const ap_private<__W, _AP_S2> Range1=ap_private<__W, _AP_S2>(val.lshr(pos1));
+		    Range1_all_ones=Range1.isAllOnesValue();
+		    Range1_all_zeros=Range1.isMinValue();
+		} else {
+		    Range1_all_ones=false;
+		    Range1_all_zeros=val.isMinValue();
+		}
+		bool Range2_all_ones=true;
+		if (pos2<_AP_W2 && pos2>=0) {
+		    enum { __W = (_AP_W2-pos2)>0 ? (_AP_W2-pos2) : 1};
+		    ap_private<__W, true> Range2=ap_private<__W, true>(val.lshr(pos2));                      
+		    Range2_all_ones=Range2.isAllOnesValue();
+		} else if(pos2<0)
+		    Range2_all_ones=false;
 
-        deleted_zeros=deleted_zeros && (carry?Range1_all_ones:Range1_all_zeros);
-        deleted_ones=carry?Range2_all_ones&&(F2-_AP_F+_AP_W<0||!lD)
-            :Range1_all_ones;
-        neg_src= neg_src&&!(carry && Range1_all_ones);
-        } else
-        neg_src = neg_src && V[_AP_W-1];
+		deleted_zeros=deleted_zeros && (carry?Range1_all_ones:Range1_all_zeros);
+		deleted_ones=carry?Range2_all_ones&&(F2-_AP_F+_AP_W<0||!lD)
+		    :Range1_all_ones;
+		neg_src= neg_src&&!(carry && Range1_all_ones);
+	    } else
+		neg_src = neg_src && V[_AP_W-1];
 
-        bool neg_trg= V.isNegative();
-        bool overflow=(neg_trg||!deleted_zeros) && !val.isNegative();
-        bool underflow=(!neg_trg||!deleted_ones)&&neg_src;
-        //printf("neg_src = %d, neg_trg = %d, deleted_zeros = %d,
-        //         deleted_ones = %d, overflow = %d, underflow = %d\n",
-        //         neg_src, neg_trg, deleted_zeros, deleted_ones,
-        //         overflow, underflow);
-        if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
-        underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
-        overflow_adjust(underflow, overflow, lD, neg_src);
-    }
-    report();
+	    bool neg_trg= V.isNegative();
+	    bool overflow=(neg_trg||!deleted_zeros) && !val.isNegative();
+	    bool underflow=(!neg_trg||!deleted_ones)&&neg_src;
+	    //printf("neg_src = %d, neg_trg = %d, deleted_zeros = %d,
+	    //         deleted_ones = %d, overflow = %d, underflow = %d\n",
+	    //         neg_src, neg_trg, deleted_zeros, deleted_ones,
+	    //         overflow, underflow);
+	    if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
+		underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
+	    overflow_adjust(underflow, overflow, lD, neg_src);
+	}
+	report();
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_fixed_base(const volatile ap_fixed_base<_AP_W2,_AP_I2,
-        _AP_S2,_AP_Q2,_AP_O2, _AP_N2> &op) : V(op.V) {
-    *this = const_cast<ap_fixed_base<_AP_W2,_AP_I2,
-    _AP_S2,_AP_Q2,_AP_O2, _AP_N2>&>(op);
+		_AP_S2,_AP_Q2,_AP_O2, _AP_N2> &op) : V(op.V) {
+	*this = const_cast<ap_fixed_base<_AP_W2,_AP_I2,
+	_AP_S2,_AP_Q2,_AP_O2, _AP_N2>&>(op);
     }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_fixed_base(const ap_private<_AP_W2,_AP_S2>& op) {
-    ap_fixed_base<_AP_W2,_AP_W2,_AP_S2> f_op;
-    f_op.V=op;
-    *this = f_op;
+	ap_fixed_base<_AP_W2,_AP_W2,_AP_S2> f_op;
+	f_op.V=op;
+	*this = f_op;
     }  
 
     INLINE ap_fixed_base(bool b) {
-    *this=(ap_private<1,false>)b;
-    report();
+	*this=(ap_private<1,false>)b;
+	report();
     }
 
     INLINE ap_fixed_base(char b) {
-    *this=(ap_private<8,false>)b;
-    report();
+	*this=(ap_private<8,false>)b;
+	report();
     }
 
     INLINE ap_fixed_base(signed char b) {
-    *this=(ap_private<8,true>)b;
-    report();
+	*this=(ap_private<8,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(unsigned char b) {
-    *this=(ap_private<8,false>)b;
-    report();
+	*this=(ap_private<8,false>)b;
+	report();
     }
 
     INLINE ap_fixed_base(signed short b) {
-    *this=(ap_private<16,true>)b;
-    report();
+	*this=(ap_private<16,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(unsigned short b) {
-    *this=(ap_private<16,false>)b;
-    report();
+	*this=(ap_private<16,false>)b;
+	report();
     }
 
     INLINE ap_fixed_base(signed int b) {
-    *this=(ap_private<32,true>)b;
-    report();
+	*this=(ap_private<32,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(unsigned int b) {
-    *this=(ap_private<32,false>)b;
-    report();
+	*this=(ap_private<32,false>)b;
+	report();
     }
 # if defined __x86_64__
     INLINE ap_fixed_base(signed long b) {
-    *this=(ap_private<64,true>)b;
-    report();
+	*this=(ap_private<64,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(unsigned long  b) {
-    *this=(ap_private<64,false>)b;
-    report();
+	*this=(ap_private<64,false>)b;
+	report();
     }
 # else 
     INLINE ap_fixed_base(signed long  b) {
-    *this=(ap_private<32,true>)b;
-    report();
+	*this=(ap_private<32,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(unsigned long  b) {
-    *this=(ap_private<32,false>)b;
-    report();
+	*this=(ap_private<32,false>)b;
+	report();
     }
 # endif
 
     INLINE ap_fixed_base(ap_slong b) {
-    *this=(ap_private<64,true>)b;
-    report();
+	*this=(ap_private<64,true>)b;
+	report();
     }
 
     INLINE ap_fixed_base(ap_ulong b) {
-    *this=(ap_private<64,false>)b;
-    report();
+	*this=(ap_private<64,false>)b;
+	report();
     }
 
 #if 1
@@ -930,14 +930,14 @@ af_bit_ref;
 
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_fixed_base(const ap_range_ref<_AP_W2, _AP_S2>& op) {
-    *this = ap_private<_AP_W2, _AP_S2>(op);
-    report();
+	*this = ap_private<_AP_W2, _AP_S2>(op);
+	report();
     }
 
     template<int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
     INLINE ap_fixed_base(const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& op) {
-    *this = ((const ap_private<_AP_W2 + _AP_W3, false>&)(op));
-    report();
+	*this = ((const ap_private<_AP_W2 + _AP_W3, false>&)(op));
+	report();
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, 
@@ -984,99 +984,99 @@ af_bit_ref;
     }
 
     INLINE ap_fixed_base(double d):V(0) {
-    if(!d) return;  
-    const bool isneg=d<0;
+	if(!d) return;  
+	const bool isneg=d<0;
 
-    const uint64_t ireg=doubleToRawBits(isneg?-d:d);
-    if((ireg&0x7fffffffffffffffULL)!=0) {          
-        const int32_t exp=(((ireg)>>DOUBLE_MAN)&0x07ff)-DOUBLE_BIAS;
-        ap_private<DOUBLE_MAN+2, true> man = ireg & DOUBLE_MAN_MASK;
-        man.clear(DOUBLE_MAN+1);
-        man.set(DOUBLE_MAN);
-        if(isneg) {
-        man.flip();
+	const uint64_t ireg=doubleToRawBits(isneg?-d:d);
+	if((ireg&0x7fffffffffffffffULL)!=0) {          
+	    const int32_t exp=(((ireg)>>DOUBLE_MAN)&0x07ff)-DOUBLE_BIAS;
+	    ap_private<DOUBLE_MAN+2, true> man = ireg & DOUBLE_MAN_MASK;
+	    man.clear(DOUBLE_MAN+1);
+	    man.set(DOUBLE_MAN);
+	    if(isneg) {
+		man.flip();
                 man++;
             }
 
-        enum {_AP_S2=true,  _AP_W2=DOUBLE_MAN+2,_AP_F=_AP_W -_AP_I };
-        const int _AP_I2=exp+2;
+	    enum {_AP_S2=true,  _AP_W2=DOUBLE_MAN+2,_AP_F=_AP_W -_AP_I };
+	    const int _AP_I2=exp+2;
             const int F2=_AP_W2-_AP_I2;
-        const bool QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN || (_AP_Q==AP_TRN_ZERO && 
-            !_AP_S2));
-        bool carry=false;
-        //handle quantization
-        const unsigned sh_amt=abs(F2-_AP_F); // sh_amt = F2>_AP_F ? F2 -_AP_F : _AP_F-F2; 
-        if (F2==_AP_F )
-        V=man;
-        else if (F2>_AP_F) {
-        if(sh_amt >= DOUBLE_MAN+2)
-            V=isneg?-1:0;
-        else
-            V=(man>>sh_amt) | ((man & 1ULL<<(DOUBLE_MAN+1)) ? (DOUBLE_MAN_MASK>>(DOUBLE_MAN+2-sh_amt) <<(DOUBLE_MAN+2-sh_amt)):0);
+	    const bool QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN || (_AP_Q==AP_TRN_ZERO && 
+		    !_AP_S2));
+	    bool carry=false;
+	    //handle quantization
+	    const unsigned sh_amt=abs(F2-_AP_F); // sh_amt = F2>_AP_F ? F2 -_AP_F : _AP_F-F2; 
+	    if (F2==_AP_F )
+		V=man;
+	    else if (F2>_AP_F) {
+		if(sh_amt >= DOUBLE_MAN+2)
+		    V=isneg?-1:0;
+		else
+		    V=(man>>sh_amt) | ((man & 1ULL<<(DOUBLE_MAN+1)) ? (DOUBLE_MAN_MASK>>(DOUBLE_MAN+2-sh_amt) <<(DOUBLE_MAN+2-sh_amt)):0);
 
-        if (_AP_Q!=AP_TRN && !(_AP_Q==AP_TRN_ZERO && !_AP_S2)) {
-            const bool qb=((F2-_AP_F > DOUBLE_MAN+2) ? isneg : (man & (1ULL<<(F2-_AP_F-1))) != 0);
-            const int pos3=F2-_AP_F-2;
-            const bool r = (pos3>= 0) ? (man << AP_MAX(0, _AP_W2-pos3-1)& DOUBLE_MAN_MASK)!=0  : false;
-            carry = quantization_adjust(qb,r,isneg);
-        }
-        }
-        else { //no quantization
-        //                V=man;
-        if (sh_amt < _AP_W) {
-            V = man; 
-            V <<= sh_amt;
-        }
-        }
-        //handle overflow/underflow
-        if((_AP_O != AP_WRAP || _AP_N != 0) && 
-            ((!_AP_S && _AP_S2) || _AP_I-_AP_S <
-             _AP_I2-_AP_S2+(QUAN_INC|| (_AP_S2 &&
-             _AP_O==AP_SAT_SYM)) )) {// saturation
-        bool deleted_zeros = _AP_S2?true:!carry, 
-             deleted_ones = true;
-        bool neg_src;
-        const bool lD=(_AP_I2>_AP_I) && (_AP_W2-_AP_I2+_AP_I>=0) && (man & (1ULL <<(DOUBLE_MAN+2-_AP_I2+_AP_I)));
-        int pos1=F2+_AP_W-_AP_F;
-        if (pos1 < _AP_W2) {
-            int pos2=pos1+1;
-            bool Range1_all_ones=true;
-            bool Range1_all_zeros=true;
-            if (pos1>=0) {
-            ap_private<_AP_W,_AP_S> Range1=
-                ap_private<_AP_W,_AP_S>((man >> pos1) | ((1ULL<<(DOUBLE_MAN+1)&man) ? (DOUBLE_MAN_MASK >> (DOUBLE_MAN+2-pos1) <<(DOUBLE_MAN+2-pos1)):0));
-            Range1_all_ones = Range1.isAllOnesValue(); // Range1.isAllOnesValue();
-            Range1_all_zeros = Range1.isMinValue(); // Range1.isMinValue();
-            } else {
-            Range1_all_ones=false;
-            Range1_all_zeros = man==0; // man.isMinValue();
-            }
-            bool Range2_all_ones=true;
-            if (pos2<_AP_W2 && pos2>=0) {
-            ap_private<_AP_W, _AP_S> Range2=
-                ap_private<_AP_W, _AP_S>((man >> pos2) | ((1ULL<<(DOUBLE_MAN+1)&man) ? (DOUBLE_MAN_MASK >> (DOUBLE_MAN+2-pos2) <<(DOUBLE_MAN+2-pos2)):0));
-            Range2_all_ones=Range2.isAllOnesValue(); // Range2.isAllOnesValue();
-            } else if (pos2<0)
-            Range2_all_ones=false;
-            deleted_zeros=deleted_zeros && (carry?Range1_all_ones:Range1_all_zeros);
-            deleted_ones=carry?Range2_all_ones&&(F2-_AP_F+_AP_W<0||!lD) : Range1_all_ones;
-            neg_src=isneg&&!(carry&Range1_all_ones);
-        } else
-            neg_src = isneg &&  V[_AP_W -1];
+		if (_AP_Q!=AP_TRN && !(_AP_Q==AP_TRN_ZERO && !_AP_S2)) {
+		    const bool qb=((F2-_AP_F > DOUBLE_MAN+2) ? isneg : (man & (1ULL<<(F2-_AP_F-1))) != 0);
+		    const int pos3=F2-_AP_F-2;
+		    const bool r = (pos3>= 0) ? (man << AP_MAX(0, _AP_W2-pos3-1)& DOUBLE_MAN_MASK)!=0  : false;
+		    carry = quantization_adjust(qb,r,isneg);
+		}
+	    }
+	    else { //no quantization
+		//                V=man;
+		if (sh_amt < _AP_W) {
+		    V = man; 
+		    V <<= sh_amt;
+		}
+	    }
+	    //handle overflow/underflow
+	    if((_AP_O != AP_WRAP || _AP_N != 0) && 
+		    ((!_AP_S && _AP_S2) || _AP_I-_AP_S <
+		     _AP_I2-_AP_S2+(QUAN_INC|| (_AP_S2 &&
+			 _AP_O==AP_SAT_SYM)) )) {// saturation
+		bool deleted_zeros = _AP_S2?true:!carry, 
+		     deleted_ones = true;
+		bool neg_src;
+		const bool lD=(_AP_I2>_AP_I) && (_AP_W2-_AP_I2+_AP_I>=0) && (man & (1ULL <<(DOUBLE_MAN+2-_AP_I2+_AP_I)));
+		int pos1=F2+_AP_W-_AP_F;
+		if (pos1 < _AP_W2) {
+		    int pos2=pos1+1;
+		    bool Range1_all_ones=true;
+		    bool Range1_all_zeros=true;
+		    if (pos1>=0) {
+			ap_private<_AP_W,_AP_S> Range1=
+			    ap_private<_AP_W,_AP_S>((man >> pos1) | ((1ULL<<(DOUBLE_MAN+1)&man) ? (DOUBLE_MAN_MASK >> (DOUBLE_MAN+2-pos1) <<(DOUBLE_MAN+2-pos1)):0));
+			Range1_all_ones = Range1.isAllOnesValue(); // Range1.isAllOnesValue();
+			Range1_all_zeros = Range1.isMinValue(); // Range1.isMinValue();
+		    } else {
+			Range1_all_ones=false;
+			Range1_all_zeros = man==0; // man.isMinValue();
+		    }
+		    bool Range2_all_ones=true;
+		    if (pos2<_AP_W2 && pos2>=0) {
+			ap_private<_AP_W, _AP_S> Range2=
+			    ap_private<_AP_W, _AP_S>((man >> pos2) | ((1ULL<<(DOUBLE_MAN+1)&man) ? (DOUBLE_MAN_MASK >> (DOUBLE_MAN+2-pos2) <<(DOUBLE_MAN+2-pos2)):0));
+			Range2_all_ones=Range2.isAllOnesValue(); // Range2.isAllOnesValue();
+		    } else if (pos2<0)
+			Range2_all_ones=false;
+		    deleted_zeros=deleted_zeros && (carry?Range1_all_ones:Range1_all_zeros);
+		    deleted_ones=carry?Range2_all_ones&&(F2-_AP_F+_AP_W<0||!lD) : Range1_all_ones;
+		    neg_src=isneg&&!(carry&Range1_all_ones);
+		} else
+		    neg_src = isneg &&  V[_AP_W -1];
 
-        const bool neg_trg=V.isNegative();
-        const bool overflow=(neg_trg||!deleted_zeros) && !isneg;
-        bool underflow=(!neg_trg||!deleted_ones)&&neg_src;
-        //printf("neg_src = %d, neg_trg = %d, deleted_zeros = %d,
-        //          deleted_ones = %d, overflow = %d, underflow = %d\n",
-        //          neg_src, neg_trg, deleted_zeros, deleted_ones,
-        //          overflow, underflow);
-        if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
-            underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
-        overflow_adjust(underflow,overflow,lD, neg_src);
-        }    
-    }
-    report();
+		const bool neg_trg=V.isNegative();
+		const bool overflow=(neg_trg||!deleted_zeros) && !isneg;
+		bool underflow=(!neg_trg||!deleted_ones)&&neg_src;
+		//printf("neg_src = %d, neg_trg = %d, deleted_zeros = %d,
+		//          deleted_ones = %d, overflow = %d, underflow = %d\n",
+		//          neg_src, neg_trg, deleted_zeros, deleted_ones,
+		//          overflow, underflow);
+		if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
+		    underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
+		overflow_adjust(underflow,overflow,lD, neg_src);
+	    }    
+	}
+	report();
     }
         
 
@@ -1118,29 +1118,29 @@ af_bit_ref;
     // Return a ap_fixed_base object whose ssdm_int::V is assigned by bv.
     // Note the input parameter should be a fixed-point formatted bit string.
     static INLINE ap_fixed_base bitsToFixed(unsigned long long bv) {
-    ap_fixed_base Tmp=bv;
-    return Tmp;
+	ap_fixed_base Tmp=bv;
+	return Tmp;
     }
 
     // Explicit conversion functions to ap_private that captures 
     // all integer bits (bits are truncated)
     INLINE ap_private<AP_MAX(_AP_I,1),_AP_S> 
     to_ap_private(bool Cnative = true) const {
-    ap_private<AP_MAX(_AP_I,1),_AP_S> ret = ap_private<AP_MAX(_AP_I,1),_AP_S> ((_AP_I >= 1) ? (_AP_S==true ? V.ashr(AP_MAX(0,_AP_W - _AP_I)) : V.lshr(AP_MAX(0,_AP_W - _AP_I))) : ap_private<_AP_W, _AP_S>(0)); 
+	ap_private<AP_MAX(_AP_I,1),_AP_S> ret = ap_private<AP_MAX(_AP_I,1),_AP_S> ((_AP_I >= 1) ? (_AP_S==true ? V.ashr(AP_MAX(0,_AP_W - _AP_I)) : V.lshr(AP_MAX(0,_AP_W - _AP_I))) : ap_private<_AP_W, _AP_S>(0)); 
 
-    if (Cnative) {
-        bool r = false;
-        if (_AP_I < _AP_W) {
-        if (_AP_I > 0) r = !(V.getLoBits(_AP_W - _AP_I).isMinValue());
-        else r = !(V.isMinValue());
-        } 
-        if (r && V.isNegative()) { // if this is negative integer
-        ++ret;//ap_private<AP_MAX(_AP_I,1),_AP_S>(1,_AP_S);
-        }
-    } else {
-        //Follow OSCI library, conversion from sc_fixed to sc_int
-    }
-    return ret;
+	if (Cnative) {
+	    bool r = false;
+	    if (_AP_I < _AP_W) {
+		if (_AP_I > 0) r = !(V.getLoBits(_AP_W - _AP_I).isMinValue());
+		else r = !(V.isMinValue());
+	    } 
+	    if (r && V.isNegative()) { // if this is negative integer
+		++ret;//ap_private<AP_MAX(_AP_I,1),_AP_S>(1,_AP_S);
+	    }
+	} else {
+	    //Follow OSCI library, conversion from sc_fixed to sc_int
+	}
+	return ret;
     }
 
     template<int _AP_W2, bool _AP_S2>
@@ -1172,65 +1172,65 @@ af_bit_ref;
 
     INLINE double to_double() const {
         if(!V)
-        return 0;
-    if(_AP_W>64 || (_AP_W - _AP_I) > 0) {
-        bool isneg = _AP_S && V[_AP_W-1];
-        uint64_t res = isneg ? 0x8000000000000000ULL : 0;
-        ap_private<_AP_W, false>  tmp = V;
-        if (isneg) tmp = -tmp;
-        int i = _AP_W -1 - tmp.countLeadingZeros();
-        int exp = _AP_I-(_AP_W-i);
-        res|=((uint64_t)(exp+DOUBLE_BIAS))<<DOUBLE_MAN;
-        if(i!=0) {  
-        tmp.clear(i);
-        uint64_t man = ((i>DOUBLE_MAN)?tmp.lshr(i-DOUBLE_MAN):tmp).to_uint64() & DOUBLE_MAN_MASK;
-        res |= i<DOUBLE_MAN ? (man)<<(DOUBLE_MAN-i)& DOUBLE_MAN_MASK  : man;
-        }
-        double dp=rawBitsToDouble(res);
-        return dp;
-    } else if (_AP_W - _AP_I > 0) {
-        /* This specialization is disabled. It is giving wrong results in some cases.
-           bool isneg=V.isNegative();
-           double dp = V.get();
-           dp /= (1<< (_AP_W - _AP_I));
-           return dp;*/
-    } else
-        return double(to_int64());
+	    return 0;
+	if(_AP_W>64 || (_AP_W - _AP_I) > 0) {
+	    bool isneg = _AP_S && V[_AP_W-1];
+	    uint64_t res = isneg ? 0x8000000000000000ULL : 0;
+	    ap_private<_AP_W, false>  tmp = V;
+	    if (isneg) tmp = -tmp;
+	    int i = _AP_W -1 - tmp.countLeadingZeros();
+	    int exp = _AP_I-(_AP_W-i);
+	    res|=((uint64_t)(exp+DOUBLE_BIAS))<<DOUBLE_MAN;
+	    if(i!=0) {  
+		tmp.clear(i);
+		uint64_t man = ((i>DOUBLE_MAN)?tmp.lshr(i-DOUBLE_MAN):tmp).to_uint64() & DOUBLE_MAN_MASK;
+		res |= i<DOUBLE_MAN ? (man)<<(DOUBLE_MAN-i)& DOUBLE_MAN_MASK  : man;
+	    }
+	    double dp=rawBitsToDouble(res);
+	    return dp;
+	} else if (_AP_W - _AP_I > 0) {
+	    /* This specialization is disabled. It is giving wrong results in some cases.
+	       bool isneg=V.isNegative();
+	       double dp = V.get();
+	       dp /= (1<< (_AP_W - _AP_I));
+	       return dp;*/
+	} else
+	    return double(to_int64());
     }
 
     INLINE float to_float() const {
-    uint32_t res=0;
-    if(V==0)
-        return 0;
-    bool isneg=V.isNegative();
-    ap_private<_AP_W, _AP_S> tmp=V;
-    if (isneg) tmp = -tmp;
-    if(_AP_W-_AP_I>0||_AP_W>64) {
-        if(isneg)
-        res=0x80000000;
-        int i=_AP_W-1;
-        i-=tmp.countLeadingZeros();
-        int exp=_AP_I-(_AP_W-i);
-        res|=(exp+FLOAT_BIAS)<<FLOAT_MAN;
+	uint32_t res=0;
+	if(V==0)
+	    return 0;
+	bool isneg=V.isNegative();
+	ap_private<_AP_W, _AP_S> tmp=V;
+	if (isneg) tmp = -tmp;
+	if(_AP_W-_AP_I>0||_AP_W>64) {
+	    if(isneg)
+		res=0x80000000;
+	    int i=_AP_W-1;
+	    i-=tmp.countLeadingZeros();
+	    int exp=_AP_I-(_AP_W-i);
+	    res|=(exp+FLOAT_BIAS)<<FLOAT_MAN;
 
-        ap_private<_AP_W, _AP_S> man = 0;
-        if(i!=0) {  
-        tmp.clear(i);
-        if(i>FLOAT_MAN)
-            man=tmp.lshr(i-FLOAT_MAN);
-        else 
-            man=tmp;
-        res |= i < FLOAT_MAN?man.getZExtValue()<<(FLOAT_MAN-i):man.getZExtValue();
-        }
-    } else {
-        return float(to_int64());
-    }
-    float dp=rawBitsToFloat(res);
-    return dp;
+	    ap_private<_AP_W, _AP_S> man = 0;
+	    if(i!=0) {  
+		tmp.clear(i);
+		if(i>FLOAT_MAN)
+		    man=tmp.lshr(i-FLOAT_MAN);
+		else 
+		    man=tmp;
+		res |= i < FLOAT_MAN?man.getZExtValue()<<(FLOAT_MAN-i):man.getZExtValue();
+	    }
+	} else {
+	    return float(to_int64());
+	}
+	float dp=rawBitsToFloat(res);
+	return dp;
     }
 
     INLINE operator double () const {
-    return to_double();
+	return to_double();
     }
 #ifndef __SC_COMPATIBLE__ 
     INLINE operator float () const {
@@ -1315,17 +1315,17 @@ af_bit_ref;
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE typename RType<_AP_W2,_AP_I2,_AP_S2>::mult
     operator * (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
-    typename RType<_AP_W2,_AP_I2,_AP_S2>::mult r;
-    r.V = V * op2.V;
-    return r;
+	typename RType<_AP_W2,_AP_I2,_AP_S2>::mult r;
+	r.V = V * op2.V;
+	return r;
     }
     
     template<int _AP_W1, int _AP_I1, bool _AP_S1, int _AP_W2, int _AP_I2, bool _AP_S2>
     static INLINE ap_fixed_base multiply(const ap_fixed_base<_AP_W1,_AP_I1,_AP_S1>& op1, const
          ap_fixed_base<_AP_W2,_AP_I2,_AP_S2>& op2) {
-    ap_private<_AP_W+_AP_W2, _AP_S> OP1=op1.V;
-    ap_private<_AP_W2,_AP_S2> OP2=op2.V;
-    return OP1*OP2;
+	ap_private<_AP_W+_AP_W2, _AP_S> OP1=op1.V;
+	ap_private<_AP_W2,_AP_S2> OP2=op2.V;
+	return OP1*OP2;
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
@@ -1345,17 +1345,17 @@ af_bit_ref;
     INLINE typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty  \
     operator Sym (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const \
     {                                                                        \
-    enum {_AP_F=_AP_W-_AP_I, F2=_AP_W2-_AP_I2};                                \
-    typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty  r, lhs(*this), rhs(op2);        \
-    r.V = lhs.V.Fun(rhs.V);                                                \
-    return r;                                                                \
+	enum {_AP_F=_AP_W-_AP_I, F2=_AP_W2-_AP_I2};                                \
+	typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty  r, lhs(*this), rhs(op2);        \
+	r.V = lhs.V.Fun(rhs.V);                                                \
+	return r;                                                                \
     }                                                                        \
     INLINE typename RType<_AP_W,_AP_I,_AP_S>::Rty                        \
     operator Sym (const ap_fixed_base& op2) const                        \
     {                                                                        \
-    typename RType<_AP_W,_AP_I,_AP_S>::Rty  r;                                \
-    r.V = V Sym op2.V;                                                        \
-    return r;                                                                \
+	typename RType<_AP_W,_AP_I,_AP_S>::Rty  r;                                \
+	r.V = V Sym op2.V;                                                        \
+	return r;                                                                \
     }                                                                        \
 
     OP_BIN_AF(+, plus, plus_w, plus_s, Add)
@@ -1366,20 +1366,20 @@ af_bit_ref;
         INLINE typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty                \
         operator Sym (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const \
     {                                                                        \
-    typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty r, lhs(*this), rhs(op2);  \
-    r.V=lhs.V Sym rhs.V;                                                \
-    return r;                                                                \
+	typename RType<_AP_W2,_AP_I2,_AP_S2>::Rty r, lhs(*this), rhs(op2);  \
+	r.V=lhs.V Sym rhs.V;                                                \
+	return r;                                                                \
     }                                                                        \
     INLINE typename RType<_AP_W,_AP_I,_AP_S>::Rty                        \
     operator Sym (const ap_fixed_base& op2) const                        \
     {                                                                        \
-    typename RType<_AP_W,_AP_I,_AP_S>::Rty  r; \
-    r.V = V Sym op2.V;                                                        \
-    return r;                                                                \
+	typename RType<_AP_W,_AP_I,_AP_S>::Rty  r; \
+	r.V = V Sym op2.V;                                                        \
+	return r;                                                                \
     }                                                                        \
     INLINE typename RType<_AP_W,_AP_I,_AP_S>::Rty  operator Sym(int op2) const \
     {                                                                        \
-    return V Sym (op2<<(_AP_W - _AP_I));                                \
+	return V Sym (op2<<(_AP_W - _AP_I));                                \
     }
     OP_LOGIC_BIN_AF(&, logic, logic_w, logic_s)
     OP_LOGIC_BIN_AF(|, logic, logic_w, logic_s)
@@ -1448,7 +1448,7 @@ af_bit_ref;
     ///Not (!)
     //-------------------------------------------------------------------------
     INLINE bool operator !() const {
-    return !V;
+	return !V;
     }
 
     ///Bitwise complement
@@ -1708,10 +1708,10 @@ af_bit_ref;
     //-------------------------------------------------------------------------
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
     INLINE bool operator == (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
-    enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
-    ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
-    ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
-    return OP1 == OP2;
+	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
+	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
+	ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
+	return OP1 == OP2;
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
@@ -1721,13 +1721,13 @@ af_bit_ref;
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
     INLINE bool operator > (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
-    enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
-    ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
-    ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
-    if(_AP_S||_AP_S2)
-        return OP1.sgt(OP2);
-    else
-        return OP1.ugt(OP2); 
+	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
+	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
+	ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
+	if(_AP_S||_AP_S2)
+	    return OP1.sgt(OP2);
+	else
+	    return OP1.ugt(OP2); 
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
@@ -1737,13 +1737,13 @@ af_bit_ref;
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
     INLINE bool operator < (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
-    enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
-    ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
-    ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
-    if(_AP_S||_AP_S2) 
-        return OP1.slt(OP2);
-    else
-        return OP1.ult(OP2);   
+	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
+	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
+	ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
+	if(_AP_S||_AP_S2) 
+	    return OP1.slt(OP2);
+	else
+	    return OP1.ult(OP2);   
     }
 
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 

@@ -71,6 +71,15 @@
         #endif /* #if defined(_MSC_VER) */
     #endif /* #ifdef USE_INLINE */
 #endif /* #ifndef INLINE */
+
+/** Prevent C++ namespace mangling */
+#ifdef __cplusplus
+	#define __BEGIN_DECLS					extern "C" {
+	#define __END_DECLS						} /* extern "C" */
+#else
+	#define __BEGIN_DECLS
+	#define __END_DECLS
+#endif /* #ifdef __cplusplus */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -197,17 +206,6 @@ typedef double              double_io_t;
         (_var_)++; \
         ASSERT((_var_) > (old_var_)); \
     } while (0)
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* AutoESL directives                                                         */
-/*============================================================================*/
-#ifndef __AUTOESL__
-    #define DIRECTIVE(x)
-#else
-    #define PRAGMA(x)       _Pragma(#x)
-    #define DIRECTIVE(x)    PRAGMA(x)
-#endif /* #ifndef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef UTILITY_H_ */

@@ -160,7 +160,9 @@ INLINE void distance_squared(/*const double_in_t vector1[vector_dims_value],
                                 const double_in_t vector1[200],
                                 const double_in_t vector2[200],
                                 double_out_t * const sum) {
-#pragma AP INTERFACE ap_ctrl_hs port=return
+#ifdef __AUTOESL__
+    #pragma AP INTERFACE ap_ctrl_hs port=return
+#endif /* #ifdef __AUTOESL__ */
 
 #ifdef __AUTOESL__
     /* Define AutoESL native interface behavior for val1 and val2. */
@@ -192,8 +194,9 @@ INLINE void distance_squared(/*const double_in_t vector1[vector_dims_value],
     
     uint_t dim;
     dimension_loop: for (dim = 0; dim < vector_dims_value; dim++) {
-#pragma AP PIPELINE II=1
-
+#ifdef __AUTOESL__
+    #pragma AP PIPELINE II=1
+#endif /* #ifdef __AUTOESL__ */
 //#ifndef __AUTOESL__
 #if 1
         const double_t vector1_data            = vector1[dim];
@@ -210,7 +213,9 @@ INLINE void distance_squared(/*const double_in_t vector1[vector_dims_value],
     double_t sum_of_squares = 0;
     uint_t i;
     sum_loop: for (i = 0; i < SUM_SPLIT; i++) {
-#pragma AP UNROLL
+#ifdef __AUTOESL__
+    #pragma AP UNROLL
+#endif /* #ifdef __AUTOESL__ */
         sum_of_squares += sum_of_squares__split[i];
     }
     
@@ -357,15 +362,15 @@ INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
  *           current block.
  */
 INLINE void best_outliers(size_io_t * const outliers_size,
-                            index_io_t outliers[N_value],
-                            double_io_t outlier_scores[N_value],
+                          index_io_t outliers[N_value],
+                          double_io_t outlier_scores[N_value],
 #if defined(BLOCKING)
-                            const size_in_t block_size,
-                            const index_in_t current_block[block_size_value],
-                            const double_in_t scores[block_size_value]
+                          const size_in_t block_size,
+                          const index_in_t current_block[block_size_value],
+                          const double_in_t scores[block_size_value]
 #elif defined(NO_BLOCKING)
-                            const index_in_t vector,
-                            const double_in_t score
+                          const index_in_t vector,
+                          const double_in_t score
 #endif /* #if defined(BLOCKING) */
                                  ) {
     /* Error checking. */

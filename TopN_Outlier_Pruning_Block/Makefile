@@ -33,13 +33,15 @@ TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DSORTED_INSERT DN
 
 SOURCE_DIR           := source
 DATA_DIR             := data
-COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.c
+INCLUDE_DIRS         := include
+COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
 
 BUILD_TYPES          := autoesl binary matlab
 
 autoesl_OUTPUT_DIR   := AutoESL
 autoesl_TCLEXT       := tcl
 autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
+autoesl_CXXFLAGS      = $(call flags,D__AUTOESL__)
 autoesl_TOP_FUNC     := top_n_outlier_pruning_block
 autoesl_PART         := xc6vlx240tff1156-1
 autoesl_CLOCK_PERIOD := 10
@@ -55,6 +57,7 @@ autoesl_TCLSOURCES   :=
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
+binary_CXXFLAGS       = $(call flags,D__C__)
 binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
                         $(SOURCE_DIR)/test.c \
                         $(SOURCE_DIR)/vardump.c
@@ -62,6 +65,7 @@ binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
 matlab_CFLAGS         = $(call flags,D__MEX__)
+matlab_CXXFLAGS       = $(call flags,D__MEX__)
 matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.c \
                         $(SOURCE_DIR)/vardump.c
 
@@ -185,6 +189,11 @@ define help_text
 -@$(ECHO) " TARGETS:"
 -@$(foreach TARGET,$(sort $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_TARGETS))),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
+endef   
+
+# $(call include-flags,INC1 INC2 ...)
+define include-flags
+$(foreach INC_DIR,$(1),-I$(INC_DIR) )
 endef
 
 # $(call parse-mex-options,OPTION_NAME)
@@ -274,8 +283,8 @@ $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
 		$$(ECHO) "open_project $(1)"; \
 		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
-		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
 		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
 		$$(ECHO) "exit"; \
 	) > $$@
@@ -366,7 +375,10 @@ $(1)-binary: $$($(1)_BINARY)
 $$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$($(1)_CFLAGS) -o $$@ $$^)
+	$$(if $$(filter %.cpp,$$^),\
+		$$(call pretty,$$(CXX) $$(binary_CXXFLAGS) $$(CXXFLAGS) -Dtest $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CXXFLAGS) -o $$@ $$^), \
+		$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CFLAGS) -o $$@ $$^) \
+	)
 	$(call trace-message,)
 
 # Matlab
@@ -381,7 +393,7 @@ $(1)-matlab: $$($(1)_MATLAB)
 $$($(1)_MATLAB): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(MXX) $$(matlab_CFLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
+	$$(call pretty,$$(MXX) $$(matlab_CFLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
 	$(call trace-message,)
 
 
@@ -473,7 +485,7 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label Wno-vla)
 
 # gprof
 GPROF_FLAGS_OFF :=
