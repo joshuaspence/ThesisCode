@@ -56,31 +56,26 @@ inline void set_block_size(const size_in_t block_size) {
 
 INLINE void distance_squared(const double_in_t vector1[vector_dims_value],
                              const double_in_t vector2[vector_dims_value],
-                             double_out_t * const sum) {
+                             double_t * const sum) {
 #ifdef __AUTOESL__
     #pragma AP INTERFACE ap_ctrl_hs port=return
+    
+    /* Define AutoESL native interface behavior for val1 and val2 */
+    AP_INTERFACE(sum, ap_none);
+    
+    /* Map the control of the function to AXI4-lite */
+    AP_CONTROL_BUS_AXI(CONTROL_BUS);
+    
+    /* Map val1 and val2 from a native AutoESL interface to AXI4-lite */
+    AP_BUS_AXI4_LITE(sum, CONTROL_BUS);
+    
+    /* Create an AXI4-stream interface for arrays A and B */
+    AP_BUS_AXI_STREAMD(vector1, INPUT_STREAM_A);
+    AP_BUS_AXI_STREAMD(vector2, INPUT_STREAM_B);
 #endif /* #ifdef __AUTOESL__ */
-
-#ifdef __AUTOESL__
-    /* Define AutoESL native interface behavior for val1 and val2. */
-    //AP_INTERFACE(vector1,none);
-    //AP_INTERFACE(vector2,none);
-    //AP_INTERFACE(sum,none);
-
-    /* Map val1 and val2 from a native AutoESL interface to AXI4-lite. */
-    //AP_BUS_AXI4_LITE(val1,BUS_A);
-    //AP_BUS_AXI4_LITE(val2,BUS_B);
-
-    /* Map the control of the function to AXI4-lite. */
-    //AP_CONTROL_BUS_AXI(CONTROL_BUS);
-
-    /* Create an AXI4-stream interface for arrays A and B. */
-    //AP_BUS_AXI_STREAMD(A,INPUT_STREAM);
-    //AP_BUS_AXI_STREAMD(B,OUTPUT_STREAM);
-#endif /* #ifdef __AUTOESL__ */
-
+    
     ASSERT(vector_dims_value > 0);
-
+    
 #ifndef __AUTOESL__
     #define SUM_SPLIT (1)
 #else
@@ -94,8 +89,7 @@ INLINE void distance_squared(const double_in_t vector1[vector_dims_value],
 #ifdef __AUTOESL__
     #pragma AP PIPELINE II=1
 #endif /* #ifdef __AUTOESL__ */
-//#ifndef __AUTOESL__
-#if 1
+#ifndef __AUTOESL__
         const double_t vector1_data            = vector1[dim];
         const double_t vector2_data            = vector2[dim];
 #else
@@ -106,7 +100,7 @@ INLINE void distance_squared(const double_in_t vector1[vector_dims_value],
         const double_t diff_squared            = diff * diff;
         sum_of_squares__split[dim % SUM_SPLIT] += diff_squared;
     }
-
+    
     double_t sum_of_squares = 0;
     uint_t i;
     sum_loop: for (i = 0; i < SUM_SPLIT; i++) {
@@ -118,6 +112,8 @@ INLINE void distance_squared(const double_in_t vector1[vector_dims_value],
     
     *sum = sum_of_squares;
 }
+
+#ifndef __AUTOESL__
 
 INLINE double_out_t add_neighbour(index_io_t neighbours[k_value],
                                   double_io_t neighbours_dist[k_value],
@@ -587,3 +583,5 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
     
     return num_pruned;
 }
+
+#endif /* #ifndef __AUTOESL__ */

@@ -34,7 +34,7 @@ extern size_t vector_dims_value;
  *
  * Parameters:
  *     - vector_dims: The number of dimensions of the vectors in the input data 
- *                    set.
+ *           set.
  */
 void set_vector_dims(const size_in_t vector_dims);
 #else

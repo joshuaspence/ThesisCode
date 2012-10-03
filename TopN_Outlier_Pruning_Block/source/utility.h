@@ -7,7 +7,8 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 #ifdef __AUTOESL__
-    #include "ap_interfaces.h"
+    #include "ap_interfaces.h" /* ap_mm2s */
+    #include "ap_int.h" /* for ap_int, ap_uint */
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
@@ -42,43 +43,42 @@
 #endif /* #ifndef UNUSED */
 
 /* Declare a function as inline. */
-#ifndef INLINE
-    #ifdef USE_INLINE
-        #if USE_INLINE
-            #if defined(_MSC_VER)
-                #define INLINE              __forceinline
-            #elif defined(__AUTOESL__)
-            #define INLINE              inline
-            #else
-                #define INLINE              inline
-            #endif /* #if defined(_MSC_VER) */
+#undef INLINE
+#ifdef USE_INLINE
+    #if USE_INLINE
+        #if defined(_MSC_VER)
+            #define INLINE          __forceinline
+        #elif defined(__AUTOESL__)
+        #define INLINE              inline
         #else
-            #if defined(_MSC_VER)
-                #define INLINE
-            #elif defined(__AUTOESL__)
-            #define INLINE
-            #else
-                #define INLINE
-            #endif /* #if defined(_MSC_VER) */
-        #endif /* #if USE_INLINE */
+            #define INLINE          inline
+        #endif /* #if defined(_MSC_VER) */
     #else
         #if defined(_MSC_VER)
-            #define INLINE                  __forceinline
-        #elif defined(__AUTOESL__)
             #define INLINE
+        #elif defined(__AUTOESL__)
+        #define INLINE
         #else
-            #define INLINE                  inline
+            #define INLINE
         #endif /* #if defined(_MSC_VER) */
-    #endif /* #ifdef USE_INLINE */
-#endif /* #ifndef INLINE */
+    #endif /* #if USE_INLINE */
+#else
+    #if defined(_MSC_VER)
+        #define INLINE              __forceinline
+    #elif defined(__AUTOESL__)
+        #define INLINE
+    #else
+        #define INLINE              inline
+    #endif /* #if defined(_MSC_VER) */
+#endif /* #ifdef USE_INLINE */
 
 /** Prevent C++ namespace mangling */
 #ifdef __cplusplus
-	#define __BEGIN_DECLS					extern "C" {
-	#define __END_DECLS						} /* extern "C" */
+    #define __BEGIN_DECLS           extern "C" {
+    #define __END_DECLS             } /* extern "C" */
 #else
-	#define __BEGIN_DECLS
-	#define __END_DECLS
+    #define __BEGIN_DECLS
+    #define __END_DECLS
 #endif /* #ifdef __cplusplus */
 /*----------------------------------------------------------------------------*/
 
@@ -166,20 +166,22 @@ typedef double              double_in_t;
 typedef double              double_out_t;
 typedef double              double_io_t;
 #else
-#include "ap_int.h"
 
-template<int D, int U, int TI, int TD>
-struct ap_mm2s {
+template<int D>
+struct ap_mm2s_double {
     ap_int<D> data;
-    ap_uint<(D+7)/8> keep;
+    ap_uint<(D/8)> keep;
     ap_uint<1> last;
 };
 
 typedef double              double_t;
-typedef double              double_in_t;
-//typedef ap_mm2s<64,1,1,1>   double_in_t;
-typedef double              double_out_t;
-//typedef ap_mm2s<64,1,1,1>   double_io_t;
+#if 0
+typedef ap_mm2s<64,1,1,1>    double_in_t;
+typedef ap_mm2s<64,1,1,1>    double_out_t;
+#else
+typedef ap_mm2s_double<64>   double_in_t;
+typedef ap_mm2s_double<64>   double_out_t;
+#endif
 typedef double              double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 

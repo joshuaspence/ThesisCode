@@ -1,11 +1,11 @@
 /*******************************************************************************
-Vendor: Xilinx 
+Vendor: Xilinx
 Associated Filename: ap_axi_sdata.h
 Purpose: AXI data type for AutoESL
 Revision History: February 13, 2012 - initial release
 
 *******************************************************************************
-Â© Copyright 2008 - 2012 Xilinx, Inc. All rights reserved.
+© Copyright 2008 - 2012 Xilinx, Inc. All rights reserved.
 
 This file contains confidential and proprietary information of Xilinx, Inc. and
 is protected under U.S. and international copyright and other intellectual
@@ -42,40 +42,58 @@ THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS PART OF THIS FILE AT
 ALL TIMES.
 
 *******************************************************************************/
-
 #ifndef __AP__AXI_SDATA__
 #define __AP__AXI_SDATA__
 
 #define AP_INT_MAX_W 4096
 #include "ap_int.h"
 
-template<int D,int U,int TI,int TD>
-struct ap_axis {
+/*template<int D,int U,int TI,int TD>
+  struct ap_axis{
     ap_int<D> data;
     ap_uint<(D+7)/8> strb;
     ap_uint<U> user;
     ap_uint<1> last;
     ap_uint<TI> keep;
     ap_uint<TD> tdest;
-};
+  };
 
 template<int D, int U, int TI, int TD>
 struct ap_mm2s{
-    ap_int<D> data;
-    ap_uint<(D+7)/8> keep;
-    ap_uint<1> last;
+	ap_int<D> data;
+	ap_uint<(D+7)/8> keep;
+	ap_uint<1> last;
 };
 
-template<int D,int U,int TI,int TD>
-struct ap_axiu{
+template<int D, int U, int TI, int TD>
+struct ap_mm2s_float{
+	float data;
+	ap_uint<(D+7)/8> keep;
+	ap_uint<1> last;
+};*/
+
+template<int D>
+struct ap_mm2s_double{
+	double data;
+	ap_uint<(D/8)> keep;
+	ap_uint<1> last;
+};
+
+typedef ap_mm2s_double<64> double_in_t;
+typedef ap_mm2s_double<64> double_out_t;
+
+
+/*template<int D,int U,int TI,int TD>
+  struct ap_axiu{
     ap_uint<D> data;
     ap_uint<(D+7)/8> strb;
     ap_uint<U> user;
     ap_uint<1> last;
     //ap_uint<TI> tid;
     ap_uint<TD> tdest;
-};
+  };
 
 //typedef ap_axis<int D, int U, int TI, int TD> ap_axis_unsigned<int D, int U, int TI, int TD>;
+*/
 
 #endif
