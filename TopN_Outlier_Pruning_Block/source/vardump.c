@@ -70,12 +70,12 @@
 int save_vardump(const char * const filename,
                  const size_t * const num_vectors,
                  const size_t * const vector_dims,
-                 const double_t (* const data)[*num_vectors][*vector_dims],
+                 const double_t ** const data,
                  const size_t * const k,
                  const size_t * const N,
                  const size_t * const block_size,
-                 index_t (* const outliers)[*N],
-                 double_t (* const outlier_scores)[*N]) {
+                 index_t ** const outliers,
+                 double_t ** const outlier_scores) {
     if (filename == NULL) {
         PRINTF_STDERR("No filename specified.\n");
         return FILE_NOT_FOUND;
