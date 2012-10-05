@@ -28,7 +28,7 @@ int test(const char * const data_file) {
        
     size_t num_vectors;
     size_t vector_dims;
-    double_t * data;
+    double_in_t * data;
     size_t k;
     size_t N;
     size_t block_size;
@@ -63,8 +63,9 @@ int test(const char * const data_file) {
 #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
     set_block_size(block_size);
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
-    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block((void *) data, outliers, outlier_scores);
     
+    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(data, outliers, outlier_scores);
+
     /* Compare outliers. */
     do {
         PRINTF_STDOUT("Comparing outliers... ");

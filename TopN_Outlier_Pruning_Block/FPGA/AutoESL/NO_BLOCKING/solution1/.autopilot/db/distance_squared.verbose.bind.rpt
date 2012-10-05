@@ -14,7 +14,7 @@
 ================================================================
 * Project:  NO_BLOCKING
 * Solution: solution1
-* Date:     Fri Oct 05 14:54:47 2012
+* Date:     Fri Oct 05 15:53:57 2012
 
 
 
@@ -868,13 +868,13 @@ STG Binding:
 - Is pipelined: 0
 - Is top level: 1
 Port [ Return ] is wired: 1; IO mode=ap_ctrl_hs:ce=0
-Port [ vector1_data_V]:  wired=0; compound=1; hidden=0; nouse=0; global=0; static=0; extern=0; dir=0; type=4; mode=0x4936580; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ vector1_keep_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x49364e0; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ vector1_last_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4936490; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ vector2_data_V]:  wired=0; compound=1; hidden=0; nouse=0; global=0; static=0; extern=0; dir=0; type=4; mode=0x4936468; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ vector2_keep_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4936080; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ vector2_last_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4935fe0; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
-Port [ sum]:  wired=1; compound=0; hidden=0; nouse=0; global=0; static=0; extern=0; dir=1; type=0; mode=0x49364b8; pingpong=0; private_global=0; IO mode=ap_none:ce=0
+Port [ vector1_data_V]:  wired=0; compound=1; hidden=0; nouse=0; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d45960; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ vector1_keep_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d46c20; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ vector1_last_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d47a30; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ vector2_data_V]:  wired=0; compound=1; hidden=0; nouse=0; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d48700; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ vector2_keep_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d48f20; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ vector2_last_V]:  wired=0; compound=1; hidden=0; nouse=1; global=0; static=0; extern=0; dir=0; type=4; mode=0x4d46bf8; pingpong=0; private_global=0; IO mode=ap_fifo:ce=0
+Port [ sum]:  wired=1; compound=0; hidden=0; nouse=0; global=0; static=0; extern=0; dir=1; type=0; mode=0x4d49e48; pingpong=0; private_global=0; IO mode=ap_none:ce=0
 ---------------- STG Properties END ------------------
 
 ---------------- Datapath Model BEGIN ----------------

@@ -121,7 +121,7 @@ int save_vardump(const char * const filename,
 int read_vardump(const char * const filename,
                  size_t * const num_vectors,
                  size_t * const vector_dims,
-                 double_t ** const data,
+                 double_in_t ** const data,
                  size_t * const k,
                  size_t * const N,
                  size_t * const block_size,
@@ -140,7 +140,37 @@ int read_vardump(const char * const filename,
     READ_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* data */
-    MALLOC_READ_VARIABLE(data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, /* no cleanup code */);
+    double_t ** const raw_data = malloc(sizeof(double_t *));
+    if (raw_data == NULL) {
+    	PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", sizeof(double_t *), "raw_data");
+    	return MALLOC_FAILED;
+    }
+    MALLOC_READ_VARIABLE(raw_data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, free(raw_data));
+    *data = malloc((*num_vectors) * (*vector_dims) * sizeof(double_in_t));
+	if (*data == NULL) {
+		PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (*num_vectors) * (*vector_dims) * sizeof(double_in_t), "data");
+		do {
+			free(*raw_data);
+			free(raw_data);
+		} while (0);
+		return MALLOC_FAILED;
+	}
+	do {
+		uint_t i;
+		for (i = 0; i < (*num_vectors); i++) {
+			uint_t j;
+			for (j = 0; j < (*vector_dims); j++) {
+#ifndef __AUTOESL__
+				(*data[i][j])      = (*raw_data[i][j]);
+#else
+				(*data[i][j]).data = (*raw_data[i][j]);
+				(*data[i][j]).keep = 0;
+				(*data[i][j]).last = 0;
+#endif /* #ifndef __AUTOESL__ */
+			}
+		}
+	} while (0);
+#endif /* #ifndef __AUTOESL__ */
     
     /* k */
     READ_VARIABLE(k, sizeof(size_t), 1, filename, fp, free(*data););

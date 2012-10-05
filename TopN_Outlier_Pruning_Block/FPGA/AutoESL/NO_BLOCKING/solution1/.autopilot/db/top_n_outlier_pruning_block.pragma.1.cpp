@@ -49917,10 +49917,10 @@ ALL TIMES.
 
 
 size_t num_vectors_value = 0;
-inline void set_num_vectors(const size_in_t num_vectors) {
+void set_num_vectors(const size_in_t num_vectors) {
     num_vectors_value = num_vectors;
 }
-#57 "../../source/top_n_outlier_pruning_block.cpp"
+#54 "../../source/top_n_outlier_pruning_block.cpp"
  
 class aesl_keep_name_class {
 public:
@@ -50047,7 +50047,7 @@ inline __attribute__((always_inline)) static void aesl_keep_name_ssdm_int_vector
 inline __attribute__((always_inline)) static void aesl_keep_name__iobuf__iob(_iobuf* _iob) {SSDM_KEEP_name(_iob._ptr, &_iob->_ptr); SSDM_KEEP_name(_iob._cnt, &_iob->_cnt); SSDM_KEEP_name(_iob._base, &_iob->_base); SSDM_KEEP_name(_iob._flag, &_iob->_flag); SSDM_KEEP_name(_iob._file, &_iob->_file); SSDM_KEEP_name(_iob._charbuf, &_iob->_charbuf); SSDM_KEEP_name(_iob._bufsiz, &_iob->_bufsiz); SSDM_KEEP_name(_iob._tmpfname, &_iob->_tmpfname);  }
 
 };
-#57 "../../source/top_n_outlier_pruning_block.cpp"
+#54 "../../source/top_n_outlier_pruning_block.cpp"
 void distance_squared(const double_in_t vector1[(200)],
                              const double_in_t vector2[(200)],
                              double_t * const sum) {_ssdm_SpecArrayDimSize(vector1,(200));_ssdm_SpecArrayDimSize(vector2,(200));::aesl_keep_name_class::aesl_keep_name__iobuf__iob(_iob);::aesl_keep_name_class::aesl_keep_name_class_ap_mm2s_double_vector2< 64 >::aesl_keep_name_ap_mm2s_double_vector2(vector2);::aesl_keep_name_class::aesl_keep_name_class_ap_mm2s_double_vector1< 64 >::aesl_keep_name_ap_mm2s_double_vector1(vector1);
@@ -50056,51 +50056,51 @@ _ssdm_op_SpecWire(0, "ap_ctrl_hs", "");
 
     /* Define AutoESL native interface behavior for val1 and val2 */
     {_ssdm_RegionBegin("aesl_label_0");
-#64 "../../source/top_n_outlier_pruning_block.cpp"
+#61 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecWire(sum, "ap_none", "");
-#64 "../../source/top_n_outlier_pruning_block.cpp"
+#61 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_0");};
 
     /* Map the control of the function to AXI4-lite */
     {_ssdm_RegionBegin("aesl_label_1");
-#67 "../../source/top_n_outlier_pruning_block.cpp"
+#64 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(0, "", "AXI_SLAVE", "", "", "{ap_start START} {ap_done DONE} {ap_idle IDLE} {ap_return RETURN}", "-bus_bundle CONTROL_BUS");
-#67 "../../source/top_n_outlier_pruning_block.cpp"
+#64 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_1");};
 
     /* Map val1 and val2 from a native AutoESL interface to AXI4-lite */
     {_ssdm_RegionBegin("aesl_label_2");
-#70 "../../source/top_n_outlier_pruning_block.cpp"
+#67 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(sum, "", "AXI_SLAVE", "", "", "", "-bus_bundle CONTROL_BUS");
-#70 "../../source/top_n_outlier_pruning_block.cpp"
+#67 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_2");};
 
     /* Create an AXI4-stream interface for arrays A and B */
     {_ssdm_RegionBegin("aesl_label_4"); {_ssdm_RegionBegin("aesl_label_3");
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecFifo(vector1, "ap_fifo", "");
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_3");};
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(vector1, "", "AXIS", "", "", "", "-bus_bundle INPUT_STREAM_A");
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
    ;
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(vector1, "", "AXIS", "", "", "{vector1_keep_V TKEEP} {vector1_data_V TDATA} {vector1_strb_V TSTRB} {vector1_user_V TUSER} {vector1_last_V TLAST} {vector1_tdest_V TDEST}", "");
-#73 "../../source/top_n_outlier_pruning_block.cpp"
+#70 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_4");};
     {_ssdm_RegionBegin("aesl_label_6"); {_ssdm_RegionBegin("aesl_label_5");
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecFifo(vector2, "ap_fifo", "");
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_5");};
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(vector2, "", "AXIS", "", "", "", "-bus_bundle INPUT_STREAM_B");
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
    ;
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
 _ssdm_op_SpecResource(vector2, "", "AXIS", "", "", "{vector2_keep_V TKEEP} {vector2_data_V TDATA} {vector2_strb_V TSTRB} {vector2_user_V TUSER} {vector2_last_V TLAST} {vector2_tdest_V TDEST}", "");
-#74 "../../source/top_n_outlier_pruning_block.cpp"
+#71 "../../source/top_n_outlier_pruning_block.cpp"
    ; _ssdm_RegionEnd("aesl_label_6");};
 
 

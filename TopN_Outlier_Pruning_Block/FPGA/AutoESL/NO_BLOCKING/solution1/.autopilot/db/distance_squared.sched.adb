@@ -218,7 +218,7 @@
 						<name>sum_of_squares_split</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>59</lineNumber>
+						<lineNumber>56</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -233,7 +233,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>59</second>
+										<second>56</second>
 									</item>
 								</second>
 							</item>
@@ -259,7 +259,7 @@
 						<name>sum_of_squares_split_addr</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -274,7 +274,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -302,7 +302,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -317,7 +317,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -344,7 +344,7 @@
 						<name>sum_of_squares_split_addr_1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -359,7 +359,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -387,7 +387,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -402,7 +402,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -429,7 +429,7 @@
 						<name>sum_of_squares_split_addr_2</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -444,7 +444,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -472,7 +472,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -487,7 +487,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -514,7 +514,7 @@
 						<name>sum_of_squares_split_addr_3</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -529,7 +529,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -557,7 +557,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -572,7 +572,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -599,7 +599,7 @@
 						<name>sum_of_squares_split_addr_4</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -614,7 +614,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -642,7 +642,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -657,7 +657,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -684,7 +684,7 @@
 						<name>sum_of_squares_split_addr_5</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -699,7 +699,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -727,7 +727,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -742,7 +742,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -769,7 +769,7 @@
 						<name>sum_of_squares_split_addr_6</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -784,7 +784,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -812,7 +812,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -827,7 +827,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -854,7 +854,7 @@
 						<name>sum_of_squares_split_addr_7</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -869,7 +869,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -897,7 +897,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>85</lineNumber>
+						<lineNumber>82</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -912,7 +912,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>85</second>
+										<second>82</second>
 									</item>
 								</second>
 							</item>
@@ -939,7 +939,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -954,7 +954,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1010,7 +1010,7 @@
 						<name>exitcond1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1025,7 +1025,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1052,7 +1052,7 @@
 						<name>dim_1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1067,7 +1067,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1094,7 +1094,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1109,7 +1109,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1137,7 +1137,7 @@
 						<name>dim_cast2</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1152,7 +1152,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1178,7 +1178,7 @@
 						<name>vector1_data_V_read</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>96</lineNumber>
+						<lineNumber>93</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1193,7 +1193,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>96</second>
+										<second>93</second>
 									</item>
 								</second>
 							</item>
@@ -1220,7 +1220,7 @@
 						<name>vector1_data</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>96</lineNumber>
+						<lineNumber>93</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1235,7 +1235,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>96</second>
+										<second>93</second>
 									</item>
 								</second>
 							</item>
@@ -1261,7 +1261,7 @@
 						<name>vector2_data_V_read</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>97</lineNumber>
+						<lineNumber>94</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1276,7 +1276,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>97</second>
+										<second>94</second>
 									</item>
 								</second>
 							</item>
@@ -1303,7 +1303,7 @@
 						<name>vector2_data</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>97</lineNumber>
+						<lineNumber>94</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1318,7 +1318,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>97</second>
+										<second>94</second>
 									</item>
 								</second>
 							</item>
@@ -1344,7 +1344,7 @@
 						<name>diff</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>99</lineNumber>
+						<lineNumber>96</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1359,7 +1359,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>99</second>
+										<second>96</second>
 									</item>
 								</second>
 							</item>
@@ -1386,7 +1386,7 @@
 						<name>diff_squared</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>100</lineNumber>
+						<lineNumber>97</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1401,7 +1401,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>100</second>
+										<second>97</second>
 									</item>
 								</second>
 							</item>
@@ -1428,7 +1428,7 @@
 						<name>tmp_cast</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>101</lineNumber>
+						<lineNumber>98</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1443,7 +1443,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>101</second>
+										<second>98</second>
 									</item>
 								</second>
 							</item>
@@ -1469,7 +1469,7 @@
 						<name>sum_of_squares_split_addr_8</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>101</lineNumber>
+						<lineNumber>98</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1484,7 +1484,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>101</second>
+										<second>98</second>
 									</item>
 								</second>
 							</item>
@@ -1512,7 +1512,7 @@
 						<name>sum_of_squares_split_load</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>101</lineNumber>
+						<lineNumber>98</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1527,7 +1527,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>101</second>
+										<second>98</second>
 									</item>
 								</second>
 							</item>
@@ -1553,7 +1553,7 @@
 						<name>tmp_1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>101</lineNumber>
+						<lineNumber>98</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1568,7 +1568,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>101</second>
+										<second>98</second>
 									</item>
 								</second>
 							</item>
@@ -1595,7 +1595,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>101</lineNumber>
+						<lineNumber>98</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1610,7 +1610,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>101</second>
+										<second>98</second>
 									</item>
 								</second>
 							</item>
@@ -1638,7 +1638,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>88</lineNumber>
+						<lineNumber>85</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1653,7 +1653,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>88</second>
+										<second>85</second>
 									</item>
 								</second>
 							</item>
@@ -1679,7 +1679,7 @@
 						<name>sum_of_squares_split_load_1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1694,7 +1694,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1720,7 +1720,7 @@
 						<name>sum_of_squares_1_0_to_fcmp</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1735,7 +1735,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1762,7 +1762,7 @@
 						<name>sum_of_squares</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1777,7 +1777,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1805,7 +1805,7 @@
 						<name>sum_of_squares_split_load_2</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1820,7 +1820,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1846,7 +1846,7 @@
 						<name>sum_of_squares_1</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1861,7 +1861,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1888,7 +1888,7 @@
 						<name>sum_of_squares_split_load_3</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1903,7 +1903,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1929,7 +1929,7 @@
 						<name>sum_of_squares_2</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1944,7 +1944,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -1971,7 +1971,7 @@
 						<name>sum_of_squares_split_load_4</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -1986,7 +1986,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2012,7 +2012,7 @@
 						<name>sum_of_squares_3</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2027,7 +2027,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2054,7 +2054,7 @@
 						<name>sum_of_squares_split_load_5</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2069,7 +2069,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2095,7 +2095,7 @@
 						<name>sum_of_squares_4</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2110,7 +2110,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2137,7 +2137,7 @@
 						<name>sum_of_squares_split_load_6</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2152,7 +2152,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2178,7 +2178,7 @@
 						<name>sum_of_squares_5</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2193,7 +2193,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2220,7 +2220,7 @@
 						<name>sum_of_squares_split_load_7</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2235,7 +2235,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2261,7 +2261,7 @@
 						<name>sum_of_squares_6</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2276,7 +2276,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2303,7 +2303,7 @@
 						<name>sum_of_squares_split_load_8</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2318,7 +2318,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2344,7 +2344,7 @@
 						<name>sum_of_squares_7</name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>110</lineNumber>
+						<lineNumber>107</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2359,7 +2359,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>110</second>
+										<second>107</second>
 									</item>
 								</second>
 							</item>
@@ -2386,7 +2386,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>113</lineNumber>
+						<lineNumber>110</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2401,7 +2401,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>113</second>
+										<second>110</second>
 									</item>
 								</second>
 							</item>
@@ -2429,7 +2429,7 @@
 						<name></name>
 						<fileName>top_n_outlier_pruning_block.cpp</fileName>
 						<fileDirectory>D:\Josh\ThesisCode\TopN_Outlier_Pruning_Block\FPGA\AutoESL/../../source</fileDirectory>
-						<lineNumber>114</lineNumber>
+						<lineNumber>111</lineNumber>
 						<contextFuncName>distance_squared</contextFuncName>
 						<inlineStackInfo>
 							<count>1</count>
@@ -2444,7 +2444,7 @@
 											<first>top_n_outlier_pruning_block.cpp</first>
 											<second>distance_squared</second>
 										</first>
-										<second>114</second>
+										<second>111</second>
 									</item>
 								</second>
 							</item>

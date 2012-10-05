@@ -49888,10 +49888,10 @@ ALL TIMES.
 #pragma empty_line
 #pragma empty_line
 size_t num_vectors_value = 0;
-inline void set_num_vectors(const size_in_t num_vectors) {
+void set_num_vectors(const size_in_t num_vectors) {
     num_vectors_value = num_vectors;
 }
-#pragma line 57 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 54 "../../source/top_n_outlier_pruning_block.cpp"
  void distance_squared(const double_in_t vector1[(200)],
                              const double_in_t vector2[(200)],
                              double_t * const sum) {
@@ -49900,51 +49900,51 @@ inline void set_num_vectors(const size_in_t num_vectors) {
 #pragma empty_line
     /* Define AutoESL native interface behavior for val1 and val2 */
     {
-#pragma line 64 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 61 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP interface ap_none port=sum
-#pragma line 64 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 61 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
 #pragma empty_line
     /* Map the control of the function to AXI4-lite */
     {
-#pragma line 67 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 64 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXI_SLAVE variable=return metadata="-bus_bundle CONTROL_BUS" port_map={{ap_start START} {ap_done DONE} {ap_idle IDLE} {ap_return RETURN}}
-#pragma line 67 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 64 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
 #pragma empty_line
     /* Map val1 and val2 from a native AutoESL interface to AXI4-lite */
     {
-#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 67 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXI_SLAVE variable=sum metadata="-bus_bundle CONTROL_BUS"
-#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 67 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
 #pragma empty_line
     /* Create an AXI4-stream interface for arrays A and B */
     { {
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP interface ap_fifo port=vector1
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXIS variable=vector1 metadata="-bus_bundle INPUT_STREAM_A"
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
    ;
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXIS variable=vector1 port_map={{vector1_keep_V TKEEP} {vector1_data_V TDATA} {vector1_strb_V TSTRB} {vector1_user_V TUSER} {vector1_last_V TLAST} {vector1_tdest_V TDEST}}
-#pragma line 73 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 70 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
     { {
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP interface ap_fifo port=vector2
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXIS variable=vector2 metadata="-bus_bundle INPUT_STREAM_B"
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
    ;
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
 #pragma AP resource core=AXIS variable=vector2 port_map={{vector2_keep_V TKEEP} {vector2_data_V TDATA} {vector2_strb_V TSTRB} {vector2_user_V TUSER} {vector2_last_V TLAST} {vector2_tdest_V TDEST}}
-#pragma line 74 "../../source/top_n_outlier_pruning_block.cpp"
+#pragma line 71 "../../source/top_n_outlier_pruning_block.cpp"
    ; };
 #pragma empty_line
 #pragma empty_line

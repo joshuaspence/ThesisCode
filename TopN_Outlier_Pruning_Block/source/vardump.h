@@ -66,7 +66,7 @@ int read_vardump(
     const char * const filename,
     size_t * const num_vectors,
     size_t * const vector_dims,
-    double_t ** const data,
+    double_in_t ** const data,
     size_t * const k,
     size_t * const N,
     size_t * const block_size,
