@@ -38,7 +38,7 @@ COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
 
 BUILD_TYPES          := autoesl binary matlab
 
-autoesl_OUTPUT_DIR   := AutoESL
+autoesl_OUTPUT_DIR   := FPGA/AutoESL
 autoesl_TCLEXT       := tcl
 autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
 autoesl_CXXFLAGS      = $(call flags,D__AUTOESL__)
