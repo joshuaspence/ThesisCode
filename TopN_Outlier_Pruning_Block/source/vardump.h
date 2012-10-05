@@ -15,7 +15,7 @@ __BEGIN_DECLS
  * 
  * Parameters:
  *     - filename: The file to read the variable dump file.
- *     - num_vectors: A variable to read from the variable dump file.
+ *     - num_vectors: A pointer to a variable to read from the variable dump file.
  *     - vector_dims: A variable to read from the variable dump file.
  *     - data: A variable to read from the variable dump file.
  *     - k: A variable to read from the variable dump file.

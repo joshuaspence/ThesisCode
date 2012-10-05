@@ -236,9 +236,9 @@ void merge(
  *     The number of vectors pruned whilst executing this algorithm.
  */
 uint_out_t top_n_outlier_pruning_block(
-    const double_in_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
-    index_out_t outliers[N_value],
-    double_out_t outlier_scores[N_value]
+    const double_in_t * const data,
+    index_out_t * const outliers,
+    double_out_t * const outlier_scores
     );
 
 __END_DECLS

@@ -43,13 +43,13 @@
         } \
     } while (0)
 
-#define MALLOC_READ_VARIABLE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
+#define MALLOC_READ_VARIABLE(_type_, _var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
     do { \
         const size_t size  = (_size_); \
         const size_t count = (_count_); \
         size_t result; \
         \
-        *(_var_) = malloc(count * size); \
+        *(_var_) = (_type_) malloc(count * size); \
         if (*(_var_) == NULL) { \
             PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) (count * size), (#_var_)); \
             do { \
@@ -70,7 +70,7 @@
 int save_vardump(const char * const filename,
                  const size_t * const num_vectors,
                  const size_t * const vector_dims,
-                 const double_t ** const data,
+                 const double_t *** const data,
                  const size_t * const k,
                  const size_t * const N,
                  const size_t * const block_size,
@@ -140,15 +140,18 @@ int read_vardump(const char * const filename,
     READ_VARIABLE(vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* data */
-    double_t ** const raw_data = malloc(sizeof(double_t *));
+    double_t ** const raw_data = (double_t **) malloc(sizeof(double_t *));
     if (raw_data == NULL) {
-    	PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", sizeof(double_t *), "raw_data");
+    	PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) sizeof(double_t *), "raw_data");
     	return MALLOC_FAILED;
     }
-    MALLOC_READ_VARIABLE(raw_data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, free(raw_data));
-    *data = malloc((*num_vectors) * (*vector_dims) * sizeof(double_in_t));
+    MALLOC_READ_VARIABLE(double_t *, raw_data, sizeof(double_t), (*num_vectors) * (*vector_dims), filename, fp, free(raw_data););
+#ifndef __AUTOESL__
+    *data = *raw_data;
+#else
+    *data = (double_t *) malloc((*num_vectors) * (*vector_dims) * sizeof(double_in_t));
 	if (*data == NULL) {
-		PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (*num_vectors) * (*vector_dims) * sizeof(double_in_t), "data");
+		PRINTF_STDERR("Failed to allocate %u bytes for %s.\n", (unsigned int) ((*num_vectors) * (*vector_dims) * sizeof(double_in_t)), "data");
 		do {
 			free(*raw_data);
 			free(raw_data);
@@ -160,13 +163,9 @@ int read_vardump(const char * const filename,
 		for (i = 0; i < (*num_vectors); i++) {
 			uint_t j;
 			for (j = 0; j < (*vector_dims); j++) {
-#ifndef __AUTOESL__
-				(*data[i][j])      = (*raw_data[i][j]);
-#else
-				(*data[i][j]).data = (*raw_data[i][j]);
-				(*data[i][j]).keep = 0;
-				(*data[i][j]).last = 0;
-#endif /* #ifndef __AUTOESL__ */
+				(*data)[i][j].data = (*raw_data)[i][j];
+				(*data)[i][j].keep = 0;
+				(*data)[i][j].last = 0;
 			}
 		}
 	} while (0);
@@ -182,10 +181,10 @@ int read_vardump(const char * const filename,
     READ_VARIABLE(block_size, sizeof(size_t), 1, filename, fp, free(*data););
     
     /* outliers */
-    MALLOC_READ_VARIABLE(outliers, sizeof(index_t), (*N), filename, fp, free(*data););
+    MALLOC_READ_VARIABLE(index_t *, outliers, sizeof(index_t), (*N), filename, fp, free(*data););
     
     /* outlier_scores */
-    MALLOC_READ_VARIABLE(outlier_scores, sizeof(double_t), (*N), filename, fp, free(*data); free(*outliers););
+    MALLOC_READ_VARIABLE(double_t *, outlier_scores, sizeof(double_t), (*N), filename, fp, free(*data); free(*outliers););
     
 #if 0 /* this code doesn't seem to work */
     if (!feof(fp)) {

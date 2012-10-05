@@ -393,8 +393,9 @@ INLINE void merge(const size_in_t global_outliers_size, const index_in_t global_
     }
 }
 
-uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(num_vectors_value)][vector_dims_value],
-                                       index_out_t outliers[N_value], double_out_t outlier_scores[N_value]) {
+uint_out_t top_n_outlier_pruning_block(const double_in_t * const data,
+                                       index_out_t * const outliers,
+                                       double_out_t * const outlier_scores) {
     /* Error checking. */
     ASSERT(num_vectors_value > 0);
     ASSERT(vector_dims_value > 0);
@@ -455,8 +456,8 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
 
                     uint_t i;
                     for (i = 0; i < num_vectors_value; i++) {
-                        vector1_in[i] = data[vector1 - START_INDEX][i];
-                        vector2_in[i] = data[vector2 - START_INDEX][i];
+                        vector1_in[i] = data[(vector1-START_INDEX)*vector_dims_value+i];
+                        vector2_in[i] = data[(vector2-START_INDEX)*vector_dims_value+i];
                     }
                     distance_squared(vector1_in, vector2_in, &dist_squared);
                     
@@ -520,8 +521,8 @@ uint_out_t top_n_outlier_pruning_block(const double_in_t data[MAX_NUM_VECTORS(nu
 
                 uint_t i;
                 for (i = 0; i < num_vectors_value; i++) {
-                    vector1_in[i] = data[vector1 - START_INDEX][i];
-                    vector2_in[i] = data[vector2 - START_INDEX][i];
+                    vector1_in[i] = data[(vector1-START_INDEX)*vector_dims_value+i];
+                    vector2_in[i] = data[(vector2-START_INDEX)*vector_dims_value+i];
                 }
                 distance_squared(vector1_in, vector2_in, &dist_squared);
                 

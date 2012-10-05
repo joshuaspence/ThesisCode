@@ -64,7 +64,7 @@ int test(const char * const data_file) {
     set_block_size(block_size);
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
     
-    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(data, outliers, outlier_scores);
+    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(const_cast<const double_in_t * const>(data), outliers, outlier_scores);
 
     /* Compare outliers. */
     do {
