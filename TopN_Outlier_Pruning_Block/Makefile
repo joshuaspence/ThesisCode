@@ -485,7 +485,7 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 
 # Additional flags
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 fpermissive Wno-unused-label Wno-vla)
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label Wno-vla)
 
 # gprof
 GPROF_FLAGS_OFF :=
@@ -599,6 +599,18 @@ endif
 endif
 endif
 
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                                   RULES                                      #
+#                                                                              #
+#------------------------------------------------------------------------------#
+
+$(DATA_DIR)/%.dat.h: $(DATA_DIR)/%.dat
+	python data.py $< dataset_$* $@
+
+$(DATA_DIR)/%.h: $(DATA_DIR)/%.h.pl
+	perl $< $@
 
 #------------------------------------------------------------------------------#
 #                                                                              #
