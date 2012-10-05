@@ -1,0 +1,16 @@
+
+<BLOCKS>
+
+  <BLOCK ID="__GROUP_PROCESSOR__.processing_system7_0">
+    <BLOCK ID="processing_system7_0">
+      <BLOCK C="axi_interconnect_1" ID="M_AXI_GP0"/>
+    </BLOCK>
+    <BLOCK ID="__GROUP_SLAVES__.axi_interconnect_1">
+      <BLOCK ID="distance_squared_top_0">
+        <BLOCK C="axi_interconnect_1" ID="S_AXI_CONTROL_BUS"/>
+      </BLOCK>
+    </BLOCK>
+    <BLOCK ID="axi_interconnect_1"/>
+  </BLOCK>
+
+</BLOCKS>
