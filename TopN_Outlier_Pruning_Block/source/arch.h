@@ -103,9 +103,15 @@
     #define PRINTF_STDOUT(...)          fprintf(stdout, __VA_ARGS__)
     #define PRINTF_STDERR(...)          fprintf(stderr, __VA_ARGS__)
     
-    #define __USE_XOPEN2K8
-    #include <locale.h>
-    #include <xlocale.h>
+    #if defined(__GCC__)
+		#define __USE_XOPEN2K8
+		#include <locale.h>
+		#include <xlocale.h>
+    #elif defined(_MSC_VER)
+	#else
+		/* Prevent MinGW from attempting to define double_t */
+		#define __FLT_EVAL_METHOD__ (-1)
+	#endif /* #if defined(__GCC__) */
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 

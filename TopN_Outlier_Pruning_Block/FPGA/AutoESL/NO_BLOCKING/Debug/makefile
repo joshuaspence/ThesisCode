@@ -9,6 +9,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir.mk
+-include testbench/subdir.mk
 -include source/subdir.mk
 -include objects.mk
 
@@ -38,19 +39,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: a.out
+all: a.exe
 
 # Tool invocations
-a.out: $(OBJS) $(USER_OBJS)
+a.exe: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++ -L/opt/Xilinx/2012.1/AutoESL/Linux_x86_64/tools/systemc/lib -o "a.out" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -LC:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/lib -o "a.exe" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(OBJS)$(C++_DEPS)$(EXECUTABLES)$(CC_DEPS)$(C_DEPS)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) a.out
+	-$(RM) $(OBJS)$(C++_DEPS)$(EXECUTABLES)$(CC_DEPS)$(C_DEPS)$(CPP_DEPS)$(CXX_DEPS)$(C_UPPER_DEPS) a.exe
 	-@echo ' '
 
 .PHONY: all clean dependents

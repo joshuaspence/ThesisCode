@@ -5,7 +5,7 @@
 ================================================================
 * Tool:          AutoESL - High-Level Synthesis System (C, C++, SystemC)
 * Version:       2012.1
-* Build date:    Tue May 08 18:26:27 PM 2012
+* Build date:    Tue May 08 19:17:35 PM 2012
 * Copyright (C): 2012 Xilinx Inc. All rights reserved.
 
 
@@ -14,15 +14,15 @@
 ================================================================
 * Project:  NO_BLOCKING
 * Solution: solution1
-* Date:     Wed Oct  3 13:08:51 2012
+* Date:     Fri Oct 05 14:54:47 2012
 
 
 
 ================================================================
 == User Assignments
 ================================================================
-* Product Family:           virtex6 virtex6_fpv6 
-* Part:                     xc6vlx240t:ff1156:-1
+* Product Family:           zynq zynq_fpv6 
+* Part:                     xc7z020:clg484:-1
 * Top Model name:           distance_squared
 * Target clock period (ns): 10.00
 * Clock uncertainty (ns):   1.25
@@ -32,7 +32,7 @@
 == Performance Estimates
 ================================================================
 + Summary of timing analysis: 
-    * Estimated clock period (ns): 7.57
+    * Estimated clock period (ns): 8.71
 + Summary of overall latency (clock cycles): 
     * Best-case latency:    265
     * Average-case latency: 265
@@ -49,49 +49,49 @@
 == Area Estimates
 ================================================================
 * Summary: 
-(Target device: xc6vlx240t:ff1156:-1)
-+---+-----------------+-----+-------+--------+--------+-------+
-| ID|             Name| BRAM| DSP48E|      FF|     LUT|  SLICE|
-+---+-----------------+-----+-------+--------+--------+-------+
-|  0|        Component|    -|     17|    1859|    2764|      -|
-|  1|       Expression|    -|      -|       0|      76|      -|
-|  2|             FIFO|    -|      -|       -|       -|      -|
-|  3|           Memory|    1|      -|       0|       0|      -|
-|  4|      Multiplexer|    -|      -|       -|     290|      -|
-|  5|         Register|    -|      -|     701|       -|      -|
-+---+-----------------+-----+-------+--------+--------+-------+
-|  -|            Total|    1|     17|    2560|    3130|      0|
-+---+-----------------+-----+-------+--------+--------+-------+
-|  -|        Available|  832|    768|  301440|  150720|  37680|
-+---+-----------------+-----+-------+--------+--------+-------+
-|  -|  Utilization (%)|   ~0|      2|      ~0|       2|      0|
-+---+-----------------+-----+-------+--------+--------+-------+
+(Target device: xc7z020:clg484:-1)
++---+-----------------+-----+-------+--------+-------+-------+
+| ID|             Name| BRAM| DSP48E|      FF|    LUT|  SLICE|
++---+-----------------+-----+-------+--------+-------+-------+
+|  0|        Component|    -|     17|    2005|   4621|      -|
+|  1|       Expression|    -|      -|       0|     82|      -|
+|  2|             FIFO|    -|      -|       -|      -|      -|
+|  3|           Memory|    1|      -|       0|      0|      -|
+|  4|      Multiplexer|    -|      -|       -|    290|      -|
+|  5|         Register|    -|      -|     701|      -|      -|
++---+-----------------+-----+-------+--------+-------+-------+
+|  -|            Total|    1|     17|    2706|   4993|      0|
++---+-----------------+-----+-------+--------+-------+-------+
+|  -|        Available|  280|    220|  106400|  53200|  13300|
++---+-----------------+-----+-------+--------+-------+-------+
+|  -|  Utilization (%)|   ~0|      7|       2|      9|      0|
++---+-----------------+-----+-------+--------+-------+-------+
 
 + Details: 
     * Component: 
-    +---+---------------------------------------------------------------------------------------------+-------+-----+-----+
-    | ID|                                                                                         Name| DSP48E|   FF|  LUT|
-    +---+---------------------------------------------------------------------------------------------+-------+-----+-----+
-    |  0|  distance_squared_grp_fu_219_ACMP_dadddsub_1_U (distance_squared_grp_fu_219_ACMP_dadddsub_1)|      3|  446|  797|
-    |  1|          distance_squared_grp_fu_223_ACMP_dadd_2_U (distance_squared_grp_fu_223_ACMP_dadd_2)|      3|  446|  797|
-    |  2|          distance_squared_grp_fu_228_ACMP_dmul_3_U (distance_squared_grp_fu_228_ACMP_dmul_3)|     11|  317|  217|
-    |  3|          distance_squared_grp_fu_232_ACMP_dcmp_4_U (distance_squared_grp_fu_232_ACMP_dcmp_4)|      0|  130|  133|
-    |  4|      distance_squared_grp_fu_238_ACMP_sitodp_5_U (distance_squared_grp_fu_238_ACMP_sitodp_5)|      0|  260|  410|
-    |  5|      distance_squared_grp_fu_241_ACMP_sitodp_6_U (distance_squared_grp_fu_241_ACMP_sitodp_6)|      0|  260|  410|
-    +---+---------------------------------------------------------------------------------------------+-------+-----+-----+
-    |  -|                                                                                        Total|     17| 1859| 2764|
-    +---+---------------------------------------------------------------------------------------------+-------+-----+-----+
+    +---+---------------------------------------------------------------------------------------------+-------+-----+------+
+    | ID|                                                                                         Name| DSP48E|   FF|   LUT|
+    +---+---------------------------------------------------------------------------------------------+-------+-----+------+
+    |  0|  distance_squared_grp_fu_215_ACMP_dadddsub_1_U (distance_squared_grp_fu_215_ACMP_dadddsub_1)|      3|  445|  1156|
+    |  1|          distance_squared_grp_fu_219_ACMP_dadd_2_U (distance_squared_grp_fu_219_ACMP_dadd_2)|      3|  445|  1156|
+    |  2|          distance_squared_grp_fu_224_ACMP_dmul_3_U (distance_squared_grp_fu_224_ACMP_dmul_3)|     11|  299|   570|
+    |  3|          distance_squared_grp_fu_228_ACMP_dcmp_4_U (distance_squared_grp_fu_228_ACMP_dcmp_4)|      0|  130|   469|
+    |  4|      distance_squared_grp_fu_234_ACMP_sitodp_5_U (distance_squared_grp_fu_234_ACMP_sitodp_5)|      0|  343|   635|
+    |  5|      distance_squared_grp_fu_237_ACMP_sitodp_6_U (distance_squared_grp_fu_237_ACMP_sitodp_6)|      0|  343|   635|
+    +---+---------------------------------------------------------------------------------------------+-------+-----+------+
+    |  -|                                                                                        Total|     17| 2005|  4621|
+    +---+---------------------------------------------------------------------------------------------+-------+-----+------+
 
     * Expression: 
     +---+------------------------------------+---+---+----+---+----+
     | ID|                                Name| P0| P1|  P2| FF| LUT|
     +---+------------------------------------+---+---+----+---+----+
-    |  0|              ap_sig_bdd_100 ( or ) |  1|  1|   -|  0|   1|
-    |  1|                  dim_reg_207 ( + ) |  8|  1|   -|  0|   8|
-    |  2|       exitcond1_fu_258_p2 ( icmp ) |  8|  7|   -|  0|   3|
-    |  3|  sum_of_squares_reg_376 ( Select ) |  1|  1|  64|  0|  64|
+    |  0|              ap_sig_bdd_100 ( or ) |  1|  1|   -|  0|   2|
+    |  1|                  dim_reg_203 ( + ) |  8|  1|   -|  0|   8|
+    |  2|       exitcond1_fu_254_p2 ( icmp ) |  8|  7|   -|  0|   8|
+    |  3|  sum_of_squares_reg_372 ( Select ) |  1|  1|  64|  0|  64|
     +---+------------------------------------+---+---+----+---+----+
-    |  -|                               Total| 18| 10|  64|  0|  76|
+    |  -|                               Total| 18| 10|  64|  0|  82|
     +---+------------------------------------+---+---+----+---+----+
 
     * FIFO: 
@@ -111,9 +111,9 @@
     | ID|                           Name| Size| Bits| Count| LUT|
     +---+-------------------------------+-----+-----+------+----+
     |  0|                      ap_NS_fsm|   46|    6|   276|  78|
-    |  1|                    dim_reg_207|    2|    8|    16|   8|
-    |  2|                  grp_fu_219_p0|    2|   64|   128|  64|
-    |  3|                  grp_fu_219_p1|    3|   64|   192|  64|
+    |  1|                    dim_reg_203|    2|    8|    16|   8|
+    |  2|                  grp_fu_215_p0|    2|   64|   128|  64|
+    |  3|                  grp_fu_215_p1|    3|   64|   192|  64|
     |  4|  sum_of_squares_split_address0|   13|    3|    39|   9|
     |  5|  sum_of_squares_split_address1|    5|    3|    15|   3|
     |  6|        sum_of_squares_split_d1|    2|   64|   128|  64|
@@ -149,68 +149,68 @@
     | 21|                                      ap_reg_ppiten_pp0_it7|    1|      0|   1|
     | 22|                                      ap_reg_ppiten_pp0_it8|    1|      0|   1|
     | 23|                                      ap_reg_ppiten_pp0_it9|    1|      0|   1|
-    | 24|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it1|    3|      0|   3|
-    | 25|                    ap_reg_ppstg_dim_cast2_reg_335_pp0_it10|    3|      0|   3|
-    | 26|                    ap_reg_ppstg_dim_cast2_reg_335_pp0_it11|    3|      0|   3|
-    | 27|                    ap_reg_ppstg_dim_cast2_reg_335_pp0_it12|    3|      0|   3|
-    | 28|                    ap_reg_ppstg_dim_cast2_reg_335_pp0_it13|    3|      0|   3|
-    | 29|                    ap_reg_ppstg_dim_cast2_reg_335_pp0_it14|    3|      0|   3|
-    | 30|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it2|    3|      0|   3|
-    | 31|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it3|    3|      0|   3|
-    | 32|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it4|    3|      0|   3|
-    | 33|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it5|    3|      0|   3|
-    | 34|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it6|    3|      0|   3|
-    | 35|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it7|    3|      0|   3|
-    | 36|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it8|    3|      0|   3|
-    | 37|                     ap_reg_ppstg_dim_cast2_reg_335_pp0_it9|    3|      0|   3|
-    | 38|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it1|    1|      0|   1|
-    | 39|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it10|    1|      0|   1|
-    | 40|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it11|    1|      0|   1|
-    | 41|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it12|    1|      0|   1|
-    | 42|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it13|    1|      0|   1|
-    | 43|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it14|    1|      0|   1|
-    | 44|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it15|    1|      0|   1|
-    | 45|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it16|    1|      0|   1|
-    | 46|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it17|    1|      0|   1|
-    | 47|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it18|    1|      0|   1|
-    | 48|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it19|    1|      0|   1|
-    | 49|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it2|    1|      0|   1|
-    | 50|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it20|    1|      0|   1|
-    | 51|                    ap_reg_ppstg_exitcond1_reg_326_pp0_it21|    1|      0|   1|
-    | 52|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it3|    1|      0|   1|
-    | 53|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it4|    1|      0|   1|
-    | 54|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it5|    1|      0|   1|
-    | 55|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it6|    1|      0|   1|
-    | 56|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it7|    1|      0|   1|
-    | 57|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it8|    1|      0|   1|
-    | 58|                     ap_reg_ppstg_exitcond1_reg_326_pp0_it9|    1|      0|   1|
-    | 59|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it16|    3|      0|   3|
-    | 60|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it17|    3|      0|   3|
-    | 61|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it18|    3|      0|   3|
-    | 62|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it19|    3|      0|   3|
-    | 63|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it20|    3|      0|   3|
-    | 64|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_360_pp0_it21|    3|      0|   3|
-    | 65|                                       diff_squared_reg_366|   64|      0|  64|
-    | 66|                                          dim_cast2_reg_335|    3|      0|   3|
-    | 67|                                                dim_reg_207|    8|      0|   8|
-    | 68|                                          exitcond1_reg_326|    1|      0|   1|
-    | 69|                                                    reg_244|   64|      0|  64|
-    | 70|                                                    reg_251|   64|      0|  64|
-    | 71|                                     sum_of_squares_reg_376|   64|      0|  64|
-    | 72|                        sum_of_squares_split_addr_1_reg_291|    3|      3|   0|
-    | 73|                        sum_of_squares_split_addr_2_reg_296|    3|      3|   0|
-    | 74|                        sum_of_squares_split_addr_3_reg_301|    3|      3|   0|
-    | 75|                        sum_of_squares_split_addr_4_reg_306|    3|      3|   0|
-    | 76|                        sum_of_squares_split_addr_5_reg_311|    3|      3|   0|
-    | 77|                        sum_of_squares_split_addr_6_reg_316|    3|      3|   0|
-    | 78|                        sum_of_squares_split_addr_7_reg_321|    3|      3|   0|
-    | 79|                        sum_of_squares_split_addr_8_reg_360|    3|      0|   3|
-    | 80|                          sum_of_squares_split_addr_reg_286|    3|      3|   0|
-    | 81|                                              tmp_3_reg_371|   64|      0|  64|
-    | 82|                                vector1_data_V_read_reg_340|   64|      0|  64|
-    | 83|                                       vector1_data_reg_350|   64|      0|  64|
-    | 84|                                vector2_data_V_read_reg_345|   64|      0|  64|
-    | 85|                                       vector2_data_reg_355|   64|      0|  64|
+    | 24|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it1|    3|      0|   3|
+    | 25|                    ap_reg_ppstg_dim_cast2_reg_331_pp0_it10|    3|      0|   3|
+    | 26|                    ap_reg_ppstg_dim_cast2_reg_331_pp0_it11|    3|      0|   3|
+    | 27|                    ap_reg_ppstg_dim_cast2_reg_331_pp0_it12|    3|      0|   3|
+    | 28|                    ap_reg_ppstg_dim_cast2_reg_331_pp0_it13|    3|      0|   3|
+    | 29|                    ap_reg_ppstg_dim_cast2_reg_331_pp0_it14|    3|      0|   3|
+    | 30|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it2|    3|      0|   3|
+    | 31|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it3|    3|      0|   3|
+    | 32|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it4|    3|      0|   3|
+    | 33|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it5|    3|      0|   3|
+    | 34|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it6|    3|      0|   3|
+    | 35|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it7|    3|      0|   3|
+    | 36|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it8|    3|      0|   3|
+    | 37|                     ap_reg_ppstg_dim_cast2_reg_331_pp0_it9|    3|      0|   3|
+    | 38|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it1|    1|      0|   1|
+    | 39|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it10|    1|      0|   1|
+    | 40|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it11|    1|      0|   1|
+    | 41|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it12|    1|      0|   1|
+    | 42|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it13|    1|      0|   1|
+    | 43|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it14|    1|      0|   1|
+    | 44|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it15|    1|      0|   1|
+    | 45|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it16|    1|      0|   1|
+    | 46|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it17|    1|      0|   1|
+    | 47|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it18|    1|      0|   1|
+    | 48|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it19|    1|      0|   1|
+    | 49|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it2|    1|      0|   1|
+    | 50|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it20|    1|      0|   1|
+    | 51|                    ap_reg_ppstg_exitcond1_reg_322_pp0_it21|    1|      0|   1|
+    | 52|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it3|    1|      0|   1|
+    | 53|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it4|    1|      0|   1|
+    | 54|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it5|    1|      0|   1|
+    | 55|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it6|    1|      0|   1|
+    | 56|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it7|    1|      0|   1|
+    | 57|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it8|    1|      0|   1|
+    | 58|                     ap_reg_ppstg_exitcond1_reg_322_pp0_it9|    1|      0|   1|
+    | 59|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it16|    3|      0|   3|
+    | 60|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it17|    3|      0|   3|
+    | 61|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it18|    3|      0|   3|
+    | 62|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it19|    3|      0|   3|
+    | 63|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it20|    3|      0|   3|
+    | 64|  ap_reg_ppstg_sum_of_squares_split_addr_8_reg_356_pp0_it21|    3|      0|   3|
+    | 65|                                       diff_squared_reg_362|   64|      0|  64|
+    | 66|                                          dim_cast2_reg_331|    3|      0|   3|
+    | 67|                                                dim_reg_203|    8|      0|   8|
+    | 68|                                          exitcond1_reg_322|    1|      0|   1|
+    | 69|                                                    reg_240|   64|      0|  64|
+    | 70|                                                    reg_247|   64|      0|  64|
+    | 71|                                     sum_of_squares_reg_372|   64|      0|  64|
+    | 72|                        sum_of_squares_split_addr_1_reg_287|    3|      3|   0|
+    | 73|                        sum_of_squares_split_addr_2_reg_292|    3|      3|   0|
+    | 74|                        sum_of_squares_split_addr_3_reg_297|    3|      3|   0|
+    | 75|                        sum_of_squares_split_addr_4_reg_302|    3|      3|   0|
+    | 76|                        sum_of_squares_split_addr_5_reg_307|    3|      3|   0|
+    | 77|                        sum_of_squares_split_addr_6_reg_312|    3|      3|   0|
+    | 78|                        sum_of_squares_split_addr_7_reg_317|    3|      3|   0|
+    | 79|                        sum_of_squares_split_addr_8_reg_356|    3|      0|   3|
+    | 80|                          sum_of_squares_split_addr_reg_282|    3|      3|   0|
+    | 81|                                              tmp_1_reg_367|   64|      0|  64|
+    | 82|                                vector1_data_V_read_reg_336|   64|      0|  64|
+    | 83|                                       vector1_data_reg_346|   64|      0|  64|
+    | 84|                                vector2_data_V_read_reg_341|   64|      0|  64|
+    | 85|                                       vector2_data_reg_351|   64|      0|  64|
     +---+-----------------------------------------------------------+-----+-------+----+
     |  -|                                                      Total|  725|     24| 701|
     +---+-----------------------------------------------------------+-----+-------+----+
@@ -220,12 +220,12 @@
 | ID|                                                                                         Name| Size| Bits| Count|
 +---+---------------------------------------------------------------------------------------------+-----+-----+------+
 |  0|                                                                                 (This level)|   73|  212|   794|
-|  1|  distance_squared_grp_fu_219_ACMP_dadddsub_1_U (distance_squared_grp_fu_219_ACMP_dadddsub_1)|    -|    -|     0|
-|  2|          distance_squared_grp_fu_223_ACMP_dadd_2_U (distance_squared_grp_fu_223_ACMP_dadd_2)|    -|    -|     0|
-|  3|          distance_squared_grp_fu_228_ACMP_dmul_3_U (distance_squared_grp_fu_228_ACMP_dmul_3)|    -|    -|     0|
-|  4|          distance_squared_grp_fu_232_ACMP_dcmp_4_U (distance_squared_grp_fu_232_ACMP_dcmp_4)|    -|    -|     0|
-|  5|      distance_squared_grp_fu_238_ACMP_sitodp_5_U (distance_squared_grp_fu_238_ACMP_sitodp_5)|    -|    -|     0|
-|  6|      distance_squared_grp_fu_241_ACMP_sitodp_6_U (distance_squared_grp_fu_241_ACMP_sitodp_6)|    -|    -|     0|
+|  1|  distance_squared_grp_fu_215_ACMP_dadddsub_1_U (distance_squared_grp_fu_215_ACMP_dadddsub_1)|    -|    -|     0|
+|  2|          distance_squared_grp_fu_219_ACMP_dadd_2_U (distance_squared_grp_fu_219_ACMP_dadd_2)|    -|    -|     0|
+|  3|          distance_squared_grp_fu_224_ACMP_dmul_3_U (distance_squared_grp_fu_224_ACMP_dmul_3)|    -|    -|     0|
+|  4|          distance_squared_grp_fu_228_ACMP_dcmp_4_U (distance_squared_grp_fu_228_ACMP_dcmp_4)|    -|    -|     0|
+|  5|      distance_squared_grp_fu_234_ACMP_sitodp_5_U (distance_squared_grp_fu_234_ACMP_sitodp_5)|    -|    -|     0|
+|  6|      distance_squared_grp_fu_237_ACMP_sitodp_6_U (distance_squared_grp_fu_237_ACMP_sitodp_6)|    -|    -|     0|
 +---+---------------------------------------------------------------------------------------------+-----+-----+------+
 |  -|                                                                                        Total|   73|  212|   794|
 +---+---------------------------------------------------------------------------------------------+-----+-----+------+
@@ -239,14 +239,14 @@
 +---+-------------+------+
 | ID|         Name| Power|
 +---+-------------+------+
-|  0|    Component|   462|
-|  1|   Expression|     7|
+|  0|    Component|   663|
+|  1|   Expression|     8|
 |  2|         FIFO|     -|
 |  3|       Memory|     -|
 |  4|  Multiplexer|    29|
 |  5|     Register|    70|
 +---+-------------+------+
-|  -|        Total|   568|
+|  -|        Total|   770|
 +---+-------------+------+
 
 * Hierarchical Register Count: 

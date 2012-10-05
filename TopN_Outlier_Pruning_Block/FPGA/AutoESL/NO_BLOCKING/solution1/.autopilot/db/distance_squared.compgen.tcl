@@ -1,7 +1,7 @@
 # This script segment is generated automatically by AutoPilot
 
 set id 1
-set name distance_squared_grp_fu_219_ACMP_dadddsub_1
+set name distance_squared_grp_fu_215_ACMP_dadddsub_1
 set corename simcore_dadddsub
 set op dadddsub
 set stage_num 5
@@ -68,7 +68,7 @@ puts "@W \[IMPL-101\] Cannot find ::AESL_LIB_XILINX_FPV6::fpv6_gen, check your p
 
 
 set id 2
-set name distance_squared_grp_fu_223_ACMP_dadd_2
+set name distance_squared_grp_fu_219_ACMP_dadd_2
 set corename simcore_dadd
 set op dadd
 set stage_num 5
@@ -135,10 +135,10 @@ puts "@W \[IMPL-101\] Cannot find ::AESL_LIB_XILINX_FPV6::fpv6_gen, check your p
 
 
 set id 3
-set name distance_squared_grp_fu_228_ACMP_dmul_3
+set name distance_squared_grp_fu_224_ACMP_dmul_3
 set corename simcore_dmul
 set op dmul
-set stage_num 6
+set stage_num 5
 set registered_input 1
 set impl_style max_dsp
 set in0_width 64
@@ -202,7 +202,7 @@ puts "@W \[IMPL-101\] Cannot find ::AESL_LIB_XILINX_FPV6::fpv6_gen, check your p
 
 
 set id 4
-set name distance_squared_grp_fu_232_ACMP_dcmp_4
+set name distance_squared_grp_fu_228_ACMP_dcmp_4
 set corename simcore_dcmp
 set op dcmp
 set stage_num 3
@@ -266,10 +266,10 @@ puts "@W \[IMPL-101\] Cannot find ::AESL_LIB_XILINX_FPV6::fpv6_gen, check your p
 
 
 set id 5
-set name distance_squared_grp_fu_238_ACMP_sitodp_5
+set name distance_squared_grp_fu_234_ACMP_sitodp_5
 set corename simcore_sitodp
 set op sitodp
-set stage_num 4
+set stage_num 5
 set registered_input 1
 set in0_width 64
 set in0_signed 0
@@ -324,10 +324,10 @@ puts "@W \[IMPL-101\] Cannot find ::AESL_LIB_XILINX_FPV6::fpv6_gen, check your p
 
 
 set id 6
-set name distance_squared_grp_fu_241_ACMP_sitodp_6
+set name distance_squared_grp_fu_237_ACMP_sitodp_6
 set corename simcore_sitodp
 set op sitodp
-set stage_num 4
+set stage_num 5
 set registered_input 1
 set in0_width 64
 set in0_signed 0

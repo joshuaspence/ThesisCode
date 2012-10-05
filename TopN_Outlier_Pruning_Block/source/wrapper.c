@@ -12,8 +12,11 @@
 /* All data sets                                                              */
 /*============================================================================*/
 static const char * const all_datasets[] = {
+#ifdef TEST_ALL
     "data/testoutrank.dat",
+#endif /* TEST_ALL */
     "data/ball1.dat",
+#ifdef TEST_ALL
     "data/testCD.dat",
     "data/runningex1k.dat",
     "data/testCDST2.dat",
@@ -33,6 +36,7 @@ static const char * const all_datasets[] = {
     "data/magicgamma.dat",
     "data/musk.dat",
     "data/connect4.dat"
+#endif /* #ifdef TEST_ALL */
 };
 /*----------------------------------------------------------------------------*/
 

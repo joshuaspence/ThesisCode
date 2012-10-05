@@ -17,8 +17,8 @@ entity distance_squared_sum_of_squares_split is
         AddressRange : INTEGER := 8;
         AddressWidth : INTEGER := 3);
     port (
-        reset : IN STD_LOGIC;
         clk : IN STD_LOGIC;
+        reset : IN STD_LOGIC;
         address0 : IN STD_LOGIC_VECTOR(AddressWidth - 1 DOWNTO 0);
         ce0 : IN STD_LOGIC;
         we0 : IN STD_LOGIC;
@@ -33,33 +33,52 @@ end entity;
 architecture arch of distance_squared_sum_of_squares_split is
     component distance_squared_sum_of_squares_split_ram is
         port (
-            clk : IN STD_LOGIC;
-            addr0 : IN STD_LOGIC_VECTOR;
-            ce0 : IN STD_LOGIC;
-            d0 : IN STD_LOGIC_VECTOR;
-            we0 : IN STD_LOGIC;
-            q0 : OUT STD_LOGIC_VECTOR;
-            addr1 : IN STD_LOGIC_VECTOR;
-            ce1 : IN STD_LOGIC;
-            d1 : IN STD_LOGIC_VECTOR;
-            we1 : IN STD_LOGIC);
+            clka : IN STD_LOGIC;
+            dina : IN STD_LOGIC_VECTOR;
+            addra : IN STD_LOGIC_VECTOR;
+            wea : IN STD_LOGIC_VECTOR;
+            douta : OUT STD_LOGIC_VECTOR;
+            ena : IN STD_LOGIC;
+            clkb : IN STD_LOGIC;
+            dinb : IN STD_LOGIC_VECTOR;
+            addrb : IN STD_LOGIC_VECTOR;
+            web : IN STD_LOGIC_VECTOR;
+            doutb : OUT STD_LOGIC_VECTOR;
+            enb : IN STD_LOGIC);
     end component;
 
+    signal sig_we0 : STD_LOGIC_VECTOR(1 - 1 DOWNTO 0);
+    signal sig_ena : STD_LOGIC;
+    signal sig_d0 : STD_LOGIC_VECTOR(64 - 1 DOWNTO 0);
+    signal sig_q0 : STD_LOGIC_VECTOR(64 - 1 DOWNTO 0);
+    signal sig_we1 : STD_LOGIC_VECTOR(1 - 1 DOWNTO 0);
+    signal sig_enb : STD_LOGIC;
+    signal sig_d1 : STD_LOGIC_VECTOR(64 - 1 DOWNTO 0);
+    signal sig_q1 : STD_LOGIC_VECTOR(64 - 1 DOWNTO 0);
 
 
 begin
     distance_squared_sum_of_squares_split_ram_U :  component distance_squared_sum_of_squares_split_ram
     port map (
-        clk => clk,
-        addr0 => address0,
-        ce0 => ce0,
-        d0 => d0,
-        we0 => we0,
-        q0 => q0,
-        addr1 => address1,
-        ce1 => ce1,
-        d1 => d1,
-        we1 => we1);
+        clka => clk,
+        dina => sig_d0,
+        addra => address0,
+        wea => sig_we0,
+        douta => sig_q0,
+        ena => sig_ena,
+        clkb => clk,
+        dinb => sig_d1,
+        addrb => address1,
+        web => sig_we1,
+        doutb => sig_q1,
+        enb => sig_enb);
 
+sig_we0(0) <= we0;
+sig_d0 <= d0;
+q0 <= sig_q0;
+sig_ena <= ce0;
+sig_we1(0) <= we1;
+sig_d1 <= d1;
+sig_enb <= ce1;
 end architecture;
 

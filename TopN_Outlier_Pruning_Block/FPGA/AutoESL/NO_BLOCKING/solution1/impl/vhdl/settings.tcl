@@ -10,9 +10,9 @@
 #
 set top_module distance_squared
 set language vhdl
-set family virtex6
-set device xc6vlx240t
-set package ff1156
+set family zynq
+set device xc7z020
+set package clg484
 set speed -1
 set clock ap_clk
 
