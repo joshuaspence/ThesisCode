@@ -42,13 +42,13 @@ autoesl_OUTPUT_DIR   := FPGA/AutoESL
 autoesl_TCLEXT       := tcl
 autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
 autoesl_CXXFLAGS      = $(call flags,D__AUTOESL__)
-autoesl_TOP_FUNC     := top_n_outlier_pruning_block
+autoesl_TOP_FUNC     := distance_squared
 autoesl_PART         := xc7z020clg484-1
 autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution
 autoesl_SOURCES      :=
 autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.c \
-                        $(SOURCE_DIR)/test.c \
+                        $(SOURCE_DIR)/test.cpp \
                         $(SOURCE_DIR)/vardump.c \
                         $(DATA_DIR)/*.dat
 autoesl_TBFLAGS      := 
@@ -59,7 +59,7 @@ binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
 binary_CXXFLAGS       = $(call flags,D__C__)
 binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
-                        $(SOURCE_DIR)/test.c \
+                        $(SOURCE_DIR)/test.cpp \
                         $(SOURCE_DIR)/vardump.c
 
 matlab_OUTPUT_DIR    := bin
