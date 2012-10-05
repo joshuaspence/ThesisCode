@@ -17,3 +17,6 @@ AutoESL/*.tcl
 
 # gcov output
 *.gcno
+
+# Log files
+*.log
