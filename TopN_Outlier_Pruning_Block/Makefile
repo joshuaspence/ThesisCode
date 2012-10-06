@@ -22,7 +22,7 @@ TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
 
 DATA_DIR       := data
 SOURCE_DIR     := source
-INCLUDE_DIRS   := . include
+INCLUDE_DIRS   := data include
 COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
 
 TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)

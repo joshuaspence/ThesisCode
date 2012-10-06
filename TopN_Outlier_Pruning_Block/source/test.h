@@ -4,10 +4,9 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, size_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
 /*----------------------------------------------------------------------------*/
 
-/* Options to perform tests using embedded data files or extenal files. */
 #define TEST_TYPE_DISABLED  (1)
 #define TEST_TYPE_EMBEDDED  (2)
 #define TEST_TYPE_FILE      (3)
@@ -15,20 +14,37 @@
 __BEGIN_DECLS
 
 /*
- * Reads variable from a variable dump file or an internal variable and runs the
+ * Reads variable from a variable dump file and runs the
  * top_n_outlier_pruning_block algorithm on the input data. After the algorithm
  * completes, compares the actual output with the expected output.
  *
  * Parameters:
- *     - dataset: The name of the data set.
- *     - input: The name of the variable dump file / internal variable.
+ *     - dataset: The name of the data set being tested.
+ *     - input: The name of the variable dump file.
  *
  * Return:
- *    Zero if the test was successful, otherwise 1.
+ *     False is the test was successful. True if the test failed.
  */
-int test(
+boolean test_from_file(
     const char * const dataset,
-    const unsigned char * const input
+    const char * const filename
+    );
+
+/*
+ * Reads variables from an internal array and runs the
+ * top_n_outlier_pruning_block algorithm on the input data. After the algorithm
+ * completes, compares the actual output with the expected output.
+ *
+ * Parameters:
+ *     - dataset: The name of the data set being tested.
+ *     - array: The array containing the data set data.
+ *
+ * Return:
+ *     False is the test was successful. True if the test failed.
+ */
+boolean test_from_array(
+    const char * const dataset,
+    const unsigned char * const array
     );
 
 __END_DECLS

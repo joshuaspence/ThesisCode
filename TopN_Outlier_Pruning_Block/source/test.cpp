@@ -12,25 +12,20 @@
 #include <stdlib.h> /* for free */
 /*----------------------------------------------------------------------------*/
 
-int test(const char * const dataset, const unsigned char * input) {
+/*
+ * Run the algorithm and compare the results with the specified (expected)
+ * results.
+ */
+static boolean do_test(const char * const dataset,
+                       const UNUSED size_t num_vectors,
+                       const UNUSED size_t vector_dims,
+                       const double_in_t * const data,
+                       const UNUSED size_t k,
+                       const UNUSED size_t N,
+                       const UNUSED size_t block_size,
+                       const index_t * const outliers_expected,
+                       const double_t * const outlier_scores_expected) {
     boolean failed = false;
-    
-    /* The inputs to the top_n_outlier_pruning_block_function. */
-    size_t num_vectors;
-    size_t vector_dims;
-    double_in_t * data;
-    size_t k;
-    size_t N;
-    size_t block_size;
-    
-    /* The expected outpt from the top_n_outlier_pruning_block_function. */
-    index_t * outliers_expected;
-    double_t * outlier_scores_expected;
-    
-    PRINTF_STDOUT("Reading variables from '%s' for dataset '%s'.\n", input, dataset);
-    int result;
-        if ((result = read_vardump(dataset, &input, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
-        return result;
     
     /* Create the output arrays. */
     index_t  outliers      [N];
@@ -39,7 +34,7 @@ int test(const char * const dataset, const unsigned char * input) {
     MEMSET_1D(outlier_scores, 0, N, sizeof(double_t));
     
     /* Call the function. */
-    PRINTF_STDOUT("Running top_n_outlier_pruning_block() for data set '%s'.\n", dataset);
+    PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '%s'.\n", dataset);
 #ifndef HARDCODED_NUM_VECTORS
     set_num_vectors(num_vectors);
 #endif /* #ifndef HARDCODED_NUM_VECTORS */
@@ -57,7 +52,7 @@ int test(const char * const dataset, const unsigned char * input) {
 #endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
     
     const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(const_cast<const double_in_t * const>(data), outliers, outlier_scores);
-
+    
     /* Compare outliers. */
     do {
         PRINTF_STDOUT("Comparing outliers... ");
@@ -104,11 +99,64 @@ int test(const char * const dataset, const unsigned char * input) {
             failed = true;
     } while (0);
     
+    PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
+    return failed;
+}
+
+boolean test_from_file(const char * const dataset, const char * filename) {    
+    /* The inputs to the top_n_outlier_pruning_block_function. */
+    size_t num_vectors;
+    size_t vector_dims;
+    double_in_t * data;
+    size_t k;
+    size_t N;
+    size_t block_size;
+    
+    /* The expected outpt from the top_n_outlier_pruning_block_function. */
+    index_t * outliers_expected;
+    double_t * outlier_scores_expected;
+    
+    PRINTF_STDOUT("Reading variables from file '%s' for dataset '%s'.\n", filename, dataset);
+    int result;
+        if ((result = read_vardump_from_file(filename, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
+            return true; /* test failed */
+    
+    /* Run the algorithm and compares the results. */
+    const boolean failed = do_test(dataset, num_vectors, vector_dims, data, k, N, block_size,outliers_expected, outlier_scores_expected);
+    
     /* Free dynamic memory. */
     free(data);
     free(outliers_expected);
     free(outlier_scores_expected);
     
-    PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
+    return failed;
+}
+
+boolean test_from_array(const char * const dataset, const unsigned char * array) {
+    /* The inputs to the top_n_outlier_pruning_block_function. */
+    size_t num_vectors;
+    size_t vector_dims;
+    double_in_t * data;
+    size_t k;
+    size_t N;
+    size_t block_size;
+    
+    /* The expected outpt from the top_n_outlier_pruning_block_function. */
+    index_t * outliers_expected;
+    double_t * outlier_scores_expected;
+    
+    PRINTF_STDOUT("Reading variables from variable for dataset '%s'.\n", dataset);
+    int result;
+        if ((result = read_vardump_from_array(&array, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
+            return true; /* test failed */
+    
+    /* Run the algorithm and compares the results. */
+    const boolean failed = do_test(dataset, num_vectors, vector_dims, data, k, N, block_size,outliers_expected, outlier_scores_expected);
+    
+    /* Free dynamic memory. */
+    free(data);
+    free(outliers_expected);
+    free(outlier_scores_expected);
+    
     return failed;
 }
