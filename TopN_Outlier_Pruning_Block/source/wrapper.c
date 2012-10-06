@@ -4,75 +4,36 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "test.h" /* for test */
-#include "utility.h" /* for size_t, uint_t */
+#include "test.h" /* for test, TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
 /*----------------------------------------------------------------------------*/
 
+#if (TEST_TYPE == TEST_TYPE_EMBEDDED)
 /*============================================================================*/
 /* All data sets                                                              */
 /*============================================================================*/
-static const char * const all_datasets[] = {
-#ifdef TEST_ALL
-    "data/testoutrank.dat",
-#endif /* TEST_ALL */
-    "data/ball1.dat",
-#ifdef TEST_ALL
-    "data/testCD.dat",
-    "data/runningex1k.dat",
-    "data/testCDST2.dat",
-    "data/testCDST3.dat",
-    "data/testCDST.dat",
-    "data/runningex10k.dat",
-    "data/runningex20k.dat",
-    "data/segmentation.dat",
-    "data/runningex30k.dat"
-    "data/pendigits.dat",
-    "data/runningex40k.dat",
-    "data/spam_train.dat",
-    "data/runningex50k.dat",
-    "data/spam.dat",
-    "data/letter-recognition.dat",
-    "data/mesh_network.dat",
-    "data/magicgamma.dat",
-    "data/musk.dat",
-    "data/connect4.dat"
-#endif /* #ifdef TEST_ALL */
-};
+#include "data/all_datasets.h"
 /*----------------------------------------------------------------------------*/
+#endif /* #if (TEST_TYPE == TEST_TYPE_EMBEDDED) */
 
 /*
- * Test all data sets.
- *
- * Return:
- *    The number of failed tests.
- */
-int test_all(void) {
-    const size_t num_datasets = sizeof(all_datasets) / sizeof(all_datasets[0]);
-    uint_t failures = 0;
-    
-    uint_t i;
-    for (i = 0; i < num_datasets; i++) {
-        const char * const data_file = all_datasets[i];
-        failures += test(data_file);
-    }
-    
-    return failures;
-}
-
-/*
- * A wrapper to test the algorithm. When the executable is run with no input 
- * arguments, all data sets will be tested. When an argument is passed to the
- * executable, a single data set will be tested.
+ * A wrapper to test the algorithm on a specified data set.
  *
  * Return:
  *    The number of failed tests.
  */
 int main(int argc, char * argv[]) {
-    /* If no argument was specified, then test all data sets. */
     if (argc <= 1) {
-        return test_all();
+        PRINTF_STDERR("No data set specified!\n");
+        return -1;
     } else {
-        const char * const filename = argv[1];
-        return test(filename);
+#if (TEST_TYPE == TEST_TYPE_FILE)
+        return test(argv[1]);
+#elif (TEST_TYPE == TEST_TYPE_EMBEDDED)
+        return test_embedded_dataset(argv[1]);
+#elif (TEST_TYPE == TEST_TYPE_DISABLED)
+	#error "Tests are disabled."
+#else
+    #error "No test type is defined."
+#endif /* #if (TEST_TYPE == TEST_TYPE_EMBEDDED) */
     }
 }

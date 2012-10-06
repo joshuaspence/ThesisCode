@@ -64,14 +64,14 @@ print OUTPUT "static int test_embedded_dataset(const char * const dataset) {\n";
 for my $dataset (@datasets) {
     print OUTPUT <<EOF;
     if (strcmp(dataset, "$dataset") == 0) {
-        return test(dataset_${dataset}, dataset_${dataset}_size);
+        return test("$dataset", dataset_${dataset});
     }
 EOF
 }
 
 print OUTPUT <<EOF;
     PRINTF_STDERR("Data set not found: %s\\n", dataset);
-    return -1;
+    return -2;
 }
 EOF
 

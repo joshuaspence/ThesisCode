@@ -4,6 +4,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
+#include "test.h" /* for TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
 #include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t */
 /*----------------------------------------------------------------------------*/
 
@@ -48,7 +49,7 @@ int save_vardump(
  * outlier scores.
  *
  * Parameters:
- *     - filename: The file to read the variable dump file.
+ *     - filename / variable: The file/variable to read the variable dump from.
  *     - num_vectors: A variable to read from the variable dump file.
  *     - vector_dims: A variable to read from the variable dump file.
  *     - data: A variable to read from the variable dump file.
@@ -63,7 +64,8 @@ int save_vardump(
  *     representing failure.
  */
 int read_vardump(
-    const char * const filename,
+	const char * const varname,
+    const unsigned char ** const variable,
     size_t * const num_vectors,
     size_t * const vector_dims,
     double_in_t ** const data,

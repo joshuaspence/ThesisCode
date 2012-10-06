@@ -15,9 +15,15 @@ help:
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-TARGETS := TopN_Outlier_Pruning_Block_SORTED \
-           TopN_Outlier_Pruning_Block_UNSORTED \
-           TopN_Outlier_Pruning_Block_NO_BLOCKING
+BUILD_TYPES    := autoesl binary matlab
+TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
+                  TopN_Outlier_Pruning_Block_UNSORTED \
+                  TopN_Outlier_Pruning_Block_NO_BLOCKING
+
+DATA_DIR       := data
+SOURCE_DIR     := source
+INCLUDE_DIRS   := . include
+COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
 
 TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
@@ -30,13 +36,6 @@ TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DUNSORTED_INSERT 
 TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DSORTED_INSERT DNO_BLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
-
-SOURCE_DIR           := source
-DATA_DIR             := data
-INCLUDE_DIRS         := include
-COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
-
-BUILD_TYPES          := autoesl binary matlab
 
 autoesl_OUTPUT_DIR   := FPGA/AutoESL
 autoesl_TCLEXT       := tcl
@@ -128,7 +127,7 @@ endef
 endif
 
 # $(call flags,FLAG FLAG ...)
-# Create a CFLAG-style string.
+# Create a gcc-style CFLAG string.
 define flags
 $(call pretty,$(foreach FLAG,$(1),-$(FLAG:-%=%)))
 endef
@@ -159,12 +158,20 @@ define help_text
 -@$(ECHO) "\\==================================================================================================/"
 -@$(ECHO)
 -@$(ECHO) " USAGE:"
--@$(ECHO) "     make [DEBUG=1] [mode=<BUILD_MODE>] [gprof=<on|off>] [inline=<force|on|off>] \\"
--@$(ECHO) "             (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
+-@$(ECHO) "     make [DEBUG=1] \\"
+-@$(ECHO) "          [mode=<BUILD_MODE>] \\"
+-@$(ECHO) "          [gprof=<on|off>] \\"
+-@$(ECHO) "          [inline=<force|on|off>] \\"
+-@$(ECHO) "          [test-type=<disabled|embedded|file>] \\"
+-@$(ECHO) "          (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " OPTIONS:"
 -@$(ECHO) "     gprof       Enables/disables compilation flags for gprof (default=off)."
 -@$(ECHO) "     inline      Enables/disables the inlining of functions (default=on)."
+-@$(ECHO) "     test-type   The type of testing to allow (default=disabled)."
+-@$(ECHO) "                     disabled: Do not allow testing with data sets."
+-@$(ECHO) "                     embedded: Datasets for testing will be embedded in the binary executable."
+-@$(ECHO) "                     file:     Datasets will be read from the filesystem."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -192,6 +199,7 @@ define help_text
 endef   
 
 # $(call include-flags,INC1 INC2 ...)
+# Create gcc-style include flags.
 define include-flags
 $(foreach INC_DIR,$(1),-I$(INC_DIR) )
 endef
@@ -348,7 +356,7 @@ clean-$(1):
 .PHONY: distclean-$(1)
 distclean-$(1):
 	$(call trace-message,"Cleaning $(1)...")
-	$$(DELETE) -r -f $$($(1)_CLEAN) $$($(1)_DISTCLEANCLEAN)
+	$$(DELETE) -r -f $$($(1)_CLEAN) $$($(1)_DISTCLEAN)
 	$(call trace-message,"Clean completed.")
 	$(call trace-message,)
 
@@ -438,7 +446,7 @@ endif
 ifeq ($(MATLAB_ARCH),maci)
 	MEXEXT          := mexmaci
 	MATLAB_ARCHTYPE := x86
- endif
+endif
 ifeq ($(MATLAB_ARCH),maci64)
 	MEXEXT          := mexmaci64
 	MATLAB_ARCHTYPE := x64
@@ -487,31 +495,7 @@ CXXFLAGS := $(call remove-flags,$(CXXFLAGS),ansi)
 CFLAGS   := $(call add-flags,$(CFLAGS),std=c99 W Wall Wextra pedantic fmessage-length=0 Wno-unused-label)
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),std=c++0x W Wall Wextra pedantic fmessage-length=0 Wno-unused-label Wno-vla)
 
-# gprof
-GPROF_FLAGS_OFF :=
-GPROF_FLAGS_ON  := $(call flags,pg)
-ifeq ($(gprof),)
-# Default is off
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
-else
-ifeq ($(gprof),off)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
-else
-ifeq ($(gprof),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_ON))
-LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_ON))
-else
-$(error Invalid gprof option specified. Valid values are 'on' and 'off')
-endif
-endif
-endif
-
-# Architecture specific
+# Architecture specific flags
 ifeq ($(MATLAB_ARCHTYPE), x86)
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),compatibleArrayDims)
 endif
@@ -568,6 +552,30 @@ endif
 endif
 endif
 
+# gprof
+GPROF_FLAGS_OFF :=
+GPROF_FLAGS_ON  := $(call flags,pg)
+ifeq ($(gprof),)
+# Default is off
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
+else
+ifeq ($(gprof),off)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_OFF))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_OFF))
+else
+ifeq ($(gprof),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(GPROF_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(GPROF_FLAGS_ON))
+LDFLAGS  := $(call add-flags,$(LDFLAGS),$(GPROF_FLAGS_ON))
+else
+$(error Invalid gprof option specified. Valid values are 'on' and 'off')
+endif
+endif
+endif
+
 # inline
 INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=0)
 INLINE_FLAGS_ON    :=
@@ -599,18 +607,62 @@ endif
 endif
 endif
 
+# test-type
+TEST_TYPE_FLAGS_DISABLED := DTEST_TYPE=TEST_TYPE_DISABLED
+TEST_TYPE_FLAGS_EMBEDDED := DTEST_TYPE=TEST_TYPE_EMBEDDED
+TEST_TYPE_FLAGS_FILE     := DTEST_TYPE=TEST_TYPE_FILE
+ifeq ($(test-type),)
+# Default is disabled
+CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+else
+ifeq ($(test-type),disabled)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_DISABLED))
+else
+ifeq ($(test-type),embedded)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
+else
+ifeq ($(test-type),file)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_FILE))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(TEST_TYPE_FLAGS_FILE))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_FILE))
+else
+$(error Invalid test-type option specified. Valid options are 'disabled', 'embedded' and 'file')
+endif
+endif
+endif
+endif
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
-#                                   RULES                                      #
+#                                   DATASETS                                   #
 #                                                                              #
 #------------------------------------------------------------------------------#
+ALL_DATASETS_H   := $(DATA_DIR)/all_datasets.h
+DATASETS         := $(wildcard $(DATA_DIR)/*.dat)
+DATASETS_HEX     := $(DATASETS:%.dat=%.dat.h)
 
+datasets_TARGETS := $(ALL_DATASETS_H) $(DATASETS_HEX)
+datasets_CLEAN   := $(datasets_TARGETS)
+ALL_DISTCLEAN    += $(datasets_CLEAN)
+HELPER_TARGETS   += datasets clean-datasets distclean-datasets
+
+# Convert a binary data file into a hexadecimal C header file.
 $(DATA_DIR)/%.dat.h: $(DATA_DIR)/%.dat
 	python data.py $< dataset_$* $@
 
+# Create the main datasets header file.
 $(DATA_DIR)/%.h: $(DATA_DIR)/%.h.pl
 	perl $< $@
+
+$(eval $(call build-type-template,datasets))
+
 
 #------------------------------------------------------------------------------#
 #                                                                              #
