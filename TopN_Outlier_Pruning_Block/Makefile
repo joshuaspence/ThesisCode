@@ -265,8 +265,7 @@ sh_false := ! :
 
 # $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
 define autoesl-target-template
-autoesl_CLEAN     += $(autoesl_OUTPUT_DIR)/autoesl.log \
-                     $(autoesl_OUTPUT_DIR)/autoesl.log
+autoesl_CLEAN     += $(autoesl_OUTPUT_DIR)/autoesl.log
 autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
 
 HELPER_TARGETS += $(1)-autoesl
@@ -309,6 +308,7 @@ HELPER_TARGETS += $(1)-autoesl
 .PHONY: $(1)-autoesl
 $(1)-autoesl: $$($(1)_AUTOESL)
 
+$$($(1)_AUTOESL): $$($(1)_DEPS)
 $$($(1)_AUTOESL): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
 	$(call trace-message,"Creating project: $$@")
 	$$(AUTOESL) -f "$$<"
@@ -341,7 +341,7 @@ distclean-$(1):
 
 endef
 
-# $(eval $(call target-template,TARGET))
+# $(eval $(call target-template,TARGET,ADDITIONAL_DEPENDENCIES))
 define target-template
 ################################################################################
 # TARGET = $(1)
@@ -358,12 +358,27 @@ HELPER_TARGETS += $(1)-binary
 .PHONY: $(1)-binary
 $(1)-binary: $$($(1)_BINARY)
 
+$$($(1)_BINARY): $$($(1)_DEPS)
 $$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(filter %.cpp,$$^),\
-		$$(call pretty,$$(CXX) $$(binary_CXXFLAGS) $$(CXXFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CXXFLAGS) -o $$@ $$^), \
-		$$(call pretty,$$(CC) $$(binary_CFLAGS) $$(CFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) $$($(1)_CFLAGS) -o $$@ $$^) \
+		$$(call pretty,$$(CXX) \
+		    $$(binary_CXXFLAGS) \
+		    $$(CXXFLAGS) \
+		    $$(call include-flags,$$(INCLUDE_DIRS)) \
+		    $$($(1)_CXXFLAGS) \
+		    -o $$@ \
+		    $$(filter %.cpp,$$^) $$(filter %.c,$$^) \
+	    ), \
+		$$(call pretty,$$(CC) \
+		    $$(binary_CFLAGS) \
+		    $$(CFLAGS) \
+		    $$(call include-flags,$$(INCLUDE_DIRS)) \
+		    $$($(1)_CFLAGS) \
+		    -o $$@ \
+		    $$(filter-out $$($(1)_DEPS),$$^) \
+	    ) \
 	)
 	$(call trace-message,)
 
@@ -376,10 +391,21 @@ HELPER_TARGETS += $(1)-matlab
 .PHONY: $(1)-matlab
 $(1)-matlab: $$($(1)_MATLAB)
 
+$$($(1)_MATLAB): $$($(1)_DEPS)
 $$($(1)_MATLAB): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(MXX) $$(matlab_CFLAGS) $$(MXXFLAGS) $$($(1)_MXXFLAGS) $$(call include-flags,$$(INCLUDE_DIRS)) CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' LDFLAGS='$$(LDFLAGS)' -o $$@ $$^)
+	$$(call pretty,$$(MXX) \
+	    $$(matlab_CFLAGS) \
+	    $$(MXXFLAGS) \
+	    $$($(1)_MXXFLAGS) \
+	    $$(call include-flags,$$(INCLUDE_DIRS)) \
+	    CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' \
+	    CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' \
+	    LDFLAGS='$$(LDFLAGS)' \
+	    -o $$@ \
+	    $$(filter-out $$($(1)_DEPS),$$^) \
+    )
 	$(call trace-message,)
 
 
@@ -605,6 +631,9 @@ ifeq ($(test-type),embedded)
 CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
 CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
 MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_EMBEDDED))
+
+# Additional dependencies
+$(foreach TARGET,$(TARGETS),$(eval $(TARGET)_DEPS += datasets))
 else
 ifeq ($(test-type),file)
 CFLAGS   := $(call add-flags,$(CFLAGS),$(TEST_TYPE_FLAGS_FILE))
@@ -630,7 +659,8 @@ DATASETS_HEX       := $(DATASETS:%=%.h)
 datasets_TARGETS   := $(ALL_DATASETS_H) $(DATASETS_HEX)
 datasets_CLEAN     := $(ALL_DATASETS_H)
 datasets_DISTCLEAN := $(DATASETS_HEX)
-ALL_DISTCLEAN      += $(ALL_DATASETS_H) $(DATASETS_HEX)
+ALL_CLEAN          += $(datasets_CLEAN)
+ALL_DISTCLEAN      += $(datasets_DISTCLEAN)
 HELPER_TARGETS     += datasets
 
 # Convert a binary data file into a hexadecimal C header file.
