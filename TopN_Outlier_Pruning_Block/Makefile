@@ -25,7 +25,8 @@ SOURCE_DIR     := source
 INCLUDE_DIRS   := data include source
 COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
                   $(SOURCE_DIR)/distance.cpp \
-                  $(SOURCE_DIR)/parameters.cpp
+                  $(SOURCE_DIR)/parameters.cpp \
+                  $(SOURCE_DIR)/vardump.cpp
 
 TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
@@ -49,26 +50,21 @@ autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution
 autoesl_SOURCES      :=
 autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.cpp \
-                        $(SOURCE_DIR)/test.cpp \
-                        $(SOURCE_DIR)/vardump.cpp \
-                        $(DATA_DIR)/*.dat
+                        $(SOURCE_DIR)/test.cpp
 autoesl_TBFLAGS      := 
-autoesl_TCLSOURCES   := 
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
 binary_CXXFLAGS       = $(call flags,D__C__)
 binary_SOURCES       := $(SOURCE_DIR)/wrapper.cpp \
-                        $(SOURCE_DIR)/test.cpp \
-                        $(SOURCE_DIR)/vardump.cpp
+                        $(SOURCE_DIR)/test.cpp
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
 matlab_CFLAGS         = $(call flags,D__MEX__)
 matlab_CXXFLAGS       = $(call flags,D__MEX__)
-matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp \
-                        $(SOURCE_DIR)/vardump.cpp
+matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp
 
 
 #------------------------------------------------------------------------------#
@@ -167,9 +163,14 @@ define help_text
 -@$(ECHO) "          [test-type=<disabled|embedded|file>] \\"
 -@$(ECHO) "          (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
+-@$(ECHO) " BUILD_MODES:"
+-@$(ECHO) "     debug"
+-@$(ECHO) "     debugopt"
+-@$(ECHO) "     release (default)"
+-@$(ECHO)
 -@$(ECHO) " OPTIONS:"
 -@$(ECHO) "     gprof       Enables/disables compilation flags for gprof (default=off)."
--@$(ECHO) "     inline      Enables/disables the inlining of functions (default=on)."
+-@$(ECHO) "     inline      Enables/disables/forces the inlining of functions (default=on)."
 -@$(ECHO) "     test-type   The type of testing to allow (default=disabled)."
 -@$(ECHO) "                     disabled: Do not allow testing with data sets."
 -@$(ECHO) "                     embedded: Datasets for testing will be embedded in the binary executable."
@@ -187,11 +188,6 @@ define help_text
 -@$(ECHO) "     all"
 -@$(foreach BUILD_TYPE,$(sort $(BUILD_TYPES)),$(ECHO) "     $(BUILD_TYPE)";)
 -@$(ECHO)
--@$(ECHO) " BUILD_MODES:"
--@$(ECHO) "     debug"
--@$(ECHO) "     debugopt"
--@$(ECHO) "     release (default)"
--@$(ECHO)
 -@$(ECHO) " HELPER_TARGETS:"
 -@$(foreach TARGET,$(sort $(HELPER_TARGETS)),$(ECHO) "     $(TARGET)";)
 -@$(ECHO) ""
@@ -203,15 +199,15 @@ endef
 # $(call include-flags,INC1 INC2 ...)
 # Create gcc-style include flags.
 define include-flags
-$(foreach INC_DIR,$(1),-I$(INC_DIR) )
+$(call pretty,$(foreach INC_DIR,$(1),-I$(INC_DIR) ))
 endef
 
 # $(call parse-mex-options,OPTION_NAME)
 # Parse options from the mex compiler.
 define parse-mex-options
 $(shell \
-	$(MXX) -v 2>/dev/null | \
-	$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
+$(MXX) -v 2>/dev/null | \
+$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
 )
 endef
 
@@ -222,11 +218,11 @@ endef
 #     - Trailing whitespace
 define pretty
 $(shell \
-	$(ECHO) -n "$(1)" | \
-	$(SED) \
-		-e 's/\s\s\+/ /' \
-		-e 's/^\s\+//' \
-		-e 's/\s\+$$//'
+$(ECHO) -n "$(1)" | \
+$(SED) \
+-e 's/\s\s\+/ /' \
+-e 's/^\s\+//' \
+-e 's/\s\+$$//'
 )
 endef
 
@@ -246,8 +242,8 @@ endef
 # Remove a flag from a CFLAG-style string.
 define remove-flags
 $(shell \
-	$(ECHO) -n "$(1)" | \
-	$(SED) $(foreach FLAG,$(2), -e 's/-$(FLAG:-%=%)\s\+//')
+$(ECHO) -n "$(1)" | \
+$(SED) $(foreach FLAG,$(2), -e 's/-$(FLAG:-%=%)\s\+//')
 )
 endef
 
@@ -269,16 +265,16 @@ sh_false := ! :
 
 # $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
 define autoesl-target-template
-autoesl_CLEAN     += autoesl.log
+autoesl_CLEAN     += $(autoesl_OUTPUT_DIR)/autoesl.log \
+                     $(autoesl_OUTPUT_DIR)/autoesl.log
 autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
 
 HELPER_TARGETS += $(1)-autoesl
 .PHONY: $(1)-autoesl
-$(1)-autoesl: $(1)-autoesl-project $(1)-autoesl-solution
+$(1)-autoesl: $(1)_AUTOESL
 
 # AutoESL: TCL scripts
-$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT) \
-                    $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT)
+$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
 autoesl_TARGETS  += $$($(1)_AUTOESL_TCL)
 autoesl_CLEAN    += $$($(1)_AUTOESL_TCL)
 
@@ -286,7 +282,7 @@ HELPER_TARGETS  += $(1)-autoesl-tcl
 .PHONY: $(1)-autoesl-tcl
 $(1)-autoesl-tcl: $$($(1)_AUTOESL_TCL)
 
-$$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
+$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
 	$(call create-directory,$$(autoesl_OUTPUT_DIR))
 	$(call trace-message,"Creating TCL script: $$@")
 	( \
@@ -294,48 +290,28 @@ $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT):
 		$$(ECHO) "open_project $(1)"; \
 		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
 		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TESTBENCH),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach TCL,$$(autoesl_TCLSOURCES),$$(ECHO) "source $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(TCL)";) \
-		$$(ECHO) "exit"; \
-	) > $$@
-	$(call trace-message,)
-$$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	( \
-		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
-		$$(ECHO) "open_project $(1)"; \
+		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$(autoesl_TBFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(DATA_DIR)\""; \
+		$$(ECHO) ""; \
 		$$(ECHO) "open_solution $(2)"; \
 		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
 		$$(ECHO) "create_clock -period $$(autoesl_CLOCK_PERIOD)"; \
+		$$(ECHO) ""; \
 		$$(ECHO) "exit"; \
 	) > $$@
 	$(call trace-message,)
 
 # AutoESL: Create project
-$(1)_AUTOESL_PROJECT := $$(autoesl_OUTPUT_DIR)/$(1)/autopilot.app
-autoesl_TARGETS      += $$($(1)_AUTOESL_PROJECT)
+$(1)_AUTOESL    := $$(autoesl_OUTPUT_DIR)/$(1)
+autoesl_TARGETS += $$($(1)_AUTOESL)
 
-HELPER_TARGETS += $(1)-autoesl-project
-.PHONY: $(1)-autoesl-project
-$(1)-autoesl-project: $$($(1)_AUTOESL_PROJECT)
+HELPER_TARGETS += $(1)-autoesl
+.PHONY: $(1)-autoesl
+$(1)-autoesl: $$($(1)_AUTOESL)
 
-$$($(1)_AUTOESL_PROJECT): $$(autoesl_OUTPUT_DIR)/$(1).project.$$(autoesl_TCLEXT)
+$$($(1)_AUTOESL): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
 	$(call trace-message,"Creating project: $$@")
-	$$(AUTOESL) -f $$<
-	$(call trace-message,)
-
-# AutoESL: Create solution
-$(1)_AUTOESL_SOLUTION := $$(autoesl_OUTPUT_DIR)/$(1)/$(2)/$(2).aps
-autoesl_TARGETS       += $$($(1)_AUTOESL_SOLUTION)
-
-HELPER_TARGETS += $(1)-autoesl-solution
-.PHONY: $(1)-autoesl-solution
-$(1)-autoesl-solution: $$($(1)_AUTOESL_SOLUTION)
-
-$$($(1)_AUTOESL_SOLUTION): $$(autoesl_OUTPUT_DIR)/$(1).solution.$$(autoesl_TCLEXT) $$($(1)_AUTOESL_PROJECT)
-	$(call trace-message,"Creating solution: $$@")
-	$$(AUTOESL) -f $$<
+	$$(AUTOESL) -f "$$<"
 	$(call trace-message,)
 
 endef
@@ -655,7 +631,7 @@ datasets_TARGETS   := $(ALL_DATASETS_H) $(DATASETS_HEX)
 datasets_CLEAN     := $(ALL_DATASETS_H)
 datasets_DISTCLEAN := $(DATASETS_HEX)
 ALL_DISTCLEAN      += $(ALL_DATASETS_H) $(DATASETS_HEX)
-HELPER_TARGETS     += datasets clean-datasets distclean-datasets
+HELPER_TARGETS     += datasets
 
 # Convert a binary data file into a hexadecimal C header file.
 $(DATA_DIR)/%.dat.h: $(DATA_DIR)/%.dat
