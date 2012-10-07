@@ -1,15 +1,20 @@
-#ifndef TEST_H_
-#define TEST_H_
+#ifndef TEST_HPP_
+#define TEST_HPP_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
+#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
+#include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 
 #define TEST_TYPE_DISABLED  (1)
 #define TEST_TYPE_EMBEDDED  (2)
 #define TEST_TYPE_FILE      (3)
+
+#ifndef TEST_TYPE
+    #define TEST_TYPE       TEST_TYPE_DISABLED
+#endif /* #ifndef TEST_TYPE */
 
 __BEGIN_DECLS
 
@@ -20,14 +25,14 @@ __BEGIN_DECLS
  *
  * Parameters:
  *     - dataset: The name of the data set being tested.
- *     - input: The name of the variable dump file.
+ *     - filename: The name of the variable dump file.
  *
  * Return:
  *     False is the test was successful. True if the test failed.
  */
-boolean test_from_file(
-    const char * const dataset,
-    const char * const filename
+bool test_from_file(
+    const std::string & dataset,
+    const std::string & filename
     );
 
 /*
@@ -42,11 +47,11 @@ boolean test_from_file(
  * Return:
  *     False is the test was successful. True if the test failed.
  */
-boolean test_from_array(
-    const char * const dataset,
-    const unsigned char * const array
+bool test_from_array(
+    const std::string & dataset,
+    const unsigned char array[]
     );
 
 __END_DECLS
 
-#endif /* #ifndef TEST_H_ */
+#endif /* #ifndef TEST_HPP_ */

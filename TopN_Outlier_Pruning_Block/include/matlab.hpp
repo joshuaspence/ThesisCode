@@ -1,5 +1,5 @@
-#ifndef MATLAB_H_
-#define MATLAB_H_
+#ifndef MATLAB_HPP_
+#define MATLAB_HPP_
 
 /*============================================================================*/
 /* Checks                                                                     */
@@ -12,7 +12,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for EMPTY_STATEMENT, size_t, UNUSED */
+#include "utility.hpp" /* for EMPTY_STATEMENT, size_t, UNUSED */
 #include <mex.h> /* for mxCreateDoubleMatrix, mxDestroyArray, mxGetData, mxGetM, mxGetN, mxGetNumberOfDimensions, mxGetNumberOfElements, mxIsComplex, mxIsDouble, mxIsSparse */
 /*----------------------------------------------------------------------------*/
 
@@ -61,7 +61,7 @@ typedef double m_double_t;
     const size_t UNUSED ROWS(_array_) = mxGetM(_location_); \
     const size_t UNUSED COLS(_array_) = mxGetN(_location_); \
     mxArray * const UNUSED ARRAY(_array_) = (mxArray *) _location_; \
-    m_double_t * const _array_ = mxGetData(ARRAY(_array_)); \
+    m_double_t * const _array_ = (m_double_t *) mxGetData(ARRAY(_array_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
@@ -81,7 +81,7 @@ typedef double m_double_t;
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
     mxArray * const UNUSED VECTOR(_vector_) = mxCreateDoubleMatrix(1, ELEMENTS(_vector_), mxREAL); \
-    m_double_t * const _vector_ = mxGetData(VECTOR(_vector_)); \
+    m_double_t * const _vector_ = (m_double_t *) mxGetData(VECTOR(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */
@@ -94,4 +94,4 @@ typedef double m_double_t;
     _vector_[(_element_)]
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef MATLAB_H_ */
+#endif /* #ifndef MATLAB_HPP_ */

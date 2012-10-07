@@ -1,31 +1,32 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.h" /* check for invalid preprocessor macro combinations */
-#include "arch.h" /* set architecture specific macros */
+#include "checks.hpp" /* check for invalid preprocessor macro combinations */
+#include "arch.hpp" /* set architecture specific macros */
 
-#include "test.h" /* main header file */
-#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for boolean, index_t, double_t, false, PRINTF_STDOUT, size_t, true, uint_t */
-#include "vardump.h" /* for read_vardump */
+#include "test.hpp" /* main header file */
+#include "top_n_outlier_pruning_block.hpp" /* for top_n_outlier_pruning_block */
+#include "utility.hpp" /* for index_t, double_t, size_t, uint_t */
+#include "vardump.hpp" /* for read_vardump */
 
 #include <stdlib.h> /* for free */
+#include <string> /* for std::endl, std::string */
 /*----------------------------------------------------------------------------*/
 
 /*
  * Run the algorithm and compare the results with the specified (expected)
  * results.
  */
-static boolean do_test(const char * const dataset,
-                       const UNUSED size_t num_vectors,
-                       const UNUSED size_t vector_dims,
-                       const double_in_t * const data,
-                       const UNUSED size_t k,
-                       const UNUSED size_t N,
-                       const UNUSED size_t block_size,
-                       const index_t * const outliers_expected,
-                       const double_t * const outlier_scores_expected) {
-    boolean failed = false;
+static bool do_test(const std::string & dataset,
+                    const size_t num_vectors,
+                    const size_t vector_dims,
+                    const double_t data[],
+                    const size_t k,
+                    const size_t N,
+                    const size_t block_size,
+                    const index_t outliers_expected[],
+                    const double_t outlier_scores_expected[]) {
+    bool failed = false;
     
     /* Create the output arrays. */
     index_t  outliers      [N];
@@ -34,32 +35,16 @@ static boolean do_test(const char * const dataset,
     MEMSET_1D(outlier_scores, 0, N, sizeof(double_t));
     
     /* Call the function. */
-    PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '%s'.\n", dataset);
-#ifndef HARDCODED_NUM_VECTORS
-    set_num_vectors(num_vectors);
-#endif /* #ifndef HARDCODED_NUM_VECTORS */
-#ifndef HARDCODED_VECTOR_DIMS
-    set_vector_dims(vector_dims);
-#endif /* #ifndef HARDCODED_VECTOR_DIMS */
-#ifndef HARDCODED_K
-    set_k(k);
-#endif /* #ifndef HARDCODED_K */
-#ifndef HARDCODED_N
-    set_N(N);
-#endif /* #ifndef HARDCODED_N */
-#if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
-    set_block_size(block_size);
-#endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
-    
-    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(const_cast<const double_in_t * const>(data), outliers, outlier_scores);
+    PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '" << dataset << "'" << std::endl);    
+    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, const_cast<const double_in_t * const>(data), k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
         PRINTF_STDOUT("Comparing outliers... ");
         uint_t i;
         uint_t similarity = 0;
-        boolean used[N];
-        MEMSET_1D(used, false, N, sizeof(boolean));
+        bool used[N];
+        MEMSET_1D(used, false, N, sizeof(bool));
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
@@ -71,7 +56,7 @@ static boolean do_test(const char * const dataset,
             }
         }
         
-        PRINTF_STDOUT("%u out of %u\n", (unsigned int) similarity, (unsigned int) N);
+        PRINTF_STDOUT(similarity << " out of " << N << std::endl);
         if (similarity != N)
             failed = true;
     } while (0);
@@ -81,8 +66,8 @@ static boolean do_test(const char * const dataset,
         PRINTF_STDOUT("Comparing scores... ");
         uint_t i;
         uint_t similarity = 0;
-        boolean used[N];
-        MEMSET_1D(used, false, N, sizeof(boolean));
+        bool used[N];
+        MEMSET_1D(used, false, N, sizeof(bool));
         for (i = 0; i < N; i++) {
             uint_t j;
             for (j = 0; j < N; j++) {
@@ -94,20 +79,20 @@ static boolean do_test(const char * const dataset,
             }
         }
         
-        PRINTF_STDOUT("%u out of %u\n", (unsigned int) similarity, (unsigned int) N);
+        PRINTF_STDOUT(similarity << " out of " << N << std::endl);
         if (similarity != N)
             failed = true;
     } while (0);
     
-    PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
+    PRINTF_STDOUT("Number of pruned vectors = " << num_pruned << std::endl);
     return failed;
 }
 
-boolean test_from_file(const char * const dataset, const char * filename) {    
+bool test_from_file(const std::string & dataset, const std::string & filename) {    
     /* The inputs to the top_n_outlier_pruning_block_function. */
     size_t num_vectors;
     size_t vector_dims;
-    double_in_t * data;
+    double_t * data;
     size_t k;
     size_t N;
     size_t block_size;
@@ -116,13 +101,13 @@ boolean test_from_file(const char * const dataset, const char * filename) {
     index_t * outliers_expected;
     double_t * outlier_scores_expected;
     
-    PRINTF_STDOUT("Reading variables from file '%s' for dataset '%s'.\n", filename, dataset);
+    PRINTF_STDOUT("Reading variables from file '" << filename << "' for dataset '" << dataset << "'" << std::endl);
     int result;
-        if ((result = read_vardump_from_file(filename, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
+        if ((result = read_vardump_from_file(filename, num_vectors, vector_dims, data, k, N, block_size, outliers_expected, outlier_scores_expected)) != 0)
             return true; /* test failed */
     
     /* Run the algorithm and compares the results. */
-    const boolean failed = do_test(dataset, num_vectors, vector_dims, data, k, N, block_size,outliers_expected, outlier_scores_expected);
+    const bool failed = do_test(dataset, num_vectors, vector_dims, data, k, N, block_size, outliers_expected, outlier_scores_expected);
     
     /* Free dynamic memory. */
     free(data);
@@ -132,11 +117,11 @@ boolean test_from_file(const char * const dataset, const char * filename) {
     return failed;
 }
 
-boolean test_from_array(const char * const dataset, const unsigned char * array) {
+bool test_from_array(const std::string & dataset, const unsigned char array[]) {
     /* The inputs to the top_n_outlier_pruning_block_function. */
     size_t num_vectors;
     size_t vector_dims;
-    double_in_t * data;
+    double_t * data;
     size_t k;
     size_t N;
     size_t block_size;
@@ -145,13 +130,13 @@ boolean test_from_array(const char * const dataset, const unsigned char * array)
     index_t * outliers_expected;
     double_t * outlier_scores_expected;
     
-    PRINTF_STDOUT("Reading variables from variable for dataset '%s'.\n", dataset);
+    PRINTF_STDOUT("Reading variables from variable for dataset '" << dataset << "'" << std::endl);
     int result;
-        if ((result = read_vardump_from_array(&array, &num_vectors, &vector_dims, &data, &k, &N, &block_size, &outliers_expected, &outlier_scores_expected)) != 0)
+        if ((result = read_vardump_from_array(&array, num_vectors, vector_dims, data, k, N, block_size, outliers_expected, outlier_scores_expected)) != 0)
             return true; /* test failed */
     
     /* Run the algorithm and compares the results. */
-    const boolean failed = do_test(dataset, num_vectors, vector_dims, data, k, N, block_size,outliers_expected, outlier_scores_expected);
+    const bool failed = do_test(dataset.c_str(), num_vectors, vector_dims, data, k, N, block_size, outliers_expected, outlier_scores_expected);
     
     /* Free dynamic memory. */
     free(data);

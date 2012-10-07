@@ -3,8 +3,8 @@
  * also ensures that required preprocessor macros have been defined.
  */
  
-#ifndef CHECKS_H_
-#define CHECKS_H_
+#ifndef CHECKS_HPP_
+#define CHECKS_HPP_
 
 /*============================================================================*/
 /* Architecture                                                               */
@@ -99,4 +99,4 @@
 #endif /* #ifndef _BLOCKING_MODE_SET_ */
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef CHECKS_H_ */
+#endif /* #ifndef CHECKS_HPP_ */

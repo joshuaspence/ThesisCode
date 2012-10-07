@@ -1,11 +1,11 @@
-#ifndef UTILITY_H_
-#define UTILITY_H_
+#ifndef UTILITY_HPP_
+#define UTILITY_HPP_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.h" /* check for invalid preprocessor macro combinations */
-#include "arch.h" /* set architecture specific macros */
+#include "checks.hpp" /* check for invalid preprocessor macro combinations */
+#include "arch.hpp" /* set architecture specific macros */
 #ifdef __AUTOESL__
     #include "ap_interfaces.h" /* ap_mm2s */
     #include "ap_int.h" /* for ap_int, ap_uint */
@@ -83,20 +83,6 @@
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
-/* Boolean type                                                               */
-/*============================================================================*/
-typedef int boolean;
-
-#ifndef true
-    #define true 1
-#endif /* #ifndef true */
-
-#ifndef false
-    #define false 0
-#endif /* #ifndef true */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
 
@@ -109,55 +95,27 @@ typedef int boolean;
 typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
 
-/* size_t, size_in_t, size_out_t, size_io_t */
-#ifndef __AUTOESL__
+/* size_t, size_in_t, size_out_t */
 typedef __SIZE_TYPE__       size_in_t;
 typedef __SIZE_TYPE__       size_out_t;
 typedef __SIZE_TYPE__       size_io_t;
-#else
-typedef __SIZE_TYPE__       size_in_t;
-typedef __SIZE_TYPE__       size_out_t;
-typedef __SIZE_TYPE__       size_io_t;
-#endif /* #ifndef __AUTOESL__ */
 
 /* int_t, int_in_t, int_out_t, int_io_t */
-#ifndef __AUTOESL__
 typedef int                 int_t;
 typedef int                 int_in_t;
 typedef int                 int_out_t;
-typedef int                 int_io_t;
-#else
-typedef int                 int_t;
-typedef int                 int_in_t;
-typedef int                 int_out_t;
-typedef int                 int_io_t;
-#endif /* #ifndef __AUTOESL__ */
 
 /* uint_t, uint_in_t, uint_out_t, uint_io_t */
-#ifndef __AUTOESL__
 typedef unsigned int        uint_t;
 typedef unsigned int        uint_in_t;
 typedef unsigned int        uint_out_t;
 typedef unsigned int        uint_io_t;
-#else
-typedef unsigned int        uint_t;
-typedef unsigned int        uint_in_t;
-typedef unsigned int        uint_out_t;
-typedef unsigned int        uint_io_t;
-#endif /* #ifndef __AUTOESL__ */
 
 /* index_t, index_in_t, index_out_t, index_io_t */
-#ifndef __AUTOESL__
 typedef size_t              index_t;
 typedef size_t              index_in_t;
 typedef size_t              index_out_t;
 typedef size_t              index_io_t;
-#else
-typedef size_t              index_t;
-typedef size_t              index_in_t;
-typedef size_t              index_out_t;
-typedef size_t              index_io_t;
-#endif /* #ifndef __AUTOESL__ */
 
 /* double_t, double_in_t, double_out_t, intdoubleio_t */
 #ifndef __AUTOESL__
@@ -210,4 +168,4 @@ typedef double              double_io_t;
     } while (0)
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef UTILITY_H_ */
+#endif /* #ifndef UTILITY_HPP_ */

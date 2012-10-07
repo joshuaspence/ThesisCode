@@ -47,7 +47,8 @@ print OUTPUT <<EOF;
 #ifndef DATASETS_H_
 #define DATASETS_H_
 
-#include <string.h> /* for strcmp */
+#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
+#include <string> /* for std::string */
 
 EOF
 
@@ -62,6 +63,8 @@ for my $dataset (@datasets) {
 }
 print OUTPUT <<EOF;
 /*----------------------------------------------------------------------------*/
+
+__BEGIN_DECLS
 
 EOF
 
@@ -87,13 +90,13 @@ EOF
 
 # The test method
 print OUTPUT <<EOF;
-static int test_embedded_dataset(const char * const dataset) {
+static int test_embedded_dataset(const std::string & dataset) {
 EOF
 
 for my $dataset (@datasets) {
     print OUTPUT <<EOF;
 #if DO_TEST_${\(clean_macro_name($dataset))}
-    if (strcmp(dataset, "$dataset") == 0) {
+    if (dataset == "$dataset") {
         return test_from_array("${dataset}", dataset_${dataset});
     }
 #endif /* #if DO_TEST_${\(clean_macro_name($dataset))} */
@@ -102,13 +105,13 @@ EOF
 
 # Error message if data set not found
 print OUTPUT <<EOF;
-    PRINTF_STDERR("Data set not found: %s\\n", dataset);
-    PRINTF_STDERR("Available datasets are:\\n");
+    PRINTF_STDERR("Data set not found: " << dataset);
+    PRINTF_STDERR("Available datasets are:");
 EOF
 for my $dataset (@datasets) {
     print OUTPUT <<EOF;
 #if DO_TEST_DATASET_${\(clean_macro_name($dataset))}
-    PRINTF_STDERR("\\t%s\\n", "$dataset");
+    PRINTF_STDERR("\\t" << $dataset);
 #endif /* #if DO_TEST_${\(clean_macro_name($dataset))} */
 EOF
 }
@@ -119,6 +122,9 @@ EOF
 
 # End of header file
 print OUTPUT <<EOF;
+
+__END_DECLS
+
 #endif /* #ifndef DATASETS_H_ */
 EOF
 close(OUTPUT);

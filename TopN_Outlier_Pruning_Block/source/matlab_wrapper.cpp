@@ -1,16 +1,17 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.h" /* check for invalid preprocessor macro combinations */
-#include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
+#include "checks.hpp" /* check for invalid preprocessor macro combinations */
+#include "arch.hpp" /* set architecture specific macros. for PRINTF_STDERR */
 
-#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
-#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for double_t, index_t, lint_t, null_index, uint_t */
-#include "vardump.h" /* save_vardump */
+#include "matlab.hpp" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
+#include "top_n_outlier_pruning_block.hpp" /* for top_n_outlier_pruning_block */
+#include "utility.hpp" /* for double_t, index_t, NULL_INDEX, uint_t */
+#include "vardump.hpp" /* save_vardump */
 
 #include <mex.h> /* for mxGetScalar */
 #include <stdlib.h> /* for free, malloc */
+#include <string> /* for std::endl */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -57,11 +58,11 @@
 void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {    
     /* Check for proper number of arguments. */
     if (nrhs != 4) {
-        PRINTF_STDERR("Four inputs required.");
+        PRINTF_STDERR("Four inputs required." << std::endl);
         return;
     }
     if (nlhs <= 0 || nlhs > 2) {
-        PRINTF_STDERR("One or two outputs required.");
+        PRINTF_STDERR("One or two outputs required." << std::endl);
         return;
     }
     
@@ -70,54 +71,54 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
      * array.
      */
     if (!IS_REAL_2D_FULL_DOUBLE(DATA_IN)) {
-        PRINTF_STDERR("Input 'data' must be a real full 2D double array.");
+        PRINTF_STDERR("Input 'data' must be a real full 2D double array." << std::endl);
         return;
     }
     RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
     
     /* Make sure the second input argument is an integer. */
     if (!IS_REAL_SCALAR(K_IN)) {
-        PRINTF_STDERR("Input 'k' must be a scalar.");
+        PRINTF_STDERR("Input 'k' must be a scalar." << std::endl);
         return;
     }
     const double k_dbl = mxGetScalar(K_IN);
     if ((int) k_dbl <= 0) { /* make sure the second input argument is greater than zero */
-        PRINTF_STDERR("Input 'k' must be positive.");
+        PRINTF_STDERR("Input 'k' must be positive." << std::endl);
         return;
     }
     const size_t k = (size_t) k_dbl;
     
     /* Make sure the third input argument is an integer. */
     if (!IS_REAL_SCALAR(N_IN)) {
-        PRINTF_STDERR("Input 'N' must be a scalar.");
+        PRINTF_STDERR("Input 'N' must be a scalar." << std::endl);
         return;
     }
     const double N_dbl = mxGetScalar(N_IN);
     if ((int) N_dbl <= 0) { /* make sure the third input argument is greater than zero */
-        PRINTF_STDERR("Input 'N' must be positive.");
+        PRINTF_STDERR("Input 'N' must be positive." << std::endl);
         return;
     }
     const size_t N = (size_t) N_dbl;
     
     /* Make sure the fourth input argument is an integer. */
     if (!IS_REAL_SCALAR(BLOCKSIZE_IN)) {
-        PRINTF_STDERR("Input 'block_size' must be a scalar.");
+        PRINTF_STDERR("Input 'block_size' must be a scalar." << std::endl);
         return;
     }
     const double block_size_dbl = mxGetScalar(BLOCKSIZE_IN);
     if ((int) block_size_dbl <= 0) { /* make sure the fourth input argument is greater than zero */
-        PRINTF_STDERR("Input 'block_size' must be positive.");
+        PRINTF_STDERR("Input 'block_size' must be positive." << std::endl);
         return;
     }
     const size_t block_size = (size_t) block_size_dbl;
     
     /* Additional error checking. */
     if (ROWS(data) < N) {
-        PRINTF_STDERR("Input 'N' must be less than or equal to the number of vectors in the 'data' array.");
+        PRINTF_STDERR("Input 'N' must be less than or equal to the number of vectors in the 'data' array." << std::endl);
         return;
     }
     if (ROWS(data) < k) {
-        PRINTF_STDERR("Input 'k' must be less than or equal to the number of vectors in the 'data' array.");
+        PRINTF_STDERR("Input 'k' must be less than or equal to the number of vectors in the 'data' array." << std::endl);
         return;
     }
     
@@ -129,7 +130,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     const size_t vector_dims = COLS(data);
     double_t * const data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
     if (data_in == NULL) {
-        PRINTF_STDERR("Unable to allocate memory for data array.");
+        PRINTF_STDERR("Unable to allocate memory for data array." << std::endl);
         return;
     }
 
@@ -148,25 +149,10 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     MEMSET_1D(outlier_scores_out,          0, N, sizeof(double_t));
     
     /* Call the function. */
-#ifndef HARDCODED_NUM_VECTORS
-    set_num_vectors(num_vectors);
-#endif /* #ifndef HARDCODED_NUM_VECTORS */
-#ifndef HARDCODED_VECTOR_DIMS
-    set_vector_dims(vector_dims);
-#endif /* #ifndef HARDCODED_VECTOR_DIMS */
-#ifndef HARDCODED_K
-    set_k(k);
-#endif /* #ifndef HARDCODED_K */
-#ifndef HARDCODED_N
-    set_N(N);
-#endif /* #ifndef HARDCODED_N */
-#if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE)
-    set_block_size(block_size);
-#endif /* #if defined(BLOCKING) && !defined(HARDCODED_BLOCK_SIZE) */
-    const uint_t num_pruned = top_n_outlier_pruning_block((void *) data_in, outliers_out, outlier_scores_out);
+    const uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data_in, k, N, block_size, outliers_out, outlier_scores_out);
     
     /* Save input and output parameters. */
-    save_vardump("vars.dat", &num_vectors, &vector_dims, (void *) data_in, &k, &N, &block_size, &outliers_out, &outlier_scores_out);
+    save_vardump("vars.dat", num_vectors, vector_dims, data_in, k, N, block_size, outliers_out, outlier_scores_out);
     
     /* Free dynamic memory. */
     if (data_in != NULL)
@@ -190,5 +176,5 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
             VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
     }
     
-    PRINTF_STDOUT("Number of pruned vectors = %u\n", num_pruned);
+    PRINTF_STDOUT("Number of pruned vectors = " << num_pruned << std::endl);
 }

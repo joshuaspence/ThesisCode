@@ -22,8 +22,10 @@ TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
 
 DATA_DIR       := data
 SOURCE_DIR     := source
-INCLUDE_DIRS   := data include
-COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp
+INCLUDE_DIRS   := data include source
+COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
+                  $(SOURCE_DIR)/distance.cpp \
+                  $(SOURCE_DIR)/parameters.cpp
 
 TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DSORTED_INSERT DBLOCKING DUSE_DYNAMIC_ARRAY_SIZE=0)
@@ -46,9 +48,9 @@ autoesl_PART         := xc7z020clg484-1
 autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution
 autoesl_SOURCES      :=
-autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.c \
+autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.cpp \
                         $(SOURCE_DIR)/test.cpp \
-                        $(SOURCE_DIR)/vardump.c \
+                        $(SOURCE_DIR)/vardump.cpp \
                         $(DATA_DIR)/*.dat
 autoesl_TBFLAGS      := 
 autoesl_TCLSOURCES   := 
@@ -57,16 +59,16 @@ binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
 binary_CXXFLAGS       = $(call flags,D__C__)
-binary_SOURCES       := $(SOURCE_DIR)/wrapper.c \
+binary_SOURCES       := $(SOURCE_DIR)/wrapper.cpp \
                         $(SOURCE_DIR)/test.cpp \
-                        $(SOURCE_DIR)/vardump.c
+                        $(SOURCE_DIR)/vardump.cpp
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
 matlab_CFLAGS         = $(call flags,D__MEX__)
 matlab_CXXFLAGS       = $(call flags,D__MEX__)
-matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.c \
-                        $(SOURCE_DIR)/vardump.c
+matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp \
+                        $(SOURCE_DIR)/vardump.cpp
 
 
 #------------------------------------------------------------------------------#
@@ -521,6 +523,7 @@ CXXFLAGS_OPT      := $(call flags,O3 DNDEBUG)
 MXXFLAGS_OPT      := $(call flags,O DNDEBUG)
 LDFLAGS_OPT       := $(call flags,O3)
 
+# mode options
 ifeq ($(mode),)
 # Default mode is release
 CFLAGS   := $(call add-flags,$(CFLAGS),$(CFLAGS_OPT))
@@ -552,7 +555,7 @@ endif
 endif
 endif
 
-# gprof
+# gprof options
 GPROF_FLAGS_OFF :=
 GPROF_FLAGS_ON  := $(call flags,pg)
 ifeq ($(gprof),)
@@ -576,7 +579,7 @@ endif
 endif
 endif
 
-# inline
+# inline options
 INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=0)
 INLINE_FLAGS_ON    :=
 INLINE_FLAGS_FORCE := $(call flags,DUSE_INLINE=1)
@@ -607,7 +610,7 @@ endif
 endif
 endif
 
-# test-type
+# test-type options
 TEST_TYPE_FLAGS_DISABLED := DTEST_TYPE=TEST_TYPE_DISABLED
 TEST_TYPE_FLAGS_EMBEDDED := DTEST_TYPE=TEST_TYPE_EMBEDDED
 TEST_TYPE_FLAGS_FILE     := DTEST_TYPE=TEST_TYPE_FILE
@@ -644,23 +647,25 @@ endif
 #                                   DATASETS                                   #
 #                                                                              #
 #------------------------------------------------------------------------------#
-ALL_DATASETS_H   := $(DATA_DIR)/all_datasets.h
-DATASETS         := $(wildcard $(DATA_DIR)/*.dat)
-DATASETS_HEX     := $(DATASETS:%.dat=%.dat.h)
+ALL_DATASETS_H     := $(DATA_DIR)/all_datasets.h
+DATASETS           := $(wildcard $(DATA_DIR)/*.dat)
+DATASETS_HEX       := $(DATASETS:%=%.h)
 
-datasets_TARGETS := $(ALL_DATASETS_H) $(DATASETS_HEX)
-datasets_CLEAN   := $(datasets_TARGETS)
-ALL_DISTCLEAN    += $(datasets_CLEAN)
-HELPER_TARGETS   += datasets clean-datasets distclean-datasets
+datasets_TARGETS   := $(ALL_DATASETS_H) $(DATASETS_HEX)
+datasets_CLEAN     := $(ALL_DATASETS_H)
+datasets_DISTCLEAN := $(DATASETS_HEX)
+ALL_DISTCLEAN      += $(ALL_DATASETS_H) $(DATASETS_HEX)
+HELPER_TARGETS     += datasets clean-datasets distclean-datasets
 
 # Convert a binary data file into a hexadecimal C header file.
 $(DATA_DIR)/%.dat.h: $(DATA_DIR)/%.dat
-	python data.py $< dataset_$* $@
+	python data.py "$<" dataset_$* "$@"
 
 # Create the main datasets header file.
 $(DATA_DIR)/%.h: $(DATA_DIR)/%.h.pl
-	perl $< $@
+	perl "$<" "$@"
 
+# Create clean-datasets and distclean-datasets targets
 $(eval $(call build-type-template,datasets))
 
 

@@ -1,110 +1,16 @@
-#ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_
-#define TOP_N_OUTLIER_PRUNING_BLOCK_H_
+#ifndef TOP_N_OUTLIER_PRUNING_BLOCK_HPP_
+#define TOP_N_OUTLIER_PRUNING_BLOCK_HPP_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.h" /* check for invalid preprocessor macro combinations */
-#include "arch.h" /* set architecture specific macros */
+#include "checks.hpp" /* check for invalid preprocessor macro combinations */
+#include "arch.hpp" /* set architecture specific macros */
 
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, double_in_t, double_out_t, index_out_t, size_t, size_in_t, uint_out_t */
+#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS
-
-#ifndef HARDCODED_NUM_VECTORS
-extern size_t num_vectors_value;
-
-/*
- * Set the number of vectors in the input data set.
- *
- * Parameters:
- *     - num_vectors: The number of vectors in the input data set.
- */
-void set_num_vectors(const size_in_t num_vectors);
-#else
-    #define num_vectors_value   (HARDCODED_NUM_VECTORS)
-#endif /* #ifndef HARDCODED_NUM_VECTORS */
-
-#ifndef HARDCODED_VECTOR_DIMS
-extern size_t vector_dims_value;
-
-/*
- * Set the number of dimensions of the vectors in the input data set.
- *
- * Parameters:
- *     - vector_dims: The number of dimensions of the vectors in the input data 
- *           set.
- */
-void set_vector_dims(const size_in_t vector_dims);
-#else
-    #define vector_dims_value   (HARDCODED_VECTOR_DIMS)
-#endif /* #ifndef HARDCODED_VECTOR_DIMS */
-
-#ifndef HARDCODED_K
-extern size_t k_value;
-
-/*
- * Set the number of k-nearest neighbours to use for outlier detection.
- *
- * Parameters:
- *     - k: The number of k-nearest neighbours for outlier detection.
- */
-void set_k(const size_in_t k);
-#else
-    #define k_value             (HARDCODED_K)
-#endif /* #ifndef HARDCODED_K */
-
-#ifndef HARDCODED_N
-extern size_t N_value;
-
-/*
- * Set the top number of outliers to be returned by the
- * top_n_outlier_pruning_block function.
- *
- * Parameters:
- *     - N: The top N outliers will be returned by this function.
- */
-void set_N(const size_in_t N);
-#else
-    #define N_value             (HARDCODED_N)
-#endif /* #ifndef HARDCODED_N */
-
-#ifdef BLOCKING
-#ifndef HARDCODED_BLOCK_SIZE
-extern size_t block_size_value;
-
-/*
- * Set the block size with which to processed the input data array.
- *
- * Parameters:
- *     - block_size: The input data array will be processed in blocks of this 
- *       size.
- */
-void set_block_size(const size_in_t block_size);
-#else
-    #define block_size_value    (HARDCODED_BLOCK_SIZE)
-#endif /* #ifndef HARDCODED_BLOCK_SIZE */
-#endif /* #ifdef BLOCKING */
-
-/*
- * Calculate the square of the Euclidean distance between two vectors (i.e. the
- * sum of the squares of the distance in each dimension).
- *
- * Parameters:
- *     - vector1: An array of floating point numbers representing the first
- *           vector.
- *     - vector2: An array of floating point numbers representing the second
- *           vector.
- *
- * Return:
- *    The square of the distance between the two vectors.
- */
-void distance_squared(
-    const double_in_t vector1[vector_dims_value],
-    const double_in_t vector2[vector_dims_value],
-    double_out_t * const sum
-    );
 
 /*
  * Insert a neighbouring vector into the k nearest neighbours array for a
@@ -121,12 +27,12 @@ void distance_squared(
  *     - new_neighbour_dist: The new value to be inserted into the 
  *           neighbours_dist array.
  */
-double_out_t add_neighbour(
-    index_io_t neighbours[k_value],
-    double_io_t neighbours_dist[k_value],
-    uint_t * const found,
-    const index_in_t new_neighbour,
-    const double_in_t new_neighbour_dist
+double_t add_neighbour(
+    index_t neighbours[],
+    double_t neighbours_dist[],
+    uint_t & found,
+    const index_t new_neighbour,
+    const double_t new_neighbour_dist
     );
 
 /*
@@ -151,16 +57,16 @@ double_out_t add_neighbour(
  *           current block.
  */
 void best_outliers(
-    size_io_t * const outliers_size,
-    index_io_t outliers[N_value],
-    double_io_t outlier_scores[N_value],
+    size_t & outliers_size,
+    index_t outliers[],
+    double_t outlier_scores[],
 #if defined(BLOCKING)
-    const size_in_t block_size,
-    const index_in_t current_block[block_size_value],
-    const double_in_t scores[block_size_value]
+    const size_t block_size,
+    const index_t current_block[],
+    const double_t scores[]
 #elif defined(NO_BLOCKING)
-    const index_in_t vector,
-    const double_in_t score
+    const index_t vector,
+    const double_t score
 #endif /* #if defined(BLOCKING) */
     );
 
@@ -174,9 +80,9 @@ void best_outliers(
  *     - values: A vector containing the values of the paired vectors.
  */
 void sort_block_scores_descending(
-    const size_in_t block_size,
-    index_io_t indexes[block_size_value],
-    double_io_t values[block_size_value]
+    const size_t block_size,
+    index_t indexes[],
+    double_t values[]
     );
 #endif /* #ifdef BLOCKING */
 
@@ -200,20 +106,20 @@ void sort_block_scores_descending(
  *           outliers array.
  */
 void merge(
-    const size_in_t global_outliers_size,
-    const index_in_t global_outliers[N_value],
-    const double_in_t global_outlier_scores[N_value],
+    const size_t global_outliers_size,
+    const index_t global_outliers[],
+    const double_t global_outlier_scores[],
 #if defined(BLOCKING)
-    const size_in_t block_size,
-    const index_in_t local_outliers[block_size_value],
-    const double_in_t local_outlier_scores[block_size_value],
+    const size_t block_size,
+    const index_t local_outliers[],
+    const double_t local_outlier_scores[],
 #elif defined(NO_BLOCKING)
-    const index_in_t local_outlier,
-    const double_in_t local_outlier_score,
+    const index_t local_outlier,
+    const double_t local_outlier_score,
 #endif /* #if defined(BLOCKING) */
-    size_out_t * const new_outliers_size,
-    index_out_t new_outliers[N_value],
-    double_out_t new_outlier_scores[N_value]
+    size_t & new_outliers_size,
+    index_t new_outliers[],
+    double_t new_outlier_scores[]
     );
 
 /*
@@ -235,10 +141,15 @@ void merge(
  * Return:
  *     The number of vectors pruned whilst executing this algorithm.
  */
-uint_out_t top_n_outlier_pruning_block(
-    const double_in_t * const data,
-    index_out_t * const outliers,
-    double_out_t * const outlier_scores
+uint_t top_n_outlier_pruning_block(
+    const size_t num_vectors,
+    const size_t vector_dims,
+    const double_t * const & data,
+    const size_t k,
+    const size_t N,
+    const size_t block_size,
+    index_t outliers[],
+    double_t outlier_scores[]
     );
 
 __END_DECLS

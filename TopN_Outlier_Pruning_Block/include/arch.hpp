@@ -6,8 +6,8 @@
  * AutoESL (__AUTOESL__).
  */
 
-#ifndef ARCH_H_
-#define ARCH_H_
+#ifndef ARCH_HPP_
+#define ARCH_HPP_
 
 #define DISABLED    0
 #define ENABLED     1
@@ -27,7 +27,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "checks.hpp" /* check for invalid preprocessor macro combinations */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -46,10 +46,10 @@
         #define USE_MEMSET              ENABLED
     #endif /* #ifndef USE_MEMSET */
     
-    #include <stdio.h> /* for fprintf */
+    #include <iostream> /* for std::endl, std::cerr, std::cout */
     
-    #define PRINTF_STDOUT(...)          fprintf(stdout, __VA_ARGS__)
-    #define PRINTF_STDERR(...)          fprintf(stderr, __VA_ARGS__)
+    #define PRINTF_STDOUT(_str_)        std::cout << _str_;
+    #define PRINTF_STDERR(_str_)        std::cerr << _str_;
 #endif /* #ifdef __C__ */
 /*----------------------------------------------------------------------------*/
 
@@ -70,14 +70,19 @@
     #endif /* #ifndef USE_MEMSET */
     
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
-    //#include <stdio.h> /* for sprintf */
+    #include <sstream> /* for stringstream */
     
-    #define PRINTF_STDOUT(...)          mexPrintf(__VA_ARGS__)
-    #define PRINTF_STDERR(...)          \
+    #define PRINTF_STDOUT(_str_) \
         do { \
-            char buffer[1024]; \
-            /*sprintf(buffer, __VA_ARGS__);*/ \
-            mexErrMsgTxt(buffer); \
+            std::stringstream buffer; \
+            buffer << _str_; \
+            mexPrintf(buffer.str().c_str()); \
+        } while (0)
+    #define PRINTF_STDERR(_str_) \
+        do { \
+            std::stringstream buffer; \
+            buffer << _str_; \
+            mexErrMsgTxt(buffer.str().c_str()); \
         } while (0)
 #endif /* #ifdef __MEX__ */
 /*----------------------------------------------------------------------------*/
@@ -100,8 +105,8 @@
     
     #include <stdio.h> /* for fprintf */
     
-    #define PRINTF_STDOUT(...)          fprintf(stdout, __VA_ARGS__)
-    #define PRINTF_STDERR(...)          fprintf(stderr, __VA_ARGS__)
+    #define PRINTF_STDOUT(_str_)        std::cout << _str_;
+    #define PRINTF_STDERR(_str_)        std::cerr << _str_;
     
     #if defined(__GCC__)
 		#define __USE_XOPEN2K8
@@ -182,4 +187,4 @@
 #endif /* #if USE_DYNAMIC_ARRAY_SIZE */
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef ARCH_H_ */
+#endif /* #ifndef ARCH_HPP_ */
