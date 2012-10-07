@@ -1,0 +1,81 @@
+File::Util
+=========================
+
+DESCRIPTION
+File::Util provides a comprehensive toolbox of utilities to automate all
+kinds of common tasks on file / directories.  Its purpose is to do so
+in the most portable manner possible so that users of this module won't
+have to worry about whether their programs will work on other OSes
+and machines.
+
+
+CHANGES IN LAST FEW RELEASES
+(listed in reverse chronological order by date and subversion)
+
+   2.27
+      Sat Dec  6 13:10:00 CST 2008
+      Fixed a bug that caused root directories using Micro$oft filesystem
+      notation to be mis-read when using the '--dirs-only' flag for
+      File::Util::list_dir()
+
+   3.26
+      Tue Dec  2 20:07:09 CST 2008
+      Added to test suite in order to avoid errant test failures
+      when flock'ing on solaris.  This is a big deal, since the point of
+      File::Util is to be easy, and portable!
+
+      Added some yet more extra examples in the documentation.
+
+   3.25
+      Mon Dec 1 15:11:20 CST 2008
+      Fixed a bug in File::Util::touch()
+
+      Added some extra examples and corrected one minor error in the
+      documentation.
+
+   3.24
+      Wed May 23 16:27:20 CDT 2007
+      **Don't use this version.  It has a bug.  Use 3.25 or greater.
+
+      Added method File::Util::last_changed (get inode change time for a file)
+      Added method File::Util::touch (works like *nix touch command)
+
+      Both touch and last_changed are autoloaded methods
+
+      Applied patch from S. Muskiewicz that fixes the File::Util::last_modified
+      method that was using a similar but incorrect "-" file test operator.
+
+INSTALLATION
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+On windows machines use nmake rather than make; those running cygwin don't have
+to worry about this.  If you don't know what cygwin is, use nmake and check out
+<URL: http://cygwin.com/> after you're done installing this module if you want
+to find out.
+
+
+DEPENDENCIES
+This module requires these other modules and libraries:
+
+   Class::OOorNO        v0.01_0 or better
+   Exception::Handler   v1.00_0 or better
+
+
+AUTHOR
+   Tommy Butler <cpan@atrixnet.com>
+
+
+COPYRIGHT
+   Copyright (C) Tommy Butler 2001-2002, all rights reserved.
+
+
+LICENCE
+
+   This library is free software, you may redistribute it and/or modify it
+   under the same terms as Perl itself.
+

@@ -1,0 +1,20 @@
+COPYING
+Changes
+MANIFEST
+Makefile.PL
+README
+Util.pm
+Util.pod
+t/001_canuseit.t
+t/002_isa.t
+t/003_can.t
+t/004_portable.t
+t/005_ftests.t
+t/006_io.t
+t/007_flock.t
+t/008_export_ok.t
+t/009_empty_subclass.t
+t/010_diesnice.t
+t/bin
+t/txt
+META.yml                                Module meta-data (added by MakeMaker)

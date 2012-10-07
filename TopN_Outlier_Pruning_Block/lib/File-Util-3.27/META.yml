@@ -1,0 +1,12 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         File-Util
+version:      3.27
+version_from: Util.pm
+installdirs:  site
+requires:
+    Class::OOorNO:                 0.01
+    Exception::Handler:            1
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30
