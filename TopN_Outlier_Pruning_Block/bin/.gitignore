@@ -1,0 +1,13 @@
+# Mex outputs
+*.mexsol
+*.mexs64
+*.mexglx
+*.mexa64
+*.mexmac
+*.mexmaci
+*.mexmaci64
+*.mexw32
+*.mexw64
+
+# Binary outputs
+*.bin
