@@ -58,7 +58,7 @@ echo "##################################################"
 echo "# AutoESL                                         "
 echo "##################################################"
 echo_and_exec export XILINX_AUTOESL
-path_add "${AUTOESL_DIR}/bin" "${AUTOESL_DIR}/bin/lin64"
+path_add "${XILINX_AUTOESL}/bin" "${XILINX_AUTOESL}/Linux_x86_64/bin"
 echo "--------------------------------------------------"
 echo
 
