@@ -46,57 +46,31 @@
 /*============================================================================*/
 /* Insert type                                                                */
 /*============================================================================*/
-#undef _INSERT_TYPE_SET_
+#ifndef SORTED
+    #define SORTED      (1)
+#endif /* #ifndef SORTED */
+#ifndef UNSORTED
+    #define UNSORTED    (2)
+#endif /* #ifndef UNSORTED */
 
-/* SORTED_INSERT */
-#ifdef SORTED_INSERT
-    #ifdef _INSERT_TYPE_SET_
-        #error "Only one insert type should be specified."
-    #else
-        #define _INSERT_TYPE_SET_
-    #endif /* #ifdef _INSERT_TYPE_SET_ */
-#endif /* #ifdef SORTED_INSERT */
-
-/* UNSORTED_INSERT */
-#ifdef UNSORTED_INSERT
-    #ifdef _INSERT_TYPE_SET_
-        #error "Only one insert type should be specified."
-    #else
-        #define _INSERT_TYPE_SET_
-    #endif /* #ifdef _INSERT_TYPE_SET_ */
-#endif /* #ifdef UNSORTED_INSERT */
-
-#ifndef _INSERT_TYPE_SET_
-    #error "Insert type not set. Define one of: SORTED_INSERT, UNSORTED_INSERT"
-#endif /* #ifndef _INSERT_TYPE_SET_ */
+#ifndef INSERT
+    #error "Insert type not specified. Define either: INSERT=SORTED or INSERT=UNSORTED"
+#endif /* #ifndef INSERT */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Blocking mode                                                              */
 /*============================================================================*/
-#undef _BLOCKING_MODE_SET_
+#ifndef DISABLED
+    #define DISABLED    (0)
+#endif /* #ifndef DISABLED */
+#ifndef ENABLED
+    #define ENABLED     (1)
+#endif /* #ifndef ENABLED */
 
-/* BLOCKING */
-#ifdef BLOCKING
-    #ifdef _BLOCKING_MODE_SET_
-        #error "Only one blocking mode should be specified."
-    #else
-        #define _BLOCKING_MODE_SET_
-    #endif /* #ifdef _BLOCKING_MODE_SET_ */
-#endif /* #ifdef BLOCKING */
-
-/* NO_BLOCKING */
-#ifdef NO_BLOCKING
-    #ifdef _BLOCKING_MODE_SET_
-        #error "Only one blocking mode should be specified."
-    #else
-        #define _BLOCKING_MODE_SET_
-    #endif /* #ifdef _BLOCKING_MODE_SET_ */
-#endif /* #ifdef NO_BLOCKING */
-
-#ifndef _BLOCKING_MODE_SET_
-    #error "Blocking mode not set. Define one of: BLOCKING, NO_BLOCKING"
-#endif /* #ifndef _BLOCKING_MODE_SET_ */
+#ifndef BLOCKING
+    #error "Blocking mode not specified. Define either: BLOCKING=ENABLED or BLOCKING=DISABLED"
+#endif /* #ifndef BLOCKING */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef CHECKS_HPP_ */

@@ -60,17 +60,17 @@ void best_outliers(
     size_t & outliers_size,
     index_t outliers[],
     double_t outlier_scores[],
-#if defined(BLOCKING)
+#if (BLOCKING==ENABLED)
     const size_t block_size,
     const index_t current_block[],
     const double_t scores[]
-#elif defined(NO_BLOCKING)
+#elif (BLOCKING==DISABLED)
     const index_t vector,
     const double_t score
-#endif /* #if defined(BLOCKING) */
+#endif /* #if (BLOCKING==ENABLED) */
     );
 
-#ifdef BLOCKING
+#if (BLOCKING==ENABLED)
 /*
  * Sort paired vectors in descending order. This function uses bubble sort.
  *
@@ -84,7 +84,7 @@ void sort_block_scores_descending(
     index_t indexes[],
     double_t values[]
     );
-#endif /* #ifdef BLOCKING */
+#endif /* #if (BLOCKING==ENABLED) */
 
 /*
  * Merge two sorted vector in descending order. Takes two pairs of vectors and
@@ -109,14 +109,14 @@ void merge(
     const size_t global_outliers_size,
     const index_t global_outliers[],
     const double_t global_outlier_scores[],
-#if defined(BLOCKING)
+#if (BLOCKING==ENABLED)
     const size_t block_size,
     const index_t local_outliers[],
     const double_t local_outlier_scores[],
-#elif defined(NO_BLOCKING)
+#elif (BLOCKING==DISABLED)
     const index_t local_outlier,
     const double_t local_outlier_score,
-#endif /* #if defined(BLOCKING) */
+#endif /* #if (BLOCKING==ENABLED) */
     size_t & new_outliers_size,
     index_t new_outliers[],
     double_t new_outlier_scores[]

@@ -7,7 +7,7 @@
 #include "checks.hpp" /* check for invalid preprocessor macro combinations */
 #include "arch.hpp" /* set architecture specific macros */
 
-#include "utility.hpp" /* for size_t */
+#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, size_t */
 /*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS

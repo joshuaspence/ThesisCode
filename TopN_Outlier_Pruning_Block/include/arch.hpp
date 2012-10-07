@@ -9,8 +9,8 @@
 #ifndef ARCH_HPP_
 #define ARCH_HPP_
 
-#define DISABLED    0
-#define ENABLED     1
+#define DISABLED    (0)
+#define ENABLED     (1)
 
 /*
  * Explanation of #define macros:
@@ -34,10 +34,6 @@
 /* __C__ = Stand-alone C program                                              */
 /*============================================================================*/
 #ifdef __C__
-    #ifndef USE_ASSERT
-        #define USE_ASSERT              ENABLED
-    #endif /* #ifndef USE_ASSERT */
-    
     #ifndef USE_DYNAMIC_ARRAY_SIZE
         #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
@@ -46,10 +42,14 @@
         #define USE_MEMSET              ENABLED
     #endif /* #ifndef USE_MEMSET */
     
+    /* Printing to stdout and stderr */
     #include <iostream> /* for std::endl, std::cerr, std::cout */
-    
     #define PRINTF_STDOUT(_str_)        std::cout << _str_;
     #define PRINTF_STDERR(_str_)        std::cerr << _str_;
+    
+    /* Create an assertion */
+    #include <assert.h> /* for assert */
+    #define ASSERT(x)                   assert(x)
 #endif /* #ifdef __C__ */
 /*----------------------------------------------------------------------------*/
 
@@ -57,10 +57,6 @@
 /* __MEX__ = MEX file for MATLAB                                              */
 /*============================================================================*/
 #ifdef __MEX__
-    #ifndef USE_ASSERT
-        #define USE_ASSERT              ENABLED
-    #endif /* #ifndef USE_ASSERT */
-    
     #ifndef USE_DYNAMIC_ARRAY_SIZE
         #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
@@ -69,9 +65,9 @@
         #define USE_MEMSET              ENABLED
     #endif /* #ifndef USE_MEMSET */
     
+    /* Printing to stdout and stderr */
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
     #include <sstream> /* for stringstream */
-    
     #define PRINTF_STDOUT(_str_) \
         do { \
             std::stringstream buffer; \
@@ -84,6 +80,10 @@
             buffer << _str_; \
             mexErrMsgTxt(buffer.str().c_str()); \
         } while (0)
+    
+    /* Create an assertion */
+    #include <mex.h> /* for mxAssert */
+    #define ASSERT(x)                   mxAssert(x, #x)
 #endif /* #ifdef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
@@ -91,10 +91,6 @@
 /* __AUTOESL__ = AutoESL project                                              */
 /*============================================================================*/
 #ifdef __AUTOESL__
-    #ifndef USE_ASSERT
-        #define USE_ASSERT              DISABLED
-    #endif /* #ifndef USE_ASSERT */
-    
     #ifndef USE_DYNAMIC_ARRAY_SIZE
         #define USE_DYNAMIC_ARRAY_SIZE  DISABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
@@ -103,11 +99,15 @@
         #define USE_MEMSET              DISABLED
     #endif /* #ifndef USE_MEMSET */
     
-    #include <stdio.h> /* for fprintf */
-    
+    /* Printing to stdout and stderr */
+    #include <iostream> /* for std::cerr, std::cout */
     #define PRINTF_STDOUT(_str_)        std::cout << _str_;
     #define PRINTF_STDERR(_str_)        std::cerr << _str_;
     
+    /* Create an assertion */
+    #define ASSERT(x)
+    
+    /* Compilation fixes */
     #if defined(__GCC__)
 		#define __USE_XOPEN2K8
 		#include <locale.h>
