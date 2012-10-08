@@ -44,8 +44,8 @@ for my $dataset_file (@dataset_files) {
 
 # Start of header file
 print OUTPUT <<EOF;
-#ifndef DATASETS_H_
-#define DATASETS_H_
+#ifndef ALL_DATASETS_H_
+#define ALL_DATASETS_H_
 
 #include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
 #include <string> /* for std::string */
@@ -125,6 +125,6 @@ print OUTPUT <<EOF;
 
 __END_DECLS
 
-#endif /* #ifndef DATASETS_H_ */
+#endif /* #ifndef ALL_DATASETS_H_ */
 EOF
 close(OUTPUT);

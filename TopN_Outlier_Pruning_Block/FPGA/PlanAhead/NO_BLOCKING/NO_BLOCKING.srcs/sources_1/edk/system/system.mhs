@@ -1,7 +1,7 @@
 
 # ##############################################################################
 # Created by Base System Builder Wizard for Xilinx EDK 14.2 Build EDK_P.28xd
-# Fri Oct 05 13:09:34 2012
+# Mon Oct 08 17:04:29 2012
 # Target Board:  xilinx.com zc702 Rev C
 # Family:    zynq
 # Device:    xc7z020
@@ -93,7 +93,10 @@ BEGIN processing_system7
  PARAMETER C_FCLK_CLK2_FREQ = 50000000
  PARAMETER C_FCLK_CLK3_FREQ = 50000000
  PARAMETER C_USE_CR_FABRIC = 1
+ PARAMETER C_USE_S_AXI_ACP = 1
+ PARAMETER C_INTERCONNECT_S_AXI_ACP_MASTERS = axi_dma_1.M_AXI_MM2S & axi_dma_0.M_AXI_MM2S
  BUS_INTERFACE M_AXI_GP0 = axi_interconnect_1
+ BUS_INTERFACE S_AXI_ACP = axi_interconnect_0
  PORT MIO = processing_system7_0_MIO
  PORT PS_SRSTB = processing_system7_0_PS_SRSTB
  PORT PS_CLK = processing_system7_0_PS_CLK
@@ -118,7 +121,8 @@ BEGIN processing_system7
  PORT FCLK_CLK0 = processing_system7_0_FCLK_CLK0
  PORT FCLK_RESET0_N = processing_system7_0_FCLK_RESET0_N
  PORT M_AXI_GP0_ACLK = processing_system7_0_FCLK_CLK0
- PORT IRQ_F2P = distance_squared_top_0_interrupt
+ PORT S_AXI_ACP_ACLK = processing_system7_0_FCLK_CLK0
+ PORT IRQ_F2P = axi_dma_0_mm2s_introut & axi_dma_0_s2mm_introut & axi_dma_1_mm2s_introut & axi_dma_1_s2mm_introut
 END
 
 BEGIN axi_interconnect
@@ -129,15 +133,66 @@ BEGIN axi_interconnect
  PORT INTERCONNECT_ARESETN = processing_system7_0_FCLK_RESET0_N
 END
 
+BEGIN axi_dma
+ PARAMETER INSTANCE = axi_dma_0
+ PARAMETER HW_VER = 6.01.a
+ PARAMETER C_INCLUDE_SG = 0
+ PARAMETER C_SG_LENGTH_WIDTH = 10
+ PARAMETER C_M_AXI_MM2S_DATA_WIDTH = 64
+ PARAMETER C_M_AXIS_MM2S_TDATA_WIDTH = 64
+ PARAMETER C_INCLUDE_MM2S_DRE = 1
+ PARAMETER C_MM2S_BURST_SIZE = 256
+ PARAMETER C_INCLUDE_S2MM = 0
+ PARAMETER C_BASEADDR = 0x40420000
+ PARAMETER C_HIGHADDR = 0x4042ffff
+ BUS_INTERFACE S_AXI_LITE = axi_interconnect_1
+ BUS_INTERFACE M_AXI_MM2S = axi_interconnect_0
+ BUS_INTERFACE M_AXIS_MM2S = axi_dma_0_M_AXIS_MM2S
+ PORT s_axi_lite_aclk = processing_system7_0_FCLK_CLK0
+ PORT m_axi_mm2s_aclk = processing_system7_0_FCLK_CLK0
+ PORT mm2s_introut = axi_dma_0_mm2s_introut
+ PORT s2mm_introut = axi_dma_0_s2mm_introut
+END
+
+BEGIN axi_dma
+ PARAMETER INSTANCE = axi_dma_1
+ PARAMETER HW_VER = 6.01.a
+ PARAMETER C_INCLUDE_SG = 0
+ PARAMETER C_M_AXI_MM2S_DATA_WIDTH = 64
+ PARAMETER C_M_AXIS_MM2S_TDATA_WIDTH = 64
+ PARAMETER C_INCLUDE_MM2S_DRE = 1
+ PARAMETER C_MM2S_BURST_SIZE = 256
+ PARAMETER C_INCLUDE_S2MM = 0
+ PARAMETER C_BASEADDR = 0x40400000
+ PARAMETER C_HIGHADDR = 0x4040ffff
+ BUS_INTERFACE S_AXI_LITE = axi_interconnect_1
+ BUS_INTERFACE M_AXI_MM2S = axi_interconnect_0
+ BUS_INTERFACE M_AXIS_MM2S = axi_dma_1_M_AXIS_MM2S
+ PORT s_axi_lite_aclk = processing_system7_0_FCLK_CLK0
+ PORT m_axi_mm2s_aclk = processing_system7_0_FCLK_CLK0
+ PORT mm2s_introut = axi_dma_1_mm2s_introut
+ PORT s2mm_introut = axi_dma_1_s2mm_introut
+END
+
+BEGIN axi_interconnect
+ PARAMETER INSTANCE = axi_interconnect_0
+ PARAMETER HW_VER = 1.06.a
+ PORT INTERCONNECT_ACLK = processing_system7_0_FCLK_CLK0
+ PORT INTERCONNECT_ARESETN = processing_system7_0_FCLK_RESET0_N
+END
+
 BEGIN distance_squared_top
  PARAMETER INSTANCE = distance_squared_top_0
  PARAMETER HW_VER = 1.00.a
+ PARAMETER C_INPUT_STREAM_A_PROTOCOL = GENERIC
+ PARAMETER C_INPUT_STREAM_B_PROTOCOL = GENERIC
  PARAMETER C_S_AXI_CONTROL_BUS_BASEADDR = 0x78c00000
  PARAMETER C_S_AXI_CONTROL_BUS_HIGHADDR = 0x78c0ffff
  BUS_INTERFACE S_AXI_CONTROL_BUS = axi_interconnect_1
+ BUS_INTERFACE INPUT_STREAM_A = axi_dma_0_M_AXIS_MM2S
+ BUS_INTERFACE INPUT_STREAM_B = axi_dma_1_M_AXIS_MM2S
  PORT s_axi_CONTROL_BUS_ACLK = processing_system7_0_FCLK_CLK0
  PORT SYS_CLK = processing_system7_0_FCLK_CLK0
  PORT SYS_RESET = processing_system7_0_FCLK_RESET0_N
- PORT interrupt = distance_squared_top_0_interrupt
 END
 

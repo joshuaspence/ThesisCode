@@ -1,0 +1,58 @@
+# BEGIN Project Options
+SET addpads = False
+SET asysymbol = True
+SET busformat = BusFormatAngleBracketNotRipped
+SET createndf = False
+SET designentry = VHDL
+SET device = xc7z020
+SET devicefamily = zynq
+SET flowvendor = Foundation_ISE
+SET formalverification = False
+SET foundationsym = False
+SET implementationfiletype = Ngc
+SET package = clg484
+SET removerpms = False
+SET simulationfiles = Behavioral
+SET speedgrade = -1
+SET verilogsim = True
+SET vhdlsim = True
+# END Project Options
+# BEGIN Select
+SELECT Block_Memory_Generator family Xilinx,_Inc. 7.2
+# END Select
+# BEGIN Parameters
+CSET algorithm=Minimum_Area
+CSET assume_synchronous_clk=false
+CSET byte_size=9
+CSET coe_file=no_coe_file_loaded
+CSET load_init_file=false
+CSET collision_warnings=ALL
+CSET component_name=distance_squared_sum_of_squares_split_ram
+CSET disable_collision_warnings=false
+CSET disable_out_of_range_warnings=false
+CSET ecc=false
+CSET fill_remaining_memory_locations=false
+CSET memory_type=True_Dual_Port_RAM
+CSET enable_a=Use_ENA_Pin
+CSET enable_b=Use_ENB_Pin
+CSET operating_mode_a=WRITE_FIRST
+CSET operating_mode_b=WRITE_FIRST
+CSET output_reset_value_a=0
+CSET output_reset_value_b=0
+CSET pipeline_stages=0
+CSET primitive=8kx2
+CSET read_width_a=64
+CSET read_width_b=64
+CSET register_porta_output_of_memory_core=false
+CSET register_porta_output_of_memory_primitives=false
+CSET register_portb_output_of_memory_core=false
+CSET register_portb_output_of_memory_primitives=false
+CSET remaining_memory_locations=0
+CSET use_byte_write_enable=false
+CSET use_regcea_pin=false
+CSET use_regceb_pin=false
+CSET write_depth_a=8
+CSET write_width_a=64
+CSET write_width_b=64
+# END Parameters
+GENERATE

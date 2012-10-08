@@ -44,7 +44,7 @@ void distance_squared(const double_in_t vector1[],
     double_t sum_of_squares__split[SUM_SPLIT] = { 0 };
     
     uint_t dim;
-    dimension_loop: for (dim = 0; dim < vector_dims_value; dim++) {
+    dimension_loop: for (dim = 0; dim < HARDCODED_VECTOR_DIMS; dim++) {
 #ifdef __AUTOESL__
     #pragma AP PIPELINE II=1
 #endif /* #ifdef __AUTOESL__ */

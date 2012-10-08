@@ -5,11 +5,13 @@
 ############################################################
 open_project NO_BLOCKING
 set_top distance_squared
-add_file ../../source/top_n_outlier_pruning_block.cpp -cflags "-D__AUTOESL__ -DSORTED_INSERT -DNO_BLOCKING -DUSE_DYNAMIC_ARRAY_SIZE=0 -USE_INLINE=0 -I../../include"
-add_file -tb ../../source/test.cpp -cflags " -I../../../../include -D__AUTOESL__ -DSORTED_INSERT -DNO_BLOCKING -DUSE_DYNAMIC_ARRAY_SIZE=0 -USE_INLINE=0 "
-add_file -tb ../../source/vardump.c -cflags " -I../../../../include -D__AUTOESL__ -DSORTED_INSERT -DNO_BLOCKING -DUSE_DYNAMIC_ARRAY_SIZE=0 -USE_INLINE=0 "
-add_file -tb ../../source/wrapper.c -cflags " -I../../../../include -D__AUTOESL__ -DSORTED_INSERT -DNO_BLOCKING -DUSE_DYNAMIC_ARRAY_SIZE=0 -USE_INLINE=0 "
-add_file -tb ../../data
+add_file ../../source/distance.cpp -cflags "-ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source  -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0"
+add_file -tb ../../source/parameters.cpp -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0 -DTEST_TYPE=EMBEDDED"
+add_file -tb ../../source/test.cpp -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0"
+add_file -tb ../../source/top_n_outlier_pruning_block.cpp -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0 -DTEST_TYPE=EMBEDDED"
+add_file -tb ../../source/vardump.cpp -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0 -DTEST_TYPE=EMBEDDED"
+add_file -tb ../../source/wrapper.cpp -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0 -DTEST_TYPE=EMBEDDED"
+add_file -tb ../../data -cflags " -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/data  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/include/autoesl  -ID:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/source                   -D__AUTOESL__ -DINSERT=SORTED -DBLOCKING=ENABLED -DUSE_DYNAMIC_ARRAY_SIZE=0 -DTEST_TYPE=EMBEDDED"
 open_solution "solution1"
 set_part  {xc7z020clg484-1}
 create_clock -period 10

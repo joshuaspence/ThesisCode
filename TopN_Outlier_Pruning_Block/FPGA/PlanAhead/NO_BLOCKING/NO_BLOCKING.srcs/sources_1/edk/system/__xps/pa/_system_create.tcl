@@ -4,7 +4,7 @@
 #
 ######################################################
 
-cd "D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/PlanAhead/NO_BLOCKING/NO_BLOCKING.srcs/sources_1/edk/system"
+cd "D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/PlanAhead/NO_BLOCKING2/NO_BLOCKING2.srcs/sources_1/edk/system"
 if { [xload new system.xmp] != 0 } {
   exit -1
 }
