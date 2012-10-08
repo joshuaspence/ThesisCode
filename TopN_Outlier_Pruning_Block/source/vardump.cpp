@@ -173,32 +173,7 @@ int read_vardump_from_file(const std::string & filename,
     READ_VARIABLE_FROM_FILE(&vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
     
     /* data */
-    double_t * raw_data = NULL;
     MALLOC_READ_VARIABLE_FROM_FILE(double_t *, data, sizeof(double_t), num_vectors * vector_dims, filename, fp, /* no cleanup code */);
-    data = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
-    if (data == NULL) {
-        PRINTF_STDERR("Failed to allocate " << (num_vectors * vector_dims * sizeof(double_t)) << " bytes for " << "data" << "." << std::endl);
-        do {
-            free(raw_data);
-        } while (0);
-        return MALLOC_FAILED;
-    }
-    do {
-        uint_t i;
-        for (i = 0; i < num_vectors; i++) {
-            uint_t j;
-            for (j = 0; j < vector_dims; j++) {
-#ifndef __AUTOESL__
-                data[i * num_vectors + j] = raw_data[i * num_vectors + j];
-#else
-                data[i * num_vectors + j].data = raw_data[i * num_vectors + j];
-                data[i * num_vectors + j].keep = 0;
-                data[i * num_vectors + j].last = 0;
-#endif /* #ifndef __AUTOESL__ */
-            }
-        }
-        free(raw_data);
-    } while(0);
     
     /* k */
     READ_VARIABLE_FROM_FILE(&k, sizeof(size_t), 1, filename, fp, free(data););
@@ -268,13 +243,7 @@ int read_vardump_from_array(const unsigned char ** const & array,
         for (i = 0; i < num_vectors; i++) {
             uint_t j;
             for (j = 0; j < vector_dims; j++) {
-#ifndef __AUTOESL__
                 data[i * num_vectors + j] = raw_data[i * num_vectors + j];
-#else
-                data[i * num_vectors + j].data = raw_data[i * num_vectors + j];
-                data[i * num_vectors + j].keep = 0;
-                data[i * num_vectors + j].last = 0;
-#endif /* #ifndef __AUTOESL__ */
             }
         }
         free(raw_data);

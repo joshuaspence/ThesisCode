@@ -36,7 +36,7 @@ static bool do_test(const std::string & dataset,
     
     /* Call the function. */
     PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '" << dataset << "'" << std::endl);    
-    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, const_cast<const double_in_t * const>(data), k, N, block_size, outliers, outlier_scores);
+    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data, k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {
