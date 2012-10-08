@@ -91,16 +91,7 @@ UNAME    := uname
 
 # $(call add-flags,CURRENT_FLAGS,FLAG FLAG ...)
 # Add flags to a CFLAG-style string.
-define add-flags
-$(call pretty,
-$(shell $(ECHO) -n "$(1) ")
-$(foreach FLAG,$(2),$(shell \
-$(ECHO) -n "$(1)" | \
-$(GREP) -q "\-$(FLAG:-%=%)" || \
-$(ECHO) -n "-$(FLAG:-%=%)"
-))
-)
-endef
+add-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))$(foreach FLAG,$(2), -$(FLAG:-%=%))
 
 # $(call create-directory,DIRECTORY)
 # Create a directory, if it does not yet exist
@@ -115,38 +106,31 @@ endef
 # An alternative to $(eval) that will call $(info) as well as $(eval), if DEBUG
 # is defined.
 ifdef DEBUG
-define evaluate
-$(info $(1))$(eval $(1))
-endef
+evaluate = $(info $(1))$(eval $(1))
 else
-define evaluate
-$(eval $(1))
-endef
+evaluate = $(eval $(1))
 endif
 
 # $(call flags,FLAG FLAG ...)
 # Create a gcc-style CFLAG string.
-define flags
-$(call pretty,$(foreach FLAG,$(1),-$(FLAG:-%=%)))
-endef
+flags = $(foreach FLAG,$(1), -$(FLAG:-%=%))
 
 # $(call get-relative-path,FROM,TO)
 # Get the relative file path between two directories.
-get-relative-path = $(shell \
-source="$$($(READLINK) $1)"; \
-target="$$($(READLINK) $2)"; \
-\
-common_part="$$source"; \
-back="."; \
-while [ "$${target\#$$common_part}" = "$${target}" ]; do \
-	common_part="$$($(DIRNAME) $$common_part)"; \
-	back="$${back}/.."; \
-done; \
-\
-back=$$($(ECHO) $$back | $(SED) 's/\.\///'); \
-\
-$(ECHO) $${back}$${target\#$$common_part}; \
+define get-relative-path
+$(shell \
+	source="$$($(READLINK) $1)";
+	target="$$($(READLINK) $2)";
+	common_part="$$source";
+	back=".";
+	while [ "$${target\#$$common_part}" = "$${target}" ]; do
+		common_part="$$($(DIRNAME) $$common_part)";
+		back="$${back}/..";
+	done;
+	back=$$($(ECHO) $$back | $(SED) 's/\.\///');
+	$(ECHO) $${back}$${target\#$$common_part};
 )
+endef
 
 # $(help-text)
 # The text to be displayed when make is run without any targets.
@@ -199,15 +183,15 @@ endef
 # $(call include-flags,INC1 INC2 ...)
 # Create gcc-style include flags.
 define include-flags
-$(call pretty,$(foreach INC_DIR,$(1),-I$(INC_DIR) ))
+$(foreach INC_DIR,$(1), -I$(INC_DIR))
 endef
 
 # $(call parse-mex-options,OPTION_NAME)
 # Parse options from the mex compiler.
 define parse-mex-options
 $(shell \
-$(MXX) -v 2>/dev/null | \
-$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
+	$(MXX) -v 2>/dev/null |
+	$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
 )
 endef
 
@@ -218,11 +202,11 @@ endef
 #     - Trailing whitespace
 define pretty
 $(shell \
-$(ECHO) -n "$(1)" | \
-$(SED) \
--e 's/\s\s\+/ /' \
--e 's/^\s\+//' \
--e 's/\s\+$$//'
+	$(ECHO) -n "$(1)" |
+	$(SED) \
+		-e 's/\s\s\+/ /'
+		-e 's/^\s\+//'
+		-e 's/\s\+$$//'
 )
 endef
 
@@ -240,12 +224,17 @@ endef
 
 # $(call remove-flag,CURRENT_FLAGS,FLAG FLAG ...)
 # Remove a flag from a CFLAG-style string.
-define remove-flags
-$(shell \
-$(ECHO) -n "$(1)" | \
-$(SED) $(foreach FLAG,$(2), -e 's/-$(FLAG:-%=%)\s\+//')
-)
-endef
+remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
+
+# Test that a file is executable
+# $(call test-executable,file)
+test-executable = [ -x '$1' ]
+
+# Test that a file exists
+# $(call test-exists,file)
+test-exists     = [ -e '$1' ]
+# $(call test-not-exists,file)
+test-not-exists = [ ! -e '$1' ]
 
 # $(call trace-message,msg)
 # Print a message to STDOUT.
@@ -311,7 +300,11 @@ $(1)-autoesl: $$($(1)_AUTOESL)
 $$($(1)_AUTOESL): $$($(1)_DEPS)
 $$($(1)_AUTOESL): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
 	$(call trace-message,"Creating project: $$@")
-	$$(AUTOESL) -f "$$<"
+	if $$(call test-executable,$$(AUTOESL))]; then
+		$$(AUTOESL) -f "$$<"
+	else
+		$$(error AutoESL not found)
+	fi
 	$(call trace-message,)
 
 endef
@@ -362,23 +355,29 @@ $$($(1)_BINARY): $$($(1)_DEPS)
 $$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(if $$(filter %.cpp,$$^),\
-		$$(call pretty,$$(CXX) \
-		    $$(binary_CXXFLAGS) \
-		    $$(CXXFLAGS) \
-		    $$(call include-flags,$$(INCLUDE_DIRS)) \
-		    $$($(1)_CXXFLAGS) \
-		    -o $$@ \
-		    $$(filter %.cpp,$$^) $$(filter %.c,$$^) \
+	$$(if $$(filter %.cpp,$$^), \
+		$$(if $$(CXX), \
+			$$(call pretty,$$(CXX) \
+				$$(binary_CXXFLAGS) \
+				$$(CXXFLAGS) \
+				$$(call include-flags,$$(INCLUDE_DIRS)) \
+				$$($(1)_CXXFLAGS) \
+				-o $$@ \
+				$$(filter %.cpp,$$^) $$(filter %.c,$$^) \
+			), \
+			$$(error No C++ compiler was found) \
 	    ), \
-		$$(call pretty,$$(CC) \
-		    $$(binary_CFLAGS) \
-		    $$(CFLAGS) \
-		    $$(call include-flags,$$(INCLUDE_DIRS)) \
-		    $$($(1)_CFLAGS) \
-		    -o $$@ \
-		    $$(filter-out $$($(1)_DEPS),$$^) \
-	    ) \
+    	$$(if $$(CC), \
+			$$(call pretty,$$(CC) \
+				$$(binary_CFLAGS) \
+				$$(CFLAGS) \
+				$$(call include-flags,$$(INCLUDE_DIRS)) \
+				$$($(1)_CFLAGS) \
+				-o $$@ \
+				$$(filter-out $$($(1)_DEPS),$$^) \
+			) \
+		), \
+		$$(error No C compiler was found) \
 	)
 	$(call trace-message,)
 
@@ -390,24 +389,25 @@ matlab_CLEAN   += $$($(1)_MATLAB)
 HELPER_TARGETS += $(1)-matlab
 .PHONY: $(1)-matlab
 $(1)-matlab: $$($(1)_MATLAB)
-
 $$($(1)_MATLAB): $$($(1)_DEPS)
 $$($(1)_MATLAB): $$(COMMON_SOURCES) $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
-	$$(call pretty,$$(MXX) \
-	    $$(matlab_CFLAGS) \
-	    $$(MXXFLAGS) \
-	    $$($(1)_MXXFLAGS) \
-	    $$(call include-flags,$$(INCLUDE_DIRS)) \
-	    CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' \
-	    CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' \
-	    LDFLAGS='$$(LDFLAGS)' \
-	    -o $$@ \
-	    $$(filter-out $$($(1)_DEPS),$$^) \
-    )
+	$$(if $$(MXX), \
+		$$(call pretty,$$(MXX) \
+			$$(matlab_CFLAGS) \
+			$$(MXXFLAGS) \
+			$$($(1)_MXXFLAGS) \
+			$$(call include-flags,$$(INCLUDE_DIRS)) \
+			CFLAGS='$$(CFLAGS) $$($(1)_CFLAGS)' \
+			CXXFLAGS='$$(CXXFLAGS) $$($(1)_CXXFLAGS)' \
+			LDFLAGS='$$(LDFLAGS)' \
+			-o $$@ \
+			$$(filter-out $$($(1)_DEPS),$$^) \
+		), \
+		$$(error MATLAB compiler executable not found) \
+	)
 	$(call trace-message,)
-
 
 endef
 
