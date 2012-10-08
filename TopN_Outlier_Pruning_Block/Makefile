@@ -331,7 +331,7 @@ autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
 
 HELPER_TARGETS += $(1)-autoesl
 .PHONY: $(1)-autoesl
-$(1)-autoesl: $(1)_AUTOESL
+$(1)-autoesl: $$($(1)_AUTOESL)
 
 # AutoESL: TCL scripts
 $(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
