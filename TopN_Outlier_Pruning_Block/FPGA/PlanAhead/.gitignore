@@ -1,0 +1,18 @@
+# Log files
+*.log
+
+# PlanAhead
+*/*.cache/
+*/*.data/cache/
+*/*.srcs/sources_*/edk/system/hdl/
+*/*.srcs/sources_*/edk/system/implementation/
+*/*.srcs/sources_*/edk/system/simulation/behavioral
+*/*.srcs/sources_*/edk/system/synthesis/
+*/*.srcs/sources_*/edk/system/xst/
+*/*.srcs/sources_*/edk/system/xst.srp
+*/*.srcs/sources_*/edk/system/system.srp
+*/*.srcs/sources_*/edk/system/__xps/ise/_xmsgs/
+*/*.srcs/sources_*/edk/system/__xps/ise/platgen.xmsgs
+*/*.srcs/sources_*/edk/system/__xps/system_bits
+*/*.srcs/sources_*/edk/system/__xps/ps7_instance.mhs
+*/*.srcs/sources_*/edk/system/_impact.cmd

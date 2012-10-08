@@ -88,6 +88,9 @@ pcores/distance_squared_top_v1_00_a/synhdl/verilog/distance_squared_top.v
 
 WRAPPER_NGC_FILES = implementation/system_processing_system7_0_wrapper.ngc \
 implementation/system_axi_interconnect_1_wrapper.ngc \
+implementation/system_axi_dma_0_wrapper.ngc \
+implementation/system_axi_dma_1_wrapper.ngc \
+implementation/system_axi_interconnect_0_wrapper.ngc \
 implementation/system_distance_squared_top_0_wrapper.ngc
 
 POSTSYN_NETLIST = implementation/$(SYSTEM).ngc

@@ -133,7 +133,7 @@
     #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
         memcpy(_dst_, _src_, (_count_)*(_size_))
 #else
-    #include "utility.h" /* for uint_t */
+    #include "utility.hpp" /* for uint_t */
     
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         do { \

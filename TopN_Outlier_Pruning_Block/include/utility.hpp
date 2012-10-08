@@ -125,12 +125,12 @@ struct ap_mm2s_double {
 typedef double              double_t;
 #if 0
 typedef ap_mm2s<64,1,1,1>    double_in_t;
-typedef ap_mm2s<64,1,1,1>    double_out_t;
+typedef double_t             double_out_t;
 #else
 typedef ap_mm2s_double<64>   double_in_t;
-typedef ap_mm2s_double<64>   double_out_t;
+typedef double_t             double_out_t;
 #endif
-typedef double              double_io_t;
+typedef double_t             double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 
 #define NULL_INDEX          0

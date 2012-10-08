@@ -292,7 +292,7 @@ void merge(const size_t global_outliers_size, const index_t global_outliers[], c
 
 uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
                                    const size_t _vector_dims,
-                                   const double_t * const & data,
+                                   const double_t data[],
                                    const size_t _k,
                                    const size_t _N,
                                    const size_t _block_size,
@@ -357,13 +357,23 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
                      * vectors (indexed by "vector1" and "vector2")
                      */
                     double_t dist_squared = 0;
-                    double_t vector1_in[_num_vectors];
-                    double_t vector2_in[_num_vectors];
+                    double_in_t vector1_in[_num_vectors];
+                    double_in_t vector2_in[_num_vectors];
 
                     uint_t i;
                     for (i = 0; i < num_vectors_value; i++) {
+#ifndef __AUTOESL__
                         vector1_in[i] = data[(vector1-START_INDEX) * vector_dims_value + i];
                         vector2_in[i] = data[(vector2-START_INDEX) * vector_dims_value + i];
+#else
+                        vector1_in[i].data = data[(vector1-START_INDEX) * vector_dims_value + i];
+                        vector1_in[i].keep = 0;
+                        vector1_in[i].last = 0;
+
+                        vector2_in[i].data = data[(vector2-START_INDEX) * vector_dims_value + i];
+                        vector2_in[i].keep = 0;
+						vector2_in[i].last = 0;
+#endif /* #ifndef __AUTOESL__ */
                     }
                     distance_squared(vector1_in, vector2_in, dist_squared);
                     
