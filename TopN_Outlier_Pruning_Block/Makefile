@@ -117,20 +117,18 @@ flags = $(foreach FLAG,$(1), -$(FLAG:-%=%))
 
 # $(call get-relative-path,FROM,TO)
 # Get the relative file path between two directories.
-define get-relative-path
-$(shell \
-	source="$$($(READLINK) $1)";
-	target="$$($(READLINK) $2)";
-	common_part="$$source";
-	back=".";
-	while [ "$${target\#$$common_part}" = "$${target}" ]; do
-		common_part="$$($(DIRNAME) $$common_part)";
-		back="$${back}/..";
-	done;
-	back=$$($(ECHO) $$back | $(SED) 's/\.\///');
-	$(ECHO) $${back}$${target\#$$common_part};
+get-relative-path = $(shell \
+	source="$$($(READLINK) $1)"; \
+	target="$$($(READLINK) $2)"; \
+	common_part="$$source"; \
+	back="."; \
+	while [ "$${target\#$$common_part}" = "$${target}" ]; do \
+		common_part="$$($(DIRNAME) $$common_part)"; \
+		back="$${back}/.."; \
+	done; \
+	back=$$($(ECHO) $$back | $(SED) 's/\.\///'); \
+	$(ECHO) $${back}$${target\#$$common_part}; \
 )
-endef
 
 # $(help-text)
 # The text to be displayed when make is run without any targets.
