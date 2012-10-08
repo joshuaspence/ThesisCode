@@ -205,9 +205,11 @@ endef
 # $(call parse-mex-options,OPTION_NAME)
 # Parse options from the mex compiler.
 define parse-mex-options
-$(shell \
-$(MXX) -v 2>/dev/null | \
-$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
+$(if $(MXX),
+	$(shell \
+		$(MXX) -v 2>/dev/null | \
+		$(SED) -n -e 's/\s*$(1)\s*=\s*\(\(-.\+\s\+\)\+\)/\1/p'
+	),
 )
 endef
 
