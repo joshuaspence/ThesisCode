@@ -23,10 +23,6 @@ TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
 DATA_DIR       := data
 SOURCE_DIR     := source
 INCLUDE_DIRS   := data include source
-COMMON_SOURCES := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                  $(SOURCE_DIR)/distance.cpp \
-                  $(SOURCE_DIR)/parameters.cpp \
-                  $(SOURCE_DIR)/vardump.cpp
 
 TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
 TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
@@ -48,8 +44,11 @@ autoesl_TOP_FUNC     := distance_squared
 autoesl_PART         := xc7z020clg484-1
 autoesl_CLOCK_PERIOD := 10
 autoesl_SOLUTION     := solution
-autoesl_SOURCES      :=
-autoesl_TBSOURCES    := $(SOURCE_DIR)/wrapper.cpp \
+autoesl_SOURCES      := $(SOURCE_DIR)/distance.cpp
+autoesl_TBSOURCES    := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
+                        $(SOURCE_DIR)/parameters.cpp \
+                        $(SOURCE_DIR)/vardump.cpp \
+                        $(SOURCE_DIR)/wrapper.cpp \
                         $(SOURCE_DIR)/test.cpp
 autoesl_TBFLAGS      := 
 
@@ -57,14 +56,22 @@ binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
 binary_CXXFLAGS       = $(call flags,D__C__)
-binary_SOURCES       := $(SOURCE_DIR)/wrapper.cpp \
+binary_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
+                        $(SOURCE_DIR)/distance.cpp \
+                        $(SOURCE_DIR)/parameters.cpp \
+                        $(SOURCE_DIR)/vardump.cpp \
+                        $(SOURCE_DIR)/wrapper.cpp \
                         $(SOURCE_DIR)/test.cpp
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
 matlab_CFLAGS         = $(call flags,D__MEX__)
 matlab_CXXFLAGS       = $(call flags,D__MEX__)
-matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp
+matlab_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
+                        $(SOURCE_DIR)/distance.cpp \
+                        $(SOURCE_DIR)/parameters.cpp \
+                        $(SOURCE_DIR)/vardump.cpp \
+                        $(SOURCE_DIR)/matlab_wrapper.cpp
 
 
 #------------------------------------------------------------------------------#
@@ -75,8 +82,10 @@ matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp
 DELETE   := rm
 DIRNAME  := dirname
 ECHO     := echo
+EXPR     := expr
 GREP     := egrep
 MAKEDIR  := mkdir -p
+PRINTF   := printf
 READLINK := readlink -f
 SED      := sed
 TEST     := test
@@ -93,6 +102,9 @@ WHICH    := which
 # $(call add-flags,CURRENT_FLAGS,FLAG FLAG ...)
 # Add flags to a CFLAG-style string.
 add-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))$(foreach FLAG,$(2), -$(FLAG:-%=%))
+
+# $(call count,VAR1 VAR2 ...)
+count = $(shell $(EXPR) 0 $(foreach VAR,$(1),+ 1 ))
 
 # $(call create-directory,DIRECTORY)
 # Create a directory, if it does not yet exist
@@ -167,6 +179,8 @@ define help_text
 -@$(ECHO) "     clean-<BUILD_TYPE>"
 -@$(ECHO) "     distclean"
 -@$(ECHO) "     distclean-<BUILD_TYPE>"
+-@$(ECHO) "     test"
+-@$(ECHO) "     test-<BUILD_TYPE>"
 -@$(ECHO) "     help"
 -@$(ECHO) "     info"
 -@$(ECHO)
@@ -226,9 +240,63 @@ $(foreach VAR,$(sort $(filter-out print-variable%,$(.VARIABLES))),
 		$(call print-variable,$(VAR))))
 endef
 
+# $(call product,VAR1 VAR2 ...)
+product = $(shell $(EXPR) 1 $(foreach VAR,$(1),\* $(VAR) ))
+
 # $(call remove-flag,CURRENT_FLAGS,FLAG FLAG ...)
 # Remove a flag from a CFLAG-style string.
 remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
+
+# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,INLINE_OPTIONS,TESTTYPE_OPTIONS)
+define run-tests
+FAILURES="";\
+NUM_FAILURES=0;\
+NUM_PASSES=0;\
+TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)));\
+for TARGET in $(1); do\
+for MODE in $(2); do\
+for GPROF_OPT in $(3); do\
+for INLINE_OPT in $(4); do\
+for TESTTYPE_OPT in $(5); do\
+MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s inline=%s test-type=%s" $$MODE $$GPROF_OPT $$INLINE_OPT $$TESTTYPE_OPT);\
+$(ECHO) "================================================================================";\
+$(ECHO) "Test:    $$($(EXPR) $$NUM_PASSES + $$NUM_FAILURES + 1) of $$TOTAL";\
+$(ECHO) "Target:  $$TARGET";\
+$(ECHO) "Options: $$MAKE_STRING";\
+$(ECHO) "================================================================================";\
+make --no-print-directory clean >/dev/null;\
+make --no-print-directory $$MAKE_STRING $$TARGET;\
+if [ $$? -ne 0 ]; then\
+	NUM_FAILURES=$$($(EXPR) $$NUM_FAILURES + 1);\
+	if [ -n "$$FAILURES" ]; then\
+		FAILURES="$$FAILURES;";\
+	fi;\
+	FAILURES="$${FAILURES}make $$MAKE_STRING $$TARGET";\
+else\
+	NUM_PASSES=$$($(EXPR) $$NUM_PASSES + 1);\
+fi;\
+$(ECHO) "--------------------------------------------------------------------------------";\
+$(ECHO) "";\
+done;\
+done;\
+done;\
+done;\
+done;\
+$(ECHO) "================================================================================";\
+$(ECHO) "                                    SUMMARY                                     ";\
+$(ECHO) "================================================================================";\
+$(ECHO) "Passes:   $$NUM_PASSES";\
+$(ECHO) "Failures: $$NUM_FAILURES";\
+if [ $$NUM_FAILURES -gt 0 ]; then\
+    $(ECHO) "";\
+    $(ECHO) "FAILED TESTS:";\
+    IFS=";";\
+    for FAILURE in $$FAILURES; do\
+        $(ECHO) "$$FAILURE";\
+    done;\
+fi;\
+$(ECHO) "--------------------------------------------------------------------------------";
+endef
 
 # Test that a program exists
 # $(call test-program,file)
@@ -263,7 +331,7 @@ autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
 
 HELPER_TARGETS += $(1)-autoesl
 .PHONY: $(1)-autoesl
-$(1)-autoesl: $(1)_AUTOESL
+$(1)-autoesl: $$($(1)_AUTOESL)
 
 # AutoESL: TCL scripts
 $(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
@@ -281,7 +349,7 @@ $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
 		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
 		$$(ECHO) "open_project $(1)"; \
 		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
-		$$(foreach FILE,$$(COMMON_SOURCES) $$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
+		$$(foreach FILE,$$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
 		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$(autoesl_TBFLAGS) $$($(1)_CFLAGS)\"";) \
 		$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(DATA_DIR)\""; \
 		$$(ECHO) ""; \
@@ -352,7 +420,7 @@ HELPER_TARGETS += $(1)-binary
 $(1)-binary: $$($(1)_BINARY)
 
 $$($(1)_BINARY): $$($(1)_DEPS)
-$$($(1)_BINARY): $$(COMMON_SOURCES) $$(binary_SOURCES)
+$$($(1)_BINARY): $$(binary_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(filter %.cpp,$$^), \
@@ -390,7 +458,7 @@ HELPER_TARGETS += $(1)-matlab
 .PHONY: $(1)-matlab
 $(1)-matlab: $$($(1)_MATLAB)
 $$($(1)_MATLAB): $$($(1)_DEPS)
-$$($(1)_MATLAB): $$(COMMON_SOURCES) $$(matlab_SOURCES)
+$$($(1)_MATLAB): $$(matlab_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(MXX), \
@@ -657,8 +725,8 @@ DATASETS           := $(wildcard $(DATA_DIR)/*.dat)
 DATASETS_HEX       := $(DATASETS:%=%.h)
 
 datasets_TARGETS   := $(ALL_DATASETS_H) $(DATASETS_HEX)
-datasets_CLEAN     := $(ALL_DATASETS_H)
-datasets_DISTCLEAN := $(DATASETS_HEX)
+datasets_CLEAN     := 
+datasets_DISTCLEAN := $(ALL_DATASETS_H) $(DATASETS_HEX)
 ALL_CLEAN          += $(datasets_CLEAN)
 ALL_DISTCLEAN      += $(datasets_DISTCLEAN)
 HELPER_TARGETS     += datasets
@@ -717,3 +785,41 @@ distclean distclean-all:
 info:
 	$(print-variables)
 	@$(sh_true)
+
+#------------------------------------------------------------------------------#
+#                                                                              #
+#                                TEST TARGETS                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+.PHONY: test
+test: test-autoesl test-binary test-matlab
+
+.PHONY: test-autoesl
+test-autoesl:
+	@$(call run-tests,\
+		autoesl,\
+		debug debugopt release,\
+		off on,\
+		off on force,\
+		disabled embedded file\
+	)
+
+.PHONY: test-binary
+test-binary:
+	@$(call run-tests,\
+		binary,\
+		debug debugopt release,\
+		off on,\
+		off on force,\
+		embedded file\
+	)
+
+.PHONY: test-matlab
+test-matlab:
+	@$(call run-tests,\
+		matlab,\
+		debug debugopt release,\
+		off on,\
+		off on force,\
+		disabled embedded file\
+	)
