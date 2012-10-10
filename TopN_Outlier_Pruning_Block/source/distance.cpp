@@ -13,9 +13,17 @@
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
-void distance_squared(const double_in_t vector1[],
-                      const double_in_t vector2[],
-                      double_t & sum) {
+void distance_squared(
+#if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
+                      const double_in_t vector1[vector_dims_value],
+                      const double_in_t vector2[vector_dims_value],
+                      double_out_t & sum
+#else
+                      const double_t vector1[vector_dims_value],
+                      const double_t vector2[vector_dims_value],
+                      double_t & sum
+#endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
+                      ) {
     ASSERT(vector_dims_value > 0);
     
 #ifndef __AUTOESL__
@@ -27,14 +35,14 @@ void distance_squared(const double_in_t vector1[],
     double_t sum_of_squares__split[SUM_SPLIT] = { 0 };
     
     uint_t dim;
-    dimension_loop: for (dim = 0; dim < HARDCODED_VECTOR_DIMS; dim++) {
-#ifndef __AUTOESL__
-        const double_t vector1_data            = vector1[dim];
-        const double_t vector2_data            = vector2[dim];
-#else
+    dimension_loop: for (dim = 0; dim < vector_dims_value; dim++) {
+#if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
         const double_t vector1_data            = vector1[dim].data;
         const double_t vector2_data            = vector2[dim].data;
-#endif /* #ifndef __AUTOESL__ */
+#else
+        const double_t vector1_data            = vector1[dim];
+        const double_t vector2_data            = vector2[dim];
+#endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
         const double_t diff                    = vector1_data - vector2_data;
         const double_t diff_squared            = diff * diff;
         sum_of_squares__split[dim % SUM_SPLIT] += diff_squared;
