@@ -13,5 +13,8 @@
 # Eclipse temporary files
 */RemoteSystemsTempFiles/
 
+# Libraries and executables
+*/*/lib/*.a
+
 # Log files
 *.log
