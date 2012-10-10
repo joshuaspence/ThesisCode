@@ -162,12 +162,10 @@
 /*============================================================================*/
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
-#if USE_DYNAMIC_ARRAY_SIZE
-    #define MAX_NUM_VECTORS(N)              N
-#else
-    #ifndef MAX_NUM_VECTORS
-        #define MAX_NUM_VECTORS(N)          67557
-    #endif /* #ifndef MAX_NUM_VECTORS */
+#if (!USE_DYNAMIC_ARRAY_SIZE)
+    #ifndef HARDCODED_NUM_VECTORS
+        #define HARDCODED_NUM_VECTORS       10000 /* 67557 */
+    #endif /* #ifndef HARDCODED_NUM_VECTORS */
     
     #ifndef HARDCODED_VECTOR_DIMS
         #define HARDCODED_VECTOR_DIMS       200
@@ -184,7 +182,7 @@
     #ifndef HARDCODED_BLOCK_SIZE
         #define HARDCODED_BLOCK_SIZE        40
     #endif /* HARDCODED_BLOCK_SIZE */
-#endif /* #if USE_DYNAMIC_ARRAY_SIZE */
+#endif /* #if (!USE_DYNAMIC_ARRAY_SIZE) */
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef ARCH_HPP_ */

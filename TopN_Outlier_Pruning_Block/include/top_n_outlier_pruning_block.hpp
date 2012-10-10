@@ -7,6 +7,7 @@
 #include "checks.hpp" /* check for invalid preprocessor macro combinations */
 #include "arch.hpp" /* set architecture specific macros */
 
+#include "parameters.hpp" /* for block_size_value, k_value, N_value */
 #include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 
@@ -28,8 +29,8 @@ __BEGIN_DECLS
  *           neighbours_dist array.
  */
 double_t add_neighbour(
-    index_t neighbours[],
-    double_t neighbours_dist[],
+    index_t neighbours[k_value],
+    double_t neighbours_dist[k_value],
     uint_t & found,
     const index_t new_neighbour,
     const double_t new_neighbour_dist
@@ -58,12 +59,12 @@ double_t add_neighbour(
  */
 void best_outliers(
     size_t & outliers_size,
-    index_t outliers[],
-    double_t outlier_scores[],
+    index_t outliers[N_value],
+    double_t outlier_scores[N_value],
 #if (BLOCKING==ENABLED)
     const size_t block_size,
-    const index_t current_block[],
-    const double_t scores[]
+    const index_t current_block[block_size_value],
+    const double_t scores[block_size_value]
 #elif (BLOCKING==DISABLED)
     const index_t vector,
     const double_t score
@@ -81,8 +82,8 @@ void best_outliers(
  */
 void sort_block_scores_descending(
     const size_t block_size,
-    index_t indexes[],
-    double_t values[]
+    index_t indexes[block_size_value],
+    double_t values[block_size_value]
     );
 #endif /* #if (BLOCKING==ENABLED) */
 
@@ -107,19 +108,19 @@ void sort_block_scores_descending(
  */
 void merge(
     const size_t global_outliers_size,
-    const index_t global_outliers[],
-    const double_t global_outlier_scores[],
+    const index_t global_outliers[N_value],
+    const double_t global_outlier_scores[N_value],
 #if (BLOCKING==ENABLED)
     const size_t block_size,
-    const index_t local_outliers[],
-    const double_t local_outlier_scores[],
+    const index_t local_outliers[block_size_value],
+    const double_t local_outlier_scores[block_size_value],
 #elif (BLOCKING==DISABLED)
     const index_t local_outlier,
     const double_t local_outlier_score,
 #endif /* #if (BLOCKING==ENABLED) */
     size_t & new_outliers_size,
-    index_t new_outliers[],
-    double_t new_outlier_scores[]
+    index_t new_outliers[N_value],
+    double_t new_outlier_scores[N_value]
     );
 
 /*
@@ -148,8 +149,8 @@ uint_t top_n_outlier_pruning_block(
     const size_t k,
     const size_t N,
     const size_t block_size,
-    index_t outliers[],
-    double_t outlier_scores[]
+    index_t outliers[N_value],
+    double_t outlier_scores[N_value]
     );
 
 __END_DECLS
