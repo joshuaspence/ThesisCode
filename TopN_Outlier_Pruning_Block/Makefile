@@ -22,40 +22,37 @@ TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
 
 DATA_DIR       := data
 SOURCE_DIR     := source
-INCLUDE_DIRS   := data include source
+INCLUDE_DIRS   := data include include/autoesl
 
-TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED)
+TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED)
+TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED)
 
-TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED)
+TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED)
+TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED)
 
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED)
+
+COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
+                        $(SOURCE_DIR)/distance.cpp \
+                        $(SOURCE_DIR)/parameters.cpp \
+                        $(SOURCE_DIR)/vardump.cpp
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
 binary_CFLAGS         = $(call flags,D__C__)
 binary_CXXFLAGS       = $(call flags,D__C__)
-binary_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                        $(SOURCE_DIR)/distance.cpp \
-                        $(SOURCE_DIR)/parameters.cpp \
-                        $(SOURCE_DIR)/vardump.cpp \
-                        $(SOURCE_DIR)/wrapper.cpp \
+binary_SOURCES       := $(SOURCE_DIR)/wrapper.cpp \
                         $(SOURCE_DIR)/test.cpp
 
 matlab_OUTPUT_DIR    := bin
 matlab_EXT            = $(MEXEXT)
 matlab_CFLAGS         = $(call flags,D__MEX__)
 matlab_CXXFLAGS       = $(call flags,D__MEX__)
-matlab_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                        $(SOURCE_DIR)/distance.cpp \
-                        $(SOURCE_DIR)/parameters.cpp \
-                        $(SOURCE_DIR)/vardump.cpp \
-                        $(SOURCE_DIR)/matlab_wrapper.cpp
+matlab_SOURCES       := $(SOURCE_DIR)/matlab_wrapper.cpp
 
 
 #------------------------------------------------------------------------------#
@@ -74,7 +71,6 @@ READLINK := readlink -f
 SED      := sed
 TEST     := test
 UNAME    := uname
-WHICH    := which
 
 
 #------------------------------------------------------------------------------#
@@ -143,6 +139,7 @@ define help_text
 -@$(ECHO) "          [gprof=<on|off>] \\"
 -@$(ECHO) "          [inline=<force|on|off>] \\"
 -@$(ECHO) "          [test-type=<disabled|embedded|file>] \\"
+-@$(ECHO) "          [hardcode=<on|off>] \\"
 -@$(ECHO) "          (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " BUILD_MODES:"
@@ -155,8 +152,10 @@ define help_text
 -@$(ECHO) "     inline      Enables/disables/forces the inlining of functions (default=on)."
 -@$(ECHO) "     test-type   The type of testing to allow (default=disabled)."
 -@$(ECHO) "                     disabled: Do not allow testing with data sets."
--@$(ECHO) "                     embedded: Datasets for testing will be embedded in the binary executable."
+-@$(ECHO) "                     embedded: Datasets for testing will be embedded in the 
+-@$(ECHO) "                               binary executable."
 -@$(ECHO) "                     file:     Datasets will be read from the filesystem."
+-@$(ECHO) "     hardcode    Hardcodes as many parameters of the algorithm as possible."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -231,20 +230,22 @@ product = $(shell $(EXPR) 1 $(foreach VAR,$(1),\* $(VAR) ))
 # Remove a flag from a CFLAG-style string.
 remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
 
-# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,INLINE_OPTIONS,TESTTYPE_OPTIONS)
+# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,INLINE_OPTIONS,TESTTYPE_OPTIONS,HARDCODE_OPTIONS)
 define run-tests
 FAILURES="";\
 NUM_FAILURES=0;\
 NUM_PASSES=0;\
-TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)));\
+NUM_TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)) $(call count,$(6)));\
+\
 for TARGET in $(1); do\
 for MODE in $(2); do\
 for GPROF_OPT in $(3); do\
 for INLINE_OPT in $(4); do\
 for TESTTYPE_OPT in $(5); do\
-MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s inline=%s test-type=%s" $$MODE $$GPROF_OPT $$INLINE_OPT $$TESTTYPE_OPT);\
+for HARDCODE_OPT in $(6); do\
+MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s inline=%s test-type=%s hardcode=%s" $$MODE $$GPROF_OPT $$INLINE_OPT $$TESTTYPE_OPT $$HARDCODE_OPT);\
 $(ECHO) "================================================================================";\
-$(ECHO) "Test:    $$($(EXPR) $$NUM_PASSES + $$NUM_FAILURES + 1) of $$TOTAL";\
+$(ECHO) "Test:    $$($(EXPR) $$NUM_PASSES + $$NUM_FAILURES + 1) of $$NUM_TOTAL";\
 $(ECHO) "Target:  $$TARGET";\
 $(ECHO) "Options: $$MAKE_STRING";\
 $(ECHO) "================================================================================";\
@@ -266,6 +267,8 @@ done;\
 done;\
 done;\
 done;\
+done;\
+\
 $(ECHO) "================================================================================";\
 $(ECHO) "                                    SUMMARY                                     ";\
 $(ECHO) "================================================================================";\
@@ -281,16 +284,6 @@ if [ $$NUM_FAILURES -gt 0 ]; then\
 fi;\
 $(ECHO) "--------------------------------------------------------------------------------";
 endef
-
-# Test that a program exists
-# $(call test-program,file)
-test-program = [ -n '$($(WHICH) '$1')' ]
-
-# Test that a file exists
-# $(call test-exists,file)
-test-exists     = [ -e '$1' ]
-# $(call test-not-exists,file)
-test-not-exists = [ ! -e '$1' ]
 
 # $(call trace-message,msg)
 # Print a message to STDOUT.
@@ -348,7 +341,7 @@ HELPER_TARGETS += $(1)-binary
 $(1)-binary: $$($(1)_BINARY)
 
 $$($(1)_BINARY): $$($(1)_DEPS)
-$$($(1)_BINARY): $$(binary_SOURCES)
+$$($(1)_BINARY): $$(binary_SOURCES) $$(COMMON_SOURCES)
 	$(call create-directory,$$(binary_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(filter %.cpp,$$^), \
@@ -386,7 +379,7 @@ HELPER_TARGETS += $(1)-matlab
 .PHONY: $(1)-matlab
 $(1)-matlab: $$($(1)_MATLAB)
 $$($(1)_MATLAB): $$($(1)_DEPS)
-$$($(1)_MATLAB): $$(matlab_SOURCES)
+$$($(1)_MATLAB): $$(matlab_SOURCES) $$(COMMON_SOURCES)
 	$(call create-directory,$$(matlab_OUTPUT_DIR))
 	$(call trace-message,"Compiling: $$@")
 	$$(if $$(MXX), \
@@ -575,9 +568,9 @@ endif
 endif
 
 # inline options
-INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=0)
-INLINE_FLAGS_ON    :=
-INLINE_FLAGS_FORCE := $(call flags,DUSE_INLINE=1)
+INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=DISABLED)
+INLINE_FLAGS_ON    := $(call flags,UUSE_INLINE)
+INLINE_FLAGS_FORCE := $(call flags,DUSE_INLINE=ENABLED)
 ifeq ($(inline),)
 # Default is on
 CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
@@ -635,6 +628,30 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_FILE))
 else
 $(error Invalid test-type option specified. Valid options are 'disabled', 'embedded' and 'file')
 endif
+endif
+endif
+endif
+
+# hardcode options
+HARDCODE_FLAGS_OFF   := $(call flags,DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+HARDCODE_FLAGS_ON    :=
+ifeq ($(hardcode),)
+# Default is on
+CFLAGS   := $(call add-flags,$(CFLAGS),$(HARDCODE_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(HARDCODE_FLAGS_ON))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(HARDCODE_FLAGS_ON))
+else
+ifeq ($(hardcode),on)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
+else
+ifeq ($(hardcode),off)
+CFLAGS   := $(call add-flags,$(CFLAGS),$(HARDCODE_FLAGS_OFF))
+CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(HARDCODE_FLAGS_OFF))
+MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(HARDCODE_FLAGS_OFF))
+else
+$(error Invalid hardcoded option specified. Valid options are 'on' and 'off')
 endif
 endif
 endif
@@ -726,7 +743,8 @@ test-binary:
 		debug debugopt release,\
 		off on,\
 		off on force,\
-		embedded file\
+		embedded file,\
+		off on\
 	)
 
 .PHONY: test-matlab
@@ -736,5 +754,6 @@ test-matlab:
 		debug debugopt release,\
 		off on,\
 		off on force,\
-		disabled embedded file\
+		disabled embedded file,\
+		off on\
 	)
