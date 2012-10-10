@@ -81,7 +81,7 @@
     #define __SIZE_TYPE__ long unsigned int
 #endif /* #ifndef __SIZE_TYPE */
 
-#if !defined (_STDDEF_H) && !defined (__need_size_t)
+#if !defined (_STDDEF_H) && !defined (__need_size_t) && !defined(size_t)
 typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
 

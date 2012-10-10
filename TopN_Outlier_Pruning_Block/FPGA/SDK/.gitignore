@@ -1,0 +1,17 @@
+#===============================================================================
+# SDK .gitignore file.
+#===============================================================================
+
+# Eclipse metadata
+.metadata/
+*/.settings/
+
+# Eclipse build files
+*/Debug/
+*/Release/
+
+# Eclipse temporary files
+*/RemoteSystemsTempFiles/
+
+# Log files
+*.log

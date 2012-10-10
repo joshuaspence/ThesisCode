@@ -1,18 +1,24 @@
-# Log files
-*.log
+#===============================================================================
+# PlanAhead .gitignore file.
+#===============================================================================
 
-# PlanAhead
+# PlanAhead metadata
 */*.cache/
 */*.data/cache/
-*/*.srcs/sources_*/edk/system/hdl/
-*/*.srcs/sources_*/edk/system/implementation/
-*/*.srcs/sources_*/edk/system/simulation/behavioral
-*/*.srcs/sources_*/edk/system/synthesis/
-*/*.srcs/sources_*/edk/system/xst/
-*/*.srcs/sources_*/edk/system/xst.srp
-*/*.srcs/sources_*/edk/system/system.srp
-*/*.srcs/sources_*/edk/system/__xps/ise/_xmsgs/
-*/*.srcs/sources_*/edk/system/__xps/ise/platgen.xmsgs
-*/*.srcs/sources_*/edk/system/__xps/system_bits
-*/*.srcs/sources_*/edk/system/__xps/ps7_instance.mhs
-*/*.srcs/sources_*/edk/system/_impact.cmd
+
+# PlanAhead temporary files
+*/*.runs/impl_*/.*.*.rst
+*/*.runs/impl_*/_xmsgs/
+*/*.runs/synth_*/.*.*.rst
+*/*.runs/synth_*/_xmsgs/
+*/*.srcs/sources_*/edk/*/__xps/ise/_xmsgs/
+*/*.srcs/sources_*/edk/*/implementation/_xmsgs/
+*/*.srcs/sources_*/edk/*/implementation/*/_xmsgs/
+*/*.srcs/sources_*/edk/*/synthesis/_xmsgs/
+*/*.srcs/sources_*/edk/*/synthesis/xst_temp_dir/
+
+# SDK Export directory (manually managed)
+*/*.sdk/
+
+# Log files
+*.log
