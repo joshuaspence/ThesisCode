@@ -15,7 +15,7 @@ help:
 #                                CONFIGURATION                                 #
 #                                                                              #
 #------------------------------------------------------------------------------#
-BUILD_TYPES    := autoesl binary matlab
+BUILD_TYPES    := binary matlab
 TARGETS        := TopN_Outlier_Pruning_Block_SORTED \
                   TopN_Outlier_Pruning_Block_UNSORTED \
                   TopN_Outlier_Pruning_Block_NO_BLOCKING
@@ -24,33 +24,17 @@ DATA_DIR       := data
 SOURCE_DIR     := source
 INCLUDE_DIRS   := data include source
 
-TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_SORTED_CFLAGS        = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_SORTED_CXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_SORTED_MXXFLAGS      = $(call flags,DINSERT=SORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
 
-TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
+TopN_Outlier_Pruning_Block_UNSORTED_CFLAGS      = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_UNSORTED_CXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_UNSORTED_MXXFLAGS    = $(call flags,DINSERT=UNSORTED DBLOCKING=ENABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
 
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=0)
-
-autoesl_OUTPUT_DIR   := FPGA/AutoESL
-autoesl_TCLEXT       := tcl
-autoesl_CFLAGS        = $(call flags,D__AUTOESL__)
-autoesl_CXXFLAGS      = $(call flags,D__AUTOESL__)
-autoesl_TOP_FUNC     := distance_squared
-autoesl_PART         := xc7z020clg484-1
-autoesl_CLOCK_PERIOD := 10
-autoesl_SOLUTION     := solution
-autoesl_SOURCES      := $(SOURCE_DIR)/distance.cpp
-autoesl_TBSOURCES    := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                        $(SOURCE_DIR)/parameters.cpp \
-                        $(SOURCE_DIR)/vardump.cpp \
-                        $(SOURCE_DIR)/wrapper.cpp \
-                        $(SOURCE_DIR)/test.cpp
-autoesl_TBFLAGS      := 
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CFLAGS   = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
+TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
@@ -324,59 +308,6 @@ sh_false := ! :
 
 #-------------------------------------------------------------------------------
 
-# $(eval $(call autoesl-target-template,PROJECT,SOLUTION))
-define autoesl-target-template
-autoesl_CLEAN     += $(autoesl_OUTPUT_DIR)/autoesl.log
-autoesl_DISTCLEAN += $$(autoesl_OUTPUT_DIR)/$(1)
-
-HELPER_TARGETS += $(1)-autoesl
-.PHONY: $(1)-autoesl
-$(1)-autoesl: $$($(1)_AUTOESL)
-
-# AutoESL: TCL scripts
-$(1)_AUTOESL_TCL := $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-autoesl_TARGETS  += $$($(1)_AUTOESL_TCL)
-autoesl_CLEAN    += $$($(1)_AUTOESL_TCL)
-
-HELPER_TARGETS  += $(1)-autoesl-tcl
-.PHONY: $(1)-autoesl-tcl
-$(1)-autoesl-tcl: $$($(1)_AUTOESL_TCL)
-
-$$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT):
-	$(call create-directory,$$(autoesl_OUTPUT_DIR))
-	$(call trace-message,"Creating TCL script: $$@")
-	( \
-		$$(ECHO) "cd $$(autoesl_OUTPUT_DIR)"; \
-		$$(ECHO) "open_project $(1)"; \
-		$$(ECHO) "set_top $$(autoesl_TOP_FUNC)"; \
-		$$(foreach FILE,$$(autoesl_SOURCES),$$(ECHO) "add_file $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(foreach FILE,$$(autoesl_TBSOURCES),$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(FILE) -cflags \"$$(call include-flags,$$(INCLUDE_DIRS)) $$(autoesl_CFLAGS) $$(autoesl_TBFLAGS) $$($(1)_CFLAGS)\"";) \
-		$$(ECHO) "add_file -tb $$(call get-relative-path,$$(autoesl_OUTPUT_DIR),$$(CURDIR))/$$(DATA_DIR)\""; \
-		$$(ECHO) ""; \
-		$$(ECHO) "open_solution $(2)"; \
-		$$(ECHO) "set_part {$$(autoesl_PART)}"; \
-		$$(ECHO) "create_clock -period $$(autoesl_CLOCK_PERIOD)"; \
-		$$(ECHO) ""; \
-		$$(ECHO) "exit"; \
-	) > $$@
-	$(call trace-message,)
-
-# AutoESL: Create project
-$(1)_AUTOESL    := $$(autoesl_OUTPUT_DIR)/$(1)
-autoesl_TARGETS += $$($(1)_AUTOESL)
-
-HELPER_TARGETS += $(1)-autoesl
-.PHONY: $(1)-autoesl
-$(1)-autoesl: $$($(1)_AUTOESL)
-
-$$($(1)_AUTOESL): $$($(1)_DEPS)
-$$($(1)_AUTOESL): $$(autoesl_OUTPUT_DIR)/$(1).$$(autoesl_TCLEXT)
-	$(call trace-message,"Creating project: $$@")
-	$$(AUTOESL) -f "$$<"
-	$(call trace-message,)
-
-endef
-
 # $(eval $(call build-type-template,BUILD_TYPE))
 define build-type-template
 ################################################################################
@@ -407,9 +338,6 @@ define target-template
 ################################################################################
 # TARGET = $(1)
 ################################################################################
-# AutoESL
-$(call autoesl-target-template,$(1),$(autoesl_SOLUTION))
-
 # Binary
 $(1)_BINARY    := $$(binary_OUTPUT_DIR)/$(1).$$(binary_EXT)
 binary_TARGETS += $$($(1)_BINARY)
@@ -546,9 +474,6 @@ endif
 #                              COMPILER FLAGS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
-
-# AutoESL
-AUTOESL  := autoesl
 
 # C compiler
 CC       := gcc
@@ -792,17 +717,7 @@ info:
 #                                                                              #
 #------------------------------------------------------------------------------#
 .PHONY: test
-test: test-autoesl test-binary test-matlab
-
-.PHONY: test-autoesl
-test-autoesl:
-	@$(call run-tests,\
-		autoesl,\
-		debug debugopt release,\
-		off on,\
-		off on force,\
-		disabled embedded file\
-	)
+test: test-binary test-matlab
 
 .PHONY: test-binary
 test-binary:
