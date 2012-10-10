@@ -16,23 +16,6 @@
 void distance_squared(const double_in_t vector1[],
                       const double_in_t vector2[],
                       double_t & sum) {
-#ifdef __AUTOESL__
-    #pragma AP INTERFACE ap_ctrl_hs port=return
-    
-    /* Define AutoESL native interface behavior for val1 and val2 */
-    AP_INTERFACE(sum, ap_none);
-    
-    /* Map the control of the function to AXI4-lite */
-    AP_CONTROL_BUS_AXI(CONTROL_BUS);
-    
-    /* Map val1 and val2 from a native AutoESL interface to AXI4-lite */
-    AP_BUS_AXI4_LITE(sum, CONTROL_BUS);
-    
-    /* Create an AXI4-stream interface for arrays A and B */
-    AP_BUS_AXI_STREAMD(vector1, INPUT_STREAM_A);
-    AP_BUS_AXI_STREAMD(vector2, INPUT_STREAM_B);
-#endif /* #ifdef __AUTOESL__ */
-    
     ASSERT(vector_dims_value > 0);
     
 #ifndef __AUTOESL__
@@ -45,9 +28,6 @@ void distance_squared(const double_in_t vector1[],
     
     uint_t dim;
     dimension_loop: for (dim = 0; dim < HARDCODED_VECTOR_DIMS; dim++) {
-#ifdef __AUTOESL__
-    #pragma AP PIPELINE II=1
-#endif /* #ifdef __AUTOESL__ */
 #ifndef __AUTOESL__
         const double_t vector1_data            = vector1[dim];
         const double_t vector2_data            = vector2[dim];
@@ -63,9 +43,6 @@ void distance_squared(const double_in_t vector1[],
     sum = 0;
     uint_t i;
     sum_loop: for (i = 0; i < SUM_SPLIT; i++) {
-#ifdef __AUTOESL__
-    #pragma AP UNROLL
-#endif /* #ifdef __AUTOESL__ */
         sum += sum_of_squares__split[i];
     }
 }
