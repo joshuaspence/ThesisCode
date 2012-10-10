@@ -1,14 +1,14 @@
-#ifndef TOP_N_OUTLIER_PRUNING_BLOCK_HPP_
-#define TOP_N_OUTLIER_PRUNING_BLOCK_HPP_
+#ifndef TOP_N_OUTLIER_PRUNING_BLOCK_H_
+#define TOP_N_OUTLIER_PRUNING_BLOCK_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "parameters.hpp" /* for block_size_value, k_value, N_value */
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
+#include "parameters.h" /* for block_size_value, k_value, N_value */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS
@@ -145,7 +145,7 @@ void merge(
 uint_t top_n_outlier_pruning_block(
     const size_t num_vectors,
     const size_t vector_dims,
-    const double_t data[],
+    const double_t data[][vector_dims_value],
     const size_t k,
     const size_t N,
     const size_t block_size,

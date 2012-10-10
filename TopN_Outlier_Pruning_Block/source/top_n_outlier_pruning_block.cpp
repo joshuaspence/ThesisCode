@@ -1,22 +1,24 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "distance.hpp" /* for distance_squared */
-#include "parameters.hpp" /* for block_size_value, k_value, N_value, num_vectors_value, vector_dims_value */
-#include "top_n_outlier_pruning_block.hpp" /* main include file */
-#include "utility.hpp" /* for ASSERT, double_t, index_t, int_t, MIN, NULL_INDEX, START_INDEX, size_t, uint_t */
+#include "distance.h" /* for distance_squared */
+#include "parameters.h" /* for block_size_value, k_value, N_value, num_vectors_value, vector_dims_value */
+#include "top_n_outlier_pruning_block.h" /* main include file */
+#include "utility.h" /* for ASSERT, double_t, index_t, int_t, MIN, NULL_INDEX, START_INDEX, size_t, uint_t */
 
 #include <float.h> /* for DBL_MIN */
 /*----------------------------------------------------------------------------*/
 
-double_out_t add_neighbour(index_t neighbours[k_value],
-                           double_t neighbours_dist[k_value],
-                           uint_t & found,
-                           const index_t new_neighbour,
-                           const double_t new_neighbour_dist) {
+double_t add_neighbour(
+        index_t neighbours[k_value],
+        double_t neighbours_dist[k_value],
+        uint_t & found,
+        const index_t new_neighbour,
+        const double_t new_neighbour_dist
+        ) {
     /* Error checking. */
     ASSERT(k_value > 0);
     ASSERT(found <= k_value);
@@ -25,7 +27,7 @@ double_out_t add_neighbour(index_t neighbours[k_value],
     int_t    insert_index  = -1; /* the index at which the new outlier will be inserted */
     double_t removed_value = -1; /* the value that was removed from the neighbours_dist array */
     
-#if (INSERT==SORTED)
+#if (INSERT == SORTED)
     /*
      * Shuffle array elements from front to back. Elements greater than the new
      * value will be right-shifted by one index in the array.
@@ -76,7 +78,7 @@ double_out_t add_neighbour(index_t neighbours[k_value],
             }
         }
     }
-#elif (INSERT==UNSORTED)
+#elif (INSERT == UNSORTED)
     if (found < k_value) {
         insert_index  = found;
         removed_value = 0;
@@ -97,7 +99,7 @@ double_out_t add_neighbour(index_t neighbours[k_value],
             removed_value = max_value;
         }
     }
-#endif /* #if (INSERT==SORTED) */
+#endif /* #if (INSERT == SORTED) */
     
     /*
      * Insert the new pair and increment the current_size of the array (if
@@ -114,25 +116,26 @@ double_out_t add_neighbour(index_t neighbours[k_value],
     return removed_value;
 }
 
-void best_outliers(size_t & outliers_size,
-                   index_t outliers[N_value],
-                   double_t outlier_scores[N_value],
-#if (BLOCKING==ENABLED)
-                   const size_t block_size,
-                   const index_t current_block[block_size_value],
-                   const double_t scores[block_size_value]
+void best_outliers(
+        size_t & outliers_size,
+        index_t outliers[N_value],
+        double_t outlier_scores[N_value],
+#if (BLOCKING == ENABLED)
+        const size_t block_size,
+        const index_t current_block[block_size_value],
+        const double_t scores[block_size_value]
 #elif (BLOCKING==DISABLED)
-                   const index_t vector,
-                   const double_t score
+        const index_t vector,
+        const double_t score
 #endif /* #if (BLOCKING==ENABLED) */
-                                 ) {
+        ) {
     /* Error checking. */
     ASSERT(outliers_size <= N_value);
     ASSERT(N_value > 0);
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     ASSERT(block_size > 0);
     ASSERT(block_size <= block_size_value);
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
     
 #if (BLOCKING==ENABLED)
     /* 
@@ -148,7 +151,7 @@ void best_outliers(size_t & outliers_size,
     MEMCPY_1D(scores_copy, scores,        block_size, sizeof(double_t));
     
     sort_block_scores_descending(block_size, block_copy, scores_copy);
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
     
     /* Create two temporary vectors for the output of the "merge" function. */
     index_t  new_outliers      [N_value];
@@ -159,9 +162,9 @@ void best_outliers(size_t & outliers_size,
     MEMSET_1D(new_outlier_scores,          0, N_value, sizeof(double_t));
     
     /* Merge the two vectors. */
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     merge(outliers_size, outliers, outlier_scores, block_size, block_copy, scores_copy, new_outliers_size, new_outliers, new_outlier_scores);
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
     merge(outliers_size, outliers, outlier_scores,             vector,     score,       new_outliers_size, new_outliers, new_outlier_scores);
 #endif /* #if (BLOCKING==ENABLED) */
     
@@ -171,10 +174,12 @@ void best_outliers(size_t & outliers_size,
     outliers_size = new_outliers_size;
 }
 
-#if (BLOCKING==ENABLED)
-void sort_block_scores_descending(const size_t block_size,
-                                  index_t indexes[block_size_value],
-                                  double_t values[block_size_value]) {
+#if (BLOCKING == ENABLED)
+void sort_block_scores_descending(
+        const size_t block_size,
+        index_t indexes[block_size_value],
+        double_t values[block_size_value]
+        ) {
     /* Error checking. */
     ASSERT(block_size > 0);
     ASSERT(block_size <= block_size_value);
@@ -196,93 +201,93 @@ void sort_block_scores_descending(const size_t block_size,
         values [j+1] = value;
     }
 }
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
 
 void merge(const size_t global_outliers_size, const index_t global_outliers[], const double_t global_outlier_scores[],
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
            const size_t block_size,           const index_t local_outliers[],  const double_t local_outlier_scores[],
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
                                               const index_t local_outlier,     const double_t local_outlier_score,
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
            size_t & new_outliers_size,        index_t new_outliers[],          double_t new_outlier_scores[]) {
     /* Error checking. */
     ASSERT(global_outliers_size <= N_value);
     ASSERT(N_value > 0);
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     ASSERT(block_size > 0);
     ASSERT(block_size <= block_size_value);
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
     
     new_outliers_size   = 0;
     uint_t iter         = 0; /* iterator through output array */
     uint_t global       = 0; /* iterator through global array */
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     uint_t local        = 0; /* iterator through local array */
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
     bool local          = false;
 #endif /* #if (BLOCKING==ENABLED) */
     
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     while (iter < N_value && (global < global_outliers_size || local < block_size)) {
         if (global >= global_outliers_size && local < block_size) {
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
     while (iter < N_value && (global < global_outliers_size || !local)) {
         if (global >= global_outliers_size && !local) {
 #endif /* #if (BLOCKING==ENABLED) */
             /* There are no remaining elements in the global arrays. */
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
             new_outliers      [iter] = local_outliers      [local];
             new_outlier_scores[iter] = local_outlier_scores[local];
             local++;
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
             new_outliers      [iter] = local_outlier;
             new_outlier_scores[iter] = local_outlier_score;
             local = true;
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
             global++;
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
         } else if (global < global_outliers_size && local >= block_size) {
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
         } else if (global < global_outliers_size && local) {
 #endif /* #if (BLOCKING==ENABLED) */
             /* There are no remaining elements in the local arrays. */
             new_outliers      [iter] = global_outliers      [global];
             new_outlier_scores[iter] = global_outlier_scores[global];
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
             local++;
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
             local = true;
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
             global++;
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
         } else if (global >= global_outliers_size && local >= block_size) {
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
         } else if (global >= global_outliers_size && local) {
-#endif /* #if defined(BLOCKING) */
+#endif /* #if (BLOCKING == ENABLED) */
             /*
              * There are no remaining elements in either the global or local 
              * arrays.
              */
             break;
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
         } else if (global_outlier_scores[global] >= local_outlier_scores[local]) {
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
         } else if (global_outlier_scores[global] >= local_outlier_score) {
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
             new_outliers      [iter] = global_outliers      [global];
             new_outlier_scores[iter] = global_outlier_scores[global];
             global++;
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
         } else if (global_outlier_scores[global] <= local_outlier_scores[local]) {
             new_outliers      [iter] = local_outliers      [local];
             new_outlier_scores[iter] = local_outlier_scores[local];
             local++;
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
         } else if (global_outlier_scores[global] <= local_outlier_score) {
             new_outliers      [iter] = local_outlier;
             new_outlier_scores[iter] = local_outlier_score;
             local = true;
-#endif /* #if (BLOCKING==ENABLED) */
+#endif /* #if (BLOCKING == ENABLED) */
         }
         
         iter++;
@@ -291,14 +296,16 @@ void merge(const size_t global_outliers_size, const index_t global_outliers[], c
 }
 
 /* TODO: Make a setup function */
-uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
-                                   const size_t _vector_dims,
-                                   const double_t data[num_vectors_value * vector_dims_value],
-                                   const size_t _k,
-                                   const size_t _N,
-                                   const size_t _block_size,
-                                   index_t outliers[N_value],
-                                   double_t outlier_scores[N_value]) {
+uint_t top_n_outlier_pruning_block(
+        const size_t _num_vectors,
+        UNUSED const size_t _vector_dims,
+        const double_t data[][vector_dims_value],
+        UNUSED const size_t _k,
+        UNUSED const size_t _N,
+        UNUSED const size_t _block_size,
+        index_t outliers[N_value],
+        double_t outlier_scores[N_value]
+        ) {
     /* Error checking. */
     ASSERT(_num_vectors > 0);
     ASSERT(_vector_dims > 0);
@@ -322,7 +329,7 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
     double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
     size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
     
-#if (BLOCKING==ENABLED)
+#if (BLOCKING == ENABLED)
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than default_block_size if "num_vectors_value mod default_block_size != 0" */
     
@@ -364,21 +371,21 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
                     uint_t i;
                     for (i = 0; i < num_vectors_value; i++) {
 #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
-                        vector1_in[i].data = data[(vector1-START_INDEX) * vector_dims_value + i];
+                        vector1_in[i].data = data[vector1-START_INDEX][i];
                         vector1_in[i].keep = 0;
                         vector1_in[i].last = 0;
 
-                        vector2_in[i].data = data[(vector2-START_INDEX) * vector_dims_value + i];
+                        vector2_in[i].data = data[vector2-START_INDEX][i];
                         vector2_in[i].keep = 0;
 						vector2_in[i].last = 0;
 #else
-                    	vector1_in[i] = data[(vector1-START_INDEX) * vector_dims_value + i];
-						vector2_in[i] = data[(vector2-START_INDEX) * vector_dims_value + i];
+                    	vector1_in[i] = data[vector1-START_INDEX][i];
+						vector2_in[i] = data[vector2-START_INDEX][i];
 #endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
                     }
                     distance_squared(vector1_in, vector2_in, dist_squared);
                     
-                    /*
+                   /*
                      * Insert the new (index, distance) pair into the neighbours
                      * array for the current vector.
                      */
@@ -413,7 +420,7 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
          */
         cutoff = outlier_scores[N_value - 1];
     }
-#elif (BLOCKING==DISABLED)
+#elif (BLOCKING == DISABLED)
     index_t vector1;
     outer_loop: for (vector1 = START_INDEX; vector1 < num_vectors_value + START_INDEX; vector1++) {
         index_t  neighbours[k_value];       /* the "k" nearest neighbours for the current vector */
@@ -438,8 +445,8 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
 
                 uint_t i;
                 for (i = 0; i < num_vectors_value; i++) {
-                    vector1_in[i] = data[(vector1-START_INDEX) * vector_dims_value + i];
-                    vector2_in[i] = data[(vector2-START_INDEX) * vector_dims_value + i];
+                    vector1_in[i] = data[vector1-START_INDEX][i];
+                    vector2_in[i] = data[vector2-START_INDEX][i];
                 }
                 distance_squared(vector1_in, vector2_in, dist_squared);
                 
@@ -477,6 +484,6 @@ uint_t top_n_outlier_pruning_block(const size_t _num_vectors,
             cutoff = outlier_scores[N_value - 1];
         }
     }
-#endif /* #if (BLOCKING==ENABLED) */    
+#endif /* #if (BLOCKING == ENABLED) */    
     return num_pruned;
 }

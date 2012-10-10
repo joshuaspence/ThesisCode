@@ -1,16 +1,17 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "parameters.hpp" /* main include file */
-#include "utility.hpp" /* for UNUSED, size_t */
+#include "parameters.h" /* main include file */
+#include "utility.h" /* for UNUSED, size_t */
 /*----------------------------------------------------------------------------*/
 
 #ifndef HARDCODED_NUM_VECTORS
 size_t num_vectors_value = 0;
 void set_num_vectors(const size_t num_vectors) {
+    ASSERT(num_vectors <= MAX_NUM_VECTORS);
     num_vectors_value = num_vectors;
 }
 #endif /* #ifndef HARDCODED_NUM_VECTORS */

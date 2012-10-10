@@ -1,8 +1,8 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
-#include "vardump.hpp" /* main header file */
+#include "utility.h" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
+#include "vardump.h" /* main header file */
 
 #include <errno.h> /* for errno */
 #include <stdlib.h> /* for free, malloc */
@@ -104,15 +104,17 @@ static size_t memread(void * const ptr, const size_t size, const size_t count, c
     return count;
 }
 
-int save_vardump(const std::string & filename,
-                 const size_t & num_vectors,
-                 const size_t & vector_dims,
-                 const double_t * const & data,
-                 const size_t & k,
-                 const size_t & N,
-                 const size_t & block_size,
-                 const index_t * const & outliers,
-                 const double_t * const & outlier_scores) {
+int save_vardump(
+        const std::string & filename,
+        const size_t & num_vectors,
+        const size_t & vector_dims,
+        const double_t * const & data,
+        const size_t & k,
+        const size_t & N,
+        const size_t & block_size,
+        const index_t * const & outliers,
+        const double_t * const & outlier_scores
+        ) {
     FILE * const fp = fopen(filename.c_str(), "wb");
     if (fp == NULL) {
         PRINTF_STDERR("Error opening file: " << filename << std::endl);
@@ -151,15 +153,17 @@ int save_vardump(const std::string & filename,
     return SUCCESS;
 }
 
-int read_vardump_from_file(const std::string & filename,
-                           size_t & num_vectors,
-                           size_t & vector_dims,
-                           double_t * & data,
-                           size_t & k,
-                           size_t & N,
-                           size_t & block_size,
-                           index_t * & outliers,
-                           double_t * & outlier_scores) {
+int read_vardump_from_file(
+        const std::string & filename,
+        size_t & num_vectors,
+        size_t & vector_dims,
+        double_t * & data,
+        size_t & k,
+        size_t & N,
+        size_t & block_size,
+        index_t * & outliers,
+        double_t * & outlier_scores
+        ) {
     FILE * const fp = fopen(filename.c_str(), "rb");
     if (fp == NULL) {
         PRINTF_STDERR("Error opening " << filename << ": " << strerror(errno) << " (" << errno << ")" << std::endl);
@@ -212,15 +216,17 @@ int read_vardump_from_file(const std::string & filename,
     return SUCCESS;
 }
 
-int read_vardump_from_array(const unsigned char ** const & array,
-                            size_t & num_vectors,
-                            size_t & vector_dims,
-                            double_t * & data,
-                            size_t & k,
-                            size_t & N,
-                            size_t & block_size,
-                            index_t * & outliers,
-                            double_t * & outlier_scores) {
+int read_vardump_from_array(
+        const unsigned char ** const & array,
+        size_t & num_vectors,
+        size_t & vector_dims,
+        double_t * & data,
+        size_t & k,
+        size_t & N,
+        size_t & block_size,
+        index_t * & outliers,
+        double_t * & outlier_scores
+        ) {
     /* num_vectors */
     READ_VARIABLE_FROM_ARRAY(&num_vectors, sizeof(size_t), 1, array, /* no cleanup code */);
     
@@ -247,7 +253,7 @@ int read_vardump_from_array(const unsigned char ** const & array,
             }
         }
         free(raw_data);
-    } while(0);
+    } while (0);
     
     /* k */
     READ_VARIABLE_FROM_ARRAY(&k, sizeof(size_t), 1, array, free(data););

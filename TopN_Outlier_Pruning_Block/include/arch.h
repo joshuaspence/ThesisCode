@@ -1,33 +1,27 @@
 /*
- * This header files enables and disables certain code features based on the
+ * This header file enables and disables certain code features based on the
  * chosen architecture.
  *
- * The following architectures are available: C (__C__), MEX (__MEX__) and 
- * AutoESL (__AUTOESL__).
+ * The following architectures are available:
+ *     - C (__C__)
+ *     - MEX (__MEX__)
+ *     - AutoESL (__AUTOESL__)
  */
 
-#ifndef ARCH_HPP_
-#define ARCH_HPP_
+#ifndef ARCH_H_
+#define ARCH_H_
 
-#define DISABLED    (0)
-#define ENABLED     (1)
-
-/*
- * Explanation of #define macros:
- *
- *     USE_ASSERT               Enable/disable the assert() function.
- *     USE_DYNAMIC_ARRAY_SIZE   If enabled, use dynamically-sized arrays; if
- *                              disabled, used statically-sized arrays, where
- *                              necessary.
- *     USE_MEMSET               If enabled, use memset() to set the value of a
- *                              memory range; if disabled, use a for-loop 
- *                              instead.
- */
+#ifndef DISABLED
+    #define DISABLED    (0)
+#endif /* #ifndef DISABLED */
+#ifndef ENABLED
+    #define ENABLED     (1)
+#endif /* #ifndef ENABLED */
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -38,9 +32,14 @@
         #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
-    #ifndef USE_MEMSET
-        #define USE_MEMSET              ENABLED
-    #endif /* #ifndef USE_MEMSET */
+    /* Use memset for memory initialisation */
+    #include <string.h> /* for memset, memcpy */
+    #define MEMSET_1D(_var_, _value_, _count_, _size_) \
+        memset(_var_, _value_, (_count_)*(_size_))
+    #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
+        MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
+    #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
+        memcpy(_dst_, _src_, (_count_)*(_size_))
     
     /* Printing to stdout and stderr */
     #include <iostream> /* for std::endl, std::cerr, std::cout */
@@ -49,7 +48,7 @@
     
     /* Create an assertion */
     #include <assert.h> /* for assert */
-    #define ASSERT(x)                   assert(x)
+    #define ASSERT(_x_)                 assert(_x_)
 #endif /* #ifdef __C__ */
 /*----------------------------------------------------------------------------*/
 
@@ -61,9 +60,14 @@
         #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
-    #ifndef USE_MEMSET
-        #define USE_MEMSET              ENABLED
-    #endif /* #ifndef USE_MEMSET */
+    /* Use memset for memory initialisation */
+    #include <string.h> /* for memset, memcpy */
+    #define MEMSET_1D(_var_, _value_, _count_, _size_) \
+        memset(_var_, _value_, (_count_)*(_size_))
+    #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
+        MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
+    #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
+        memcpy(_dst_, _src_, (_count_)*(_size_))
     
     /* Printing to stdout and stderr */
     #include <mex.h> /* for mexPrintf, mexErrMsgTxt */
@@ -83,7 +87,7 @@
     
     /* Create an assertion */
     #include <mex.h> /* for mxAssert */
-    #define ASSERT(x)                   mxAssert(x, #x)
+    #define ASSERT(_x_)                 mxAssert(_x_, #_x_)
 #endif /* #ifdef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
@@ -106,35 +110,8 @@
         #define USE_DYNAMIC_ARRAY_SIZE  DISABLED
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
-    #ifndef USE_MEMSET
-        #define USE_MEMSET              DISABLED
-    #endif /* #ifndef USE_MEMSET */
-    
-    /* Printing to stdout and stderr */
-    #include <iostream> /* for std::cerr, std::cout */
-    #define PRINTF_STDOUT(_str_)        std::cout << _str_;
-    #define PRINTF_STDERR(_str_)        std::cerr << _str_;
-    
-    /* Create an assertion */
-    #define ASSERT(x)
-#endif /* #ifdef __AUTOESL__ */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* MEMSET and MEMCPY macros                                                   */
-/*============================================================================*/
-#if USE_MEMSET
-    #include <string.h> /* for memset, memcpy */
-    
-    #define MEMSET_1D(_var_, _value_, _count_, _size_) \
-        memset(_var_, _value_, (_count_)*(_size_))
-    #define MEMSET_2D(_var_, _value_, _count1_, _count2_, _size_) \
-        MEMSET_1D(_var_, _value_, (_count1_)*(_count2_), _size_)
-    #define MEMCPY_1D(_dst_, _src_, _count_, _size_) \
-        memcpy(_dst_, _src_, (_count_)*(_size_))
-#else
-    #include "utility.hpp" /* for uint_t */
-    
+    /* Use for loops for memory initialisation */
+    #include "utility.h" /* for uint_t */
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
         do { \
             uint_t i; \
@@ -156,16 +133,26 @@
             for (i = 0; i < (_count_); i++) \
                 (_dst_)[i] = (_src_)[i]; \
         } while (0)
-#endif /* #if USE_MEMSET */
+    
+    /* Printing to stdout and stderr */
+    #include <iostream> /* for std::cerr, std::cout */
+    #define PRINTF_STDOUT(_str_)        std::cout << _str_;
+    #define PRINTF_STDERR(_str_)        std::cerr << _str_;
+    
+    /* Create an assertion */
+    #define ASSERT(x)
+#endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Statically or dynamically sized arrays                                     */
 /*============================================================================*/
 #if (!USE_DYNAMIC_ARRAY_SIZE)
-    #ifndef HARDCODED_NUM_VECTORS
-        #define HARDCODED_NUM_VECTORS       10000 /* 67557 */
-    #endif /* #ifndef HARDCODED_NUM_VECTORS */
+    /* Default hardcoded values */
+    
+    #ifndef MAX_NUM_VECTORS
+        #define MAX_NUM_VECTORS             67557
+    #endif /* #ifndef NUM_VECTORS */
     
     #ifndef HARDCODED_VECTOR_DIMS
         #define HARDCODED_VECTOR_DIMS       200
@@ -185,4 +172,4 @@
 #endif /* #if (!USE_DYNAMIC_ARRAY_SIZE) */
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef ARCH_HPP_ */
+#endif /* #ifndef ARCH_H_ */

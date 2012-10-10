@@ -1,11 +1,12 @@
-#ifndef UTILITY_HPP_
-#define UTILITY_HPP_
+#ifndef UTILITY_H_
+#define UTILITY_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+
 #ifdef __AUTOESL__
     #include "ap_interfaces.h" /* ap_mm2s */
     #include "ap_int.h" /* for ap_int, ap_uint */
@@ -86,33 +87,34 @@ typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
 
 /* size_t, size_in_t, size_out_t */
-typedef __SIZE_TYPE__       size_in_t;
-typedef __SIZE_TYPE__       size_out_t;
-typedef __SIZE_TYPE__       size_io_t;
+typedef size_t              size_in_t;
+typedef size_t              size_out_t;
+typedef size_t              size_io_t;
 
 /* int_t, int_in_t, int_out_t, int_io_t */
 typedef int                 int_t;
-typedef int                 int_in_t;
-typedef int                 int_out_t;
+typedef int_t               int_in_t;
+typedef int_t               int_out_t;
+typedef int_t               int_io_t;
 
 /* uint_t, uint_in_t, uint_out_t, uint_io_t */
 typedef unsigned int        uint_t;
-typedef unsigned int        uint_in_t;
-typedef unsigned int        uint_out_t;
-typedef unsigned int        uint_io_t;
+typedef uint_t              uint_in_t;
+typedef uint_t              uint_out_t;
+typedef uint_t              uint_io_t;
 
 /* index_t, index_in_t, index_out_t, index_io_t */
 typedef size_t              index_t;
-typedef size_t              index_in_t;
-typedef size_t              index_out_t;
-typedef size_t              index_io_t;
+typedef index_t             index_in_t;
+typedef index_t             index_out_t;
+typedef index_t             index_io_t;
 
 /* double_t, double_in_t, double_out_t, intdoubleio_t */
-#ifndef __AUTOESL__
 typedef double              double_t;
-typedef double              double_in_t;
-typedef double              double_out_t;
-typedef double              double_io_t;
+#ifndef __AUTOESL__
+typedef double_t            double_in_t;
+typedef double_t            double_out_t;
+typedef double_t            double_io_t;
 #else
 
 template<int D>
@@ -122,7 +124,6 @@ struct ap_mm2s_double {
     ap_uint<1> last;
 };
 
-typedef double              double_t;
 #if 0
 typedef ap_mm2s<64,1,1,1>    double_in_t;
 typedef double_t             double_out_t;
@@ -133,8 +134,8 @@ typedef double_t             double_out_t;
 typedef double_t             double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 
-#define NULL_INDEX          0
-#define START_INDEX         1
+#define NULL_INDEX          (0)
+#define START_INDEX         (1)
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -158,4 +159,4 @@ typedef double_t             double_io_t;
     } while (0)
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef UTILITY_HPP_ */
+#endif /* #ifndef UTILITY_H_ */

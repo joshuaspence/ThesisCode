@@ -1,10 +1,10 @@
-#ifndef TEST_HPP_
-#define TEST_HPP_
+#ifndef TEST_H_
+#define TEST_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
 #include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 
@@ -54,4 +54,4 @@ bool test_from_array(
 
 __END_DECLS
 
-#endif /* #ifndef TEST_HPP_ */
+#endif /* #ifndef TEST_H_ */

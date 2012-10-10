@@ -1,14 +1,14 @@
-#ifndef DISTANCE_HPP_
-#define DISTANCE_HPP_
+#ifndef DISTANCE_H_
+#define DISTANCE_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "parameters.hpp" /* for vector_dims_value */
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, double_in_t, double_out_t */
+#include "parameters.h" /* for vector_dims_value */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, double_in_t, double_out_t */
 /*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS
@@ -33,10 +33,10 @@ void distance_squared(
 #else
     const double_t vector1[vector_dims_value],
     const double_t vector2[vector_dims_value],
-    double_out_t & sum
+    double_t & sum
 #endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
     );
 
 __END_DECLS
 
-#endif /* #ifndef DISTANCE_HPP_ */
+#endif /* #ifndef DISTANCE_H_ */

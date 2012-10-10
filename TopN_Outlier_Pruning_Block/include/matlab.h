@@ -1,18 +1,18 @@
-#ifndef MATLAB_HPP_
-#define MATLAB_HPP_
+#ifndef MATLAB_H_
+#define MATLAB_H_
 
 /*============================================================================*/
 /* Checks                                                                     */
 /*============================================================================*/
 #ifndef __MEX__
-    #error "This file should only be included in MEX builds."
+    #error "This file should only be included in MEX builds"
 #endif /* #ifndef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for EMPTY_STATEMENT, size_t, UNUSED */
+#include "utility.h" /* for EMPTY_STATEMENT, size_t, UNUSED */
 #include <mex.h> /* for mxCreateDoubleMatrix, mxDestroyArray, mxGetData, mxGetM, mxGetN, mxGetNumberOfDimensions, mxGetNumberOfElements, mxIsComplex, mxIsDouble, mxIsSparse */
 /*----------------------------------------------------------------------------*/
 
@@ -94,4 +94,4 @@ typedef double m_double_t;
     _vector_[(_element_)]
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef MATLAB_HPP_ */
+#endif /* #ifndef MATLAB_H_ */

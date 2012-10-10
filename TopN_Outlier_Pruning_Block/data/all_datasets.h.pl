@@ -47,7 +47,7 @@ print OUTPUT <<EOF;
 #ifndef ALL_DATASETS_H_
 #define ALL_DATASETS_H_
 
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
 #include <string> /* for std::string */
 
 EOF

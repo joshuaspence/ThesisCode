@@ -1,10 +1,10 @@
-#ifndef VARDUMP_HPP_
-#define VARDUMP_HPP_
+#ifndef VARDUMP_H_
+#define VARDUMP_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t */
 #include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 
@@ -113,4 +113,4 @@ int read_vardump_from_array(
 
 __END_DECLS
 
-#endif /* #ifndef VARDUMP_HPP_ */
+#endif /* #ifndef VARDUMP_H_ */
