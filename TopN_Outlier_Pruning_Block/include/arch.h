@@ -29,7 +29,7 @@
 /*============================================================================*/
 #ifdef __C__
     #ifndef USE_DYNAMIC_ARRAY_SIZE
-        #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
+        #define USE_DYNAMIC_ARRAY_SIZE  (ENABLED)
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
     /* Use memset for memory initialisation */
@@ -48,7 +48,7 @@
     
     /* Create an assertion */
     #include <assert.h> /* for assert */
-    #define ASSERT(_x_)                 assert(_x_)
+    #define ASSERT(X)                   assert(X)
 #endif /* #ifdef __C__ */
 /*----------------------------------------------------------------------------*/
 
@@ -57,7 +57,7 @@
 /*============================================================================*/
 #ifdef __MEX__
     #ifndef USE_DYNAMIC_ARRAY_SIZE
-        #define USE_DYNAMIC_ARRAY_SIZE  ENABLED
+        #define USE_DYNAMIC_ARRAY_SIZE  (ENABLED)
     #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
     /* Use memset for memory initialisation */
@@ -87,7 +87,7 @@
     
     /* Create an assertion */
     #include <mex.h> /* for mxAssert */
-    #define ASSERT(_x_)                 mxAssert(_x_, #_x_)
+    #define ASSERT(X)                   mxAssert(X, #X)
 #endif /* #ifdef __MEX__ */
 /*----------------------------------------------------------------------------*/
 

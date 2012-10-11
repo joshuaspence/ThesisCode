@@ -11,7 +11,9 @@
 #ifndef HARDCODED_NUM_VECTORS
 size_t num_vectors_value = 0;
 void set_num_vectors(const size_t num_vectors) {
+#ifdef MAX_NUM_VECTORS
     ASSERT(num_vectors <= MAX_NUM_VECTORS);
+#endif /* #ifdef MAX_NUM_VECTORS */
     num_vectors_value = num_vectors;
 }
 #endif /* #ifndef HARDCODED_NUM_VECTORS */

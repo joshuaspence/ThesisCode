@@ -60,7 +60,7 @@ extern size_t k_value;
  */
 void set_k(const size_t k);
 #else
-#define k_value (HARDCODED_K)
+#define k_value HARDCODED_K
 #define set_k(k)                        ASSERT(k == k_value)
 #endif /* #ifndef HARDCODED_K */
 
@@ -99,6 +99,12 @@ void set_block_size(const size_t block_size);
 #else
 #define set_block_size(block_size)
 #endif /* #if (BLOCKING==ENABLED) */
+
+#if (USE_DYNAMIC_ARRAY_SIZE == ENABLED)
+#define BOUNDS(X)
+#elif (USE_DYNAMIC_ARRAY_SIZE == DISABLED)
+#define BOUNDS(X)                       (X)
+#endif /* #if (USE_DYNAMIC_ARRAY_SIZE == ENABLED) */
 
 __END_DECLS
 
