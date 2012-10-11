@@ -145,7 +145,7 @@ void merge(
 uint_t top_n_outlier_pruning_block(
     const size_t num_vectors,
     const size_t vector_dims,
-    const double_t data[MAX_NUM_VECTORS],
+    const double_t data[BOUNDS(MAX_NUM_VECTORS)],
     const size_t k,
     const size_t N,
     const size_t block_size,

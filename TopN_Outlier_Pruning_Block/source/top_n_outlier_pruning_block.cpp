@@ -299,7 +299,7 @@ void merge(const size_t global_outliers_size, const index_t global_outliers[BOUN
 uint_t top_n_outlier_pruning_block(
                                    const size_t _num_vectors,
                                    UNUSED const size_t _vector_dims,
-                                   const double_t data[MAX_NUM_VECTORS],
+                                   const double_t data[BOUNDS(MAX_NUM_VECTORS)],
                                    UNUSED const size_t _k,
                                    UNUSED const size_t _N,
                                    UNUSED const size_t _block_size,
