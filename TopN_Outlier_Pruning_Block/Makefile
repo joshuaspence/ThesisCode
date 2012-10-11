@@ -152,7 +152,7 @@ define help_text
 -@$(ECHO) "     inline      Enables/disables/forces the inlining of functions (default=on)."
 -@$(ECHO) "     test-type   The type of testing to allow (default=disabled)."
 -@$(ECHO) "                     disabled: Do not allow testing with data sets."
--@$(ECHO) "                     embedded: Datasets for testing will be embedded in the 
+-@$(ECHO) "                     embedded: Datasets for testing will be embedded in the"
 -@$(ECHO) "                               binary executable."
 -@$(ECHO) "                     file:     Datasets will be read from the filesystem."
 -@$(ECHO) "     hardcode    Hardcodes as many parameters of the algorithm as possible."
