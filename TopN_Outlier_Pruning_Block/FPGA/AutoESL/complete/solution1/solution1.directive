@@ -1,2 +1,14 @@
-<AutoPilot:ProjectResources xmlns:AutoPilot="com.autoesl.autopilot.ui.directiveView"/>
+<AutoPilot:ProjectResources xmlns:AutoPilot="com.autoesl.autopilot.ui.directiveView">
+    <sourceFile name="">
+        <directive functionName="distance_squared" label="dimension_loop" functionLabel="">
+            <pragma name="PIPELINE"/>
+        </directive>
+        <directive functionName="distance_squared" label="sum_loop" functionLabel="">
+            <pragma name="UNROLL"/>
+        </directive>
+        <directive functionName="top_n_outlier_pruning_block" label="" functionLabel="">
+            <pragma name="TOP"/>
+        </directive>
+    </sourceFile>
+</AutoPilot:ProjectResources>
 

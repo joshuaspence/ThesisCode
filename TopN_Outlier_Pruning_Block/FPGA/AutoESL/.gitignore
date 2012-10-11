@@ -2,12 +2,6 @@
 # AutoESL .gitignore file.
 #===============================================================================
 
-# AutoESL metadata
-*/.apc/
-*/.cproject
-*/.project
-*/.settings/
-
 # AutoESL build files
 */Debug/
 */Launch/

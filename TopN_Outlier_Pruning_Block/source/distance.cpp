@@ -11,15 +11,15 @@
 
 void distance_squared(
 #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
-        const double_in_t vector1[BOUNDS(vector_dims_value)],
-        const double_in_t vector2[BOUNDS(vector_dims_value)],
-        double_out_t & sum
+                        const double_in_t vector1[BOUNDS(vector_dims_value)],
+                        const double_in_t vector2[BOUNDS(vector_dims_value)],
+                        double_out_t & sum
 #else
-        const double_t vector1[BOUNDS(vector_dims_value)],
-        const double_t vector2[BOUNDS(vector_dims_value)],
-        double_t & sum
+                        const double_t vector1[BOUNDS(vector_dims_value)],
+                        const double_t vector2[BOUNDS(vector_dims_value)],
+                        double_t & sum
 #endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
-        ) {
+                        ) {
     ASSERT(vector_dims_value > 0);
     
 #ifndef __AUTOESL__

@@ -7,7 +7,7 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, size_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, MIN, size_t */
 /*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS
@@ -30,7 +30,7 @@ void set_num_vectors(const size_t num_vectors);
 #ifndef MAX_NUM_VECTORS
     #define NUM_VECTORS(N)  (N)
 #else
-    #define NUM_VECTORS(N)  (MAX_NUM_VECTORS)
+    #define NUM_VECTORS(N)  MIN(N,MAX_NUM_VECTORS)
 #endif /* #ifndef HARDCODED_NUM_VECTORS */
 
 #ifndef HARDCODED_VECTOR_DIMS
