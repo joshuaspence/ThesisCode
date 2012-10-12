@@ -365,11 +365,11 @@ uint_t top_n_outlier_pruning_block(
                      * vectors (indexed by "vector1" and "vector2")
                      */
                     double_t dist_squared = 0;
-                    double_t vector1_in[num_vectors_value];
-                    double_t vector2_in[num_vectors_value];
+                    double_t vector1_in[vector_dims_value];
+                    double_t vector2_in[vector_dims_value];
 
                     uint_t i;
-                    for (i = 0; i < num_vectors_value; i++) {
+                    for (i = 0; i < vector_dims_value; i++) {
 #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
                         vector1_in[i].data = data[vector1-START_INDEX][i];
                         vector1_in[i].keep = 0;
