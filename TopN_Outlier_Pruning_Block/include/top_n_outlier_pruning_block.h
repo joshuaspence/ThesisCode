@@ -7,7 +7,7 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "parameters.h" /* for block_size_value, k_value, N_value */
+#include "parameters.h" /* for block_size_value, BOUNDS, k_value, N_value */
 #include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 

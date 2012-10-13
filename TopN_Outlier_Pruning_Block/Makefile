@@ -66,7 +66,9 @@ ECHO     := echo
 EXPR     := expr
 GREP     := egrep
 MAKEDIR  := mkdir -p
+PERL     := perl
 PRINTF   := printf
+PYTHON   := python
 READLINK := readlink -f
 SED      := sed
 TEST     := test
@@ -137,7 +139,6 @@ define help_text
 -@$(ECHO) "     make [DEBUG=1] \\"
 -@$(ECHO) "          [mode=<BUILD_MODE>] \\"
 -@$(ECHO) "          [gprof=<on|off>] \\"
--@$(ECHO) "          [inline=<force|on|off>] \\"
 -@$(ECHO) "          [test-type=<disabled|embedded|file>] \\"
 -@$(ECHO) "          [hardcode=<on|off>] \\"
 -@$(ECHO) "          (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
@@ -151,10 +152,10 @@ define help_text
 -@$(ECHO) "     gprof       Enables/disables compilation flags for gprof (default=off)."
 -@$(ECHO) "     inline      Enables/disables/forces the inlining of functions (default=on)."
 -@$(ECHO) "     test-type   The type of testing to allow (default=disabled)."
--@$(ECHO) "                     disabled: Do not allow testing with data sets."
--@$(ECHO) "                     embedded: Datasets for testing will be embedded in the"
--@$(ECHO) "                               binary executable."
--@$(ECHO) "                     file:     Datasets will be read from the filesystem."
+-@$(ECHO) "                   disabled: Do not allow testing with data sets."
+-@$(ECHO) "                   embedded: Datasets for testing will be embedded in the binary"
+-@$(ECHO) "                             binary executable."
+-@$(ECHO) "                   file:     Datasets will be read from the filesystem."
 -@$(ECHO) "     hardcode    Hardcodes as many parameters of the algorithm as possible."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
@@ -162,8 +163,8 @@ define help_text
 -@$(ECHO) "     clean-<BUILD_TYPE>"
 -@$(ECHO) "     distclean"
 -@$(ECHO) "     distclean-<BUILD_TYPE>"
--@$(ECHO) "     test"
--@$(ECHO) "     test-<BUILD_TYPE>"
+-@$(ECHO) "     buildtest"
+-@$(ECHO) "     buildtest-<BUILD_TYPE>"
 -@$(ECHO) "     help"
 -@$(ECHO) "     info"
 -@$(ECHO)
@@ -230,20 +231,22 @@ product = $(shell $(EXPR) 1 $(foreach VAR,$(1),\* $(VAR) ))
 # Remove a flag from a CFLAG-style string.
 remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
 
-# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,INLINE_OPTIONS,TESTTYPE_OPTIONS,HARDCODE_OPTIONS)
-define run-tests
+# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,TESTTYPE_OPTIONS,HARDCODE_OPTIONS)
+# Any options that get added to the Makefile (such as 
+# [mode=<debug|debugopt|release]), should be included in the test sequence
+# below.
+define run-build-tests
 FAILURES="";\
 NUM_FAILURES=0;\
 NUM_PASSES=0;\
-NUM_TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)) $(call count,$(6)));\
+NUM_TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)));\
 \
 for TARGET in $(1); do\
 for MODE in $(2); do\
 for GPROF_OPT in $(3); do\
-for INLINE_OPT in $(4); do\
-for TESTTYPE_OPT in $(5); do\
-for HARDCODE_OPT in $(6); do\
-MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s inline=%s test-type=%s hardcode=%s" $$MODE $$GPROF_OPT $$INLINE_OPT $$TESTTYPE_OPT $$HARDCODE_OPT);\
+for TESTTYPE_OPT in $(4); do\
+for HARDCODE_OPT in $(5); do\
+MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s test-type=%s hardcode=%s" $$MODE $$GPROF_OPT $$TESTTYPE_OPT $$HARDCODE_OPT);\
 $(ECHO) "================================================================================";\
 $(ECHO) "Test:    $$($(EXPR) $$NUM_PASSES + $$NUM_FAILURES + 1) of $$NUM_TOTAL";\
 $(ECHO) "Target:  $$TARGET";\
@@ -262,7 +265,6 @@ else\
 fi;\
 $(ECHO) "--------------------------------------------------------------------------------";\
 $(ECHO) "";\
-done;\
 done;\
 done;\
 done;\
@@ -567,37 +569,6 @@ endif
 endif
 endif
 
-# inline options
-INLINE_FLAGS_OFF   := $(call flags,DUSE_INLINE=DISABLED)
-INLINE_FLAGS_ON    := $(call flags,UUSE_INLINE)
-INLINE_FLAGS_FORCE := $(call flags,DUSE_INLINE=ENABLED)
-ifeq ($(inline),)
-# Default is on
-CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
-else
-ifeq ($(inline),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
-else
-ifeq ($(inline),force)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_FORCE))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_FORCE))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_FORCE))
-else
-ifeq ($(inline),off)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_OFF))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_OFF))
-else
-$(error Invalid inline option specified. Valid options are 'force', 'on' and 'off')
-endif
-endif
-endif
-endif
-
 # test-type options
 TEST_TYPE_FLAGS_DISABLED := DTEST_TYPE=TEST_TYPE_DISABLED
 TEST_TYPE_FLAGS_EMBEDDED := DTEST_TYPE=TEST_TYPE_EMBEDDED
@@ -675,11 +646,11 @@ HELPER_TARGETS     += datasets
 
 # Convert a binary data file into a hexadecimal C header file.
 $(DATA_DIR)/%.dat.h: $(DATA_DIR)/%.dat
-	python data.py "$<" dataset_$* "$@"
+	$(PYTHON) lib/scripts/data.py "$<" dataset_$* "$@"
 
 # Create the main datasets header file.
 $(DATA_DIR)/%.h: $(DATA_DIR)/%.h.pl
-	perl "$<" "$@"
+	$(PERL) "$<" "$@"
 
 # Create clean-datasets and distclean-datasets targets
 $(eval $(call build-type-template,datasets))
@@ -733,27 +704,25 @@ info:
 #                                TEST TARGETS                                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
-.PHONY: test
-test: test-binary test-matlab
+.PHONY: buildtest
+buildtest: buildtest-binary buildtest-matlab
 
-.PHONY: test-binary
-test-binary:
-	@$(call run-tests,\
+.PHONY: buildtest-binary
+buildtest-binary:
+	@$(call run-build-tests,\
 		binary,\
 		debug debugopt release,\
 		off on,\
-		off on force,\
 		embedded file,\
 		off on\
 	)
 
-.PHONY: test-matlab
-test-matlab:
-	@$(call run-tests,\
+.PHONY: buildtest-matlab
+buildtest-matlab:
+	@$(call run-build-tests,\
 		matlab,\
 		debug debugopt release,\
 		off on,\
-		off on force,\
 		disabled embedded file,\
 		off on\
 	)
