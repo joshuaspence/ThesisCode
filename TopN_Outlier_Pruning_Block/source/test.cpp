@@ -17,15 +17,17 @@
  * Run the algorithm and compare the results with the specified (expected)
  * results.
  */
-static bool do_test(const std::string & dataset,
-                    const size_t num_vectors,
-                    const size_t vector_dims,
-                    const double_t data[],
-                    const size_t k,
-                    const size_t N,
-                    const size_t block_size,
-                    const index_t outliers_expected[],
-                    const double_t outlier_scores_expected[]) {
+static bool do_test(
+		const std::string & dataset,
+		const size_t num_vectors,
+		const size_t vector_dims,
+		const double_t data[],
+		const size_t k,
+		const size_t N,
+		const size_t block_size,
+		const index_t outliers_expected[],
+		const double_t outlier_scores_expected[]
+		) {
     bool failed = false;
     
     /* Create the output arrays. */
