@@ -68,7 +68,7 @@ extern const size_t block_size;
 uint_t top_n_outlier_pruning_block(
     const size_t _num_vectors,
     const size_t _vector_dims,
-    const double_t _data[MAX_NUM_VECTORS * VECTOR_DIMS],
+    const double_t _data[],
     const size_t _k,
     const size_t _N,
     const size_t _block_size,

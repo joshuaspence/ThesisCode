@@ -79,7 +79,7 @@ static void init(const size_t _num_vectors, const double_t _data[max_num_vectors
     
     /* outliers and outlier_scores */
     MEMSET_1D(outliers,       NULL_INDEX, N, sizeof(index_t));
-    MEMSET_1D(outlier_scores,          0, N, sizeof(double_t));
+    MEMSET_1D(outlier_scores,        0.0, N, sizeof(double_t));
     
     /* num_pruned */
     num_pruned = 0;
@@ -94,21 +94,25 @@ static void init(const size_t _num_vectors, const double_t _data[max_num_vectors
 /*
  * TODO
  */
-static void init_block(void) {
 #if (BLOCKING == ENABLED)
+static void init_block(void) {
     MEMSET_1D(current_block,   NULL_INDEX,          N,    sizeof(index_t));
     MEMSET_2D(neighbours,      NULL_INDEX, block_size, k, sizeof(index_t));
     MEMSET_2D(neighbours_dist,        0.0, block_size, k, sizeof(double_t));
     MEMSET_1D(score,                    0, block_size,    sizeof(double_t));
     MEMSET_1D(found,                    0, block_size,    sizeof(uint_t));
+}
 #else
+static void init_block(const index_t vector) {
     MEMSET_1D(neighbours,      NULL_INDEX, k,             sizeof(index_t));
     MEMSET_1D(neighbours_dist,        0.0, k,             sizeof(double_t));
     score = 0;
     found = 0;
     removed = false;
-#endif /* #if (BLOCKING == ENABLED) */
+    current = vector;
 }
+#endif /* #if (BLOCKING == ENABLED) */
+
 /*----------------------------------------------------------------------------*/
 
 /*
@@ -141,8 +145,8 @@ double_t distance_squared(
     
     uint_t dim;
     dimension_loop: for (dim = 0; dim < vector_dims; dim++) {
-        const double_t v1                      = data[vector1_i][dim];
-        const double_t v2                      = data[vector2_i][dim];
+        const double_t v1                      = data[vector1_i - START_INDEX][dim];
+        const double_t v2                      = data[vector2_i - START_INDEX][dim];
         const double_t diff                    = v1 - v2;
         const double_t diff_squared            = diff * diff;
         sum_of_squares__split[dim % SUM_SPLIT] += diff_squared;
@@ -486,7 +490,7 @@ void update_best_outliers(void) {
 uint_t top_n_outlier_pruning_block(
         const size_t _num_vectors,
         UNUSED const size_t _vector_dims,
-        const double_t _data[max_num_vectors * vector_dims],
+        const double_t _data[],
         UNUSED const size_t _k,
         UNUSED const size_t _N,
         UNUSED const size_t _block_size,
@@ -505,7 +509,7 @@ uint_t top_n_outlier_pruning_block(
     
 #if (BLOCKING == ENABLED)
     index_t block_begin;           /* the index of the first vector in the block currently being processed */
-    block_loop: for (block_begin = 0; block_begin < num_vectors; block_begin += block_size) { /* while there are still blocks to process */
+    block_loop: for (block_begin = 0; block_begin < num_vectors; block_begin += current_block_size) { /* while there are still blocks to process */
         current_block_size = MIN(block_begin + block_size, num_vectors) - block_begin; /* the number of vectors in the current block */
         ASSERT(current_block_size <= block_size);
         
@@ -568,7 +572,7 @@ uint_t top_n_outlier_pruning_block(
 #elif (BLOCKING == DISABLED)
     index_t vector1;
     outer_loop: for (vector1 = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
-        init_block();
+        init_block(vector1);
         
         index_t vector2;
         inner_loop: for (vector2 = START_INDEX; vector2 < num_vectors + START_INDEX && !removed; vector2++) {
