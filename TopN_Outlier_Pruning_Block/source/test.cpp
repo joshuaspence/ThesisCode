@@ -18,6 +18,18 @@
  * results.
  */
 static bool do_test(
+<<<<<<< HEAD
+		const std::string & dataset,
+		const size_t num_vectors,
+		const size_t vector_dims,
+		const double_t data[],
+		const size_t k,
+		const size_t N,
+		const size_t block_size,
+		const index_t outliers_expected[],
+		const double_t outlier_scores_expected[]
+		) {
+=======
         const std::string & dataset,
         const size_t num_vectors,
         const size_t vector_dims,
@@ -28,6 +40,7 @@ static bool do_test(
         const index_t outliers_expected[],
         const double_t outlier_scores_expected[]
         ) {
+>>>>>>> 1f58ca6c3fad8f0ed461a8796238e202263bea9e
     bool failed = false;
     
     /* Create the output arrays. */

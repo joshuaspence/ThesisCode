@@ -12,16 +12,128 @@
 #include <float.h> /* for DBL_MIN */
 /*----------------------------------------------------------------------------*/
 
+/*============================================================================*/
+/* Constants                                                                  */
+/*============================================================================*/
+static const size_t max_num_vectors;
+static const size_t vector_dims;
+static const size_t k;
+static const size_t N;
+static const size_t block_size;
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* Static variables                                                           */
+/*============================================================================*/
+static size_t   num_vectors;
+static double_t data[max_num_vectors][vector_dims];
+static index_t  outliers[N];
+static double_t outlier_scores[N];
+
+/* The current block */
+static size_t   current_block_size;
+static index_t  current_block[block_size];      /* the indexes of the vectors in the current block */
+static index_t  neighbours[block_size][k];      /* the "k" nearest neighbours for each vector in the current block */
+static double_t neighbours_dist[block_size][k]; /* the distance of the "k" nearest neighbours for each vector in the current block */
+static double_t score[block_size];              /* the average distance to the "k" neighbours */
+static uint_t   found[block_size];              /* how many nearest neighbours we have found, for each vector in the block */
+
+/* Global statistics */
+static uint_t   num_pruned;                     /* number of pruned vectors. */
+static double_t cutoff;                         /* vectors with a score less than the cutoff will be removed from the block */
+static size_t   outliers_found;                 /* the number of initialised elements in the outliers array */
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* Methods to set parameters and initialise variables                         */
+/*============================================================================*/
+static void init(const size_t _num_vectors, const double_t * const & _data) {
+	ASSERT(_num_vectors > 0);
+	ASSERT(_num_vectors <= max_num_vectors);
+	ASSERT(_data != NULL);
+	
+	/* num_vectors */
+	num_vectors = _num_vectors;
+	
+	/* data */
+	// TODO: MEMCPY_2D
+	uint_t vector;
+	for (vector = 0; i < max_num_vectors; vector++) {
+		uint_t dim;
+		for (dim = 0; dim < vector_dims; dim++) {
+			if (vector >= num_vectors) {
+				data[vector][dim] = 0;
+			} else {
+				data[vector][dim] = _data[vector][dim];
+			}
+		}
+	}
+	
+	/* outliers and outlier_scores */
+    MEMSET_1D(outliers,       NULL_INDEX, _N, sizeof(index_t));
+    MEMSET_1D(outlier_scores,          0, _N, sizeof(double_t));
+	
+	/* num_pruned */
+	num_pruned = 0;
+	
+	/* cutoff */
+	cutoff = 0;
+	
+	/* outliers_found */
+	outliers_found = 0;
+}
+
+static void init_block(void) {
+	MEMSET_1D(current_block,   NULL_INDEX, N,             sizeof(index_t));
+	MEMSET_2D(neighbours,      NULL_INDEX, block_size, k, sizeof(index_t));
+	MEMSET_2D(neighbours_dist, 0.0,        block_size, k, sizeof(double_t));
+	MEMSET_1D(score,           0,          block_size,    sizeof(double_t));
+	MEMSET_1D(found,           0,          block_size,    sizeof(uint_t));
+}
+/*----------------------------------------------------------------------------*/
+
+double_t distance_squared(
+		const blockindex_t vector1_blockindex
+		const blockindex_t vector2_blockindex
+		) {
+    ASSERT(vector_dims > 0);
+	
+#ifndef __AUTOESL__
+    #define SUM_SPLIT (1)
+#else
+    #define SUM_SPLIT (8)
+#endif /* #ifndef __AUTOESL__ */
+    
+	const index_t vector1 = current_block[vector1_blockindex];
+	const index_t vector2 = current_block[vector2_blockindex];
+	
+    double_t sum_of_squares__split[SUM_SPLIT] = { 0.0 };
+    
+    uint_t dim;
+    dimension_loop: for (dim = 0; dim < vector_dims; dim++) {
+        const double_t v1                      = data[vector1][dim];
+        const double_t v2                      = data[vector2][dim];
+        const double_t diff                    = vector1_data - vector2_data;
+        const double_t diff_squared            = diff * diff;
+        sum_of_squares__split[dim % SUM_SPLIT] += diff_squared;
+    }
+    
+    double_t sum = 0;
+    uint_t i;
+    sum_loop: for (i = 0; i < SUM_SPLIT; i++) {
+        sum += sum_of_squares__split[i];
+    }
+	return sum;
+}
+
 double_t add_neighbour(
-                         index_t neighbours[BOUNDS(k_value)],
-                         double_t neighbours_dist[BOUNDS(k_value)],
-                         uint_t & found,
-                         const index_t new_neighbour,
-                         const double_t new_neighbour_dist
-                         ) {
+        const blockindex_t block_index,
+        const index_t new_neighbour,
+        const double_t new_neighbour_dist
+        ) {
     /* Error checking. */
-    ASSERT(k_value > 0);
-    ASSERT(found <= k_value);
+    ASSERT(k > 0);
+    ASSERT(found[block_index] <= k);
     ASSERT(new_neighbour >= START_INDEX);
     
     int_t    insert_index  = -1; /* the index at which the new outlier will be inserted */
@@ -37,16 +149,16 @@ double_t add_neighbour(
      * array is stored in the rightmost n indexes.
      */
     
-    if (found < k_value) {
+    if (found[block_index] < k) {
         /* Special handling required if the array is incomplete. */
         
         uint_t i;
-        for (i = k_value - found-1; i < k_value; i++) {
-            if (new_neighbour_dist > neighbours_dist[i] || i == (k_value-found-1)) {
+        for (i = k - found[block_index] - 1; i < k; i++) {
+            if (new_neighbour_dist > neighbours_dist[block_index][i] || i == (k - found[block_index] - 1)) {
                 /* Shuffle values down the array. */
                 if (i > 0) {
-                    neighbours     [i-1] = neighbours     [i];
-                    neighbours_dist[i-1] = neighbours_dist[i];
+                    neighbours     [block_index][i-1] = neighbours     [block_index][i];
+                    neighbours_dist[block_index][i-1] = neighbours_dist[block_index][i];
                 }
                 insert_index  = i;
                 removed_value = 0;
@@ -57,19 +169,19 @@ double_t add_neighbour(
         }
     } else {
         int_t i;
-        for (i = k_value - 1; i >= 0; i--) {
-            if (new_neighbour_dist < neighbours_dist[i]) {
-                if ((unsigned) i == k_value - 1)
+        for (i = k-1; i >= 0; i--) {
+            if (new_neighbour_dist < neighbours_dist[block_index][i]) {
+                if ((unsigned) i == k-1)
                     /*
                      * The removed value is the value of the last element in the
                      * array.
                      */
-                    removed_value = neighbours_dist[i];
+                    removed_value = neighbours_dist[block_index][i];
                 /* Shuffle values down the array. */
                 
                 if (i > 0) {
-                    neighbours     [i] = neighbours     [i-1];
-                    neighbours_dist[i] = neighbours_dist[i-1];
+                    neighbours     [block_index][i] = neighbours     [block_index][i-1];
+                    neighbours_dist[block_index][i] = neighbours_dist[block_index][i-1];
                 }
                 insert_index = i;
             } else {
@@ -79,18 +191,18 @@ double_t add_neighbour(
         }
     }
 #elif (INSERT == UNSORTED)
-    if (found < k_value) {
-        insert_index  = found;
+    if (found[block_index] < k) {
+        insert_index  = found[block_index];
         removed_value = 0;
     } else {
         int_t    max_index = -1;
         double_t max_value = DBL_MIN;
         
         int_t i;
-        for (i = k_value - 1; i >= 0; i--) {
-            if (max_index < 0 || neighbours_dist[i] > max_value) {
+        for (i = k-1; i >= 0; i--) {
+            if (max_index < 0 || neighbours_dist[block_index][i] > max_value) {
                 max_index = i;
-                max_value = neighbours_dist[i];
+                max_value = neighbours_dist[block_index][i];
             }
         }
         
@@ -106,35 +218,24 @@ double_t add_neighbour(
      * necessary).
      */
     if (insert_index >= 0) {
-        neighbours     [insert_index] = new_neighbour;
-        neighbours_dist[insert_index] = new_neighbour_dist;
+        neighbours     [block_index][insert_index] = new_neighbour;
+        neighbours_dist[block_index][insert_index] = new_neighbour_dist;
         
-        if (found < k_value)
-            found++;
+        if (found[block_index] < k)
+            found[block_index]++;
     }
     
     return removed_value;
 }
 
-void best_outliers(
-		             size_t & outliers_size,
-		             index_t outliers[BOUNDS(N_value)],
-		             double_t outlier_scores[BOUNDS(N_value)],
-#if (BLOCKING == ENABLED)
-		             const size_t block_size,
-		             const index_t current_block[BOUNDS(block_size_value)],
-		             const double_t scores[BOUNDS(block_size_value)]
-#elif (BLOCKING == DISABLED)
-		             const index_t vector,
-		             const double_t score
-#endif /* #if (BLOCKING == ENABLED) */
-        ) {
+void best_outliers(void) {
     /* Error checking. */
-    ASSERT(outliers_size <= N_value);
-    ASSERT(N_value > 0);
+    ASSERT(outliers_found <= N);
+    ASSERT(N > 0);
 #if (BLOCKING == ENABLED)
     ASSERT(block_size > 0);
-    ASSERT(block_size <= block_size_value);
+	ASSERT(current_block_size > 0);
+    ASSERT(current_block_size <= block_size);
 #endif /* #if (BLOCKING == ENABLED) */
     
 #if (BLOCKING == ENABLED)
@@ -144,8 +245,8 @@ void best_outliers(
      * Make a copy first, so that we don't need to modify the input block and 
      * score arrays.
      */
-    index_t  block_copy [block_size_value];
-    double_t scores_copy[block_size_value];
+    index_t  block_copy [block_size];
+    double_t scores_copy[block_size];
     
     MEMCPY_1D(block_copy,  current_block, block_size, sizeof(index_t));
     MEMCPY_1D(scores_copy, scores,        block_size, sizeof(double_t));
@@ -295,116 +396,77 @@ void merge(const size_t global_outliers_size, const index_t global_outliers[BOUN
     }
 }
 
-/* TODO: Make a setup function */
 uint_t top_n_outlier_pruning_block(
                                    const size_t _num_vectors,
                                    UNUSED const size_t _vector_dims,
-                                   const double_t data[BOUNDS(MAX_NUM_VECTORS)],
+                                   const double_t _data[BOUNDS(MAX_NUM_VECTORS)],
                                    UNUSED const size_t _k,
                                    UNUSED const size_t _N,
                                    UNUSED const size_t _block_size,
-                                   index_t outliers[BOUNDS(N_value)],
-                                   double_t outlier_scores[BOUNDS(N_value)]
+                                   index_t _outliers[BOUNDS(N_value)],
+                                   double_t _outlier_scores[BOUNDS(N_value)]
                                    ) {
     /* Error checking. */
     ASSERT(_num_vectors > 0);
-    ASSERT(_vector_dims > 0);
-    ASSERT(_k > 0);
-    ASSERT(_N > 0);
-    ASSERT(_block_size > 0);
+	ASSERT(_num_vectors < max_num_vectors);
+    ASSERT(_vector_dims == vector_dims);
+    ASSERT(_k == k;
+    ASSERT(_N == N);
+    ASSERT(_block_size == block_size);
     
-    set_num_vectors(_num_vectors);
-    set_vector_dims(_vector_dims);
-    set_k(_k);
-    set_N(_N);
-    set_block_size(_block_size);
-
-    /* Number of pruned vectors. */
-    uint_t num_pruned = 0;
-    
-    /* Set output to zero. */
-    MEMSET_1D(outliers,       NULL_INDEX, _N, sizeof(index_t));
-    MEMSET_1D(outlier_scores,          0, _N, sizeof(double_t));
-    
-    double_t cutoff = 0;            /* vectors with a score less than the cutoff will be removed from the block */
-    size_t   outliers_found = 0;    /* the number of initialised elements in the outliers array */
+	/* Set global variables */
+	init(_num_vectors, _data);
     
 #if (BLOCKING == ENABLED)
     index_t  block_begin;           /* the index of the first vector in the block currently being processed */
     size_t   block_size;            /* block_size may be smaller than default_block_size if "num_vectors_value mod default_block_size != 0" */
     
-    block_loop: for (block_begin = 0; block_begin < num_vectors_value; block_begin += block_size) { /* while there are still blocks to process */
-        block_size = MIN(block_begin + block_size_value, num_vectors_value) - block_begin; /* the number of vectors in the current block */
-        ASSERT(block_size <= _block_size);
-        
-        index_t  current_block[block_size_value];               /* the indexes of the vectors in the current block */
-        index_t  neighbours[block_size_value][k_value];         /* the "k" nearest neighbours for each vector in the current block */
-        double_t neighbours_dist[block_size_value][k_value];    /* the distance of the "k" nearest neighbours for each vector in the current block */
-        double_t score[block_size_value];                       /* the average distance to the "k" neighbours */
-        uint_t   found[block_size_value];                       /* how many nearest neighbours we have found, for each vector in the block */
+    block_loop: for (block_begin = 0; block_begin < _num_vectors; block_begin += block_size) { /* while there are still blocks to process */
+        current_block_size = MIN(block_begin + _block_size, _num_vectors) - block_begin; /* the number of vectors in the current block */
+        ASSERT(current_block_size <= block_size);
         
         /* Reset array contents */
+		init_block();
         do {
             uint_t i;
-            for (i = 0; i < block_size; i++)
+            for (i = 0; i < current_block_size; i++)
                 current_block[i] = (index_t) ((block_begin + i) + START_INDEX);
         } while (0);
-        MEMSET_2D(neighbours,      NULL_INDEX, block_size, _k, sizeof(index_t));
-        MEMSET_2D(neighbours_dist,          0, block_size, _k, sizeof(double_t));
-        MEMSET_1D(score,                    0, block_size,     sizeof(double_t));
-        MEMSET_1D(found,                    0, block_size,     sizeof(uint_t));
         
-        index_t vector1;
-        outer_loop: for (vector1 = START_INDEX; vector1 < num_vectors_value + START_INDEX; vector1++) {
-            uint_t block_index;
-            inner_loop: for (block_index = 0; block_index < block_size; block_index++) {
-                const index_t vector2 = current_block[block_index];
+        blockindex_t vector1_index;
+        outer_loop: for (vector1_index = START_INDEX; vector1 < num_vectors + START_INDEX; vector1++) {
+			const index_t vector1 = current_block[vector1_index];
+			
+            blockindex_t vector2_index;
+            inner_loop: for (vector2_index = 0; vector2_index < current_block_size; vector2_index++) {
+				const index_t vector2 = current_block[vector2_index];
                 if (vector1 != vector2 && vector2 >= START_INDEX) {
                     /*
                      * Calculate the square of the distance between the two
-                     * vectors (indexed by "vector1" and "vector2")
+                     * vectors (indexed by "vector1_index" and "vector2_index")
                      */
-                    double_t dist_squared = 0;
-                    double_t vector1_in[vector_dims_value];
-                    double_t vector2_in[vector_dims_value];
-
-                    uint_t i;
-                    for (i = 0; i < vector_dims_value; i++) {
-#if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED)
-                        vector1_in[i].data = data[vector1-START_INDEX][i];
-                        vector1_in[i].keep = 0;
-                        vector1_in[i].last = 0;
-
-                        vector2_in[i].data = data[vector2-START_INDEX][i];
-                        vector2_in[i].keep = 0;
-						vector2_in[i].last = 0;
-#else
-                    	vector1_in[i] = data[(vector1-START_INDEX) * vector_dims_value + i];
-						vector2_in[i] = data[(vector2-START_INDEX) * vector_dims_value + i];
-#endif /* #if defined(__AUTOESL__) && defined(TOP__DISTANCE_SQUARED) */
-                    }
-                    distance_squared(vector1_in, vector2_in, dist_squared);
+                    const double_t dist_squared = distance_squared(vector1_index, vector2_index);
                     
                    /*
                      * Insert the new (index, distance) pair into the neighbours
                      * array for the current vector.
                      */
-                    const double_t removed_distance = add_neighbour(neighbours[block_index], neighbours_dist[block_index], found[block_index], vector1, dist_squared);
+                    const double_t removed_distance = add_neighbour(vector2_index, vector1, dist_squared);
                     
                     /*
                      * Update the score (if the neighbours array was changed).
                      */
                     if (removed_distance >= 0)
-                        score[block_index] = (double_t) ((score[block_index] * _k - removed_distance + dist_squared) / _k);
+                        score[vector2_index] = (double_t) ((score[vector2_index] * k - removed_distance + dist_squared) / k);
                     
                     /*
                      * If the score for this vector is less than the cutoff,
                      * then prune this vector from the block.
                      */
-                    if (found[block_index] >= _k && score[block_index] < cutoff) {
-                        current_block[block_index] = NULL_INDEX;
-                        score        [block_index] = 0;
-                        INCREMENT_UINT_T(num_pruned);
+                    if (found[vector2_index] >= k && score[vector2_index] < cutoff) {
+                        current_block[vector2_index] = NULL_INDEX;
+                        score        [vector2_index] = 0;
+                        num_pruned++;
                     }
                 }
             }
@@ -418,13 +480,14 @@ uint_t top_n_outlier_pruning_block(
          * store an outlier in future iterations if its score is better than the
          * cutoff.
          */
-        cutoff = outlier_scores[N_value - 1];
+        cutoff = outlier_scores[N-1];
     }
 #elif (BLOCKING == DISABLED)
-    index_t vector1;
-    outer_loop: for (vector1 = START_INDEX; vector1 < num_vectors_value + START_INDEX; vector1++) {
-        index_t  neighbours[k_value];       /* the "k" nearest neighbours for the current vector */
-        double_t neighbours_dist[k_value];  /* the distance of the "k" nearest neighbours for the current vector */
+    blockindex_t vector1_index;
+    outer_loop: for (vector1_index = START_INDEX; vector1_index < num_vectors + START_INDEX; vector1_index++) {
+		const index_t vector1 = current_block
+        index_t  neighbours[_k];        /* the "k" nearest neighbours for the current vector */
+        double_t neighbours_dist[_k];   /* the distance of the "k" nearest neighbours for the current vector */
         double_t score = 0;                 /* the average distance to the "k" neighbours */
         uint_t   found = 0;                 /* how many nearest neighbours we have found */
         bool     removed = false;           /* true if vector1 has been pruned */
@@ -433,18 +496,18 @@ uint_t top_n_outlier_pruning_block(
         MEMSET_1D(neighbours_dist,          0, _k, sizeof(double_t));
         
         index_t vector2;
-        inner_loop: for (vector2 = START_INDEX; vector2 < NUM_VECTORS(num_vectors_value) + START_INDEX && !removed; vector2++) {
+        inner_loop: for (vector2 = START_INDEX; vector2 < _num_vectors + START_INDEX && !removed; vector2++) {
             if (vector1 != vector2) {
                 /*
                  * Calculate the square of the distance between the two
                  * vectors (indexed by "vector1" and "vector2")
                  */
                 double_t dist_squared = 0;
-                double_t vector1_in[num_vectors_value];
-                double_t vector2_in[num_vectors_value];
+                double_t vector1_in[_num_vectors];
+                double_t vector2_in[_num_vectors];
 
                 uint_t i;
-                for (i = 0; i < num_vectors_value; i++) {
+                for (i = 0; i < _num_vectors; i++) {
                     vector1_in[i] = data[(vector1-START_INDEX) * vector_dims_value + i];
                     vector2_in[i] = data[(vector2-START_INDEX) * vector_dims_value + i];
                 }
@@ -458,13 +521,13 @@ uint_t top_n_outlier_pruning_block(
                 
                 /* Update the score (if the neighbours array was changed). */
                 if (removed_distance >= 0)
-                    score = (double_t) ((score * k_value - removed_distance + dist_squared) / k_value);
+                    score = (double_t) ((score * _k - removed_distance + dist_squared) / _k);
                 
                 /*
                  * If the score for this vector is less than the cutoff,
                  * then prune this vector from the block.
                  */
-                if (found >= k_value && score < cutoff) {
+                if (found >= _k && score < cutoff) {
                     removed = true;
                     INCREMENT_UINT_T(num_pruned);
                     break;
@@ -481,7 +544,7 @@ uint_t top_n_outlier_pruning_block(
              * store an outlier in future iterations if its score is better than the
              * cutoff.
              */
-            cutoff = outlier_scores[N_value - 1];
+            cutoff = outlier_scores[_N - 1];
         }
     }
 #endif /* #if (BLOCKING == ENABLED) */    
