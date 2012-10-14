@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<workbench progressCount="16" version="2.0">
+<workbench progressCount="13" version="2.0">
 <workbenchAdvisor/>
-<window height="768" width="1024" x="175" y="175">
+<window height="768" maximized="true" width="1024" x="175" y="175">
 <fastViewData fastViewLocation="1024"/>
 <perspectiveBar>
 <itemSize x="160"/>
 </perspectiveBar>
 <coolbarLayout locked="0">
 <coolItem id="group.file" itemType="typeGroupMarker"/>
-<coolItem id="org.eclipse.ui.workbench.file" itemType="typeToolBarContribution" x="147" y="22"/>
+<coolItem id="org.eclipse.ui.workbench.file" itemType="typeToolBarContribution" x="153" y="22"/>
 <coolItem id="additions" itemType="typeGroupMarker"/>
 <coolItem id="com.xilinx.sdk.xbash.toolbar1" itemType="typeToolBarContribution" x="38" y="22"/>
 <coolItem id="com.xilinx.sdk.targetmanager.ui.toolbar1" itemType="typeToolBarContribution" x="61" y="22"/>
@@ -17,10 +17,11 @@
 <coolItem id="org.eclipse.cdt.ui.buildConfigActionSet" itemType="typeToolBarContribution" x="89" y="22"/>
 <coolItem id="org.eclipse.debug.ui.launchActionSet" itemType="typeToolBarContribution" x="129" y="22"/>
 <coolItem id="org.eclipse.search.searchActionSet" itemType="typeToolBarContribution" x="76" y="22"/>
-<coolItem id="org.eclipse.ui.edit.text.actionSet.presentation" itemType="typeToolBarContribution" x="61" y="22"/>
+<coolItem id="org.eclipse.ui.edit.text.actionSet.presentation" itemType="typeToolBarContribution" x="84" y="22"/>
 <coolItem id="group.nav" itemType="typeGroupMarker"/>
 <coolItem id="org.eclipse.ui.workbench.navigate" itemType="typeToolBarContribution" x="190" y="22"/>
 <coolItem id="group.editor" itemType="typeGroupMarker"/>
+<coolItem id="org.eclipse.cdt.ui.editor.CEditor" itemType="typeToolBarContribution" x="-1" y="-1"/>
 <coolItem id="group.help" itemType="typeGroupMarker"/>
 <coolItem id="org.eclipse.ui.workbench.help" itemType="typeToolBarContribution" x="-1" y="-1"/>
 </coolbarLayout>
@@ -29,10 +30,39 @@
 <editorArea activeWorkbook="DefaultEditorWorkbook">
 <info part="DefaultEditorWorkbook">
 <folder appearance="1" expanded="2">
-<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory"/>
+<presentation id="org.eclipse.ui.presentations.WorkbenchPresentationFactory">
+<part id="0"/>
+<part id="1"/>
+<part id="2"/>
+<part id="3"/>
+<part id="4"/>
+<part id="5"/>
+</presentation>
 </folder>
 </info>
 </editorArea>
+<editor id="com.xilinx.sdk.hw.ui.HwSpecXMLEditor" name="system.xml" partName="system.xml" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/ZC702_hw_platform/system.xml" title="system.xml" tooltip="ZC702_hw_platform/system.xml" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/ZC702_hw_platform/system.xml"/>
+</editor>
+<editor id="com.xilinx.sdk.sw.MSSEditor" name="system.mss" partName="system.mss" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/empty_cpp_bsp_0/system.mss" title="system.mss" tooltip="empty_cpp_bsp_0/system.mss" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/empty_cpp_bsp_0/system.mss"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="xscuwdt.h" partName="xscuwdt.h" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h" title="xscuwdt.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="0" selectionTopPixel="255"/>
+</editor>
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="xscugic.h" partName="xscugic.h" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h" title="xscugic.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="1730" selectionTopPixel="2040"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="xscugic_hw.h" partName="xscugic_hw.h" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h" title="xscugic_hw.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="0" selectionTopPixel="1479"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="xil_exception.h" partName="xil_exception.h" path="D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/SDK/empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h" title="xil_exception.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h"/>
+<editorState selectionHorizontalPixel="0" selectionLength="0" selectionOffset="0" selectionTopPixel="2455"/>
+</editor>
 </editors>
 <views>
 <view id="org.eclipse.ui.navigator.ProjectExplorer" partName="Project Explorer">
@@ -51,13 +81,15 @@
 <visible IMemento.internal.id="org.eclipse.ui.ide.markerType"/>
 </viewState>
 </view>
-<view id="org.eclipse.ui.console.ConsoleView" partName="Console"/>
+<view id="org.eclipse.ui.console.ConsoleView" partName="Console">
+<viewState/>
+</view>
 <view id="org.eclipse.ui.views.TaskList" partName="Tasks"/>
 <view id="org.eclipse.ui.views.ContentOutline" partName="Outline">
 <viewState/>
 </view>
 </views>
-<perspectives activePart="org.eclipse.ui.navigator.ProjectExplorer" activePerspective="org.eclipse.cdt.ui.CPerspective">
+<perspectives activePart="org.eclipse.cdt.ui.editor.CEditor" activePerspective="org.eclipse.cdt.ui.CPerspective">
 <perspective editorAreaTrimState="2" editorAreaVisible="1" fixed="0" version="0.016">
 <descriptor class="org.eclipse.cdt.internal.ui.CPerspectiveFactory" id="org.eclipse.cdt.ui.CPerspective" label="C/C++"/>
 <alwaysOnActionSet id="org.eclipse.ui.cheatsheets.actionSet"/>
@@ -137,7 +169,7 @@
 </info>
 <info part="org.eclipse.ui.editorss" ratio="0.25" ratioLeft="250" ratioRight="750" relationship="2" relative="topLeft"/>
 <info folder="true" part="bottom" ratio="0.7496136" ratioLeft="485" ratioRight="162" relationship="4" relative="org.eclipse.ui.editorss">
-<folder activePageID="org.eclipse.ui.views.ProblemView" appearance="2" expanded="2">
+<folder activePageID="org.eclipse.ui.console.ConsoleView" appearance="2" expanded="2">
 <page content="org.eclipse.ui.views.ProblemView" label="Problems"/>
 <page content="org.eclipse.ui.views.TaskList" label="Tasks"/>
 <page content="org.eclipse.ui.console.ConsoleView" label="Console"/>
@@ -167,7 +199,46 @@
 </perspective>
 </perspectives>
 <workingSets/>
-<navigationHistory/>
+<navigationHistory>
+<editors>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.xilinx.sdk.hw.ui.HwSpecXMLEditor" path="/ZC702_hw_platform/system.xml"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.xilinx.sdk.sw.MSSEditor" path="/empty_cpp_bsp_0/system.mss"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscutimer_hw.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h"/>
+</editors>
+<item historyLabel="system.xml" index="0"/>
+<item historyLabel="system.mss" index="1"/>
+<item historyLabel="xscuwdt.h" index="2">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item historyLabel="xscugic.h" index="3">
+<position info="not_deleted" x="1730" y="0"/>
+</item>
+<item historyLabel="xscutimer_hw.h" index="4">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item historyLabel="xscugic.h" index="3">
+<position info="not_deleted" x="1730" y="0"/>
+</item>
+<item historyLabel="xscugic_hw.h" index="5">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item historyLabel="xscugic.h" index="3">
+<position info="not_deleted" x="1730" y="0"/>
+</item>
+<item historyLabel="xil_exception.h" index="6">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item historyLabel="xscugic_hw.h" index="5">
+<position info="not_deleted" x="0" y="0"/>
+</item>
+<item active="true" historyLabel="xscugic.h" index="3">
+<position info="not_deleted" x="1730" y="0"/>
+</item>
+</navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
 </page>
 <workbenchWindowAdvisor/>
@@ -183,5 +254,27 @@
 </trimArea>
 </trimLayout>
 </window>
-<mruList/>
+<mruList>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="xil_exception.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h">
+<persistable path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xil_exception.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="xscugic_hw.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h">
+<persistable path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic_hw.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="xscutimer_hw.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscutimer_hw.h">
+<persistable path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscutimer_hw.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="xscugic.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h">
+<persistable path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscugic.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="xscuwdt.h" tooltip="empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h">
+<persistable path="/empty_cpp_bsp_0/ps7_cortexa9_0/include/xscuwdt.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.xilinx.sdk.sw.MSSEditor" name="system.mss" tooltip="empty_cpp_bsp_0/system.mss">
+<persistable path="/empty_cpp_bsp_0/system.mss"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="com.xilinx.sdk.hw.ui.HwSpecXMLEditor" name="system.xml" tooltip="ZC702_hw_platform/system.xml">
+<persistable path="/ZC702_hw_platform/system.xml"/>
+</file>
+</mruList>
 </workbench>

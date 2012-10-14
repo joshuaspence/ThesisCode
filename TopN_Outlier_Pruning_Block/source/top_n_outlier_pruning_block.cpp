@@ -64,9 +64,10 @@ static void init(const size_t _num_vectors, const double_t _data[MAX_NUM_VECTORS
     /* data */
     // TODO: MEMCPY_2D
     uint_t vector;
-    for (vector = 0; vector < max_num_vectors; vector++) {
+    vector_loop: for (vector = 0; vector < max_num_vectors; vector++) {
         uint_t dim;
-        for (dim = 0; dim < vector_dims; dim++) {
+
+        dims_loop: for (dim = 0; dim < vector_dims; dim++) {
             if (vector >= num_vectors) {
                 data[vector][dim] = 0;
             } else {
@@ -136,7 +137,7 @@ double_t distance_squared(
 #ifndef __AUTOESL__
     #define SUM_SPLIT (1)
 #else
-    #define SUM_SPLIT (8)
+    #define SUM_SPLIT (6)
 #endif /* #ifndef __AUTOESL__ */
     
     double_t sum_of_squares__split[SUM_SPLIT] = { 0.0 };
@@ -210,7 +211,7 @@ double_t add_neighbour(
         
         uint_t i;
 #if (BLOCKING == ENABLED)
-        for (i = k - found[vector_bi] - 1; i < k; i++) {
+        add_neighbour_loop1: for (i = k - found[vector_bi] - 1; i < k; i++) {
             if (new_neighbour_dist > neighbours_dist[vector_bi][i] || i == (k - found[vector_bi] - 1)) {
 #else
         for (i = k - found - 1; i < k; i++) {
@@ -235,7 +236,7 @@ double_t add_neighbour(
         }
     } else {
         int_t i;
-        for (i = k - 1; i >= 0; i--) {
+        add_neighbour_loop2: for (i = k - 1; i >= 0; i--) {
 #if (BLOCKING == ENABLED)
             if (new_neighbour_dist < neighbours_dist[vector_bi][i]) {
 #else
@@ -342,12 +343,12 @@ void sort_block_scores_descending(void) {
     ASSERT(current_block_size > 0 && current_block_size <= block_size);
     
     uint_t i;
-    for (i = 0; i < current_block_size; i++) {
+    block_loop1: for (i = 0; i < current_block_size; i++) {
         int_t j;
         const index_t  index = current_block[i];
         const double_t value = score        [i];
         
-        for (j = i - 1; j >= 0; j--) {
+        block_loop2: for (j = i - 1; j >= 0; j--) {
             if (score[j] >= value) {
                 break;
             }
@@ -413,7 +414,7 @@ void update_best_outliers(void) {
 #endif /* #if (BLOCKING==ENABLED) */
     
 #if (BLOCKING == ENABLED)
-    while (iter < N && (global < outliers_found || local < current_block_size)) {
+    merge_loop: while (iter < N && (global < outliers_found || local < current_block_size)) {
         if (global >= outliers_found && local < current_block_size) {
 #elif (BLOCKING == DISABLED)
     while (iter < N && (global < outliers_found || !local)) {

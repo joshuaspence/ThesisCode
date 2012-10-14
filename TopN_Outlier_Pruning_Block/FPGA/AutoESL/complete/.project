@@ -98,6 +98,11 @@
 			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/arch.h</location>
 		</link>
 		<link>
+			<name>.reference/math.h</name>
+			<type>1</type>
+			<location>C:/Xilinx/2012.1/AutoESL/Win_x86/tools/llvm_gcc/include/math.h</location>
+		</link>
+		<link>
 			<name>.reference/parameters.h</name>
 			<type>1</type>
 			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/parameters.h</location>
