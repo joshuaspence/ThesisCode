@@ -57,9 +57,7 @@ static size_t   outliers_found;                 /* the number of initialised ele
 /*
  * TODO
  */
-static void init(const size_t _num_vectors, const double_t _data[max_num_vectors * vector_dims]) {
-    ASSERT(_num_vectors > 0 && _num_vectors <= max_num_vectors);
-    
+static void init(const size_t _num_vectors, const double_t _data[MAX_NUM_VECTORS * VECTOR_DIMS]) {
     /* num_vectors */
     num_vectors = _num_vectors;
     
@@ -490,7 +488,7 @@ void update_best_outliers(void) {
 uint_t top_n_outlier_pruning_block(
         const size_t _num_vectors,
         UNUSED const size_t _vector_dims,
-        const double_t _data[],
+        const double_t _data[MAX_NUM_VECTORS * VECTOR_DIMS],
         UNUSED const size_t _k,
         UNUSED const size_t _N,
         UNUSED const size_t _block_size,

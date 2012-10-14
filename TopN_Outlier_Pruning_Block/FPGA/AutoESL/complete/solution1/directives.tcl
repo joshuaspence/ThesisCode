@@ -6,3 +6,6 @@
 set_directive_pipeline "distance_squared/dimension_loop"
 set_directive_unroll "distance_squared/sum_loop"
 set_directive_top "top_n_outlier_pruning_block"
+set_directive_inline "init"
+set_directive_inline "init_block"
+set_directive_unroll "distance_squared/sum_loop"

@@ -9,6 +9,15 @@
         <directive functionName="top_n_outlier_pruning_block" label="" functionLabel="">
             <pragma name="TOP"/>
         </directive>
+        <directive functionName="init" label="" functionLabel="">
+            <pragma name="INLINE"/>
+        </directive>
+        <directive functionName="init_block" label="" functionLabel="">
+            <pragma name="INLINE"/>
+        </directive>
+        <directive functionName="distance_squared" label="sum_loop" functionLabel="">
+            <pragma name="UNROLL"/>
+        </directive>
     </sourceFile>
 </AutoPilot:ProjectResources>
 
