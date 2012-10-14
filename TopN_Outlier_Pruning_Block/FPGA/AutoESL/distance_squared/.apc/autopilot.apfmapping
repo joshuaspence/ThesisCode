@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<autopilotfilemapping:AutoPilotFileMapping xmlns:autopilotfilemapping="www.autoesl.com/autopilotfilemapping">
+  <source>
+    <originFiles name="distance.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/distance.cpp"/>
+  </source>
+  <testbench>
+    <originFiles name="data" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/data"/>
+    <originFiles name="wrapper.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/wrapper.cpp"/>
+    <originFiles name="vardump.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/vardump.cpp"/>
+    <originFiles name="top_n_outlier_pruning_block.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/top_n_outlier_pruning_block.cpp"/>
+    <originFiles name="test.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/test.cpp"/>
+    <originFiles name="parameters.cpp" path="/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/source/parameters.cpp"/>
+  </testbench>
+</autopilotfilemapping:AutoPilotFileMapping>

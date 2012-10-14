@@ -1,13 +1,13 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "test.hpp" /* main header file */
-#include "top_n_outlier_pruning_block.hpp" /* for top_n_outlier_pruning_block */
-#include "utility.hpp" /* for index_t, double_t, size_t, uint_t */
-#include "vardump.hpp" /* for read_vardump */
+#include "test.h" /* main header file */
+#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
+#include "utility.h" /* for index_t, double_t, size_t, uint_t */
+#include "vardump.h" /* for read_vardump */
 
 #include <stdlib.h> /* for free */
 #include <string> /* for std::endl, std::string */
@@ -18,6 +18,7 @@
  * results.
  */
 static bool do_test(
+<<<<<<< HEAD
 		const std::string & dataset,
 		const size_t num_vectors,
 		const size_t vector_dims,
@@ -28,6 +29,18 @@ static bool do_test(
 		const index_t outliers_expected[],
 		const double_t outlier_scores_expected[]
 		) {
+=======
+        const std::string & dataset,
+        const size_t num_vectors,
+        const size_t vector_dims,
+        const double_t data[],
+        const size_t k,
+        const size_t N,
+        const size_t block_size,
+        const index_t outliers_expected[],
+        const double_t outlier_scores_expected[]
+        ) {
+>>>>>>> 1f58ca6c3fad8f0ed461a8796238e202263bea9e
     bool failed = false;
     
     /* Create the output arrays. */
@@ -38,7 +51,7 @@ static bool do_test(
     
     /* Call the function. */
     PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '" << dataset << "'" << std::endl);    
-    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, const_cast<const double_in_t * const>(data), k, N, block_size, outliers, outlier_scores);
+    const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data, k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
     do {

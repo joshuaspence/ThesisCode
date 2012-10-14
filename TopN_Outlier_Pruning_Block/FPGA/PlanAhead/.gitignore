@@ -1,0 +1,24 @@
+#===============================================================================
+# PlanAhead .gitignore file.
+#===============================================================================
+
+# PlanAhead metadata
+*/*.cache/
+*/*.data/cache/
+
+# PlanAhead temporary files
+*/*.runs/impl_*/.*.*.rst
+*/*.runs/impl_*/_xmsgs/
+*/*.runs/synth_*/.*.*.rst
+*/*.runs/synth_*/_xmsgs/
+*/*.srcs/sources_*/edk/*/__xps/ise/_xmsgs/
+*/*.srcs/sources_*/edk/*/implementation/_xmsgs/
+*/*.srcs/sources_*/edk/*/implementation/*/_xmsgs/
+*/*.srcs/sources_*/edk/*/synthesis/_xmsgs/
+*/*.srcs/sources_*/edk/*/synthesis/xst_temp_dir/
+
+# SDK Export directory (manually managed)
+*/*.sdk/
+
+# Log files
+*.log
