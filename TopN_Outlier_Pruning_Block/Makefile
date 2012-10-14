@@ -37,8 +37,6 @@ TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DB
 TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED)
 
 COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                        $(SOURCE_DIR)/distance.cpp \
-                        $(SOURCE_DIR)/parameters.cpp \
                         $(SOURCE_DIR)/vardump.cpp
 
 binary_OUTPUT_DIR    := bin

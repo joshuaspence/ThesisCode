@@ -42,7 +42,7 @@
         memcpy(_dst_, _src_, (_count_)*(_size_))
     
     /* Printing to stdout and stderr */
-    #include <iostream> /* for std::endl, std::cerr, std::cout */
+    #include <iostream> /* for std::cerr, std::cout */
     #define PRINTF_STDOUT(_str_)        std::cout << _str_;
     #define PRINTF_STDERR(_str_)        std::cerr << _str_;
     
@@ -142,34 +142,6 @@
     /* Create an assertion */
     #define ASSERT(x)
 #endif /* #ifdef __AUTOESL__ */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* Statically or dynamically sized arrays                                     */
-/*============================================================================*/
-#if (!USE_DYNAMIC_ARRAY_SIZE)
-    /* Default hardcoded values */
-    
-    #ifndef MAX_NUM_VECTORS
-        #define MAX_NUM_VECTORS             67557
-    #endif /* #ifndef NUM_VECTORS */
-    
-    #ifndef HARDCODED_VECTOR_DIMS
-        #define HARDCODED_VECTOR_DIMS       200
-    #endif /* #ifndef HARDCODED_VECTOR_DIMS */
-    
-    #ifndef HARDCODED_K
-        #define HARDCODED_K                 15
-    #endif /* #ifndef HARDCODED_K */
-    
-    #ifndef HARDCODED_N
-        #define HARDCODED_N                 40
-    #endif /* #ifndef HARDCODED_N */
-    
-    #ifndef HARDCODED_BLOCK_SIZE
-        #define HARDCODED_BLOCK_SIZE        40
-    #endif /* HARDCODED_BLOCK_SIZE */
-#endif /* #if (!USE_DYNAMIC_ARRAY_SIZE) */
-/*----------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------*/ 
 
 #endif /* #ifndef ARCH_H_ */

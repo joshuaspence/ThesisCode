@@ -84,6 +84,12 @@ typedef uint_t              uint_in_t;
 typedef uint_t              uint_out_t;
 typedef uint_t              uint_io_t;
 
+/* blockindex_t, blockindex_in_t, blockindex_out_t, blockindex_io_t */
+typedef size_t              blockindex_t;
+typedef blockindex_t        blockindex_in_t;
+typedef blockindex_t        blockindex_out_t;
+typedef blockindex_t        blockindex_io_t;
+
 /* index_t, index_in_t, index_out_t, index_io_t */
 typedef size_t              index_t;
 typedef index_t             index_in_t;
@@ -127,17 +133,6 @@ typedef double_t             double_io_t;
 #define FILE_IO_ERROR       (2)
 #define MALLOC_FAILED       (3)
 #define FILE_EXPECTED_EOF   (4)
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* Stats                                                                      */
-/*============================================================================*/
-#define INCREMENT_UINT_T(_var_) \
-    do { \
-        const UNUSED uint_t old_var_ = (_var_); \
-        (_var_)++; \
-        ASSERT((_var_) > (old_var_)); /* check for overflow */ \
-    } while (0)
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef UTILITY_H_ */
