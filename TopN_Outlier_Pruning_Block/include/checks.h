@@ -3,8 +3,8 @@
  * also ensures that required preprocessor macros have been defined.
  */
  
-#ifndef CHECKS_HPP_
-#define CHECKS_HPP_
+#ifndef CHECKS_H_
+#define CHECKS_H_
 
 /*============================================================================*/
 /* Architecture                                                               */
@@ -61,16 +61,19 @@
 /*============================================================================*/
 /* Blocking mode                                                              */
 /*============================================================================*/
-#ifndef DISABLED
-    #define DISABLED    (0)
-#endif /* #ifndef DISABLED */
-#ifndef ENABLED
-    #define ENABLED     (1)
-#endif /* #ifndef ENABLED */
-
 #ifndef BLOCKING
     #error "Blocking mode not specified. Define either: BLOCKING=ENABLED or BLOCKING=DISABLED"
 #endif /* #ifndef BLOCKING */
 /*----------------------------------------------------------------------------*/
 
-#endif /* #ifndef CHECKS_HPP_ */
+/*============================================================================*/
+/* AutoESL stuff                                                              */
+/*============================================================================*/
+#ifndef __AUTOESL__
+    #ifdef TOP__DISTANCE_SQUARED
+        #error "TOP__DISTANCE_SQUARED should only be defined for AutoESL builds"
+    #endif /* #ifdef TOP__DISTANCE_SQUARED */
+#endif /* #ifndef __AUTOESL__ */
+/*----------------------------------------------------------------------------*/
+
+#endif /* #ifndef CHECKS_H_ */

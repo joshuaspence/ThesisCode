@@ -1,97 +1,16 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
-#include "vardump.hpp" /* main header file */
+#include "utility.h" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
+#include "vardump.h" /* main header file */
 
 #include <errno.h> /* for errno */
+#include <math.h> /* for ceil */
 #include <stdlib.h> /* for free, malloc */
 #include <stdio.h> /* for FILE, fclose, feof, fopen, fread, fwrite */
 #include <string.h> /* for strerror */
 
 #include <string> /* for std::string, std::endl */
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
-/* Macros                                                                     */
-/*============================================================================*/
-#define WRITE_VARIABLE_TO_FILE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
-    do { \
-        const size_t size  = (_size_); \
-        const size_t count = (_count_); \
-        size_t result; \
-        \
-        if ((result = fwrite((_var_), size, count, (_fp_))) != count) { \
-            PRINTF_STDERR("Error writing " << (#_var_) << " to file " << (_filename_) << ". Expected count = " << count << ". Actual count = " << result << "." << std::endl); \
-            do { \
-                _cleanup_code_ \
-            } while (0); \
-            return FILE_IO_ERROR; \
-        } \
-    } while (0)
-
-#define READ_VARIABLE_FROM_FILE(_var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
-    do { \
-        const size_t size  = (_size_); \
-        const size_t count = (_count_); \
-        size_t result; \
-        \
-        if ((result = fread((_var_), size, count, (_fp_))) != count) { \
-            PRINTF_STDERR("Error writing " << (#_var_) << " to file " << (_filename_) << ". Expected count = " << count << ". Actual count = " << result << "." << std::endl); \
-            do { \
-                _cleanup_code_ \
-            } while (0); \
-            return FILE_IO_ERROR; \
-        } \
-    } while (0)
-
-#define MALLOC_READ_VARIABLE_FROM_FILE(_type_, _var_, _size_, _count_, _filename_, _fp_, _cleanup_code_) \
-    do { \
-        const size_t size  = (_size_); \
-        const size_t count = (_count_); \
-        (_var_) = (_type_) malloc(count * size); \
-        if ((_var_) == NULL) { \
-            PRINTF_STDERR("Failed to allocate " << (count * size) << " bytes for " << (#_var_) << "."); \
-            do { \
-                _cleanup_code_ \
-            } while (0); \
-            return MALLOC_FAILED; \
-        } else { \
-            READ_VARIABLE_FROM_FILE((_var_), (_size_), (_count_), (_filename_), (_fp_), _cleanup_code_ free((_var_));); \
-        } \
-    } while (0)
-
-#define READ_VARIABLE_FROM_ARRAY(_var_, _size_, _count_, _array_, _cleanup_code_) \
-    do { \
-        const size_t size  = (_size_); \
-        const size_t count = (_count_); \
-        size_t result; \
-        \
-        if ((result = memread((_var_), size, count, (_array_))) != count) { \
-            PRINTF_STDERR("Error reading " << (#_var_) << " from variable " << (#_array_) << ". Expected count = " << count << ". Actual count = " << result << "." << std::endl); \
-            do { \
-                _cleanup_code_ \
-            } while (0); \
-            return FILE_IO_ERROR; \
-        } \
-    } while (0)
-
-#define MALLOC_READ_VARIABLE_FROM_ARRAY(_type_, _var_, _size_, _count_, _array_, _cleanup_code_) \
-    do { \
-        const size_t size  = (_size_); \
-        const size_t count = (_count_); \
-        (_var_) = (_type_) malloc(count * size); \
-        if ((_var_) == NULL) { \
-            PRINTF_STDERR("Failed to allocate " << (count * size) << " bytes for " << (#_var_) << "." << std::endl); \
-            do { \
-                _cleanup_code_ \
-            } while (0); \
-            return MALLOC_FAILED; \
-        } else { \
-            READ_VARIABLE_FROM_ARRAY((_var_), (_size_), (_count_), (_array_), _cleanup_code_ free(_var_);); \
-        } \
-    } while (0)
-
 /*----------------------------------------------------------------------------*/
 
 /* 
@@ -104,44 +23,124 @@ static size_t memread(void * const ptr, const size_t size, const size_t count, c
     return count;
 }
 
-int save_vardump(const std::string & filename,
-                 const size_t & num_vectors,
-                 const size_t & vector_dims,
-                 const double_t * const & data,
-                 const size_t & k,
-                 const size_t & N,
-                 const size_t & block_size,
-                 const index_t * const & outliers,
-                 const double_t * const & outlier_scores) {
-    FILE * const fp = fopen(filename.c_str(), "wb");
+/*
+ * A function to write a variable to a given file.
+ */
+static int write_variable_to_file(const void * var, const size_t size, const size_t count, FILE * fp) {
+    const unsigned char * ptr = (unsigned char *) var; /* current starting address for write operation */
+    unsigned int counter = 0;
+    
+    while (counter++ < count) {
+        const size_t elems = 1;
+        size_t result;
+        if ((result = fwrite(ptr, size, elems, fp)) != elems) {
+            PRINTF_STDERR("Error writing to file. Expected count = " << elems << ". Actual count = " << result << "." << std::endl);
+            perror("File I/O error");
+            return FILE_IO_ERROR;
+        }
+        ptr += size;
+    }
+    
+    return SUCCESS;
+}
+
+/*
+ * TODO
+ */
+static int read_variable_from_file(void * var, const size_t size, const size_t count, FILE * fp) {
+    size_t result;
+    if ((result = fread(var, size, count, fp)) != count) {
+        PRINTF_STDERR("Error reading from file. Expected count = " << count << ". Actual count = " << result << "." << std::endl);
+        perror("File I/O error");
+        return FILE_IO_ERROR;
+    }
+    
+    return SUCCESS;
+}
+
+/*
+ * TODO
+ */
+static int malloc_read_variable_from_file(void ** var, const size_t size, const size_t count, FILE * fp) {
+    *var = malloc(count * size);
+    if (*var == NULL) {
+        PRINTF_STDERR("Failed to allocate " << (count * size) << " bytes.");
+        return MALLOC_FAILED;
+    } else {
+        return read_variable_from_file(*var, size, count, fp);
+    }
+    
+    return SUCCESS;
+}
+
+/*
+ * TODO
+ */
+static int read_variable_from_array(void * var, const size_t size, const size_t count, const unsigned char ** array) {
+    size_t result;
+    if ((result = memread(var, size, count, array)) != count) {
+        PRINTF_STDERR("Error reading from array. Expected count = " << count << ". Actual count = " << result << "." << std::endl);
+        return FILE_IO_ERROR;
+    }
+    
+    return SUCCESS;
+}
+
+/*
+ * TODO
+ */
+static int malloc_read_variable_from_array(void ** var, const size_t size, const size_t count, const unsigned char ** array) {
+    *var = malloc(count * size);
+    if (*var == NULL) {
+        PRINTF_STDERR("Failed to allocate " << (count * size) << " bytes." << std::endl);
+        return MALLOC_FAILED;
+    } else {
+        return read_variable_from_array(*var, size, count, array);
+    }
+    
+    return SUCCESS;
+}
+
+int save_vardump(
+        const std::string & filename,
+        const size_t & num_vectors,
+        const size_t & vector_dims,
+        const double_t * const & data,
+        const size_t & k,
+        const size_t & N,
+        const size_t & block_size,
+        const index_t * const & outliers,
+        const double_t * const & outlier_scores
+        ) {
+    FILE * fp = fopen(filename.c_str(), "wb");
     if (fp == NULL) {
         PRINTF_STDERR("Error opening file: " << filename << std::endl);
         return FILE_NOT_FOUND;
     }
     
     /* num_vectors */
-    WRITE_VARIABLE_TO_FILE(&num_vectors, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&num_vectors, sizeof(size_t), 1, fp);
     
     /* vector_dims */
-    WRITE_VARIABLE_TO_FILE(&vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&vector_dims, sizeof(size_t), 1, fp);
     
     /* data */
-    WRITE_VARIABLE_TO_FILE(&data, sizeof(double_t), num_vectors * vector_dims, filename, fp, /* no cleanup code */);
+    write_variable_to_file(data, sizeof(double_t), num_vectors * vector_dims, fp);
     
     /* k */
-    WRITE_VARIABLE_TO_FILE(&k, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&k, sizeof(size_t), 1, fp);
     
     /* N */
-    WRITE_VARIABLE_TO_FILE(&N, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&N, sizeof(size_t), 1, fp);
     
     /* block_size */
-    WRITE_VARIABLE_TO_FILE(&block_size, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&block_size, sizeof(size_t), 1, fp);
     
     /* outliers */
-    WRITE_VARIABLE_TO_FILE(&outliers, sizeof(index_t), N, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&outliers, sizeof(index_t), N, fp);
     
     /* outlier_scores */
-    WRITE_VARIABLE_TO_FILE(&outlier_scores, sizeof(double_t), N, filename, fp, /* no cleanup code */);
+    write_variable_to_file(&outlier_scores, sizeof(double_t), N, fp);
     
     if (fclose(fp) != 0) {
         PRINTF_STDERR("Error closing file." << std::endl);
@@ -151,44 +150,46 @@ int save_vardump(const std::string & filename,
     return SUCCESS;
 }
 
-int read_vardump_from_file(const std::string & filename,
-                           size_t & num_vectors,
-                           size_t & vector_dims,
-                           double_t * & data,
-                           size_t & k,
-                           size_t & N,
-                           size_t & block_size,
-                           index_t * & outliers,
-                           double_t * & outlier_scores) {
-    FILE * const fp = fopen(filename.c_str(), "rb");
+int read_vardump_from_file(
+        const std::string & filename,
+        size_t & num_vectors,
+        size_t & vector_dims,
+        double_t * & data,
+        size_t & k,
+        size_t & N,
+        size_t & block_size,
+        index_t * & outliers,
+        double_t * & outlier_scores
+        ) {
+    FILE * fp = fopen(filename.c_str(), "rb");
     if (fp == NULL) {
         PRINTF_STDERR("Error opening " << filename << ": " << strerror(errno) << " (" << errno << ")" << std::endl);
         return FILE_NOT_FOUND;
     }
     
     /* num_vectors */
-    READ_VARIABLE_FROM_FILE(&num_vectors, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    read_variable_from_file(&num_vectors, sizeof(size_t), 1, fp);
     
     /* vector_dims */
-    READ_VARIABLE_FROM_FILE(&vector_dims, sizeof(size_t), 1, filename, fp, /* no cleanup code */);
+    read_variable_from_file(&vector_dims, sizeof(size_t), 1, fp);
     
     /* data */
-    MALLOC_READ_VARIABLE_FROM_FILE(double_t *, data, sizeof(double_t), num_vectors * vector_dims, filename, fp, /* no cleanup code */);
+    malloc_read_variable_from_file((void **) &data, sizeof(double_t), num_vectors * vector_dims, fp);
     
     /* k */
-    READ_VARIABLE_FROM_FILE(&k, sizeof(size_t), 1, filename, fp, free(data););
+    read_variable_from_file(&k, sizeof(size_t), 1, fp);
     
     /* N */
-    READ_VARIABLE_FROM_FILE(&N, sizeof(size_t), 1, filename, fp, free(data););
+    read_variable_from_file(&N, sizeof(size_t), 1, fp);
     
     /* block_size */
-    READ_VARIABLE_FROM_FILE(&block_size, sizeof(size_t), 1, filename, fp, free(data););
+    read_variable_from_file(&block_size, sizeof(size_t), 1, fp);
     
     /* outliers */
-    MALLOC_READ_VARIABLE_FROM_FILE(index_t *, outliers, sizeof(index_t), N, filename, fp, free(data););
+    malloc_read_variable_from_file((void **) &outliers, sizeof(index_t), N, fp);
     
     /* outlier_scores */
-    MALLOC_READ_VARIABLE_FROM_FILE(double_t *, outlier_scores, sizeof(double_t), N, filename, fp, free(data); free(outliers););
+    malloc_read_variable_from_file((void **) &outlier_scores, sizeof(double_t), N, fp);
     
 #if 0 /* this code doesn't seem to work */
     if (!feof(fp)) {
@@ -212,24 +213,26 @@ int read_vardump_from_file(const std::string & filename,
     return SUCCESS;
 }
 
-int read_vardump_from_array(const unsigned char ** const & array,
-                            size_t & num_vectors,
-                            size_t & vector_dims,
-                            double_t * & data,
-                            size_t & k,
-                            size_t & N,
-                            size_t & block_size,
-                            index_t * & outliers,
-                            double_t * & outlier_scores) {
+int read_vardump_from_array(
+        const unsigned char ** const & array,
+        size_t & num_vectors,
+        size_t & vector_dims,
+        double_t * & data,
+        size_t & k,
+        size_t & N,
+        size_t & block_size,
+        index_t * & outliers,
+        double_t * & outlier_scores
+        ) {
     /* num_vectors */
-    READ_VARIABLE_FROM_ARRAY(&num_vectors, sizeof(size_t), 1, array, /* no cleanup code */);
+    read_variable_from_array(&num_vectors, sizeof(size_t), 1, array);
     
     /* vector_dims */
-    READ_VARIABLE_FROM_ARRAY(&vector_dims, sizeof(size_t), 1, array, /* no cleanup code */);
+    read_variable_from_array(&vector_dims, sizeof(size_t), 1, array);
     
     /* data */
     double_t * raw_data = NULL;
-    MALLOC_READ_VARIABLE_FROM_ARRAY(double_t *, data, sizeof(double_t), num_vectors * vector_dims, array, /* no cleanup code */);
+    malloc_read_variable_from_array((void **) &data, sizeof(double_t), num_vectors * vector_dims, array);
     data = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
     if (data == NULL) {
         PRINTF_STDERR("Failed to allocate " << (num_vectors * vector_dims * sizeof(double_t)) << " bytes for " << "data" << "." << std::endl);
@@ -247,23 +250,22 @@ int read_vardump_from_array(const unsigned char ** const & array,
             }
         }
         free(raw_data);
-    } while(0);
+    } while (0);
     
     /* k */
-    READ_VARIABLE_FROM_ARRAY(&k, sizeof(size_t), 1, array, free(data););
+    read_variable_from_array(&k, sizeof(size_t), 1, array);
     
     /* N */
-    READ_VARIABLE_FROM_ARRAY(&N, sizeof(size_t), 1, array, free(data););
+    read_variable_from_array(&N, sizeof(size_t), 1, array);
     
     /* block_size */
-    READ_VARIABLE_FROM_ARRAY(&block_size, sizeof(size_t), 1, array, free(data););
+    read_variable_from_array(&block_size, sizeof(size_t), 1, array);
     
     /* outliers */
-    MALLOC_READ_VARIABLE_FROM_ARRAY(index_t *, outliers, sizeof(index_t), N, array, free(data););
+    malloc_read_variable_from_array((void **) &outliers, sizeof(index_t), N, array);
     
     /* outlier_scores */
-    MALLOC_READ_VARIABLE_FROM_ARRAY(double_t *, outlier_scores, sizeof(double_t), N, array, free(data); free(outliers););
+    malloc_read_variable_from_array((void **) &outlier_scores, sizeof(double_t), N, array);
     
     return SUCCESS;
 }
-

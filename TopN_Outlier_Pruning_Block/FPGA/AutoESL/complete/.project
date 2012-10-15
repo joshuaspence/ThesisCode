@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>distance_squared</name>
+	<name>complete</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -31,7 +31,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/distance_squared/Debug}</value>
+					<value>${workspace_loc:/complete/Debug}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
@@ -85,73 +85,82 @@
 		<link>
 			<name>source</name>
 			<type>2</type>
-			<locationURI>PROJECT_LOC/.apc/.src</locationURI>
+			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/.apc/.src</location>
 		</link>
 		<link>
 			<name>testbench</name>
 			<type>2</type>
-			<locationURI>PROJECT_LOC/.apc/.tb</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/.apc/.tb</location>
+		</link>
+		<link>
+			<name>.reference/arch.h</name>
+			<type>1</type>
+			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/arch.h</location>
+		</link>
+		<link>
+			<name>.reference/math.h</name>
+			<type>1</type>
+			<location>C:/Xilinx/2012.1/AutoESL/Win_x86/tools/llvm_gcc/include/math.h</location>
+		</link>
+		<link>
+			<name>.reference/parameters.h</name>
+			<type>1</type>
+			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/parameters.h</location>
+		</link>
+		<link>
+			<name>.reference/top_n_outlier_pruning_block.h</name>
+			<type>1</type>
+			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/top_n_outlier_pruning_block.h</location>
+		</link>
+		<link>
+			<name>.reference/utility.h</name>
+			<type>1</type>
+			<location>C:/home/joshua/Documents/University/Thesis/Code/TopN_Outlier_Pruning_Block/include/utility.h</location>
 		</link>
 		<link>
 			<name>solution1/constraints</name>
 			<type>2</type>
-			<locationURI>PROJECT_LOC/solution1/.tcls</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/solution1/.tcls</location>
 		</link>
 		<link>
-			<name>source/distance.cpp</name>
+			<name>source/top_n_outlier_pruning_block.cpp</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/distance.cpp</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/source/top_n_outlier_pruning_block.cpp</location>
 		</link>
 		<link>
 			<name>testbench/data</name>
 			<type>2</type>
-			<locationURI>PROJECT_LOC/../../../data</location>
-		</link>
-		<link>
-			<name>testbench/parameters.cpp</name>
-			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/parameters.cpp</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/data</location>
 		</link>
 		<link>
 			<name>testbench/test.cpp</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/test.cpp</location>
-		</link>
-		<link>
-			<name>testbench/top_n_outlier_pruning_block.cpp</name>
-			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/top_n_outlier_pruning_block.cpp</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/source/test.cpp</location>
 		</link>
 		<link>
 			<name>testbench/vardump.cpp</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/vardump.cpp</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/source/vardump.cpp</location>
 		</link>
 		<link>
 			<name>testbench/wrapper.cpp</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/../../../source/wrapper.cpp</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/source/wrapper.cpp</location>
 		</link>
 		<link>
 			<name>solution1/constraints/.xml.directive</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/solution1/solution1.directive</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/solution1/solution1.directive</location>
 		</link>
 		<link>
 			<name>solution1/constraints/directives.tcl</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/solution1/directives.tcl</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/solution1/directives.tcl</location>
 		</link>
 		<link>
 			<name>solution1/constraints/script.tcl</name>
 			<type>1</type>
-			<locationURI>PROJECT_LOC/solution1/script.tcl</location>
+			<location>D:/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL/complete/solution1/script.tcl</location>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>PROJECT_ROOT</name>
-			<value>$%7BPARENT-3-PROJECT_LOC%7D</value>
-		</variable>
-	</variableList>
 </projectDescription>

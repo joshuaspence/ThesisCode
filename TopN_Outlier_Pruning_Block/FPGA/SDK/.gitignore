@@ -2,6 +2,9 @@
 # SDK .gitignore file.
 #===============================================================================
 
+# Eclipse metadata
+.metadata/.lock
+
 # Eclipse build files
 */Debug/
 */Release/
@@ -11,6 +14,8 @@
 
 # Libraries and executables
 */*/lib/*.a
+*.a
+*.o
 
 # Log files
 *.log

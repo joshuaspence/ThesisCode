@@ -104,7 +104,6 @@ t3a = toc(tCDOFa);
 
 label = O3a(1:N);
 graph = drawGraph('PCA plot', G, Y(sampled_vertices,:), true, label);
-print(graph, strcat(g_base_dir, filesep, 'output.png'), '-dpng');
 
 O = sampled_vertices(O3a);
 OF = OF3a;

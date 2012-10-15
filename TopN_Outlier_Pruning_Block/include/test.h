@@ -1,13 +1,16 @@
-#ifndef TEST_HPP_
-#define TEST_HPP_
+#ifndef TEST_H_
+#define TEST_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.hpp" /* for __BEGIN_DECLS, __END_DECLS */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
 #include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 
+/*============================================================================*/
+/* Test types                                                                 */
+/*============================================================================*/
 #define TEST_TYPE_DISABLED  (1)
 #define TEST_TYPE_EMBEDDED  (2)
 #define TEST_TYPE_FILE      (3)
@@ -15,6 +18,7 @@
 #ifndef TEST_TYPE
     #define TEST_TYPE       TEST_TYPE_DISABLED
 #endif /* #ifndef TEST_TYPE */
+/*----------------------------------------------------------------------------*/
 
 __BEGIN_DECLS
 
@@ -54,4 +58,4 @@ bool test_from_array(
 
 __END_DECLS
 
-#endif /* #ifndef TEST_HPP_ */
+#endif /* #ifndef TEST_H_ */

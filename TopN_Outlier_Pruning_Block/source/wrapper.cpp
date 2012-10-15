@@ -1,14 +1,14 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
 
-#include "test.hpp" /* for test, TEST_TYPE_DISABLED, TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
+#include "test.h" /* for test, TEST_TYPE_DISABLED, TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
 #include <string> /* for std::endl, std::string */
 /*----------------------------------------------------------------------------*/
 
-#if (TEST_TYPE == TEST_TYPE_EMBEDDED)
+#if (TEST_TYPE==TEST_TYPE_EMBEDDED)
 /*============================================================================*/
 /* All data sets                                                              */
 /*============================================================================*/

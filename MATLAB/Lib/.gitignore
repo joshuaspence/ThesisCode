@@ -8,13 +8,13 @@
 *.mexmaci64
 *.mexw32
 *.mexw64
-*.bin
-*.dll
 
 # GCC output
-*.o
 *.a
+*.bin
+*.dll
+*.o
 
-# makedepend
+# makedepend outputs
 *.d
 *.d.bak

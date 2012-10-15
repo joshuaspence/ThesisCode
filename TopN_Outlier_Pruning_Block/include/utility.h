@@ -1,11 +1,12 @@
-#ifndef UTILITY_HPP_
-#define UTILITY_HPP_
+#ifndef UTILITY_H_
+#define UTILITY_H_
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros */
+
 #ifdef __AUTOESL__
     #include "ap_interfaces.h" /* ap_mm2s */
     #include "ap_int.h" /* for ap_int, ap_uint */
@@ -33,34 +34,15 @@
 #endif /* #ifndef UNUSED */
 
 /* Declare a function as inline. */
-#undef INLINE
-#ifdef USE_INLINE
-    #if USE_INLINE
-        #if defined(_MSC_VER)
-            #define INLINE          __forceinline
-        #elif defined(__AUTOESL__)
-        #define INLINE              inline
-        #else
-            #define INLINE          inline
-        #endif /* #if defined(_MSC_VER) */
-    #else
-        #if defined(_MSC_VER)
-            #define INLINE
-        #elif defined(__AUTOESL__)
-        #define INLINE
-        #else
-            #define INLINE
-        #endif /* #if defined(_MSC_VER) */
-    #endif /* #if USE_INLINE */
-#else
+#ifndef INLINE
     #if defined(_MSC_VER)
-        #define INLINE              __forceinline
+        #define INLINE          __forceinline
     #elif defined(__AUTOESL__)
         #define INLINE
     #else
-        #define INLINE              inline
+        #define INLINE          inline
     #endif /* #if defined(_MSC_VER) */
-#endif /* #ifdef USE_INLINE */
+#endif /* #ifndef INLINE */
 
 /** Prevent C++ namespace mangling */
 #ifdef __cplusplus
@@ -95,42 +77,60 @@ typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
 
 /* size_t, size_in_t, size_out_t */
-typedef __SIZE_TYPE__       size_in_t;
-typedef __SIZE_TYPE__       size_out_t;
-typedef __SIZE_TYPE__       size_io_t;
+typedef size_t              size_in_t;
+typedef size_t              size_out_t;
+typedef size_t              size_io_t;
 
 /* int_t, int_in_t, int_out_t, int_io_t */
 typedef int                 int_t;
-typedef ap_mm2s<32,1,1,1>   int_in_t;
-typedef int                 int_out_t;
+typedef int_t               int_in_t;
+typedef int_t               int_out_t;
+typedef int_t               int_io_t;
 
 /* uint_t, uint_in_t, uint_out_t, uint_io_t */
 typedef unsigned int        uint_t;
-typedef unsigned int        uint_in_t;
-typedef unsigned int        uint_out_t;
-typedef unsigned int        uint_io_t;
+typedef uint_t              uint_in_t;
+typedef uint_t              uint_out_t;
+typedef uint_t              uint_io_t;
+
+/* blockindex_t, blockindex_in_t, blockindex_out_t, blockindex_io_t */
+typedef size_t              blockindex_t;
+typedef blockindex_t        blockindex_in_t;
+typedef blockindex_t        blockindex_out_t;
+typedef blockindex_t        blockindex_io_t;
 
 /* index_t, index_in_t, index_out_t, index_io_t */
 typedef size_t              index_t;
-typedef size_t              index_in_t;
-typedef size_t              index_out_t;
-typedef size_t              index_io_t;
+typedef index_t             index_in_t;
+typedef index_t             index_out_t;
+typedef index_t             index_io_t;
 
 /* double_t, double_in_t, double_out_t, intdoubleio_t */
+typedef double              double_t;
 #ifndef __AUTOESL__
-typedef double              double_t;
-typedef double              double_in_t;
-typedef double              double_out_t;
-typedef double              double_io_t;
-#else
-typedef double              double_t;
-typedef ap_mm2s<64,1,1,1>   double_in_t;
+typedef double_t            double_in_t;
 typedef double_t            double_out_t;
 typedef double_t            double_io_t;
+#else
+template<int D>
+struct ap_mm2s_double {
+    ap_int<D> data;
+    ap_uint<(D/8)> keep;
+    ap_uint<1> last;
+};
+
+#if 0
+typedef ap_mm2s<64,1,1,1>    double_in_t;
+typedef double_t             double_out_t;
+#else
+typedef ap_mm2s_double<64>   double_in_t;
+typedef double_t             double_out_t;
+#endif
+typedef double_t             double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 
-#define NULL_INDEX          0
-#define START_INDEX         1
+#define NULL_INDEX          (0)
+#define START_INDEX         (1)
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -143,15 +143,4 @@ typedef double_t            double_io_t;
 #define FILE_EXPECTED_EOF   (4)
 /*----------------------------------------------------------------------------*/
 
-/*============================================================================*/
-/* Stats                                                                      */
-/*============================================================================*/
-#define INCREMENT_UINT_T(_var_) \
-    do { \
-        const UNUSED uint_t old_var_ = (_var_); \
-        (_var_)++; \
-        ASSERT((_var_) > (old_var_)); /* check for overflow */ \
-    } while (0)
-/*----------------------------------------------------------------------------*/
-
-#endif /* #ifndef UTILITY_HPP_ */
+#endif /* #ifndef UTILITY_H_ */

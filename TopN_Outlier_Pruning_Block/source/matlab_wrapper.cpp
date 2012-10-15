@@ -1,13 +1,13 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "checks.hpp" /* check for invalid preprocessor macro combinations */
-#include "arch.hpp" /* set architecture specific macros. for PRINTF_STDERR */
+#include "checks.h" /* check for invalid preprocessor macro combinations */
+#include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
 
-#include "matlab.hpp" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
-#include "top_n_outlier_pruning_block.hpp" /* for top_n_outlier_pruning_block */
-#include "utility.hpp" /* for double_t, index_t, NULL_INDEX, uint_t */
-#include "vardump.hpp" /* save_vardump */
+#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
+#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
+#include "utility.h" /* for double_t, index_t, NULL_INDEX, uint_t */
+#include "vardump.h" /* save_vardump */
 
 #include <mex.h> /* for mxGetScalar */
 #include <stdlib.h> /* for free, malloc */
@@ -23,7 +23,7 @@
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
-/* Input and output arguments. */
+/* Input and output arguments.                                                */
 /*============================================================================*/
 #define DATA_IN             prhs[0]
 #define K_IN                prhs[1]
@@ -55,7 +55,7 @@
  *     - N is an integer-valued scalar.
  *     - block_size is an integer-valued scalar.
  */
-void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {    
+void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Check for proper number of arguments. */
     if (nrhs != 4) {
         PRINTF_STDERR("Four inputs required." << std::endl);
@@ -133,7 +133,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         PRINTF_STDERR("Unable to allocate memory for data array." << std::endl);
         return;
     }
-
+    
     uint_t vector;
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
@@ -157,7 +157,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     /* Free dynamic memory. */
     if (data_in != NULL)
         free(data_in);
-
+    
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
         CREATE_REAL_DOUBLE_VECTOR(outliers, N);
