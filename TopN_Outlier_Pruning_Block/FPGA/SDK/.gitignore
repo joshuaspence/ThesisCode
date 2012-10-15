@@ -2,10 +2,6 @@
 # SDK .gitignore file.
 #===============================================================================
 
-# Eclipse metadata
-.metadata/
-*/.settings/
-
 # Eclipse build files
 */Debug/
 */Release/

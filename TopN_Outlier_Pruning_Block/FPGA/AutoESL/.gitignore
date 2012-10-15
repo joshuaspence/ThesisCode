@@ -5,10 +5,6 @@
 /*.tcl
 
 # AutoESL
-*/.apc/
-*/.cproject
-*/.project
-*/.settings/
 */Debug/
 */Launch/
 */*/.autopilot/

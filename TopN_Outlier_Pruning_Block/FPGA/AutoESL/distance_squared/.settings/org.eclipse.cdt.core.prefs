@@ -1,0 +1,18 @@
+#Wed Oct 10 17:01:50 EST 2012
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/CWD/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/CWD/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/CWD/value=${ProjDirPath}/Debug
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/PWD/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/PWD/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/PWD/value=${ProjDirPath}/Debug
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.805466973/appendContributed=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/CWD/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/CWD/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/CWD/value=${ProjDirPath}/Release
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/PWD/delimiter=;
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/PWD/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/PWD/value=${ProjDirPath}/Release
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.release.2061359817/appendContributed=true
