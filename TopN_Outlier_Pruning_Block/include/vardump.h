@@ -4,7 +4,7 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, dbl_t, index_t, size_t */
 #include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 
@@ -34,12 +34,12 @@ int save_vardump(
     const std::string & filename,
     const size_t & num_vectors,
     const size_t & vector_dims,
-    const double_t * const & data, /* an array of size num_vectors x vector_dims */
+    const dbl_t * const & data, /* an array of size num_vectors x vector_dims */
     const size_t & k,
     const size_t & N,
     const size_t & block_size,
     const index_t * const & outliers, /* a vector of length N */
-    const double_t * const & outlier_scores /* a vector of length N */
+    const dbl_t * const & outlier_scores /* a vector of length N */
     );
 
 /*
@@ -68,12 +68,12 @@ int read_vardump_from_file(
     const std::string & filename,
     size_t & num_vectors,
     size_t & vector_dims,
-    double_t * & data, /* an array of size num_vectors x vector_dims */
+    dbl_t * & data, /* an array of size num_vectors x vector_dims */
     size_t & k,
     size_t & N,
     size_t & block_size,
     index_t * & outliers, /* a vector of length N */
-    double_t * & outlier_scores /* a vector of length N */
+    dbl_t * & outlier_scores /* a vector of length N */
     );
 
 /*
@@ -103,12 +103,12 @@ int read_vardump_from_array(
     const unsigned char ** const & array,
     size_t & num_vectors,
     size_t & vector_dims,
-    double_t * & data, /* an array of size num_vectors x vector_dims */
+    dbl_t * & data, /* an array of size num_vectors x vector_dims */
     size_t & k,
     size_t & N,
     size_t & block_size,
     index_t * & outliers, /* a vector of length N */
-    double_t * & outlier_scores /* a vector of length N */
+    dbl_t * & outlier_scores /* a vector of length N */
     );
 
 __END_DECLS

@@ -1,36 +1,45 @@
 #include <stdio.h>
 #include "xparameters.h"
 #include "xdistance_squared.h"
-#include "xaxidma.h"
-#include "xscugic.h"
 #include "platform.h"
-#include "xil_printf.h"
 
-XDistance_squared instance;
-XDistance_squared_Config instanceConfig = {
+/*============================================================================*/
+/* Static variables                                                           */
+/*============================================================================*/
+static XDistance_squared instance;
+static XDistance_squared_Config instance_config = {
 	0,
 	XPAR_DISTANCE_SQUARED_TOP_0_S_AXI_CONTROL_BUS_BASEADDR
 };
-XAxiDma AxiDmaA;
-XAxiDma AxiDmaB;
-XScuGic ScuGic;
+/*----------------------------------------------------------------------------*/
 
-volatile static bool doRun = false;
-volatile static bool hasResult = false;
+/*============================================================================*/
+/* Print method                                                               */
+/*============================================================================*/
+#define printf(...)     do { xil_printf(__VA_ARGS__); } while (0)
 
-const int SIZE = 200;
-
-int setup(void) {
-    return XDistance_squared_Initialize(&instance, &instanceConfig);
+static void print_core_regs(XDistance_squared * ptr) {
+    printf("    return              reg   [0x%08x]\r\n", XDistance_squared_GetReturn(ptr));
+    printf("    DONE                reg   [0x%08x]\r\n", XDistance_squared_IsDone(ptr));
+    printf("    IDLE                reg   [0x%08x]\r\n", XDistance_squared_IsIdle(ptr));
+    printf("    interrupt_count     stats [%u]\r\n",     interrupt_count);
 }
+/*----------------------------------------------------------------------------*/
 
-void start(XDistance_squared * instancePtr) {
-    XDistance_squared_InterruptEnable(instancePtr, 1);
-    XDistance_squared_InterruptGlobalEnable(instancePtr);
-    XDistance_squared_Start(instancePtr);
-}
+/*============================================================================*/
+/* Interrupt handler                                                          */
+/*============================================================================*/
+#include "xscugic.h"
 
-void isr(XDistance_squared * instancePtr) {
+static XScuGic hw_interrupt_controller;
+
+volatile static bool do_run = false;
+volatile static bool has_result = false;
+volatile static unsigned int interrupt_count = 0;
+
+void hw_isr(void * instancePtr) {
+    interrupt_count++;
+    
     /* Disable the global interrupt */
     XDistance_squared_InterruptGlobalDisable(instancePtr);
 
@@ -41,51 +50,72 @@ void isr(XDistance_squared * instancePtr) {
     XDistance_squared_InterruptClear(instancePtr, 1);
 
     /* Restart the core if it should run again */
-    hasResult = true;
-    if (doRun) {
-        start(instancePtr);
+    has_result = true;
+    if (do_run) {
+        hw_start(instancePtr);
     }
 }
 
 /* This functions sets up the interrupt on the ARM */
-int setupInterrupt() {
-    int result;
-    XScuGic_Config * scuGicConfig = XScuGic_LookupConfig(XPAR_SCUGIC_SINGLE_DEVICE_ID);
+static int hw_setup_interrupt(void) {
+    int status;
+    
+    XScuGic_Config * hw_interrupt_controller_config = XScuGic_LookupConfig(XPAR_SCUGIC_SINGLE_DEVICE_ID);
     if (scuGicConfig == NULL) {
-        xil_printf("Interrupt Configuration Lookup Failed\r\n");
+        printf("Interrupt Configuration Lookup Failed\r\n");
         return XST_FAILURE;
     }
 
-    if ((result = XScuGic_CfgInitialize(&ScuGic, scuGicConfig, scuGicConfig->CpuBaseAddress)) != XST_SUCCESS) {
-        return result;
+    if ((status = XScuGic_CfgInitialize(
+            &hw_interrupt_controller,
+            hw_interrupt_controller_config,
+            hw_interrupt_controller_config->CpuBaseAddress)) != XST_SUCCESS) {
+        return status;
     }
 
     /* Self test */
-    if ((result = XScuGic_SelfTest(&ScuGic)) != XST_SUCCESS) {
-        return result;
+    if ((status = XScuGic_SelfTest(&hw_interrupt_controller)) != XST_SUCCESS) {
+        return status;
+    }
+    
+    /* Connect the hardware ISR to the exception table */
+    printf("Connect the hardware ISR to the exception handler table\r\n");
+    if ((status = XScuGic_Connect(
+            &hw_interrupt_controller,
+            XPAR_FABRIC_DISTANCE_SQUARED_TOP_0_INTERRUPT_INTR,
+            (Xil_InterruptHandler) hw_isr,
+            &instance)) != XST_SUCCESS) {
+        return status;
     }
 
-    /* Initialize the exception handler */
+    printf("Enable the hardware ISR\r\n");
+    XScuGic_Enable(&ScuGic, XPAR_FABRIC_DISTANCE_SQUARED_TOP_0_INTERRUPT_INTR);
+
+    /* Initialize the exception table */
     Xil_ExceptionInit();
 
     /* Register the exception handler */
-    xil_printf("Register the exception handler\r\n");
-    Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT, (Xil_ExceptionHandler) XScuGic_InterruptHandler, &ScuGic);
+    printf("Register the exception handler\r\n");
+    Xil_ExceptionRegisterHandler(
+            XIL_EXCEPTION_ID_INT,
+            (Xil_ExceptionHandler) hw_isr,
+            &hw_interrupt_controller
+            );
 
-    /* Enable the exception handler */
+    /* Enable non-critical exceptions */
     Xil_ExceptionEnable();
-
-    /* Connect the Adder ISR to the exception table */
-    xil_printf("Connect the Adder ISR to the Exception handler table\r\n");
-    if ((result = XScuGic_Connect(&ScuGic, XPAR_FABRIC_DISTANCE_SQUARED_TOP_0_INTERRUPT_INTR,(Xil_InterruptHandler) isr, &instance)) != XST_SUCCESS) {
-        return result;
-    }
-
-    xil_printf("Enable the Adder ISR\r\n");
-    XScuGic_Enable(&ScuGic, XPAR_FABRIC_DISTANCE_SQUARED_TOP_0_INTERRUPT_INTR);
 
     return XST_SUCCESS;
 }
+/*----------------------------------------------------------------------------*/
+
+/*============================================================================*/
+/* DMA configuration                                                          */
+/*============================================================================*/
+#include "xaxidma.h"
+
+static XAxiDma AxiDmaA;
+static XAxiDma AxiDmaB;
 
 int init_dma() {
     XAxiDma_Config * dmaConfigA;
@@ -94,32 +124,32 @@ int init_dma() {
 
     dmaConfigA = XAxiDma_LookupConfig(XPAR_AXI_DMA_0_DEVICE_ID);
     if (!dmaConfigA) {
-    	xil_printf("Error looking for AXI DMA config\r\n");
+    	printf("Error looking for AXI DMA config\r\n");
         return XST_FAILURE;
     }
 
     dmaConfigB = XAxiDma_LookupConfig(XPAR_AXI_DMA_1_DEVICE_ID);
 	if (!dmaConfigB) {
-		xil_printf("Error looking for AXI DMA config\r\n");
+		printf("Error looking for AXI DMA config\r\n");
 		return XST_FAILURE;
 	}
 
     if ((status = XAxiDma_CfgInitialize(&AxiDmaA, dmaConfigA)) != XST_SUCCESS) {
-    	xil_printf("Error initializing DMA1\r\n");
+    	printf("Error initializing DMA1\r\n");
         return XST_FAILURE;
     }
     if ((status = XAxiDma_CfgInitialize(&AxiDmaB, dmaConfigB)) != XST_SUCCESS) {
-    	xil_printf("Error initializing DMA2\r\n");
+    	printf("Error initializing DMA2\r\n");
 		return XST_FAILURE;
 	}
 
     /* Check for scatter gather mode */
     if (XAxiDma_HasSg(&AxiDmaA)) {
-    	xil_printf("Error DMA1 configured in SG mode\r\n");
+    	printf("Error DMA1 configured in SG mode\r\n");
         return XST_FAILURE;
     }
     if (XAxiDma_HasSg(&AxiDmaB)) {
-	xil_printf("Error DMA2 configured in SG mode\n\r");
+	    printf("Error DMA2 configured in SG mode\n\r");
 		return XST_FAILURE;
 	}
 
@@ -131,36 +161,56 @@ int init_dma() {
 
     return XST_SUCCESS;
 }
+/*----------------------------------------------------------------------------*/
+
+static int hw_setup(void) {
+    return XDistance_squared_Initialize(&instance, &instance_config);
+}
+
+static void hw_start(XDistance_squared * instancePtr) {
+    XDistance_squared_InterruptEnable(instancePtr, 1);
+    XDistance_squared_InterruptGlobalEnable(instancePtr);
+    XDistance_squared_Start(instancePtr);
+}
+
+#include <stdlib.h>
+static void fill_random(double * array, const size_t array_size) {
+    unsigned int i;
+    for (i = 0; i < array_size; i++) {
+        array[i] = (double) rand();
+    }
+}
 
 int main() {
+    int status;
+    static const int size = 200;
+
     init_platform();
 
-    xil_printf("Example of AutoESL and DMA transfers\r\n");
-    double input1[SIZE] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-    double input2[SIZE] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2};
-    int status;
+    double input1[size];
+    double input2[size];
+    fill_random(input1, size);
+    fill_random(input2, size);
 
     /* Setup the distance_square unit */
-    if ((status = setup()) != XST_SUCCESS) {
-    	xil_printf("Setup failed\r\n");
+    if ((status = hw_setup()) != XST_SUCCESS) {
+    	printf("Setup failed\r\n");
     }
 
 
     /* Setup the interrupt */
-    if ((status = setupInterrupt()) != XST_SUCCESS) {
-    	xil_printf("Interrupt setup failed\r\n");
+    if ((status = hw_setup_interrupt()) != XST_SUCCESS) {
+    	printf("Interrupt setup failed\r\n");
     }
 
-    run = true;
+    do_run = true;
 
     /* Set the configuration of the AutoESL block */
-    //XDistance_squared_SetVal1(&instance, 16);
-    //XDistance_squared_SetVal2(&instance, 8);
-    start(&instance);
+    hw_start(&instance);
 
     /* Flush the cache */
     status = init_dma();
-    unsigned int dma_size = SIZE * sizeof(double);
+    unsigned int dma_size = size * sizeof(double);
     Xil_DCacheFlushRange((unsigned) input1, dma_size);
     Xil_DCacheFlushRange((unsigned) input2, dma_size);
 

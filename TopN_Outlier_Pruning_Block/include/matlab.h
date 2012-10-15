@@ -50,7 +50,7 @@
 /*============================================================================*/
 /* Types                                                                      */
 /*============================================================================*/
-typedef double m_double_t;
+typedef double m_dbl_t;
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -61,7 +61,7 @@ typedef double m_double_t;
     const size_t UNUSED ROWS(_array_) = mxGetM(_location_); \
     const size_t UNUSED COLS(_array_) = mxGetN(_location_); \
     mxArray * const UNUSED ARRAY(_array_) = (mxArray *) _location_; \
-    m_double_t * const _array_ = (m_double_t *) mxGetData(ARRAY(_array_)); \
+    m_dbl_t * const _array_ = (m_dbl_t *) mxGetData(ARRAY(_array_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
@@ -81,7 +81,7 @@ typedef double m_double_t;
 #define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
     const size_t ELEMENTS(_vector_) = _elements_; \
     mxArray * const UNUSED VECTOR(_vector_) = mxCreateDoubleMatrix(1, ELEMENTS(_vector_), mxREAL); \
-    m_double_t * const _vector_ = (m_double_t *) mxGetData(VECTOR(_vector_)); \
+    m_dbl_t * const _vector_ = (m_dbl_t *) mxGetData(VECTOR(_vector_)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */

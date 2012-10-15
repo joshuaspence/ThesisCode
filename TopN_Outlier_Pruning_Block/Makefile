@@ -138,7 +138,6 @@ define help_text
 -@$(ECHO) "          [mode=<BUILD_MODE>] \\"
 -@$(ECHO) "          [gprof=<on|off>] \\"
 -@$(ECHO) "          [test-type=<disabled|embedded|file>] \\"
--@$(ECHO) "          [hardcode=<on|off>] \\"
 -@$(ECHO) "          (<TASKS>|<BUILD_TYPE>|<HELPER_TARGET>|<TARGET>)"
 -@$(ECHO)
 -@$(ECHO) " BUILD_MODES:"
@@ -154,7 +153,6 @@ define help_text
 -@$(ECHO) "                   embedded: Datasets for testing will be embedded in the binary"
 -@$(ECHO) "                             binary executable."
 -@$(ECHO) "                   file:     Datasets will be read from the filesystem."
--@$(ECHO) "     hardcode    Hardcodes as many parameters of the algorithm as possible."
 -@$(ECHO)
 -@$(ECHO) " TASKS:"
 -@$(ECHO) "     clean"
@@ -229,7 +227,7 @@ product = $(shell $(EXPR) 1 $(foreach VAR,$(1),\* $(VAR) ))
 # Remove a flag from a CFLAG-style string.
 remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
 
-# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,TESTTYPE_OPTIONS,HARDCODE_OPTIONS)
+# $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,TESTTYPE_OPTIONS)
 # Any options that get added to the Makefile (such as 
 # [mode=<debug|debugopt|release]), should be included in the test sequence
 # below.
@@ -237,14 +235,13 @@ define run-build-tests
 FAILURES="";\
 NUM_FAILURES=0;\
 NUM_PASSES=0;\
-NUM_TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)) $(call count,$(5)));\
+NUM_TOTAL=$(call product,$(call count,$(1)) $(call count,$(2)) $(call count,$(3)) $(call count,$(4)));\
 \
 for TARGET in $(1); do\
 for MODE in $(2); do\
 for GPROF_OPT in $(3); do\
 for TESTTYPE_OPT in $(4); do\
-for HARDCODE_OPT in $(5); do\
-MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s test-type=%s hardcode=%s" $$MODE $$GPROF_OPT $$TESTTYPE_OPT $$HARDCODE_OPT);\
+MAKE_STRING=$$($(PRINTF) "mode=%s gprof=%s test-type=%s" $$MODE $$GPROF_OPT $$TESTTYPE_OPT);\
 $(ECHO) "================================================================================";\
 $(ECHO) "Test:    $$($(EXPR) $$NUM_PASSES + $$NUM_FAILURES + 1) of $$NUM_TOTAL";\
 $(ECHO) "Target:  $$TARGET";\
@@ -267,7 +264,7 @@ done;\
 done;\
 done;\
 done;\
-done;\
+make --no-print-directory clean >/dev/null;\
 \
 $(ECHO) "================================================================================";\
 $(ECHO) "                                    SUMMARY                                     ";\
@@ -597,30 +594,6 @@ MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(TEST_TYPE_FLAGS_FILE))
 else
 $(error Invalid test-type option specified. Valid options are 'disabled', 'embedded' and 'file')
 endif
-endif
-endif
-endif
-
-# hardcode options
-HARDCODE_FLAGS_OFF   := $(call flags,DUSE_DYNAMIC_ARRAY_SIZE=DISABLED)
-HARDCODE_FLAGS_ON    :=
-ifeq ($(hardcode),)
-# Default is on
-CFLAGS   := $(call add-flags,$(CFLAGS),$(HARDCODE_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(HARDCODE_FLAGS_ON))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(HARDCODE_FLAGS_ON))
-else
-ifeq ($(hardcode),on)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(INLINE_FLAGS_ON))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(INLINE_FLAGS_ON))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(INLINE_FLAGS_ON))
-else
-ifeq ($(hardcode),off)
-CFLAGS   := $(call add-flags,$(CFLAGS),$(HARDCODE_FLAGS_OFF))
-CXXFLAGS := $(call add-flags,$(CXXFLAGS),$(HARDCODE_FLAGS_OFF))
-MXXFLAGS := $(call add-flags,$(MXXFLAGS),$(HARDCODE_FLAGS_OFF))
-else
-$(error Invalid hardcoded option specified. Valid options are 'on' and 'off')
 endif
 endif
 endif

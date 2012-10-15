@@ -6,7 +6,7 @@
 
 #include "test.h" /* main header file */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for index_t, double_t, size_t, uint_t */
+#include "utility.h" /* for index_t, dbl_t, size_t, uint_t */
 #include "vardump.h" /* for read_vardump */
 
 #include <stdlib.h> /* for free */
@@ -21,23 +21,23 @@ static bool do_test(
         const std::string & dataset,
         const size_t num_vectors,
         const size_t vector_dims,
-        const double_t data[],
+        const dbl_t data[],
         const size_t k,
         const size_t N,
         const size_t block_size,
         const index_t outliers_expected[],
-        const double_t outlier_scores_expected[]
+        const dbl_t outlier_scores_expected[]
         ) {
     bool failed = false;
     
     /* Create the output arrays. */
     index_t  outliers      [N];
-    double_t outlier_scores[N];
+    dbl_t outlier_scores[N];
     MEMSET_1D(outliers,       0, N, sizeof(index_t));
-    MEMSET_1D(outlier_scores, 0, N, sizeof(double_t));
+    MEMSET_1D(outlier_scores, 0, N, sizeof(dbl_t));
     
     /* Call the function. */
-    PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '" << dataset << "'" << std::endl);    
+    PRINTF_STDOUT("Running top_n_outlier_pruning_block function for data set '" << dataset << "'" << std::endl);
     const UNUSED uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data, k, N, block_size, outliers, outlier_scores);
     
     /* Compare outliers. */
@@ -90,18 +90,18 @@ static bool do_test(
     return failed;
 }
 
-bool test_from_file(const std::string & dataset, const std::string & filename) {    
+bool test_from_file(const std::string & dataset, const std::string & filename) {
     /* The inputs to the top_n_outlier_pruning_block_function. */
     size_t num_vectors;
     size_t vector_dims;
-    double_t * data;
+    dbl_t * data;
     size_t k;
     size_t N;
     size_t block_size;
     
     /* The expected outpt from the top_n_outlier_pruning_block_function. */
     index_t * outliers_expected;
-    double_t * outlier_scores_expected;
+    dbl_t * outlier_scores_expected;
     
     PRINTF_STDOUT("Reading variables from file '" << filename << "' for dataset '" << dataset << "'" << std::endl);
     int result;
@@ -123,14 +123,14 @@ bool test_from_array(const std::string & dataset, const unsigned char array[]) {
     /* The inputs to the top_n_outlier_pruning_block_function. */
     size_t num_vectors;
     size_t vector_dims;
-    double_t * data;
+    dbl_t * data;
     size_t k;
     size_t N;
     size_t block_size;
     
     /* The expected outpt from the top_n_outlier_pruning_block_function. */
     index_t * outliers_expected;
-    double_t * outlier_scores_expected;
+    dbl_t * outlier_scores_expected;
     
     PRINTF_STDOUT("Reading variables from variable for dataset '" << dataset << "'" << std::endl);
     int result;

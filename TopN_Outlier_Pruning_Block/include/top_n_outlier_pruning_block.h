@@ -7,11 +7,11 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, double_t, index_t, size_t, uint_t */
+#include "utility.h" /* for __BEGIN_DECLS, __END_DECLS, dbl_t, index_t, size_t, uint_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
-/* Parameters                                                                 */
+/* Hardcoded parameters                                                       */
 /*============================================================================*/
 #ifndef MAX_NUM_VECTORS
     #define MAX_NUM_VECTORS (67557)
@@ -36,23 +36,9 @@
 
 __BEGIN_DECLS
 
-/*============================================================================*/
-/* Constants                                                                  */
-/*============================================================================*/
-extern const size_t max_num_vectors;
-extern const size_t vector_dims;
-extern const size_t k;
-extern const size_t N;
-extern const size_t block_size;
-/*----------------------------------------------------------------------------*/
-
 /*
  * Examine a data set and find the top N outliers. Performs operations on the
  * data array in blocks of size block_size.
- *
- * NOTE: Unless using hardcoded values for k, N and block_size, these variables
- * should be set prior to calling this function, using the set_k(), set_N() and
- * set_block_size functions(), respectively.
  *
  * Parameters:
  *     - data: The input data set.
@@ -68,12 +54,12 @@ extern const size_t block_size;
 uint_t top_n_outlier_pruning_block(
     const size_t _num_vectors,
     const size_t _vector_dims,
-    const double_t _data[],
+    const dbl_t _data[],
     const size_t _k,
     const size_t _N,
     const size_t _block_size,
     index_t _outliers[N_VALUE],
-    double_t _outlier_scores[N_VALUE]
+    dbl_t _outlier_scores[N_VALUE]
     );
 
 __END_DECLS

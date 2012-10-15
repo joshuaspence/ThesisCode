@@ -1,11 +1,10 @@
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for double_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
+#include "utility.h" /* for dbl_t, FILE_EXPECTED_EOF, FILE_IO_ERROR, FILE_NOT_FOUND, index_t, MALLOC_FAILED, size_t, SUCCESS */
 #include "vardump.h" /* main header file */
 
 #include <errno.h> /* for errno */
-#include <math.h> /* for ceil */
 #include <stdlib.h> /* for free, malloc */
 #include <stdio.h> /* for FILE, fclose, feof, fopen, fread, fwrite */
 #include <string.h> /* for strerror */
@@ -105,12 +104,12 @@ int save_vardump(
         const std::string & filename,
         const size_t & num_vectors,
         const size_t & vector_dims,
-        const double_t * const & data,
+        const dbl_t * const & data,
         const size_t & k,
         const size_t & N,
         const size_t & block_size,
         const index_t * const & outliers,
-        const double_t * const & outlier_scores
+        const dbl_t * const & outlier_scores
         ) {
     FILE * fp = fopen(filename.c_str(), "wb");
     if (fp == NULL) {
@@ -125,7 +124,7 @@ int save_vardump(
     write_variable_to_file(&vector_dims, sizeof(size_t), 1, fp);
     
     /* data */
-    write_variable_to_file(data, sizeof(double_t), num_vectors * vector_dims, fp);
+    write_variable_to_file(data, sizeof(dbl_t), num_vectors * vector_dims, fp);
     
     /* k */
     write_variable_to_file(&k, sizeof(size_t), 1, fp);
@@ -140,7 +139,7 @@ int save_vardump(
     write_variable_to_file(&outliers, sizeof(index_t), N, fp);
     
     /* outlier_scores */
-    write_variable_to_file(&outlier_scores, sizeof(double_t), N, fp);
+    write_variable_to_file(&outlier_scores, sizeof(dbl_t), N, fp);
     
     if (fclose(fp) != 0) {
         PRINTF_STDERR("Error closing file." << std::endl);
@@ -154,12 +153,12 @@ int read_vardump_from_file(
         const std::string & filename,
         size_t & num_vectors,
         size_t & vector_dims,
-        double_t * & data,
+        dbl_t * & data,
         size_t & k,
         size_t & N,
         size_t & block_size,
         index_t * & outliers,
-        double_t * & outlier_scores
+        dbl_t * & outlier_scores
         ) {
     FILE * fp = fopen(filename.c_str(), "rb");
     if (fp == NULL) {
@@ -174,7 +173,7 @@ int read_vardump_from_file(
     read_variable_from_file(&vector_dims, sizeof(size_t), 1, fp);
     
     /* data */
-    malloc_read_variable_from_file((void **) &data, sizeof(double_t), num_vectors * vector_dims, fp);
+    malloc_read_variable_from_file((void **) &data, sizeof(dbl_t), num_vectors * vector_dims, fp);
     
     /* k */
     read_variable_from_file(&k, sizeof(size_t), 1, fp);
@@ -189,7 +188,7 @@ int read_vardump_from_file(
     malloc_read_variable_from_file((void **) &outliers, sizeof(index_t), N, fp);
     
     /* outlier_scores */
-    malloc_read_variable_from_file((void **) &outlier_scores, sizeof(double_t), N, fp);
+    malloc_read_variable_from_file((void **) &outlier_scores, sizeof(dbl_t), N, fp);
     
 #if 0 /* this code doesn't seem to work */
     if (!feof(fp)) {
@@ -217,12 +216,12 @@ int read_vardump_from_array(
         const unsigned char ** const & array,
         size_t & num_vectors,
         size_t & vector_dims,
-        double_t * & data,
+        dbl_t * & data,
         size_t & k,
         size_t & N,
         size_t & block_size,
         index_t * & outliers,
-        double_t * & outlier_scores
+        dbl_t * & outlier_scores
         ) {
     /* num_vectors */
     read_variable_from_array(&num_vectors, sizeof(size_t), 1, array);
@@ -231,11 +230,11 @@ int read_vardump_from_array(
     read_variable_from_array(&vector_dims, sizeof(size_t), 1, array);
     
     /* data */
-    double_t * raw_data = NULL;
-    malloc_read_variable_from_array((void **) &data, sizeof(double_t), num_vectors * vector_dims, array);
-    data = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    dbl_t * raw_data = NULL;
+    malloc_read_variable_from_array((void **) &data, sizeof(dbl_t), num_vectors * vector_dims, array);
+    data = (dbl_t *) malloc(num_vectors * vector_dims * sizeof(dbl_t));
     if (data == NULL) {
-        PRINTF_STDERR("Failed to allocate " << (num_vectors * vector_dims * sizeof(double_t)) << " bytes for " << "data" << "." << std::endl);
+        PRINTF_STDERR("Failed to allocate " << (num_vectors * vector_dims * sizeof(dbl_t)) << " bytes for " << "data" << "." << std::endl);
         do {
             free(raw_data);
         } while (0);
@@ -265,7 +264,7 @@ int read_vardump_from_array(
     malloc_read_variable_from_array((void **) &outliers, sizeof(index_t), N, array);
     
     /* outlier_scores */
-    malloc_read_variable_from_array((void **) &outlier_scores, sizeof(double_t), N, array);
+    malloc_read_variable_from_array((void **) &outlier_scores, sizeof(dbl_t), N, array);
     
     return SUCCESS;
 }

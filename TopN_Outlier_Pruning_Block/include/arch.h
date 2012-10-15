@@ -27,11 +27,7 @@
 /*============================================================================*/
 /* __C__ = Stand-alone C program                                              */
 /*============================================================================*/
-#ifdef __C__
-    #ifndef USE_DYNAMIC_ARRAY_SIZE
-        #define USE_DYNAMIC_ARRAY_SIZE  (ENABLED)
-    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
-    
+#ifdef __C__    
     /* Use memset for memory initialisation */
     #include <string.h> /* for memset, memcpy */
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
@@ -56,10 +52,6 @@
 /* __MEX__ = MEX file for MATLAB                                              */
 /*============================================================================*/
 #ifdef __MEX__
-    #ifndef USE_DYNAMIC_ARRAY_SIZE
-        #define USE_DYNAMIC_ARRAY_SIZE  (ENABLED)
-    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
-    
     /* Use memset for memory initialisation */
     #include <string.h> /* for memset, memcpy */
     #define MEMSET_1D(_var_, _value_, _count_, _size_) \
@@ -102,13 +94,7 @@
         #include <xlocale.h>
     #elif defined(_MSC_VER)
     #else
-        /* Prevent MinGW from attempting to define double_t */
-        #define __FLT_EVAL_METHOD__ (-1)
     #endif /* #if defined(__GCC__) */
-    
-    #ifndef USE_DYNAMIC_ARRAY_SIZE
-        #define USE_DYNAMIC_ARRAY_SIZE  DISABLED
-    #endif /* #ifndef USE_DYNAMIC_ARRAY_SIZE */
     
     /* Use for loops for memory initialisation */
     #include "utility.h" /* for uint_t */
@@ -142,6 +128,6 @@
     /* Create an assertion */
     #define ASSERT(x)
 #endif /* #ifdef __AUTOESL__ */
-/*----------------------------------------------------------------------------*/ 
+/*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef ARCH_H_ */

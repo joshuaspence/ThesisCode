@@ -8,7 +8,6 @@
 #include "arch.h" /* set architecture specific macros */
 
 #ifdef __AUTOESL__
-    #include "ap_interfaces.h" /* ap_mm2s */
     #include "ap_int.h" /* for ap_int, ap_uint */
 #endif /* #ifdef __AUTOESL__ */
 /*----------------------------------------------------------------------------*/
@@ -36,11 +35,11 @@
 /* Declare a function as inline. */
 #ifndef INLINE
     #if defined(_MSC_VER)
-        #define INLINE          __forceinline
+        #define INLINE              __forceinline
     #elif defined(__AUTOESL__)
         #define INLINE
     #else
-        #define INLINE          inline
+        #define INLINE              inline
     #endif /* #if defined(_MSC_VER) */
 #endif /* #ifndef INLINE */
 
@@ -96,30 +95,19 @@ typedef index_t             index_in_t;
 typedef index_t             index_out_t;
 typedef index_t             index_io_t;
 
-/* double_t, double_in_t, double_out_t, intdoubleio_t */
-typedef double              double_t;
+/* dbl_t, dbl_in_t, dbl_out_t, dbl_io_t */
+typedef double              dbl_t;
 #ifndef __AUTOESL__
-typedef double_t            double_in_t;
-typedef double_t            double_out_t;
-typedef double_t            double_io_t;
+typedef dbl_t               dbl_in_t;
 #else
-
-template<int D>
-struct ap_mm2s_double {
-    ap_int<D> data;
-    ap_uint<(D/8)> keep;
+typedef struct ap_mm2s_dbl {
+    dbl_t data;
+    ap_uint<8> keep;
     ap_uint<1> last;
-};
-
-#if 0
-typedef ap_mm2s<64,1,1,1>    double_in_t;
-typedef double_t             double_out_t;
-#else
-typedef ap_mm2s_double<64>   double_in_t;
-typedef double_t             double_out_t;
-#endif
-typedef double_t             double_io_t;
+}                           dbl_in_t;
 #endif /* #ifndef __AUTOESL__ */
+typedef dbl_t               dbl_out_t;
+typedef dbl_t               dbl_io_t;
 
 #define NULL_INDEX          (0)
 #define START_INDEX         (1)

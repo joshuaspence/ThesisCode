@@ -4,9 +4,9 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
 
-#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_double_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
+#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_dbl_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
 #include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for double_t, index_t, NULL_INDEX, uint_t */
+#include "utility.h" /* for dbl_t, index_t, NULL_INDEX, uint_t */
 #include "vardump.h" /* save_vardump */
 
 #include <mex.h> /* for mxGetScalar */
@@ -128,7 +128,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
      */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    double_t * const data_in = (double_t *) malloc(num_vectors * vector_dims * sizeof(double_t));
+    dbl_t * const data_in = (dbl_t *) malloc(num_vectors * vector_dims * sizeof(dbl_t));
     if (data_in == NULL) {
         PRINTF_STDERR("Unable to allocate memory for data array." << std::endl);
         return;
@@ -138,15 +138,15 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     for (vector = 0; vector < num_vectors; vector++) {
         uint_t dim;
         for (dim = 0; dim < vector_dims; dim++) {
-            data_in[vector * vector_dims + dim] = (double_t) ARRAY_ELEMENT(data, vector, dim);
+            data_in[vector * vector_dims + dim] = (dbl_t) ARRAY_ELEMENT(data, vector, dim);
         }
     }
     
     /* Create the output arrays. */
     index_t  outliers_out      [N];
-    double_t outlier_scores_out[N];
+    dbl_t    outlier_scores_out[N];
     MEMSET_1D(outliers_out,       NULL_INDEX, N, sizeof(index_t));
-    MEMSET_1D(outlier_scores_out,          0, N, sizeof(double_t));
+    MEMSET_1D(outlier_scores_out,          0, N, sizeof(dbl_t));
     
     /* Call the function. */
     const uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data_in, k, N, block_size, outliers_out, outlier_scores_out);
@@ -165,7 +165,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         
         uint_t i;
         for (i = 0; i < ELEMENTS(outliers); i++)
-            VECTOR_ELEMENT(outliers, i) = (m_double_t) outliers_out[i];
+            VECTOR_ELEMENT(outliers, i) = (m_dbl_t) outliers_out[i];
     }
     if (nlhs >= 2) {
         CREATE_REAL_DOUBLE_VECTOR(outlier_scores, N);
@@ -173,7 +173,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         
         uint_t i;
         for (i = 0; i < ELEMENTS(outlier_scores); i++)
-            VECTOR_ELEMENT(outlier_scores, i) = (m_double_t) outlier_scores_out[i];
+            VECTOR_ELEMENT(outlier_scores, i) = (m_dbl_t) outlier_scores_out[i];
     }
     
     PRINTF_STDOUT("Number of pruned vectors = " << num_pruned << std::endl);
