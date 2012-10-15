@@ -81,6 +81,15 @@
     #define __SIZE_TYPE__ long unsigned int
 #endif /* #ifndef __SIZE_TYPE */
 
+#ifdef __AUTOESL__
+template<int D, int U, int TI, int TD>
+struct ap_mm2s{
+	ap_int<D> data;
+	ap_uint<(D+7)/8> keep;
+	ap_uint<1> last;
+};
+#endif /* #ifdef __AUTOESL__ */
+
 #if !defined (_STDDEF_H) && !defined (__need_size_t) && !defined(size_t)
 typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */
@@ -92,7 +101,7 @@ typedef __SIZE_TYPE__       size_io_t;
 
 /* int_t, int_in_t, int_out_t, int_io_t */
 typedef int                 int_t;
-typedef int                 int_in_t;
+typedef ap_mm2s<32,1,1,1>   int_in_t;
 typedef int                 int_out_t;
 
 /* uint_t, uint_in_t, uint_out_t, uint_io_t */
@@ -114,23 +123,10 @@ typedef double              double_in_t;
 typedef double              double_out_t;
 typedef double              double_io_t;
 #else
-
-template<int D>
-struct ap_mm2s_double {
-    ap_int<D> data;
-    ap_uint<(D/8)> keep;
-    ap_uint<1> last;
-};
-
 typedef double              double_t;
-#if 0
-typedef ap_mm2s<64,1,1,1>    double_in_t;
-typedef double_t             double_out_t;
-#else
-typedef ap_mm2s_double<64>   double_in_t;
-typedef double_t             double_out_t;
-#endif
-typedef double_t             double_io_t;
+typedef ap_mm2s<64,1,1,1>   double_in_t;
+typedef double_t            double_out_t;
+typedef double_t            double_io_t;
 #endif /* #ifndef __AUTOESL__ */
 
 #define NULL_INDEX          0
