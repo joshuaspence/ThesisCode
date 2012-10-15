@@ -3,8 +3,8 @@
 
 <cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.805466973">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.805466973" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.debug.296563510">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.debug.296563510" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -17,188 +17,169 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="a.exe" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.805466973" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
-					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973." name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.627153212" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
-							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.debug.2070417487" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
-							<builder buildPath="${workspace_loc:/NO_BLOCKING/Debug}" id="cdt.managedbuild.target.gnu.builder.exe.debug.1349682667" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
-							<tool id="cdt.managedbuild.tool.gnu.archiver.base.387696359" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
-								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1766772111" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1183499296" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.include.paths.1916946599" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../../../../../include"/>
+				<configuration artifactName="a.exe" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.debug.296563510" name="Debug" parent="cdt.managedbuild.config.gnu.exe.debug">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.debug.521274225" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.debug">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.debug.819016528" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.debug"/>
+							<builder buildPath="${workspace_loc:/distance_squared/Debug}" id="cdt.managedbuild.target.gnu.builder.exe.debug.341253234" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.debug"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.829786015" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug">
+								<option id="gnu.cpp.compiler.exe.debug.option.optimization.level.1377509794" name="Optimization Level" superClass="gnu.cpp.compiler.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.exe.debug.option.debugging.level.1348324689" name="Debug Level" superClass="gnu.cpp.compiler.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.1497974105" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../include"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/../../data}&quot;"/>
-									<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
+									<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.63755704" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1509945270" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.590459140" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
-								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.782862778" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
-								<option id="gnu.c.compiler.exe.debug.option.debugging.level.2050754812" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1403187606" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../../../../../include"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1028019933" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.debug">
+								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.exe.debug.option.optimization.level.698706502" name="Optimization Level" superClass="gnu.c.compiler.exe.debug.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.exe.debug.option.debugging.level.1506622665" name="Debug Level" superClass="gnu.c.compiler.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.491146096" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../include"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/../../data}&quot;"/>
-									<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
-									<listOptionValue builtIn="false" value="../../source"/>
+									<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.615275865" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1651694265" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1147372848" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
-								<option id="gnu.c.link.option.paths.762510562" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.debug.1394755288" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.debug">
+								<option id="gnu.c.link.option.paths.312393645" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/lib"/>
 								</option>
-								<option id="gnu.c.link.option.libs.507542945" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
-								<option id="gnu.c.link.option.ldflags.2104804189" name="Linker flags" superClass="gnu.c.link.option.ldflags"/>
+								<option id="gnu.c.link.option.libs.1285230937" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
+								<option id="gnu.c.link.option.ldflags.245535956" name="Linker flags" superClass="gnu.c.link.option.ldflags"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.2123907831" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
-								<option id="gnu.cpp.link.option.paths.781923697" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug.2091056621" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.debug">
+								<option id="gnu.cpp.link.option.paths.1613521055" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/lib"/>
 								</option>
-								<option id="gnu.cpp.link.option.libs.2018227871" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
-								<option id="gnu.cpp.link.option.flags.1757431152" name="Linker flags" superClass="gnu.cpp.link.option.flags"/>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.102399334" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+								<option id="gnu.cpp.link.option.libs.721133193" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
+								<option id="gnu.cpp.link.option.flags.1226195260" name="Linker flags" superClass="gnu.cpp.link.option.flags"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.951865256" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1677925704" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.478591609" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.debug.1242365097" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.debug">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.259428078" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.556166943" name="vardump.cpp" rcbsApplicability="disable" resourcePath="testbench/vardump.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1640028163">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1640028163" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.58321036" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510.409486282" name="vardump.cpp" rcbsApplicability="disable" resourcePath="testbench/vardump.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1869127686">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1869127686" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.843278307" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1965590095" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.1422625784" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.881146182" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.522307365" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1842381571" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.65922265" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.616351285" name="wrapper.cpp" rcbsApplicability="disable" resourcePath="testbench/wrapper.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.121918615">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.121918615" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.250270911" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510.767016424" name="wrapper.cpp" rcbsApplicability="disable" resourcePath="testbench/wrapper.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1870723808">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1870723808" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1627954831" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.65877318" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.851519594" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.1836653722" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.357260913" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.797299514" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.688518954" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.1306604645" name="top_n_outlier_pruning_block.cpp" rcbsApplicability="disable" resourcePath="testbench/top_n_outlier_pruning_block.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.245477666">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.245477666" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.1352897470" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510.757438880" name="top_n_outlier_pruning_block.cpp" rcbsApplicability="disable" resourcePath="testbench/top_n_outlier_pruning_block.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.2128626328">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.2128626328" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.717869041" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1736376568" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.42678325" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.552240470" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2012906533" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1256297980" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1276684880" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.1502434523" name="test.cpp" rcbsApplicability="disable" resourcePath="testbench/test.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1122936003">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1122936003" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.1797758098" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510.1644331869" name="test.cpp" rcbsApplicability="disable" resourcePath="testbench/test.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1880667817">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.1880667817" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1707565994" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.806966175" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.86813347" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.531822078" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1850060646" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1175453789" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1178237865" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.1380048818" name="parameters.cpp" rcbsApplicability="disable" resourcePath="testbench/parameters.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.2096477002">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.2096477002" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.952794658" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.296563510.1716562006" name="distance.cpp" rcbsApplicability="disable" resourcePath="source/distance.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.714844428">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198.714844428" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.671140967" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.37761723" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
-								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
-							</option>
-							<option id="gnu.cpp.compiler.option.other.other.1745207610" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.407407814" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.805466973.1370602309" name="distance.cpp" rcbsApplicability="disable" resourcePath="source/distance.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1790375396">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1790375396" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.529988488" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-								<listOptionValue builtIn="false" value="__AUTOESL__"/>
-								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
-								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
-								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
-								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
-							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1255562380" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<option id="gnu.cpp.compiler.option.include.paths.734375200" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="../../include"/>
 								<listOptionValue builtIn="false" value="../../include/autoesl"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.1551586222" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.205678012" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1664058112" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1020749068" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
 					<sourceEntries>
@@ -208,8 +189,8 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
-		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.2061359817">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.2061359817" moduleId="org.eclipse.cdt.core.settings" name="Release">
+		<cconfiguration id="cdt.managedbuild.config.gnu.exe.release.1781506471">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.gnu.exe.release.1781506471" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -222,187 +203,169 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="a.exe" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release,org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.release.2061359817" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
-					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817." name="/" resourcePath="">
-						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.639419883" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
-							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.release.302315420" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/NO_BLOCKING/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.725449276" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
-							<tool id="cdt.managedbuild.tool.gnu.archiver.base.669586285" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
-								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1896866720" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.1489975083" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.cpp.compiler.option.include.paths.1406442342" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../../../../../include"/>
+				<configuration artifactName="a.exe" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" cleanCommand="rm -rf" description="" id="cdt.managedbuild.config.gnu.exe.release.1781506471" name="Release" parent="cdt.managedbuild.config.gnu.exe.release">
+					<folderInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.exe.release.1709007634" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.exe.release">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.PE;org.eclipse.cdt.core.ELF" id="cdt.managedbuild.target.gnu.platform.exe.release.775539096" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.exe.release"/>
+							<builder buildPath="${workspace_loc:/distance_squared/Release}" id="cdt.managedbuild.target.gnu.builder.exe.release.967929439" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.exe.release"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.635432897" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release">
+								<option id="gnu.cpp.compiler.exe.release.option.optimization.level.1207174424" name="Optimization Level" superClass="gnu.cpp.compiler.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.exe.release.option.debugging.level.312134983" name="Debug Level" superClass="gnu.cpp.compiler.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.2063158422" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../include"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/../../data}&quot;"/>
-									<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
+									<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2086199162" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2104504080" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.1770045120" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
-								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1476684211" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
-								<option id="gnu.c.compiler.exe.release.option.debugging.level.1901584312" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1722834828" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="../../../../../../../include"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.exe.release.429460287" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.exe.release">
+								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.exe.release.option.optimization.level.1615120249" name="Optimization Level" superClass="gnu.c.compiler.exe.release.option.optimization.level" valueType="enumerated"/>
+								<option id="gnu.c.compiler.exe.release.option.debugging.level.1131227032" name="Debug Level" superClass="gnu.c.compiler.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.681433713" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="../../../../include"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/../../data}&quot;"/>
-									<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
+									<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								</option>
-								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1416064531" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1695743447" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1733562735" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
-								<option id="gnu.c.link.option.paths.787040187" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.exe.release.1646436779" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.exe.release">
+								<option id="gnu.c.link.option.paths.928825360" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/lib"/>
 								</option>
-								<option id="gnu.c.link.option.libs.1214689123" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
-								<option id="gnu.c.link.option.ldflags.1471929371" name="Linker flags" superClass="gnu.c.link.option.ldflags"/>
+								<option id="gnu.c.link.option.libs.584182511" name="Libraries (-l)" superClass="gnu.c.link.option.libs"/>
+								<option id="gnu.c.link.option.ldflags.1876849834" name="Linker flags" superClass="gnu.c.link.option.ldflags"/>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.866035283" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
-								<option id="gnu.cpp.link.option.paths.1365413025" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.exe.release.1970917165" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.exe.release">
+								<option id="gnu.cpp.link.option.paths.1417891768" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/lib"/>
 								</option>
-								<option id="gnu.cpp.link.option.libs.474971823" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
-								<option id="gnu.cpp.link.option.flags.567856629" name="Linker flags" superClass="gnu.cpp.link.option.flags"/>
-								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1386809042" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+								<option id="gnu.cpp.link.option.libs.2017574321" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
+								<option id="gnu.cpp.link.option.flags.1787247197" name="Linker flags" superClass="gnu.cpp.link.option.flags"/>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.167209723" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.1614083251" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
-								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1676164441" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.exe.release.748588863" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.exe.release">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.667986503" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.297351257" name="vardump.cpp" rcbsApplicability="disable" resourcePath="testbench/vardump.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.279112340">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.279112340" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.225232243" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471.215394623" name="vardump.cpp" rcbsApplicability="disable" resourcePath="testbench/vardump.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1024089921">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1024089921" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1388559167" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.125640057" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.1711705576" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.101962322" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.984046016" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1594352131" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.402930856" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.1095924134" name="wrapper.cpp" rcbsApplicability="disable" resourcePath="testbench/wrapper.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1702762943">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1702762943" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.1859663291" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471.1039944849" name="wrapper.cpp" rcbsApplicability="disable" resourcePath="testbench/wrapper.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.2019406078">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.2019406078" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1688549932" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1945880559" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.1086405156" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.26330286" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1811014063" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1871926968" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1615905902" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.603430063" name="top_n_outlier_pruning_block.cpp" rcbsApplicability="disable" resourcePath="testbench/top_n_outlier_pruning_block.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.922831552">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.922831552" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.187722864" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471.2053703693" name="top_n_outlier_pruning_block.cpp" rcbsApplicability="disable" resourcePath="testbench/top_n_outlier_pruning_block.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1053384126">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1053384126" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.212351865" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1606981347" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.1532929930" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.1728869640" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1416404850" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1480843100" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1083202675" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.767866132" name="test.cpp" rcbsApplicability="disable" resourcePath="testbench/test.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1249987926">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1249987926" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.97915012" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471.56431267" name="test.cpp" rcbsApplicability="disable" resourcePath="testbench/test.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.402812039">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.402812039" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1061167205" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.2133203962" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
+							<option id="gnu.cpp.compiler.option.include.paths.1553078578" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+								<listOptionValue builtIn="false" value="../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.41669372" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.167494577" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.1937629597" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1361047423" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.1923368598" name="parameters.cpp" rcbsApplicability="disable" resourcePath="testbench/parameters.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.210237454">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.210237454" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.763501708" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1781506471.1755070014" name="distance.cpp" rcbsApplicability="disable" resourcePath="source/distance.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1077854851">
+						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402.1077854851" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402">
+							<option id="gnu.cpp.compiler.option.preprocessor.def.1087421067" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 								<listOptionValue builtIn="false" value="__AUTOESL__"/>
 								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
 								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
 								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
 								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
+								<listOptionValue builtIn="false" value="TOP__DISTANCE_SQUARED"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.1206052377" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
-								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
-								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
-							</option>
-							<option id="gnu.cpp.compiler.option.other.other.659130301" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1869913070" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
-						</tool>
-					</fileInfo>
-					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.2061359817.482880572" name="distance.cpp" rcbsApplicability="disable" resourcePath="source/distance.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.468260328">
-						<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.468260328" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002">
-							<option id="gnu.cpp.compiler.option.preprocessor.def.685295252" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-								<listOptionValue builtIn="false" value="__AUTOESL__"/>
-								<listOptionValue builtIn="false" value="INSERT=SORTED"/>
-								<listOptionValue builtIn="false" value="BLOCKING=ENABLED"/>
-								<listOptionValue builtIn="false" value="USE_DYNAMIC_ARRAY_SIZE=DISABLED"/>
-								<listOptionValue builtIn="false" value="TEST_TYPE=EMBEDDED"/>
-							</option>
-							<option id="gnu.cpp.compiler.option.include.paths.284346624" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+							<option id="gnu.cpp.compiler.option.include.paths.960465475" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 								<listOptionValue builtIn="false" value="../../include"/>
 								<listOptionValue builtIn="false" value="../../include/autoesl"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include"/>
+								<listOptionValue builtIn="false" value="../../../../include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/include/ap_sysc"/>
-								<listOptionValue builtIn="false" value="../../../../../../../include/autoesl"/>
 								<listOptionValue builtIn="false" value="C:/Xilinx/2012.1/AutoESL/Win_x86/tools/systemc/include"/>
 								<listOptionValue builtIn="false" value="D:/Josh/ThesisCode/TopN_Outlier_Pruning_Block/FPGA/AutoESL"/>
+								<listOptionValue builtIn="false" value="../../../../include/autoesl"/>
 							</option>
-							<option id="gnu.cpp.compiler.option.other.other.1464965173" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
-							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.217378764" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							<option id="gnu.cpp.compiler.option.other.other.968248406" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1996481601" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 						</tool>
 					</fileInfo>
 					<sourceEntries>
@@ -414,61 +377,21 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="NO_BLOCKING.cdt.managedbuild.target.gnu.exe.1197110442" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
+		<project id="distance_squared.cdt.managedbuild.target.gnu.exe.1129440511" name="Executable" projectType="cdt.managedbuild.target.gnu.exe"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/distance_squared"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.1306604645;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.245477666;cdt.managedbuild.tool.gnu.cpp.compiler.input.2012906533">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1781506471;cdt.managedbuild.config.gnu.exe.release.1781506471.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1752239402;cdt.managedbuild.tool.gnu.cpp.compiler.input.2104504080">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.616351285;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.121918615;cdt.managedbuild.tool.gnu.cpp.compiler.input.357260913">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.767866132;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1249987926;cdt.managedbuild.tool.gnu.cpp.compiler.input.167494577">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.1502434523;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1122936003;cdt.managedbuild.tool.gnu.cpp.compiler.input.1850060646">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1770045120;cdt.managedbuild.tool.gnu.c.compiler.input.1416064531">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.296563510;cdt.managedbuild.config.gnu.exe.debug.296563510.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.1028019933;cdt.managedbuild.tool.gnu.c.compiler.input.1651694265">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.297351257;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.279112340;cdt.managedbuild.tool.gnu.cpp.compiler.input.984046016">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.296563510;cdt.managedbuild.config.gnu.exe.debug.296563510.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.900611198;cdt.managedbuild.tool.gnu.cpp.compiler.input.1509945270">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.1923368598;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.210237454;cdt.managedbuild.tool.gnu.cpp.compiler.input.1869913070">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.603430063;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.922831552;cdt.managedbuild.tool.gnu.cpp.compiler.input.1416404850">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.1095924134;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.1702762943;cdt.managedbuild.tool.gnu.cpp.compiler.input.1811014063">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002;cdt.managedbuild.tool.gnu.cpp.compiler.input.2086199162">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.2061359817;cdt.managedbuild.config.gnu.exe.release.2061359817.482880572;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1476677002.468260328;cdt.managedbuild.tool.gnu.cpp.compiler.input.217378764">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405;cdt.managedbuild.tool.gnu.cpp.compiler.input.63755704">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.1380048818;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.2096477002;cdt.managedbuild.tool.gnu.cpp.compiler.input.407407814">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.;cdt.managedbuild.tool.gnu.c.compiler.exe.debug.590459140;cdt.managedbuild.tool.gnu.c.compiler.input.615275865">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1781506471;cdt.managedbuild.config.gnu.exe.release.1781506471.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.429460287;cdt.managedbuild.tool.gnu.c.compiler.input.1695743447">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.1370602309;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1790375396;cdt.managedbuild.tool.gnu.cpp.compiler.input.205678012">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.805466973;cdt.managedbuild.config.gnu.exe.debug.805466973.556166943;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1468341405.1640028163;cdt.managedbuild.tool.gnu.cpp.compiler.input.522307365">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>
