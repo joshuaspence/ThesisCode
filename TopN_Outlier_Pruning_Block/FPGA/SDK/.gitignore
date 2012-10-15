@@ -3,6 +3,7 @@
 #===============================================================================
 
 # Eclipse metadata
+.metadata/
 .metadata/.lock
 
 # Eclipse build files
