@@ -2,6 +2,9 @@
 # AutoESL .gitignore file.
 #===============================================================================
 
+# AutoESL metadata
+*/.settings
+
 # AutoESL build files
 */Debug/
 */Launch/

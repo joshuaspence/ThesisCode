@@ -62,6 +62,15 @@
     #define __SIZE_TYPE__ long unsigned int
 #endif /* #ifndef __SIZE_TYPE */
 
+#ifdef __AUTOESL__
+template<int D, int U, int TI, int TD>
+struct ap_mm2s{
+	ap_int<D> data;
+	ap_uint<(D+7)/8> keep;
+	ap_uint<1> last;
+};
+#endif /* #ifdef __AUTOESL__ */
+
 #if !defined (_STDDEF_H) && !defined (__need_size_t) && !defined(size_t)
 typedef __SIZE_TYPE__       size_t;
 #endif /* #if !defined (_STDDEF_H) && !defined (__need_size_t) */

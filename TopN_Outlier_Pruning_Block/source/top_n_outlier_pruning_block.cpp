@@ -56,9 +56,9 @@ static void init(const size_t _num_vectors, const dbl_t _data[MAX_NUM_VECTORS * 
     /* data */
     // TODO: MEMCPY_2D
     uint_t vector;
-    for (vector = 0; vector < MAX_NUM_VECTORS; vector++) {
+    vector_loop: for (vector = 0; vector < MAX_NUM_VECTORS; vector++) {
         uint_t dim;
-        for (dim = 0; dim < VECTOR_DIMS; dim++) {
+        dims_loop: for (dim = 0; dim < VECTOR_DIMS; dim++) {
             if (vector >= num_vectors) {
                 data[vector][dim] = 0;
             } else {
@@ -128,7 +128,7 @@ dbl_t distance_squared(
 #ifndef __AUTOESL__
     #define SUM_SPLIT (1)
 #else
-    #define SUM_SPLIT (8)
+    #define SUM_SPLIT (6)
 #endif /* #ifndef __AUTOESL__ */
     
     dbl_t sum_of_squares__split[SUM_SPLIT] = { 0.0 };
@@ -202,7 +202,7 @@ dbl_t add_neighbour(
         
         uint_t i;
 #if (BLOCKING == ENABLED)
-        for (i = K_VALUE - found[vector_bi] - 1; i < K_VALUE; i++) {
+        add_neighbour_loop1: for (i = K_VALUE - found[vector_bi] - 1; i < K_VALUE; i++) {
             if (new_neighbour_dist > neighbours_dist[vector_bi][i] || i == (K_VALUE - found[vector_bi] - 1)) {
 #else
         for (i = K_VALUE - found - 1; i < K_VALUE; i++) {
@@ -227,7 +227,7 @@ dbl_t add_neighbour(
         }
     } else {
         int_t i;
-        for (i = K_VALUE - 1; i >= 0; i--) {
+        add_neighbour_loop2: for (i = K_VALUE - 1; i >= 0; i--) {
 #if (BLOCKING == ENABLED)
             if (new_neighbour_dist < neighbours_dist[vector_bi][i]) {
 #else
@@ -334,12 +334,12 @@ void sort_block_scores_descending(void) {
     ASSERT(current_BLOCK_SIZE > 0 && current_BLOCK_SIZE <= BLOCK_SIZE);
     
     uint_t i;
-    for (i = 0; i < current_BLOCK_SIZE; i++) {
+    block_loop1: for (i = 0; i < current_BLOCK_SIZE; i++) {
         int_t j;
         const index_t index = current_block[i];
         const dbl_t   value = score        [i];
         
-        for (j = i - 1; j >= 0; j--) {
+        block_loop2: for (j = i - 1; j >= 0; j--) {
             if (score[j] >= value) {
                 break;
             }
@@ -405,7 +405,7 @@ void update_best_outliers(void) {
 #endif /* #if (BLOCKING==ENABLED) */
     
 #if (BLOCKING == ENABLED)
-    while (iter < N_VALUE && (global < outliers_found || local < current_BLOCK_SIZE)) {
+    merge_loop: while (iter < N_VALUE && (global < outliers_found || local < current_BLOCK_SIZE)) {
         if (global >= outliers_found && local < current_BLOCK_SIZE) {
 #elif (BLOCKING == DISABLED)
     while (iter < N_VALUE && (global < outliers_found || !local)) {
@@ -480,7 +480,7 @@ void update_best_outliers(void) {
 uint_t top_n_outlier_pruning_block(
         const size_t _num_vectors,
         UNUSED const size_t _VECTOR_DIMS,
-        const dbl_t _data[],
+        const dbl_t _data[MAX_NUM_VECTORS * VECTOR_DIMS],
         UNUSED const size_t _k,
         UNUSED const size_t _N,
         UNUSED const size_t _BLOCK_SIZE,

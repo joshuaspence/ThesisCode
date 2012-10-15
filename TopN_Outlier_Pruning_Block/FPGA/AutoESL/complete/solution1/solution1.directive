@@ -1,13 +1,86 @@
 <AutoPilot:ProjectResources xmlns:AutoPilot="com.autoesl.autopilot.ui.directiveView">
     <sourceFile name="">
-        <directive functionName="distance_squared" label="dimension_loop" functionLabel="">
-            <pragma name="PIPELINE"/>
+        <directive functionName="top_n_outlier_pruning_block" label="" functionLabel="">
+            <pragma name="TOP"/>
+        </directive>
+        <directive functionName="init" label="" functionLabel="">
+            <pragma name="INLINE"/>
+        </directive>
+        <directive functionName="init_block" label="" functionLabel="">
+            <pragma name="INLINE"/>
         </directive>
         <directive functionName="distance_squared" label="sum_loop" functionLabel="">
             <pragma name="UNROLL"/>
         </directive>
-        <directive functionName="top_n_outlier_pruning_block" label="" functionLabel="">
-            <pragma name="TOP"/>
+        <directive functionName="distance_squared" label="dimension_loop" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="200"/>
+                <option name="max" value="200"/>
+                <option name="avg" value="200"/>
+            </pragma>
+        </directive>
+        <directive functionName="init" label="vector_loop" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="max" value="67557"/>
+            </pragma>
+        </directive>
+        <directive functionName="init" label="dims_loop" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="200"/>
+                <option name="max" value="200"/>
+                <option name="avg" value="200"/>
+            </pragma>
+        </directive>
+        <directive functionName="add_neighbour" label="add_neighbour_loop2" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="1"/>
+                <option name="max" value="15"/>
+            </pragma>
+        </directive>
+        <directive functionName="add_neighbour" label="add_neighbour_loop1" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="1"/>
+                <option name="max" value="15"/>
+            </pragma>
+        </directive>
+        <directive functionName="sort_block_scores_descending" label="block_loop1" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="1"/>
+                <option name="max" value="40"/>
+            </pragma>
+        </directive>
+        <directive functionName="update_best_outliers" label="merge_loop" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="max" value="40"/>
+            </pragma>
+        </directive>
+        <directive functionName="sort_block_scores_descending" label="block_loop2" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="1"/>
+                <option name="max" value="40"/>
+            </pragma>
+        </directive>
+        <directive functionName="distance_squared" label="" functionLabel="">
+            <pragma name="PIPELINE"/>
+        </directive>
+        <directive functionName="init" label="vector_loop" functionLabel="">
+            <pragma name="PIPELINE"/>
+        </directive>
+        <directive functionName="distance_squared" label="sum_loop" functionLabel="">
+            <pragma name="LOOP_TRIPCOUNT">
+                <option name="tripcount" value="" positionalBoolean="3"/>
+                <option name="min" value="6"/>
+                <option name="max" value="6"/>
+                <option name="avg" value="6"/>
+            </pragma>
         </directive>
     </sourceFile>
 </AutoPilot:ProjectResources>
