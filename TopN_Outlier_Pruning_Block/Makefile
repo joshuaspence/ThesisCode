@@ -37,7 +37,8 @@ TopN_Outlier_Pruning_Block_NO_BLOCKING_CXXFLAGS = $(call flags,DINSERT=SORTED DB
 TopN_Outlier_Pruning_Block_NO_BLOCKING_MXXFLAGS = $(call flags,DINSERT=SORTED DBLOCKING=DISABLED)
 
 COMMON_SOURCES       := $(SOURCE_DIR)/top_n_outlier_pruning_block.cpp \
-                        $(SOURCE_DIR)/vardump.cpp
+                        $(SOURCE_DIR)/vardump.cpp \
+                        $(SOURCE_DIR)/sw_functions.cpp
 
 binary_OUTPUT_DIR    := bin
 binary_EXT           := bin
@@ -174,7 +175,7 @@ define help_text
 -@$(ECHO) " TARGETS:"
 -@$(foreach TARGET,$(sort $(foreach BUILD_TYPE,$(BUILD_TYPES),$($(BUILD_TYPE)_TARGETS))),$(ECHO) "     $(TARGET)";)
 -@$(ECHO)
-endef   
+endef
 
 # $(call include-flags,INC1 INC2 ...)
 # Create gcc-style include flags.
@@ -215,7 +216,7 @@ print-variable = $(info $(1)=$($(1)))
 # $(call print-variables)
 # Print all makefile variables.
 define print-variables
-$(foreach VAR,$(sort $(filter-out print-variable%,$(.VARIABLES))), 
+$(foreach VAR,$(sort $(filter-out print-variable%,$(.VARIABLES))),
 	$(if $(filter file,$(origin $(VAR))),
 		$(call print-variable,$(VAR))))
 endef
@@ -228,7 +229,7 @@ product = $(shell $(EXPR) 1 $(foreach VAR,$(1),\* $(VAR) ))
 remove-flags = $(filter-out $(foreach FLAG,$(2),-$(FLAG:-%=%)),$(1))
 
 # $(call run-tests,TARGETS,MODES,GPROF_OPTIONS,TESTTYPE_OPTIONS)
-# Any options that get added to the Makefile (such as 
+# Any options that get added to the Makefile (such as
 # [mode=<debug|debugopt|release]), should be included in the test sequence
 # below.
 define run-build-tests
@@ -609,7 +610,7 @@ DATASETS           := $(wildcard $(DATA_DIR)/*.dat)
 DATASETS_HEX       := $(DATASETS:%=%.h)
 
 datasets_TARGETS   := $(ALL_DATASETS_H) $(DATASETS_HEX)
-datasets_CLEAN     := 
+datasets_CLEAN     :=
 datasets_DISTCLEAN := $(ALL_DATASETS_H) $(DATASETS_HEX)
 ALL_CLEAN          += $(datasets_CLEAN)
 ALL_DISTCLEAN      += $(datasets_DISTCLEAN)

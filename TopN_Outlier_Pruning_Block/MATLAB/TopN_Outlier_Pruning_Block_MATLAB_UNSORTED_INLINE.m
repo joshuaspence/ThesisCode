@@ -1,5 +1,5 @@
-% This is the original implementation as provided by Nguyen Lu Dang Khoa
-% or the thesis titled "Large Scale Anomaly Detection and Clustering Using
+% This is the original implementation as provided by Nguyen Lu Dang Khoa or
+% the thesis titled "Large Scale Anomaly Detection and Clustering Using
 % Random Walks".
 %--------------------------------------------------------------------------
 % Note that the "dist" function was substituted with a "euclidean_dist"

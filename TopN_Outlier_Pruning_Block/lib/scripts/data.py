@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
+################################################################################
+#
 # Source: http://acm.zhihua-lai.com
+#
+################################################################################
 
 from sys import argv, exit, stderr
 from os import path
@@ -8,7 +12,7 @@ from os import path
 def gethex(c):
 	# return hex str: char[4]
 	# padding zero e.g. 0xa => 0x0a
-	
+
 	str = hex(ord(c))
 	if len(str) == 3:
 		return ("%s0%s" % (str[0:2], str[2:]))
@@ -16,7 +20,7 @@ def gethex(c):
 
 def getbytes(filename):
 	# return byte array of a file
-	
+
 	if not path.isfile(filename):
 		stderr.write("File not found: %s\n" % filename)
 		exit(2)
@@ -44,7 +48,7 @@ def convert(bytes, variable):
 		i += 1
 	output += ("%s//%u\n};\n" % (gethex(bytes[length-1]), (i+1)))
 	output += ("static const unsigned int %s_size = %u;\n" % (variable, length))
-	
+
 	return output
 
 def usage():
@@ -53,7 +57,7 @@ def usage():
 if __name__ == "__main__":
 	if len(argv) == 3 or len(argv) == 4:
 		output = convert(getbytes(argv[1]), argv[2])
-		
+
 		if len(argv) == 3:
 			# Print output
 			print output
