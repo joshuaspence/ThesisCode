@@ -1,34 +1,33 @@
 /*
-   Copyright 2012 Xilinx, Inc.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+ * Copyright 2012 Xilinx, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef __AESL_GCC_AP_FIXED_H__
 #define __AESL_GCC_AP_FIXED_H__
 
 #ifndef __cplusplus
-#error C++ is required to include this header file
-#endif
+    #error C++ is required to include this header file
+#endif /* #ifndef __cplusplus */
 
 
 #include <math.h>
 #ifndef __AESL_APDT_IN_SCFLOW__
-#include "etc/ap_int_sim.h"
+    #include "etc/ap_int_sim.h"
 #else
-#include"../etc/ap_private.h"
-#endif
-
+    #include "../etc/ap_private.h"
+#endif /* #ifndef __AESL_APDT_IN_SCFLOW__ */
 
 #define FLOAT_MAN 23
 #define FLOAT_EXP 8
@@ -48,13 +47,13 @@ template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 struct af_bit_ref {
 #ifdef _MSC_VER
-#pragma warning( disable : 4521 4522 )
-#endif
+    #pragma warning(disable: 4521 4522)
+#endif /* #ifdef _MSC_VER */
     ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& d_bv;
     int d_index;
 public:
-    INLINE af_bit_ref(const af_bit_ref<_AP_W, _AP_I, _AP_S, 
-                                        _AP_Q, _AP_O, _AP_N>& ref): 
+    INLINE af_bit_ref(const af_bit_ref<_AP_W, _AP_I, _AP_S,
+                                        _AP_Q, _AP_O, _AP_N>& ref):
            d_bv(ref.d_bv), d_index(ref.d_index) {}
 
     INLINE af_bit_ref(ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>* bv, int index=0):
@@ -65,7 +64,7 @@ public:
     }
 
     INLINE af_bit_ref& operator=(unsigned long long val) {
-        if(val)
+        if (val)
             d_bv.V.set(d_index);
         else
             d_bv.V.clear(d_index);
@@ -76,8 +75,8 @@ public:
     INLINE af_bit_ref& operator =(const ap_private<_AP_W2,_AP_S2>& val) {
         return operator=(val!=0);
     }
-    
-    INLINE af_bit_ref& operator =(const af_bit_ref<_AP_W, _AP_I, _AP_S, 
+
+    INLINE af_bit_ref& operator =(const af_bit_ref<_AP_W, _AP_I, _AP_S,
                                         _AP_Q, _AP_O, _AP_N>& val) {
         return operator=((unsigned long long)(bool)val);
     }
@@ -97,13 +96,13 @@ public:
         return operator =((const ap_private<_AP_W2, false>) val);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
-             ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
+             ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE af_bit_ref& operator= (const af_range_ref<_AP_W2, _AP_I2, _AP_S2,
                                     _AP_Q2, _AP_O2, _AP_N2>& val) {
         return operator=((const ap_private<_AP_W2, false>)(val));
     }
- 
+
     template<int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
     INLINE af_bit_ref& operator= (const ap_concat_ref<_AP_W2, _AP_T3, _AP_W3, _AP_T3>& val) {
         return operator=((const ap_private<_AP_W2 + _AP_W3, false>)(val));
@@ -112,69 +111,69 @@ public:
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<1, af_bit_ref, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& op) {
-        return ap_concat_ref<1, af_bit_ref, _AP_W2, 
+        return ap_concat_ref<1, af_bit_ref, _AP_W2,
                ap_private<_AP_W2, _AP_S2> >(*this, op);
     }
 
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<1, af_bit_ref, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (const ap_bit_ref<_AP_W2, _AP_S2> &op) {
-        return ap_concat_ref<1, af_bit_ref, 1, 
-               ap_bit_ref<_AP_W2, _AP_S2> >(*this, 
+        return ap_concat_ref<1, af_bit_ref, 1,
+               ap_bit_ref<_AP_W2, _AP_S2> >(*this,
                const_cast<ap_bit_ref<_AP_W2, _AP_S2>& >(op));
     }
 
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<1, af_bit_ref, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (const ap_range_ref<_AP_W2, _AP_S2> &op) {
-        return ap_concat_ref<1, af_bit_ref, _AP_W2, 
-               ap_range_ref<_AP_W2, _AP_S2> >(*this, 
+        return ap_concat_ref<1, af_bit_ref, _AP_W2,
+               ap_range_ref<_AP_W2, _AP_S2> >(*this,
                const_cast<ap_range_ref<_AP_W2, _AP_S2>& >(op));
     }
 
     template<int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
-    INLINE ap_concat_ref<1, af_bit_ref, _AP_W2 + _AP_W3, 
-                        ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> > 
+    INLINE ap_concat_ref<1, af_bit_ref, _AP_W2 + _AP_W3,
+                        ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &op) {
-        return ap_concat_ref<1, af_bit_ref, _AP_W2 + _AP_W3, 
-                 ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(*this, 
+        return ap_concat_ref<1, af_bit_ref, _AP_W2 + _AP_W3,
+                 ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(*this,
                  const_cast<ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& >(op));
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE ap_concat_ref<1, af_bit_ref, _AP_W2, 
+    INLINE ap_concat_ref<1, af_bit_ref, _AP_W2,
              af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &op) {
        return ap_concat_ref<1, af_bit_ref,  _AP_W2,
-             af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, 
-             _AP_N2> >(*this, const_cast<af_range_ref<_AP_W2, _AP_I2, 
+             af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2,
+             _AP_N2> >(*this, const_cast<af_range_ref<_AP_W2, _AP_I2,
              _AP_S2, _AP_Q2, _AP_O2,_AP_N2>& >(op));
-    } 
-              
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    }
+
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE ap_concat_ref<1, af_bit_ref, 1, 
+    INLINE ap_concat_ref<1, af_bit_ref, 1,
              af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &op) {
        return ap_concat_ref<1, af_bit_ref, 1,
-             af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this, 
+             af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this,
              const_cast<af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
               _AP_O2, _AP_N2>& >(op));
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE bool operator == (const af_bit_ref<_AP_W2, _AP_I2, 
+    INLINE bool operator == (const af_bit_ref<_AP_W2, _AP_I2,
                              _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op) {
         return get() == op.get();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE bool operator != (const af_bit_ref<_AP_W2, _AP_I2, 
+    INLINE bool operator != (const af_bit_ref<_AP_W2, _AP_I2,
                              _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op) {
         return get() != op.get();
     }
@@ -191,7 +190,7 @@ public:
     INLINE bool get() {
         return d_bv.V[d_index];
     }
-    
+
     INLINE bool get() const {
         return d_bv.V[d_index];
     }
@@ -206,26 +205,26 @@ public:
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 struct af_range_ref {
 #ifdef _MSC_VER
-#pragma warning( disable : 4521 4522 )
-#endif
+    #pragma warning(disable: 4521 4522)
+#endif /* #ifdef _MSC_VER */
     ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N> &d_bv;
     int l_index;
     int h_index;
 
 public:
-    INLINE af_range_ref(const af_range_ref<_AP_W, _AP_I, _AP_S, 
+    INLINE af_range_ref(const af_range_ref<_AP_W, _AP_I, _AP_S,
                                         _AP_Q, _AP_O, _AP_N>& ref):
            d_bv(ref.d_bv), l_index(ref.l_index), h_index(ref.h_index) {}
 
     INLINE af_range_ref(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>* bv, int h, int l):
         d_bv(*bv),l_index(l),h_index(h) {
-        //if (h < l) 
-          // fprintf(stderr, 
+        //if (h < l)
+          // fprintf(stderr,
            //"Warning! The bits selected will be returned in reverse order\n");
     }
 
     INLINE operator ap_private<_AP_W, false> () const {
-        if(h_index >= l_index) {
+        if (h_index >= l_index) {
           ap_private<_AP_W, false> val(d_bv.V);
           ap_private<_AP_W,false> mask(-1);
           mask>>=_AP_W-(h_index-l_index+1);
@@ -233,8 +232,8 @@ public:
           return val&=mask;
         } else {
           ap_private<_AP_W, false> val = 0;
-          for(int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
-            if((d_bv.V)[j]) val.set(i);
+          for (int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
+            if ((d_bv.V)[j]) val.set(i);
           return val;
         }
     }
@@ -246,16 +245,16 @@ public:
     template<int _AP_W2,bool _AP_S2>
     INLINE af_range_ref& operator =(const ap_private<_AP_W2,_AP_S2>& val) {
       ap_private<_AP_W, false> vval= ap_private<_AP_W, false>(val);
-        if(l_index > h_index) {
-            for(int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
+        if (l_index > h_index) {
+            for (int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
                     vval[i]? d_bv.V.set(j):d_bv.V.clear(j);
         } else {
           ap_private<_AP_W,false> mask(-1);
-            if(l_index>0) {
+            if (l_index>0) {
                 mask<<=l_index;
                 vval<<=l_index;
             }
-            if(h_index<_AP_W-1) {
+            if (h_index<_AP_W-1) {
               ap_private<_AP_W,false> mask2(-1);
               mask2>>=_AP_W-h_index-1;
               mask&=mask2;
@@ -274,7 +273,7 @@ public:
     }
 
     template<int _AP_W3, typename _AP_T3, int _AP_W4, typename _AP_T4>
-    INLINE af_range_ref& operator = 
+    INLINE af_range_ref& operator =
         (const ap_concat_ref <_AP_W3, _AP_T3, _AP_W4, _AP_T4>& val) {
         const ap_private<_AP_W, false> tmpVal(val);
         return operator = (tmpVal);
@@ -292,22 +291,22 @@ public:
         return operator =(tmpVal);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2,
              ap_o_mode _AP_O2, int _AP_N2>
     INLINE af_range_ref& operator= (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& val) {
         const ap_private<_AP_W2, false> tmp= val.get();
         return operator = (tmp);
     }
 
-    INLINE af_range_ref& operator= (const af_range_ref<_AP_W, _AP_I, _AP_S, 
+    INLINE af_range_ref& operator= (const af_range_ref<_AP_W, _AP_I, _AP_S,
                                         _AP_Q, _AP_O, _AP_N>& val) {
         const ap_private<_AP_W, false> tmp= val.get();
         return operator = (tmp);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE af_range_ref& operator= (const ap_fixed_base<_AP_W2, 
+    INLINE af_range_ref& operator= (const ap_fixed_base<_AP_W2,
                           _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& val) {
         return operator=(val.to_ap_private());
     }
@@ -399,12 +398,12 @@ public:
     template<int _AP_W2>
     INLINE void set(const ap_private<_AP_W2,false>& val) {
         ap_private<_AP_W,_AP_S> vval=val;
-        if(l_index>h_index) {
-            for(int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
+        if (l_index>h_index) {
+            for (int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
                     vval[i]? d_bv.V.set(j):d_bv.V.clear(j);
         } else {
           ap_private<_AP_W,_AP_S> mask(-1);
-            if(l_index>0) {
+            if (l_index>0) {
                 ap_private<_AP_W,false> mask1(-1);
                 mask1>>=_AP_W-l_index;
                 mask1.flip();
@@ -412,7 +411,7 @@ public:
                 //vval&=mask1;
                 vval<<=l_index;
             }
-            if(h_index<_AP_W-1) {
+            if (h_index<_AP_W-1) {
                 ap_private<_AP_W,false> mask2(-1);
                 mask2<<=h_index+1;
                 mask2.flip();
@@ -427,15 +426,15 @@ public:
     }
 
     INLINE ap_private<_AP_W,false> get() const {
-        if(h_index<l_index) {
+        if (h_index<l_index) {
           ap_private<_AP_W, false> val(0);
-          for(int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
-            if((d_bv.V)[j]) val.set(i);
+          for (int i=0, j=l_index;j>=0&&j>=h_index;j--,i++)
+            if ((d_bv.V)[j]) val.set(i);
           return val;
         } else {
           ap_private<_AP_W, false> val = ap_private<_AP_W,false>(d_bv.V);
           val>>= l_index;
-          if(h_index<_AP_W-1)
+          if (h_index<_AP_W-1)
             {
               ap_private<_AP_W,false> mask(-1);
               mask>>=_AP_W-(h_index-l_index+1);
@@ -448,60 +447,60 @@ public:
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& op) {
-        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2, 
+        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2,
                ap_private<_AP_W2, _AP_S2> >(*this, op);
     }
 
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<_AP_W, af_range_ref, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (const ap_bit_ref<_AP_W2, _AP_S2> &op) {
-        return ap_concat_ref<_AP_W, af_range_ref, 1, 
-               ap_bit_ref<_AP_W2, _AP_S2> >(*this, 
+        return ap_concat_ref<_AP_W, af_range_ref, 1,
+               ap_bit_ref<_AP_W2, _AP_S2> >(*this,
                const_cast<ap_bit_ref<_AP_W2, _AP_S2>& >(op));
     }
 
     template<int _AP_W2, int _AP_S2>
     INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (const ap_range_ref<_AP_W2, _AP_S2> &op) {
-        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2, 
-               ap_range_ref<_AP_W2, _AP_S2> >(*this, 
+        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2,
+               ap_range_ref<_AP_W2, _AP_S2> >(*this,
                const_cast<ap_range_ref<_AP_W2, _AP_S2>& >(op));
     }
 
     template<int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
-    INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2 + _AP_W3, 
-                        ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> > 
+    INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2 + _AP_W3,
+                        ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &op) {
-        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2 + _AP_W3, 
+        return ap_concat_ref<_AP_W, af_range_ref, _AP_W2 + _AP_W3,
                  ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(*this,
                  const_cast<ap_concat_ref<_AP_W2, _AP_T2, _AP_W3,
                   _AP_T3>& >(op));
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2, 
+    INLINE ap_concat_ref<_AP_W, af_range_ref, _AP_W2,
              af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &op) {
        return ap_concat_ref<_AP_W, af_range_ref,  _AP_W2,
              af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this,
-             const_cast<af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, 
+             const_cast<af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2,
              _AP_N2>& > (op));
-    } 
-              
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    }
+
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
-    INLINE ap_concat_ref<_AP_W, af_range_ref, 1, 
+    INLINE ap_concat_ref<_AP_W, af_range_ref, 1,
              af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &op) {
        return ap_concat_ref<_AP_W, af_range_ref, 1,
              af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this,
-             const_cast<af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+             const_cast<af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
              _AP_O2, _AP_N2>& >(op));
-    } 
- 
+    }
+
     INLINE int length() const {
         return h_index>=l_index?h_index-l_index+1:l_index-h_index+1;
     }
@@ -541,36 +540,37 @@ public:
     }
 
 };
+
 //-----------------------------------------------------------------------------
 ///ap_fixed_base: AutoPilot fixed point
 //-----------------------------------------------------------------------------
-template<int _AP_W, int _AP_I, bool _AP_S=true, ap_q_mode _AP_Q=AP_TRN, 
+template<int _AP_W, int _AP_I, bool _AP_S=true, ap_q_mode _AP_Q=AP_TRN,
          ap_o_mode _AP_O=AP_WRAP, int _AP_N=0>
 struct ap_fixed_base {
 #ifdef _MSC_VER
-#pragma warning( disable : 4521 4522 )
-#endif
+    #pragma warning(disable: 4521 4522)
+#endif /* #ifdef _MSC_VER */
 public:
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> friend struct
 ap_fixed_base;
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> friend struct
 af_bit_ref;
-    
+
     INLINE void overflow_adjust(bool underflow, bool overflow,
                                 bool lD, bool sign) {
         if (!overflow && !underflow) return;
         switch (_AP_O) {
             case AP_WRAP:
-                if (_AP_N == 0) 
+                if (_AP_N == 0)
                     return;
                 if (_AP_S) {
-                    //signed SC_WRAP 
+                    //signed SC_WRAP
                     //n_bits == 1;
                     if (_AP_N > 1) {
                         ap_private<_AP_W, _AP_S>  mask(-1);
                         if (_AP_N >= _AP_W) mask = 0;
                         else mask.lshr(_AP_N);
-                        if (sign) 
+                        if (sign)
                             V &= mask;
                         else
                             V |= ~mask;
@@ -582,7 +582,7 @@ af_bit_ref;
                     if (_AP_N >= _AP_W) mask = 0;
                     else mask.lshr(_AP_N);
                     mask.flip();
-                    V |= mask;  
+                    V |= mask;
                 }
                 break;
             case AP_SAT_ZERO:
@@ -590,9 +590,9 @@ af_bit_ref;
                 break;
             case AP_WRAP_SM:
                 {
-                bool Ro = ap_private_ops::get<_AP_W, _AP_S, _AP_W -1>(V); // V[_AP_W -1]; 
+                bool Ro = ap_private_ops::get<_AP_W, _AP_S, _AP_W -1>(V); // V[_AP_W -1];
                 if (_AP_N == 0) {
-                    if (lD != Ro) { 
+                    if (lD != Ro) {
                         V.flip();
                         lD ? ap_private_ops::set<_AP_W, _AP_S, _AP_W - 1>(V) :
                             ap_private_ops::clear<_AP_W, _AP_S, _AP_W - 1>(V);
@@ -602,17 +602,17 @@ af_bit_ref;
                         V.flip();
                     } else if (_AP_N > 1) {
                         bool lNo = ap_private_ops::get<_AP_W, _AP_S, _AP_W - _AP_N> (V); // V[_AP_W - _AP_N];
-                        if (lNo == sign) 
+                        if (lNo == sign)
                             V.flip();
                         ap_private<_AP_W, false> mask(-1);
                         if (_AP_N >= _AP_W) mask = 0;
                         else mask.lshr(_AP_N);
-                        if (sign) 
+                        if (sign)
                             V &= mask;
-                        else 
+                        else
                             V |= mask.flip();
                         sign ? ap_private_ops::set<_AP_W, _AP_S, _AP_W - 1>(V) : ap_private_ops::clear<_AP_W, _AP_S, _AP_W - 1>(V);
-                    }   
+                    }
                 }
                 }
                 break;
@@ -623,7 +623,7 @@ af_bit_ref;
                     } else if (underflow) {
                         V.clear();
                         ap_private_ops::set<_AP_W, _AP_S, _AP_W-1>(V);
-                        if(_AP_O == AP_SAT_SYM)
+                        if (_AP_O == AP_SAT_SYM)
                             ap_private_ops::set<_AP_W, _AP_S, 0>(V);
                     }
                 } else {
@@ -636,37 +636,37 @@ af_bit_ref;
     }
 
     INLINE bool quantization_adjust(bool qb, bool r, bool s) {
-	bool carry=ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V);
-	switch (_AP_Q) {
-	    case AP_TRN:
-		return false;
-	    case AP_RND_ZERO:
-		qb &= s || r; 
-		break;
-	    case AP_RND_MIN_INF:
-		qb &= r;
-		break;
-	    case AP_RND_INF:
-		qb &= !s || r;
-		break;
-	    case AP_RND_CONV:
-		qb &= ap_private_ops::get<_AP_W, _AP_S, 0>(V) || r;
-		break;
-	    case AP_TRN_ZERO:
-		qb = s && ( qb || r );
-		break;
-	    default:;
+    	bool carry=ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V);
+    	switch (_AP_Q) {
+    	    case AP_TRN:
+    		return false;
+    	    case AP_RND_ZERO:
+    		qb &= s || r;
+    		break;
+    	    case AP_RND_MIN_INF:
+    		qb &= r;
+    		break;
+    	    case AP_RND_INF:
+    		qb &= !s || r;
+    		break;
+    	    case AP_RND_CONV:
+    		qb &= ap_private_ops::get<_AP_W, _AP_S, 0>(V) || r;
+    		break;
+    	    case AP_TRN_ZERO:
+    		qb = s && ( qb || r );
+    		break;
+    	    default:;
 
-	}
-	if(qb) ++V;
-	//only when old V[_AP_W-1]==1 && new V[_AP_W-1]==0 
-	return carry && !(ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V)); //(!V[_AP_W-1]); 
+    	}
+    	if (qb) ++V;
+    	//only when old V[_AP_W-1]==1 && new V[_AP_W-1]==0
+    	return carry && !(ap_private_ops::get<_AP_W, _AP_S, _AP_W-1>(V)); //(!V[_AP_W-1]);
     }
-    
+
     template<int _AP_W2, int _AP_I2, bool _AP_S2>
     struct RType {
         enum {
-            _AP_F=_AP_W-_AP_I, 
+            _AP_F=_AP_W-_AP_I,
             F2=_AP_W2-_AP_I2,
             mult_w = _AP_W+_AP_W2,
             mult_i = _AP_I+_AP_I2,
@@ -681,7 +681,7 @@ af_bit_ref;
             div_w = _AP_W + AP_MAX(_AP_W2 - _AP_I2, 0) + _AP_S2,
 #else
             div_w = _AP_W + AP_MAX(_AP_W2 - _AP_I2, 0) + _AP_S2 + AP_MAX(_AP_I2, 0),
-#endif
+#endif /* #ifndef __SC_COMPATIBLE__ */
             div_i = _AP_I + (_AP_W2-_AP_I2) + _AP_S2,
             div_s = _AP_S||_AP_S2,
             logic_w = AP_MAX(_AP_I+(_AP_S2&&!_AP_S),_AP_I2+(_AP_S&&!_AP_S2))+AP_MAX(_AP_F,F2),
@@ -703,29 +703,29 @@ af_bit_ref;
                             " for synthesis, please define macro AP_INT_TYPE_EXT(N) to"
                             " extend the valid range.\n", _AP_W);
         } else
-#endif 
+#endif /* #if 0 */
         if (_AP_W > MAX_MODE(AP_INT_MAX_W) * 1024) {
             fprintf(stderr, "[E] ap_%sfixed<%d, ...>: Bitwidth exceeds the "
                    "default max value %d. Please use macro "
-                   "AP_INT_MAX_W to set a larger max value.\n", 
-                            _AP_S?"":"u", _AP_W, 
+                   "AP_INT_MAX_W to set a larger max value.\n",
+                            _AP_S?"":"u", _AP_W,
                             MAX_MODE(AP_INT_MAX_W) * 1024);
             exit(1);
-        } 
+        }
     }
- 
+
     /// Constructors.
     // -------------------------------------------------------------------------
 #if 0
     #ifdef __SC_COMPATIBLE__
     INLINE ap_fixed_base():V(uint32_t(_AP_W), uint64_t(0)) {}
-    #else 
-    INLINE ap_fixed_base():V(uint32_t(_AP_W)) {} 
-    #endif
+    #else
+    INLINE ap_fixed_base():V(uint32_t(_AP_W)) {}
+    #endif /* #ifdef __SC_COMPATIBLE__ */
 #else
-    INLINE ap_fixed_base():V(0) {} 
-#endif
-    //  INLINE ap_fixed_base():V() {} 
+    INLINE ap_fixed_base():V(0) {}
+#endif /* #if 0 */
+    //  INLINE ap_fixed_base():V() {}
     //  INLINE  explicit ap_fixed_base(const ap_private<_AP_W+_AP_I, _AP_S>& _V):V(_V) {}
     INLINE ap_fixed_base(const ap_fixed_base& op):V(op.V) {}
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
@@ -751,11 +751,11 @@ af_bit_ref;
 		if (F2-_AP_F>_AP_W2)
 		    qb = neg_src;
 		else
-		    qb = ap_private_ops::get<_AP_W2, _AP_S2, F2-_AP_F-1>(val); 
+		    qb = ap_private_ops::get<_AP_W2, _AP_S2, F2-_AP_F-1>(val);
 
 		bool r=false;
 		enum { pos3 = F2-_AP_F-2};
-		if(pos3>=_AP_W2-1)
+		if (pos3>=_AP_W2-1)
 		    r=val!=0;
 		else if (pos3>=0)
 		r = (val<<(_AP_W2-1-pos3))!=0;
@@ -763,18 +763,18 @@ af_bit_ref;
 	    }
 	} else { //no quantization
 	    if (sh_amt < _AP_W) {
-		V=val; 
+		V=val;
 		V <<= sh_amt;
 	    }
 	}
 	//hanle overflow/underflow
-	if ((_AP_O!=AP_WRAP || _AP_N != 0) && 
-		((!_AP_S && _AP_S2) || _AP_I-_AP_S < 
+	if ((_AP_O!=AP_WRAP || _AP_N != 0) &&
+		((!_AP_S && _AP_S2) || _AP_I-_AP_S <
 		 _AP_I2 - _AP_S2 + (QUAN_INC|| (_AP_S2 &&
 		     _AP_O==AP_SAT_SYM)))) {//saturation
-	    bool deleted_zeros = _AP_S2?true:!carry, 
+	    bool deleted_zeros = _AP_S2?true:!carry,
 		 deleted_ones = true;
-	    bool lD=(_AP_I2>_AP_I && _AP_W2-_AP_I2+_AP_I>=0) && 
+	    bool lD=(_AP_I2>_AP_I && _AP_W2-_AP_I2+_AP_I>=0) &&
 		ap_private_ops::get<_AP_W2, _AP_S2, _AP_W2-_AP_I2+_AP_I>(val);
 	    enum { pos1=F2-_AP_F+_AP_W, pos2=F2-_AP_F+_AP_W+1};
 	    if (pos1 < _AP_W2) {
@@ -792,9 +792,9 @@ af_bit_ref;
 		bool Range2_all_ones=true;
 		if (pos2<_AP_W2 && pos2>=0) {
 		    enum { __W = (_AP_W2-pos2)>0 ? (_AP_W2-pos2) : 1};
-		    ap_private<__W, true> Range2=ap_private<__W, true>(val.lshr(pos2));                      
+		    ap_private<__W, true> Range2=ap_private<__W, true>(val.lshr(pos2));
 		    Range2_all_ones=Range2.isAllOnesValue();
-		} else if(pos2<0)
+		} else if (pos2<0)
 		    Range2_all_ones=false;
 
 		deleted_zeros=deleted_zeros && (carry?Range1_all_ones:Range1_all_zeros);
@@ -811,7 +811,7 @@ af_bit_ref;
 	    //         deleted_ones = %d, overflow = %d, underflow = %d\n",
 	    //         neg_src, neg_trg, deleted_zeros, deleted_ones,
 	    //         overflow, underflow);
-	    if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
+	    if (_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
 		underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
 	    overflow_adjust(underflow, overflow, lD, neg_src);
 	}
@@ -830,7 +830,7 @@ af_bit_ref;
 	ap_fixed_base<_AP_W2,_AP_W2,_AP_S2> f_op;
 	f_op.V=op;
 	*this = f_op;
-    }  
+    }
 
     INLINE ap_fixed_base(bool b) {
 	*this=(ap_private<1,false>)b;
@@ -881,7 +881,7 @@ af_bit_ref;
 	*this=(ap_private<64,false>)b;
 	report();
     }
-# else 
+# else
     INLINE ap_fixed_base(signed long  b) {
 	*this=(ap_private<32,true>)b;
 	report();
@@ -912,10 +912,10 @@ af_bit_ref;
     INLINE  ap_fixed_base(const char* val, signed char rd): V(0) {
          ap_private<_AP_W, _AP_S> Tmp(val, rd);
          V = Tmp;
-    }  
+    }
 
 #endif
-    
+
     INLINE ap_fixed_base(const std::string& val) {
         ap_private<_AP_W, _AP_S> Tmp(val, 2);
         V = Tmp;
@@ -940,20 +940,20 @@ af_bit_ref;
 	report();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_fixed_base(const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op) {
          *this = (bool(op));
         report();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
              ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_fixed_base(const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op) {
         *this = (ap_private<_AP_W2, false>(op));
         report();
-    } 
- 
+    }
+
     //helper function
     INLINE unsigned long long doubleToRawBits(double pf)const {
         union {
@@ -961,7 +961,7 @@ af_bit_ref;
             double __D;
         }LD;
         LD.__D=pf;
-        return LD.__L;    
+        return LD.__L;
     }
 
 
@@ -984,16 +984,16 @@ af_bit_ref;
     }
 
     INLINE ap_fixed_base(double d):V(0) {
-	if(!d) return;  
+	if (!d) return;
 	const bool isneg=d<0;
 
 	const uint64_t ireg=doubleToRawBits(isneg?-d:d);
-	if((ireg&0x7fffffffffffffffULL)!=0) {          
+	if ((ireg&0x7fffffffffffffffULL)!=0) {
 	    const int32_t exp=(((ireg)>>DOUBLE_MAN)&0x07ff)-DOUBLE_BIAS;
 	    ap_private<DOUBLE_MAN+2, true> man = ireg & DOUBLE_MAN_MASK;
 	    man.clear(DOUBLE_MAN+1);
 	    man.set(DOUBLE_MAN);
-	    if(isneg) {
+	    if (isneg) {
 		man.flip();
                 man++;
             }
@@ -1001,15 +1001,15 @@ af_bit_ref;
 	    enum {_AP_S2=true,  _AP_W2=DOUBLE_MAN+2,_AP_F=_AP_W -_AP_I };
 	    const int _AP_I2=exp+2;
             const int F2=_AP_W2-_AP_I2;
-	    const bool QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN || (_AP_Q==AP_TRN_ZERO && 
+	    const bool QUAN_INC=F2>_AP_F && !(_AP_Q==AP_TRN || (_AP_Q==AP_TRN_ZERO &&
 		    !_AP_S2));
 	    bool carry=false;
 	    //handle quantization
-	    const unsigned sh_amt=abs(F2-_AP_F); // sh_amt = F2>_AP_F ? F2 -_AP_F : _AP_F-F2; 
+	    const unsigned sh_amt=abs(F2-_AP_F); // sh_amt = F2>_AP_F ? F2 -_AP_F : _AP_F-F2;
 	    if (F2==_AP_F )
 		V=man;
 	    else if (F2>_AP_F) {
-		if(sh_amt >= DOUBLE_MAN+2)
+		if (sh_amt >= DOUBLE_MAN+2)
 		    V=isneg?-1:0;
 		else
 		    V=(man>>sh_amt) | ((man & 1ULL<<(DOUBLE_MAN+1)) ? (DOUBLE_MAN_MASK>>(DOUBLE_MAN+2-sh_amt) <<(DOUBLE_MAN+2-sh_amt)):0);
@@ -1024,16 +1024,16 @@ af_bit_ref;
 	    else { //no quantization
 		//                V=man;
 		if (sh_amt < _AP_W) {
-		    V = man; 
+		    V = man;
 		    V <<= sh_amt;
 		}
 	    }
 	    //handle overflow/underflow
-	    if((_AP_O != AP_WRAP || _AP_N != 0) && 
+	    if ((_AP_O != AP_WRAP || _AP_N != 0) &&
 		    ((!_AP_S && _AP_S2) || _AP_I-_AP_S <
 		     _AP_I2-_AP_S2+(QUAN_INC|| (_AP_S2 &&
 			 _AP_O==AP_SAT_SYM)) )) {// saturation
-		bool deleted_zeros = _AP_S2?true:!carry, 
+		bool deleted_zeros = _AP_S2?true:!carry,
 		     deleted_ones = true;
 		bool neg_src;
 		const bool lD=(_AP_I2>_AP_I) && (_AP_W2-_AP_I2+_AP_I>=0) && (man & (1ULL <<(DOUBLE_MAN+2-_AP_I2+_AP_I)));
@@ -1071,14 +1071,14 @@ af_bit_ref;
 		//          deleted_ones = %d, overflow = %d, underflow = %d\n",
 		//          neg_src, neg_trg, deleted_zeros, deleted_ones,
 		//          overflow, underflow);
-		if(_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
+		if (_AP_O==AP_SAT_SYM && _AP_S2 && _AP_S)
 		    underflow |= neg_src && (_AP_W>1?V.isMinSignedValue():true);
 		overflow_adjust(underflow,overflow,lD, neg_src);
-	    }    
+	    }
 	}
 	report();
     }
-        
+
 
         ///assign operators
     //-------------------------------------------------------------------------
@@ -1094,7 +1094,7 @@ af_bit_ref;
         V = op.V;
         return *this;
     }
-  
+
     INLINE volatile ap_fixed_base& operator=(const volatile ap_fixed_base<_AP_W, _AP_I, _AP_S,
                                     _AP_Q, _AP_O, _AP_N>& op) volatile {
         V = op.V;
@@ -1122,18 +1122,18 @@ af_bit_ref;
 	return Tmp;
     }
 
-    // Explicit conversion functions to ap_private that captures 
+    // Explicit conversion functions to ap_private that captures
     // all integer bits (bits are truncated)
-    INLINE ap_private<AP_MAX(_AP_I,1),_AP_S> 
+    INLINE ap_private<AP_MAX(_AP_I,1),_AP_S>
     to_ap_private(bool Cnative = true) const {
-	ap_private<AP_MAX(_AP_I,1),_AP_S> ret = ap_private<AP_MAX(_AP_I,1),_AP_S> ((_AP_I >= 1) ? (_AP_S==true ? V.ashr(AP_MAX(0,_AP_W - _AP_I)) : V.lshr(AP_MAX(0,_AP_W - _AP_I))) : ap_private<_AP_W, _AP_S>(0)); 
+	ap_private<AP_MAX(_AP_I,1),_AP_S> ret = ap_private<AP_MAX(_AP_I,1),_AP_S> ((_AP_I >= 1) ? (_AP_S==true ? V.ashr(AP_MAX(0,_AP_W - _AP_I)) : V.lshr(AP_MAX(0,_AP_W - _AP_I))) : ap_private<_AP_W, _AP_S>(0));
 
 	if (Cnative) {
 	    bool r = false;
 	    if (_AP_I < _AP_W) {
 		if (_AP_I > 0) r = !(V.getLoBits(_AP_W - _AP_I).isMinValue());
 		else r = !(V.isMinValue());
-	    } 
+	    }
 	    if (r && V.isNegative()) { // if this is negative integer
 		++ret;//ap_private<AP_MAX(_AP_I,1),_AP_S>(1,_AP_S);
 	    }
@@ -1171,9 +1171,9 @@ af_bit_ref;
     }
 
     INLINE double to_double() const {
-        if(!V)
+        if (!V)
 	    return 0;
-	if(_AP_W>64 || (_AP_W - _AP_I) > 0) {
+	if (_AP_W>64 || (_AP_W - _AP_I) > 0) {
 	    bool isneg = _AP_S && V[_AP_W-1];
 	    uint64_t res = isneg ? 0x8000000000000000ULL : 0;
 	    ap_private<_AP_W, false>  tmp = V;
@@ -1181,7 +1181,7 @@ af_bit_ref;
 	    int i = _AP_W -1 - tmp.countLeadingZeros();
 	    int exp = _AP_I-(_AP_W-i);
 	    res|=((uint64_t)(exp+DOUBLE_BIAS))<<DOUBLE_MAN;
-	    if(i!=0) {  
+	    if (i!=0) {
 		tmp.clear(i);
 		uint64_t man = ((i>DOUBLE_MAN)?tmp.lshr(i-DOUBLE_MAN):tmp).to_uint64() & DOUBLE_MAN_MASK;
 		res |= i<DOUBLE_MAN ? (man)<<(DOUBLE_MAN-i)& DOUBLE_MAN_MASK  : man;
@@ -1200,13 +1200,13 @@ af_bit_ref;
 
     INLINE float to_float() const {
 	uint32_t res=0;
-	if(V==0)
+	if (V==0)
 	    return 0;
 	bool isneg=V.isNegative();
 	ap_private<_AP_W, _AP_S> tmp=V;
 	if (isneg) tmp = -tmp;
-	if(_AP_W-_AP_I>0||_AP_W>64) {
-	    if(isneg)
+	if (_AP_W-_AP_I>0||_AP_W>64) {
+	    if (isneg)
 		res=0x80000000;
 	    int i=_AP_W-1;
 	    i-=tmp.countLeadingZeros();
@@ -1214,11 +1214,11 @@ af_bit_ref;
 	    res|=(exp+FLOAT_BIAS)<<FLOAT_MAN;
 
 	    ap_private<_AP_W, _AP_S> man = 0;
-	    if(i!=0) {  
+	    if (i!=0) {
 		tmp.clear(i);
-		if(i>FLOAT_MAN)
+		if (i>FLOAT_MAN)
 		    man=tmp.lshr(i-FLOAT_MAN);
-		else 
+		else
 		    man=tmp;
 		res |= i < FLOAT_MAN?man.getZExtValue()<<(FLOAT_MAN-i):man.getZExtValue();
 	    }
@@ -1232,11 +1232,11 @@ af_bit_ref;
     INLINE operator double () const {
 	return to_double();
     }
-#ifndef __SC_COMPATIBLE__ 
+#ifndef __SC_COMPATIBLE__
     INLINE operator float () const {
            return to_float();
     }
-    
+
     INLINE operator char () const {
         return (char) to_int();
     }
@@ -1255,8 +1255,8 @@ af_bit_ref;
 
     INLINE operator int () const {
         return to_int();
-    } 
- 
+    }
+
     INLINE operator unsigned int () const {
         return to_uint();
     }
@@ -1277,7 +1277,7 @@ af_bit_ref;
     INLINE operator unsigned long () const {
         return to_uint64();
     }
-    
+
 #endif
 #endif
     INLINE operator unsigned long long () const {
@@ -1288,23 +1288,23 @@ af_bit_ref;
         return to_int64();
     }
 #endif
-  
+
     INLINE std::string to_string(uint8_t radix=2, bool sign=false) const;
-  
+
     INLINE ap_slong bits_to_int64() const  {
       ap_private<AP_MIN(_AP_W, 64), _AP_S> res(V);
         return (ap_slong) res;
     }
-    
+
     INLINE ap_ulong bits_to_uint64() const {
       ap_private<AP_MIN(64,_AP_W), _AP_S> res(V);
       return (ap_ulong) res;
     }
-    
+
     INLINE int length() const {return _AP_W;}
 
-    // Count the number of zeros from the most significant bit 
-    // to the first one bit. Note this is only for ap_fixed_base whose 
+    // Count the number of zeros from the most significant bit
+    // to the first one bit. Note this is only for ap_fixed_base whose
     // _AP_W <= 64, otherwise will incur assertion.
     INLINE int countLeadingZeros() {
         return V.countLeadingZeros();
@@ -1319,7 +1319,7 @@ af_bit_ref;
 	r.V = V * op2.V;
 	return r;
     }
-    
+
     template<int _AP_W1, int _AP_I1, bool _AP_S1, int _AP_W2, int _AP_I2, bool _AP_S2>
     static INLINE ap_fixed_base multiply(const ap_fixed_base<_AP_W1,_AP_I1,_AP_S1>& op1, const
          ap_fixed_base<_AP_W2,_AP_I2,_AP_S2>& op2) {
@@ -1331,7 +1331,7 @@ af_bit_ref;
     template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE typename RType<_AP_W2,_AP_I2,_AP_S2>::div
     operator / (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
-        enum {F2 = _AP_W2-_AP_I2, _W1=AP_MAX(_AP_W + AP_MAX(F2, 0), _AP_W2), 
+        enum {F2 = _AP_W2-_AP_I2, _W1=AP_MAX(_AP_W + AP_MAX(F2, 0), _AP_W2),
               _W2=AP_MAX(_AP_W2,AP_MAX(_AP_W + AP_MAX(F2, 0), _AP_W2))};
         ap_private<_W1, _AP_S> dividend = (ap_private<_W1, _AP_S>(V)) << ((_W1>_AP_W)?F2:0);
         ap_private<_W1, _AP_S2> divisior = ap_private<_W2, _AP_S2>(op2.V);
@@ -1402,7 +1402,7 @@ af_bit_ref;
     OP_ASSIGN_AF(^)
     OP_ASSIGN_AF(*)
     OP_ASSIGN_AF(/)
-    
+
     ///Prefix increment, decrement
     //-------------------------------------------------------------------------
     INLINE ap_fixed_base& operator ++() {
@@ -1453,7 +1453,7 @@ af_bit_ref;
 
     ///Bitwise complement
     //-------------------------------------------------------------------------
-    INLINE ap_fixed_base<_AP_W, _AP_I, _AP_S> 
+    INLINE ap_fixed_base<_AP_W, _AP_I, _AP_S>
          operator ~() const {
         ap_fixed_base<_AP_W, _AP_I, _AP_S> res(*this);
         res.V.flip();
@@ -1468,14 +1468,14 @@ af_bit_ref;
         r.V = V;
         return r;
     }
-    
+
     template<int _AP_SHIFT>
     INLINE ap_fixed_base<_AP_W, _AP_I - _AP_SHIFT, _AP_S> rshift () const {
         ap_fixed_base<_AP_W, _AP_I - _AP_SHIFT, _AP_S> r;
         r.V = V;
         return r;
     }
- 
+
     //Because the return type is the type of the the first operand, shift assign
     //operators do not carry out any quantization or overflow
     //While systemc, shift assigns for sc_fixed/sc_ufixed will result in
@@ -1487,13 +1487,13 @@ af_bit_ref;
         sh=isNeg?-sh:sh;
         bool shiftoverflow = sh >= _AP_W;
         bool NegSrc = V.isNegative();
-        if(isNeg) {
-            if(shiftoverflow)
-                NegSrc?r.V.set():r.V.clear(); 
+        if (isNeg) {
+            if (shiftoverflow)
+                NegSrc?r.V.set():r.V.clear();
             else
                 r.V=_AP_S?V.ashr(sh):V.lshr(sh);
-        } else { 
-            if(shiftoverflow)
+        } else {
+            if (shiftoverflow)
                 r.V.clear();
             else
                 r.V=V<<sh;
@@ -1504,7 +1504,7 @@ af_bit_ref;
            bool qb = false;
            if (sh <= _AP_W) qb = V[sh - 1];
            bool rb  =  false;
-           if (sh > 1 && sh <= _AP_W) 
+           if (sh > 1 && sh <= _AP_W)
                 rb = (V << (_AP_W - sh + 1 )) != 0;
            else if (sh > _AP_W)
                 rb = V != 0;
@@ -1514,20 +1514,20 @@ af_bit_ref;
              if (sh < _AP_W ) {
                  ap_private<_AP_W, _AP_S > range1 = V.lshr(_AP_W - sh - 1);
                  allones = range1.isAllOnesValue();
-                 allzeros = range1.isMinValue();            
+                 allzeros = range1.isMinValue();
              } else {
                  allones = false;
                  allzeros = V.isMinValue();
              }
              bool overflow = !allzeros && !NegSrc;
              bool underflow = !allones && NegSrc;
-             if (_AP_O == AP_SAT_SYM && _AP_S)   
+             if (_AP_O == AP_SAT_SYM && _AP_S)
                   underflow |= NegSrc && (_AP_W > 1 ? r.V.isMinSignedValue():true);
              bool lD = false;
              if ( sh < _AP_W ) lD = V[_AP_W - sh - 1];
-             r.overflow_adjust(underflow, overflow, lD, NegSrc);       
+             r.overflow_adjust(underflow, overflow, lD, NegSrc);
         }
-#endif        
+#endif
         return r;
     }
 
@@ -1549,18 +1549,18 @@ af_bit_ref;
              if (sh < _AP_W ) {
                  ap_private<_AP_W, _AP_S > range1 = V.lshr(_AP_W - sh -1);
                  allones = range1.isAllOnesValue();
-                 allzeros = range1.isMinValue();            
+                 allzeros = range1.isMinValue();
              } else {
                  allones = false;
                  allzeros = V.isMinValue();
              }
              bool overflow = !allzeros && !NegSrc;
              bool underflow = !allones && NegSrc;
-             if (_AP_O == AP_SAT_SYM && _AP_S)   
+             if (_AP_O == AP_SAT_SYM && _AP_S)
                   underflow |= NegSrc && (_AP_W > 1 ? r.V.isMinSignedValue():true);
              bool lD = false;
              if ( sh < _AP_W ) lD = V[_AP_W - sh - 1];
-             r.overflow_adjust(underflow, overflow, lD, NegSrc);       
+             r.overflow_adjust(underflow, overflow, lD, NegSrc);
         }
 #endif
         return r;
@@ -1578,9 +1578,9 @@ af_bit_ref;
         bool NegSrc = V.isNegative();
         sh=isNeg?-sh:sh;
         bool shiftoverflow = sh >= _AP_W;
-        if(isNeg && !shiftoverflow) r.V=V<<sh;
+        if (isNeg && !shiftoverflow) r.V=V<<sh;
         else {
-            if(shiftoverflow)
+            if (shiftoverflow)
                 NegSrc?r.V.set():r.V.clear();
             else
                 r.V=_AP_S?V.ashr(sh):V.lshr(sh);
@@ -1591,7 +1591,7 @@ af_bit_ref;
            bool qb = false;
            if (sh <= _AP_W) qb = V[sh - 1];
            bool rb  =  false;
-           if (sh > 1 && sh <= _AP_W) 
+           if (sh > 1 && sh <= _AP_W)
                 rb = (V << (_AP_W - sh + 1 )) != 0;
            else if (sh > _AP_W)
                 rb = V != 0;
@@ -1601,20 +1601,20 @@ af_bit_ref;
              if (sh < _AP_W ) {
                  ap_private<_AP_W, _AP_S > range1 = V.lshr(_AP_W - sh - 1);
                  allones = range1.isAllOnesValue();
-                 allzeros = range1.isMinValue();            
+                 allzeros = range1.isMinValue();
              } else {
                  allones = false;
                  allzeros = V.isMinValue();
              }
              bool overflow = !allzeros && !NegSrc;
              bool underflow = !allones && NegSrc;
-             if (_AP_O == AP_SAT_SYM && _AP_S)   
+             if (_AP_O == AP_SAT_SYM && _AP_S)
                   underflow |= NegSrc && (_AP_W > 1 ? r.V.isMinSignedValue():true);
              bool lD = false;
              if ( sh < _AP_W ) lD = V[_AP_W - sh - 1];
-             r.overflow_adjust(underflow, overflow, lD, NegSrc); 
-        }      
-#endif        
+             r.overflow_adjust(underflow, overflow, lD, NegSrc);
+        }
+#endif
         return r;
     }
 
@@ -1628,7 +1628,7 @@ af_bit_ref;
         ap_fixed_base r;
         bool NegSrc = V.isNegative();
         bool shiftoverflow = sh >= _AP_W;
-        if(shiftoverflow)
+        if (shiftoverflow)
             NegSrc?r.V.set():r.V.clear();
         else
             r.V=_AP_S?V.ashr(sh):V.lshr(sh);
@@ -1638,13 +1638,13 @@ af_bit_ref;
            bool qb = false;
            if (sh <= _AP_W) qb = V[sh - 1];
            bool rb  =  false;
-           if (sh > 1 && sh <= _AP_W) 
+           if (sh > 1 && sh <= _AP_W)
                 rb = (V << (_AP_W - sh + 1 )) != 0;
            else if (sh > _AP_W)
                 rb = V != 0;
            r.quantization_adjust(qb, rb, NegSrc);
         }
-#endif        
+#endif
         return r;
     }
 
@@ -1683,7 +1683,7 @@ af_bit_ref;
 
     OP_AP_SHIFT_AF(<<)
     OP_AP_SHIFT_AF(>>)
-        
+
     INLINE ap_fixed_base& operator >>= (unsigned int sh) {
         *this = operator >> (sh);
         return *this;
@@ -1706,7 +1706,7 @@ af_bit_ref;
 
     ///Comparisons
     //-------------------------------------------------------------------------
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator == (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
 	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
 	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
@@ -1714,39 +1714,39 @@ af_bit_ref;
 	return OP1 == OP2;
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator != (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
         return !(*this==op2);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator > (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
 	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
 	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
 	ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
-	if(_AP_S||_AP_S2)
+	if (_AP_S||_AP_S2)
 	    return OP1.sgt(OP2);
 	else
-	    return OP1.ugt(OP2); 
+	    return OP1.ugt(OP2);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator <= (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
         return !(*this>op2);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator < (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
 	enum {_AP_F=_AP_W-_AP_I,F2=_AP_W2-_AP_I2, shAmt1 = AP_MAX(F2-_AP_F, 0), shAmt2 = AP_MAX(_AP_F-F2,0), _AP_W3 = (_AP_F==F2) ? AP_MAX(_AP_W,_AP_W2) : AP_MAX(_AP_W+shAmt1, _AP_W2+shAmt2)};
 	ap_private<_AP_W3, _AP_S > OP1= ap_private<_AP_W3, _AP_S >(V)<<shAmt1;
 	ap_private<_AP_W3,_AP_S2 > OP2=ap_private<_AP_W3,_AP_S2 >(op2.V)<<shAmt2;
-	if(_AP_S||_AP_S2) 
+	if (_AP_S||_AP_S2)
 	    return OP1.slt(OP2);
 	else
-	    return OP1.ult(OP2);   
+	    return OP1.ult(OP2);
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE bool operator >= (const ap_fixed_base<_AP_W2,_AP_I2,_AP_S2,_AP_Q2,_AP_O2, _AP_N2>& op2) const {
         return !(*this<op2);
     }
@@ -1854,7 +1854,7 @@ af_bit_ref;
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE af_range_ref<_AP_W,_AP_I,_AP_S, _AP_Q, _AP_O, _AP_N>
-    range(const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range(const ap_private<_AP_W2, _AP_S2> &HiIdx,
           const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1864,7 +1864,7 @@ af_bit_ref;
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE af_range_ref<_AP_W,_AP_I,_AP_S, _AP_Q, _AP_O, _AP_N>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
                  const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1874,19 +1874,19 @@ af_bit_ref;
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE af_range_ref<_AP_W,_AP_I,_AP_S, _AP_Q, _AP_O, _AP_N>
-    range(const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range(const ap_private<_AP_W2, _AP_S2> &HiIdx,
           const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
         assert((Hi < _AP_W) && (Lo < _AP_W) && "Out of bounds in range()");
         return af_range_ref<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>(const_cast<
-               ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>*>(this), 
+               ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>*>(this),
                Hi, Lo);
     }
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE af_range_ref<_AP_W,_AP_I,_AP_S, _AP_Q, _AP_O, _AP_N>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
                  const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1902,7 +1902,7 @@ af_bit_ref;
     range() const {
         return this->range(_AP_W - 1, 0);
     }
-   
+
     INLINE bool is_zero () const {
         return V.isMinValue();
     }
@@ -1919,7 +1919,7 @@ af_bit_ref;
 
     INLINE int iwl () const {
         return _AP_I;
-    } 
+    }
 
     INLINE ap_q_mode q_mode () const {
         return _AP_Q;
@@ -1931,13 +1931,13 @@ af_bit_ref;
 
     INLINE int n_bits () const {
         return 0;
-    } 
-   
+    }
+
   //private:
 public:
     ap_private<_AP_W, _AP_S> V;
 };
- 
+
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 std::string ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>::to_string(
                                             uint8_t radix, bool sign) const {
@@ -1951,8 +1951,8 @@ std::string ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>::to_string(
         case 16 : prefix = "0x"; step = 4; break;
         default : break;
     }
-    if (_AP_W <= _AP_I) 
-        str = this->to_ap_private().to_string(radix, 
+    if (_AP_W <= _AP_I)
+        str = this->to_ap_private().to_string(radix,
                radix == 10 ? _AP_S : sign);
     else {
         if (radix == 10) {
@@ -1972,12 +1972,12 @@ std::string ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>::to_string(
             while (frac_part != 0) {
                char digit = (frac_part * radix).to_ap_private();
                str += static_cast<char>(digit + '0');
-               frac_part *= radix;     
+               frac_part *= radix;
             }
         } else {
             if (_AP_I > 0) {
                 for (signed i = _AP_W - _AP_I; i < _AP_W; i += step) {
-                      
+
                      char digit = (char)(this->range(AP_MIN(i + step - 1, _AP_W - 1), i));
                      str = (digit < 10 ? static_cast<char>(digit + '0') :
                                         static_cast<char>(digit - 10 + 'a')) + str;
@@ -1995,30 +1995,30 @@ std::string ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>::to_string(
     str = prefix + str;
     return str;
 }
- 
+
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
-INLINE void b_not(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void b_not(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op) {
     ret.V = op.V;
     ret.V.flip();
 }
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
-INLINE void b_and(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void b_and(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op1,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op2) {
     ret.V =  op1.V & op2.V;
 }
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
-INLINE void b_or(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void b_or(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op1,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op2) {
     ret.V =  op1.V | op2.V;
 }
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
-INLINE void b_xor(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void b_xor(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op1,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op2) {
     ret.V =  op1.V ^ op2.V;
@@ -2027,7 +2027,7 @@ INLINE void b_xor(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
          int _AP_N, int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2,
           ap_o_mode _AP_O2, int _AP_N2>
-INLINE void neg(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void neg(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op) {
     ap_fixed_base<_AP_W2+!_AP_S2, _AP_I2+!_AP_S2, true, _AP_Q2, _AP_O2, _AP_N2> Tmp;
     Tmp.V = - op.V;
@@ -2036,46 +2036,46 @@ INLINE void neg(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
          int _AP_N>
-INLINE void neg(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void neg(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op) {
     ret.V = -op.V;
 }
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
-         int _AP_N, int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, 
+         int _AP_N, int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2,
          ap_o_mode _AP_O2, int _AP_N2>
-INLINE void lshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void lshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op,
             int i) {
     ap_fixed_base<_AP_W2 - _AP_I2 + AP_MAX(_AP_I, _AP_I2), AP_MAX(_AP_I, _AP_I2), _AP_S2, _AP_Q2, _AP_O2, _AP_N2> Tmp;
     Tmp = op;
     Tmp.V <<= i;
-    ret = Tmp; 
-} 
+    ret = Tmp;
+}
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
          int _AP_N>
-INLINE void lshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void lshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op,
             int i) {
     ret.V = op.V << i;
-} 
+}
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
-         int _AP_N, int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, 
+         int _AP_N, int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2,
          ap_o_mode _AP_O2, int _AP_N2>
-INLINE void rshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void rshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2>& op,
             int i) {
     ap_fixed_base<_AP_I2 + AP_MAX(_AP_W - _AP_I, _AP_W2 - _AP_I2), _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> Tmp;
     Tmp = op;
     Tmp.V = _AP_S2 ? Tmp.V.ashr(i): Tmp.V.lshr(i);
-    ret = Tmp; 
+    ret = Tmp;
 }
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O,
          int _AP_N>
-INLINE void rshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret, 
+INLINE void rshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
             const ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& op,
             int i) {
     ret.V = _AP_S ? op.V.ashr(i): op.V.lshr(i);
@@ -2088,7 +2088,7 @@ INLINE void rshift(ap_fixed_base<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N>& ret,
 
 #define AF_CTOR_SPEC(__W,C_TYPE) \
     AF_CTOR_SPEC_BASE(__W,true,C_TYPE) \
-    AF_CTOR_SPEC_BASE(__W,false,C_TYPE) 
+    AF_CTOR_SPEC_BASE(__W,false,C_TYPE)
 
 AF_CTOR_SPEC(1,bool)
 AF_CTOR_SPEC(8, signed char)
@@ -2123,14 +2123,14 @@ operator >> (std::istream& os, ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE void print(const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& x) {
     ap_private<_AP_W,_AP_S> data=x.V;
-    if(_AP_I>0) {
+    if (_AP_I>0) {
         const ap_private<_AP_I,_AP_S> p1=data>>(_AP_W-_AP_I);
         print(p1);
-        
+
     } else
         printf("0");
     printf(".");
-    if(_AP_I<_AP_W) {
+    if (_AP_I<_AP_W) {
         const ap_private<_AP_W-_AP_I,false> p2=data;
         print(p2,false);
     }
@@ -2360,15 +2360,15 @@ template<int _AP_W, int _AP_I, bool _AP_S, \
          ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N> \
   INLINE bool operator REL_OP ( C_TYPE op2, const af_bit_ref<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N> &op) {  \
     return op2 REL_OP (bool(op));  \
-  } 
- 
+  }
+
 #define AF_REF_REL_MIX_INT(C_TYPE, _AP_WI, _AP_SI) \
 AF_REF_REL_OP_MIX_INT(>, C_TYPE, _AP_WI, _AP_SI) \
 AF_REF_REL_OP_MIX_INT(<, C_TYPE, _AP_WI, _AP_SI) \
 AF_REF_REL_OP_MIX_INT(>=, C_TYPE, _AP_WI, _AP_SI) \
 AF_REF_REL_OP_MIX_INT(<=, C_TYPE, _AP_WI, _AP_SI) \
 AF_REF_REL_OP_MIX_INT(==, C_TYPE, _AP_WI, _AP_SI) \
-AF_REF_REL_OP_MIX_INT(!=, C_TYPE, _AP_WI, _AP_SI) 
+AF_REF_REL_OP_MIX_INT(!=, C_TYPE, _AP_WI, _AP_SI)
 
 AF_REF_REL_MIX_INT(bool, 1, false)
 AF_REF_REL_MIX_INT(char, 8, true)
@@ -2408,16 +2408,14 @@ template<int _AP_W, int _AP_I, bool _AP_S, \
          ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N, int _AP_W2, bool _AP_S2> \
   INLINE bool operator REL_OP ( const ap_private<_AP_W2, _AP_S2> &op2, const af_bit_ref<_AP_W, _AP_I, _AP_S, _AP_Q, _AP_O, _AP_N> &op) {  \
     return op2.operator REL_OP (ap_private<1,false>(op));  \
-  } 
- 
-AF_REF_REL_OP_AP_INT(>) 
-AF_REF_REL_OP_AP_INT(<) 
-AF_REF_REL_OP_AP_INT(>=) 
-AF_REF_REL_OP_AP_INT(<=) 
-AF_REF_REL_OP_AP_INT(==) 
-AF_REF_REL_OP_AP_INT(!=) 
+  }
 
-
+AF_REF_REL_OP_AP_INT(>)
+AF_REF_REL_OP_AP_INT(<)
+AF_REF_REL_OP_AP_INT(>=)
+AF_REF_REL_OP_AP_INT(<=)
+AF_REF_REL_OP_AP_INT(==)
+AF_REF_REL_OP_AP_INT(!=)
 
 // Relational Operators with double
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
@@ -2425,35 +2423,29 @@ INLINE bool operator == ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_
   return op2.operator == (op1);
 }
 
-
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE bool operator != ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& op2) {
   return op2.operator != (op1);
 }
-
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE bool operator > ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& op2) {
   return op2.operator < (op1);
 }
 
-
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE bool operator >= ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& op2) {
   return op2.operator <= (op1);
 }
-
 
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE bool operator < ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& op2) {
   return op2.operator > (op1);
 }
 
-
 template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N>
 INLINE bool operator <= ( double op1, const ap_fixed_base<_AP_W,_AP_I,_AP_S,_AP_Q,_AP_O, _AP_N>& op2) {
   return op2.operator >= (op1);
 }
 
-#endif //__AESL_GCC_AP_FIXED_H__
-
+#endif /* #ifndef __AESL_GCC_AP_FIXED_H__ */

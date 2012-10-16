@@ -30,7 +30,7 @@
  *****************************************************************************/
 
 /*
- * This file contains the definition of the data types for AXI streaming. 
+ * This file contains the definition of the data types for AXI streaming.
  * ap_axi_s is a signed interpretation of the AXI stream
  * ap_axi_u is an unsigned interpretation of the AXI stream
  */
@@ -42,7 +42,7 @@
 #include "ap_int.h"
 
 template<int D,int U,int TI,int TD>
-  struct ap_axis{
+struct ap_axis {
     ap_int<D>    data;
     ap_uint<D/8> keep;
     ap_uint<D/8> strb;
@@ -50,10 +50,10 @@ template<int D,int U,int TI,int TD>
     ap_uint<1>   last;
     ap_uint<TI>  id;
     ap_uint<TD>  dest;
-  };
+};
 
 template<int D,int U,int TI,int TD>
-  struct ap_axiu{
+struct ap_axiu {
     ap_uint<D>   data;
     ap_uint<D/8> keep;
     ap_uint<D/8> strb;
@@ -61,9 +61,6 @@ template<int D,int U,int TI,int TD>
     ap_uint<1>   last;
     ap_uint<TI>  id;
     ap_uint<TD>  dest;
-  };
+};
 
-//typedef ap_axis<int D, int U, int TI, int TD> ap_axis_unsigned<int D, int U, int TI, int TD>;
-
-
-#endif
+#endif /* #ifndef __AP__AXI_SDATA__ */

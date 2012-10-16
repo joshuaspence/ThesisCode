@@ -1,18 +1,18 @@
 /*
-   Copyright 2012 Xilinx, Inc.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+ * Copyright 2012 Xilinx, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef LLVM_SUPPORT_MATHEXTRAS_H
 #define LLVM_SUPPORT_MATHEXTRAS_H
@@ -29,13 +29,13 @@ typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
 #else if
 #include <stdint.h>
-#endif
+#endif /* #if _MSC_VER <= 1500 */
 #else
 #include <stdint.h>
-#endif
+#endif /* #if _MSC_VER <= 1500 */
 #undef INLINE
 #if 1
-#define INLINE  inline 
+#define INLINE  inline
 #else
 //Enable to debug ap_int/ap_fixed
 #define INLINE  __attribute__((weak))
@@ -43,7 +43,7 @@ typedef unsigned __int64 uint64_t;
 #define AP_MAX(a,b) ((a) > (b) ? (a) : (b))
 #define AP_MIN(a,b) ((a) < (b) ? (a) : (b))
 #define AP_ABS(a) ((a)>=0 ? (a):-(a))
-#ifndef AP_INT_MAX_W 
+#ifndef AP_INT_MAX_W
 #define AP_INT_MAX_W 1024
 #endif
 #define BIT_WIDTH_UPPER_LIMIT (1 << 15)
@@ -52,7 +52,7 @@ typedef unsigned __int64 uint64_t;
 #endif
 #define MAX_MODE(BITS) ((BITS + 1023) / 1024)
 
-// NOTE: The following support functions use the _32/_64 extensions instead of  
+// NOTE: The following support functions use the _32/_64 extensions instead of
 // type overloading so that signed and unsigned integers can be used without
 // ambiguity.
 
@@ -127,7 +127,7 @@ INLINE unsigned CountLeadingZeros_32(uint32_t Value) {
 }
 
 /// CountLeadingZeros_64 - This function performs the platform optimal form
-/// of counting the number of zeros from the most significant bit to the first 
+/// of counting the number of zeros from the most significant bit to the first
 /// one bit (64 bit edition.)
 /// Returns 64 if the word is zero.
 INLINE unsigned CountLeadingZeros_64(uint64_t Value) {
@@ -171,7 +171,7 @@ INLINE unsigned CountLeadingZeros_64(uint64_t Value) {
 }
 
 /// CountTrailingZeros_64 - This function performs the platform optimal form
-/// of counting the number of zeros from the least significant bit to the first 
+/// of counting the number of zeros from the least significant bit to the first
 /// one bit (64 bit edition.)
 /// Returns 64 if the word is zero.
 INLINE unsigned CountTrailingZeros_64(uint64_t Value) {
@@ -232,7 +232,7 @@ namespace AESL_std {
         return (a>=b) ? a : b;
     }
 }
-enum ap_q_mode { 
+enum ap_q_mode {
     AP_RND, // rounding to plus infinity
     AP_RND_ZERO,// rounding to zero
     AP_RND_MIN_INF,// rounding to minus infinity
@@ -242,7 +242,7 @@ enum ap_q_mode {
     AP_TRN_ZERO // truncation to zero
 
 };
-enum ap_o_mode { 
+enum ap_o_mode {
     AP_SAT,                // saturation
     AP_SAT_ZERO,        // saturation to zero
     AP_SAT_SYM,                // symmetrical saturation
@@ -250,11 +250,11 @@ enum ap_o_mode {
     AP_WRAP_SM                // sign magnitude wrap-around (*)
 };
 
-template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q, 
+template<int _AP_W, int _AP_I, bool _AP_S, ap_q_mode _AP_Q,
     ap_o_mode _AP_O, int _AP_N> struct ap_fixed_base;
-template<int _AP_W, int _AP_I, bool _AP_S, 
+template<int _AP_W, int _AP_I, bool _AP_S,
     ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N> struct af_range_ref;
-template<int _AP_W, int _AP_I, bool _AP_S, 
+template<int _AP_W, int _AP_I, bool _AP_S,
     ap_q_mode _AP_Q, ap_o_mode _AP_O, int _AP_N> struct af_bit_ref;
 
 template<int _AP_W, bool _AP_S> struct ap_range_ref;
@@ -262,7 +262,7 @@ template<int _AP_W, bool _AP_S> struct ap_bit_ref;
 template<int _AP_W1, typename _AP_T1, int _AP_W2, typename _AP_T2> struct ap_concat_ref;
 static bool InvalidDigit(const char* str, unsigned len, unsigned start, unsigned radix) {
     unsigned i;
-    for (i = start; i < len; ++i) 
+    for (i = start; i < len; ++i)
         if ((radix == 2 && (str[i] == '0' || str[i] == '1')) ||
                 (radix == 8 && str[i] >= '0' &&  str[i] <= '7') ||
                 (radix == 10 && str[i] >= '0' && str[i] <= '9') ||
@@ -305,8 +305,8 @@ static void ap_parse_prefix(const char* str, uint32_t &offset, uint32_t &radix) 
     return;
 }
 
-/// sub_1 - This function subtracts a single "digit" (64-bit word), y, from 
-/// the multi-digit integer array, x[], propagating the borrowed 1 value until 
+/// sub_1 - This function subtracts a single "digit" (64-bit word), y, from
+/// the multi-digit integer array, x[], propagating the borrowed 1 value until
 /// no further borrowing is neeeded or it runs out of "digits" in x.  The result
 /// is 1 if "borrowing" exhausted the digits in x, or 0 if x was not exhausted.
 /// In other words, if y > x then this function returns 1, otherwise 0.
@@ -315,7 +315,7 @@ static bool sub_1(uint64_t x[], uint32_t len, uint64_t y) {
     for (uint32_t i = 0; i < len; ++i) {
         uint64_t __X = x[i];
         x[i] -= y;
-        if (y > __X) 
+        if (y > __X)
             y = 1;  // We have to "borrow 1" from next "digit"
         else {
             y = 0;  // No need to borrow
@@ -326,7 +326,7 @@ static bool sub_1(uint64_t x[], uint32_t len, uint64_t y) {
 }
 
     /// This enumeration just provides for internal constants used in this
-    /// translation unit. 
+    /// translation unit.
     enum {
         MIN_INT_BITS = 1,        ///< Minimum number of bits that can be specified
         ///< Note that this must remain synchronized with IntegerType::MIN_INT_BITS
@@ -334,7 +334,7 @@ static bool sub_1(uint64_t x[], uint32_t len, uint64_t y) {
             ///< Note that this must remain synchronized with IntegerType::MAX_INT_BITS
     };
 
-    /// A utility function for allocating memory and checking for allocation 
+    /// A utility function for allocating memory and checking for allocation
     /// failure.  The content is not zeroed.
     static uint64_t* getMemory(uint32_t numWords) {
         return (uint64_t*) malloc(numWords*sizeof(uint64_t));
@@ -345,20 +345,20 @@ static bool sub_1(uint64_t x[], uint32_t len, uint64_t y) {
     //===----------------------------------------------------------------------===//
 
     /// ap_private - This class represents arbitrary precision constant integral values.
-    /// It is a functional replacement for common case unsigned integer type like 
-    /// "unsigned", "unsigned long" or "uint64_t", but also allows non-byte-width 
+    /// It is a functional replacement for common case unsigned integer type like
+    /// "unsigned", "unsigned long" or "uint64_t", but also allows non-byte-width
     /// integer sizes and large integer value types such as 3-bits, 15-bits, or more
-    /// than 64-bits of precision. ap_private provides a variety of arithmetic operators 
+    /// than 64-bits of precision. ap_private provides a variety of arithmetic operators
     /// and methods to manipulate integer values of any bit-width. It supports both
     /// the typical integer arithmetic and comparison operations as well as bitwise
     /// manipulation.
     ///
     /// The class has several invariants worth noting:
     ///   * All bit, byte, and word positions are zero-based.
-    ///   * Once the bit width is set, it doesn't change except by the Truncate, 
+    ///   * Once the bit width is set, it doesn't change except by the Truncate,
     ///     SignExtend, or ZeroExtend operations.
     ///   * All binary operators must be on ap_private instances of the same bit width.
-    ///     Attempting to use these operators on instances with different bit 
+    ///     Attempting to use these operators on instances with different bit
     ///     widths will yield an assertion.
     ///   * The value is stored canonically as an unsigned value. For operations
     ///     where it makes a difference, there are both signed and unsigned variants
@@ -410,7 +410,7 @@ public:
     template<int _AP_W2, bool _AP_S2>
     struct RType {
         enum {
-            mult_w = _AP_W+_AP_W2, 
+            mult_w = _AP_W+_AP_W2,
             mult_s = _AP_S||_AP_S2,
             plus_w = AP_MAX(_AP_W+(_AP_S2&&!_AP_S),_AP_W2+(_AP_S&&!_AP_S2))+1,
             plus_s = _AP_S||_AP_S2,
@@ -418,7 +418,7 @@ public:
             minus_s = true,
             div_w = _AP_W+_AP_S2,
             div_s = _AP_S||_AP_S2,
-            mod_w = AP_MIN(_AP_W,_AP_W2+(!_AP_S2&&_AP_S)), 
+            mod_w = AP_MIN(_AP_W,_AP_W2+(!_AP_S2&&_AP_S)),
             mod_s = _AP_S,
             logic_w = AP_MAX(_AP_W+(_AP_S2&&!_AP_S),_AP_W2+(_AP_S&&!_AP_S2)),
             logic_s = _AP_S||_AP_S2
@@ -439,16 +439,16 @@ public:
             fprintf(stderr, "[W] W=%d is out of bound (1<=W<=1024): for"
                     " synthesis: please define macro AP_INT_TYPE_EXT(N)"
                     " to extend the valid range.\n", _AP_W);
-        } else 
+        } else
 #endif
             if (_AP_W > MAX_MODE(AP_INT_MAX_W) * 1024) {
                 fprintf(stderr, "[E] ap_%sint<%d>: Bitwidth exceeds the "
                         "default max value %d. Please use macro "
-                        "AP_INT_MAX_W to set a larger max value.\n",  
+                        "AP_INT_MAX_W to set a larger max value.\n",
                         _AP_S?"":"u", _AP_W,
                         MAX_MODE(AP_INT_MAX_W) * 1024);
                 exit(1);
-            } 
+            }
     }
 
     enum { BitWidth = _AP_W };
@@ -478,24 +478,24 @@ public:
         const char *strp = str.c_str();
         uint32_t offset = 0;
         uint32_t base = 0;
-        bool neg = false;        
+        bool neg = false;
         uint32_t radix = 16;
         ap_parse_sign(strp, base, neg);
-        ap_parse_prefix(strp + base, offset, radix);  
+        ap_parse_prefix(strp + base, offset, radix);
 
         if ((radix != 10 && neg) ||
                 (strLen - base - offset <= 0) ||
                 InvalidDigit(strp, strLen, base + offset, radix))  {
             fprintf(stderr, "invalid character string %s !\n", val);
             assert(0);
-        } 
+        }
 
         ap_private ap_private_val(str.c_str(), strLen, radix, base, offset);
-        if (neg) 
+        if (neg)
             ap_private_val = -ap_private_val;
         operator =  (ap_private_val);
         report();
-    }  
+    }
 
     ap_private(const char* val, int rd) {
         std::string str(val);
@@ -504,25 +504,25 @@ public:
         uint32_t offset = 0;
         uint32_t base = 0;
         uint32_t radix = rd;
-        bool neg = false;  
+        bool neg = false;
         ap_parse_sign(strp, base, neg);
-        ap_parse_prefix(strp + base, offset, radix);  
+        ap_parse_prefix(strp + base, offset, radix);
 
         if ((radix != 10 && neg) ||
                 (strLen - base - offset <= 0) ||
                 InvalidDigit(strp, strLen, base + offset, radix))  {
             fprintf(stderr, "invalid character string %s !\n", val);
             assert(0);
-        } 
+        }
 
         //        uint32_t bitsNeeded = ap_private<_AP_W, _AP_S>::getBitsNeeded(strp, strLen, radix);
         //        ap_private<_AP_W, _AP_S> ap_private_val(bitsNeeded, strp , strLen, radix, base, offset);
         ap_private ap_private_val(strp , strLen, radix, base, offset);
         if (neg)
-            ap_private_val = -ap_private_val;  
+            ap_private_val = -ap_private_val;
         operator =  (ap_private_val);
         report();
-    }  
+    }
 
     /// Note that numWords can be smaller or larger than the corresponding bit
     /// width but any extraneous bits will be dropped.
@@ -546,10 +546,10 @@ public:
         }
     }
 
-    /// This constructor interprets Val as a string in the given radix. The 
+    /// This constructor interprets Val as a string in the given radix. The
     /// interpretation stops when the first charater that is not suitable for the
     /// radix is encountered. Acceptable radix values are 2, 8, 10 and 16. It is
-    /// an error for the value implied by the string to require more bits than 
+    /// an error for the value implied by the string to require more bits than
     /// numBits.
     /// @param numBits the bit width of the constructed ap_private
     /// @param val the string to be interpreted
@@ -562,7 +562,7 @@ public:
     }
 
     /// This constructor interprets the slen characters starting at StrStart as
-    /// a string in the given radix. The interpretation stops when the first 
+    /// a string in the given radix. The interpretation stops when the first
     /// character that is not suitable for the radix is encountered. Acceptable
     /// radix values are 2, 8, 10 and 16. It is an error for the value implied by
     /// the string to require more bits than numBits.
@@ -594,17 +594,17 @@ public:
         report();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
-        ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
-    INLINE ap_private(const af_range_ref<_AP_W2, _AP_I2, _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
+        ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
+    INLINE ap_private(const af_range_ref<_AP_W2, _AP_I2, _AP_S2,
             _AP_Q2, _AP_O2, _AP_N2> &val) {
         *this = ((val.operator ap_private<_AP_W2, false> ()));
         report();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
-        ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
-    INLINE ap_private(const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
+        ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
+    INLINE ap_private(const af_bit_ref<_AP_W2, _AP_I2, _AP_S2,
             _AP_Q2, _AP_O2, _AP_N2> &val) {
         *this = (uint64_t)(bool)val;
         report();
@@ -615,12 +615,12 @@ public:
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     ap_private(const volatile ap_private<_AP_W1, _AP_S1, _AP_N1>& that): VAL(0) {
         operator = (const_cast<const ap_private<_AP_W1, _AP_S1, _AP_N1>& >(that));
-    } 
+    }
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     ap_private(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that): VAL(0) {
         operator = (that);
-    } 
+    }
 
     template<int _AP_W1, bool _AP_S1>
     explicit ap_private(const ap_private<_AP_W1, _AP_S1, 1>& that): VAL(0) {
@@ -642,7 +642,7 @@ public:
 
     /// @brief Destructor.
     virtual ~ap_private() {}
-  
+
     /// Default constructor that creates an uninitialized ap_private.  This is useful
     ///  for object deserialization (pair this with the static method Read).
     ap_private(){memset(pVal, 0, sizeof(uint64_t)*(_AP_N));}
@@ -693,42 +693,42 @@ public:
 
     /// @returns true if the number of bits <= 64, false otherwise.
     /// @brief Determine if this ap_private just has one word to store value.
-    INLINE bool isSingleWord() const { 
+    INLINE bool isSingleWord() const {
         return false;
     }
 
     /// @returns the word position for the specified bit position.
     /// @brief Determine which word a bit is in.
-    static uint32_t whichWord(uint32_t bitPosition) { 
-        //    return bitPosition / APINT_BITS_PER_WORD; 
+    static uint32_t whichWord(uint32_t bitPosition) {
+        //    return bitPosition / APINT_BITS_PER_WORD;
         return (bitPosition) >> 6;
     }
 
-    /// @returns the bit position in a word for the specified bit position 
+    /// @returns the bit position in a word for the specified bit position
     /// in the ap_private.
     /// @brief Determine which bit in a word a bit is in.
-    static uint32_t whichBit(uint32_t bitPosition) { 
-        //    return bitPosition % APINT_BITS_PER_WORD; 
+    static uint32_t whichBit(uint32_t bitPosition) {
+        //    return bitPosition % APINT_BITS_PER_WORD;
         return bitPosition & 0x3f;
     }
 
-    /// bit at a specific bit position. This is used to mask the bit in the 
+    /// bit at a specific bit position. This is used to mask the bit in the
     /// corresponding word.
     /// @returns a uint64_t with only bit at "whichBit(bitPosition)" set
     /// @brief Get a single bit mask.
-    static uint64_t maskBit(uint32_t bitPosition) { 
-        return 1ULL << (whichBit(bitPosition)); 
+    static uint64_t maskBit(uint32_t bitPosition) {
+        return 1ULL << (whichBit(bitPosition));
     }
 
     /// @returns the corresponding word for the specified bit position.
     /// @brief Get the word corresponding to a bit position
-    INLINE uint64_t getWord(uint32_t bitPosition) const { 
-        return isSingleWord() ? VAL : pVal[whichWord(bitPosition)]; 
+    INLINE uint64_t getWord(uint32_t bitPosition) const {
+        return isSingleWord() ? VAL : pVal[whichWord(bitPosition)];
     }
 
     /// This method is used internally to clear the to "N" bits in the high order
-    /// word that are not used by the ap_private. This is needed after the most 
-    /// significant word is assigned a value to ensure that those bits are 
+    /// word that are not used by the ap_private. This is needed after the most
+    /// significant word is assigned a value to ensure that those bits are
     /// zero'd out.
     /// @brief Clear unused high order bits
     INLINE void clearUnusedBits(void) {
@@ -745,7 +745,7 @@ public:
 
     /// This is used by the constructors that take string arguments.
     /// @brief Convert a char array into an ap_private
-    INLINE void fromString(const char *strStart, uint32_t slen, 
+    INLINE void fromString(const char *strStart, uint32_t slen,
             uint8_t radix) ;
 
     INLINE ap_private read() volatile {
@@ -791,7 +791,7 @@ public:
     }
 
     INLINE double to_double() const {
-        if (isNegative()) 
+        if (isNegative())
             return roundToDouble(true);
         else
             return roundToDouble(false);
@@ -811,31 +811,31 @@ public:
                 set(_AP_W - 1 - i);
             else
                 clear(_AP_W - 1 - i);
-        } 
+        }
         clearUnusedBits();
         return *this;
     }
 
     /*Return true if the value of ap_private instance is zero*/
     INLINE bool iszero () const {
-        return isMinValue(); 
-    }     
+        return isMinValue();
+    }
 
-    /* x < 0 */   
+    /* x < 0 */
     INLINE bool sign () const {
         if (isNegative())
             return true;
-        return false; 
+        return false;
     }
 
     /* x[i] = !x[i] */
     INLINE void invert (int i) {
         assert( i >= 0 && "Attempting to read bit with negative index");
         assert( i < _AP_W && "Attempting to read bit beyond MSB");
-        flip(i); 
+        flip(i);
     }
 
-    /* x[i] */ 
+    /* x[i] */
     INLINE bool test (int i) const {
         assert( i >= 0 && "Attempting to read bit with negative index");
         assert( i < _AP_W && "Attempting to read bit beyond MSB");
@@ -861,7 +861,7 @@ public:
         clearUnusedBits();
         return *this;
     }
-    
+
     INLINE void set() {
         for (uint32_t i = 0; i < _AP_N; ++i)
             pVal[i] = ~0ULL;
@@ -882,7 +882,7 @@ public:
         return operator [](i);
     }
 
-    //This is used for sc_lv and sc_bv, which is implemented by sc_uint 
+    //This is used for sc_lv and sc_bv, which is implemented by sc_uint
     //Rotate an ap_private object n places to the left
     INLINE void lrotate(int n) {
         assert( n >= 0 && "Attempting to shift negative index");
@@ -890,8 +890,8 @@ public:
         operator =  (shl(n) | lshr(_AP_W - n));
     }
 
-    //This is used for sc_lv and sc_bv, which is implemented by sc_uint 
-    //Rotate an ap_private object n places to the right 
+    //This is used for sc_lv and sc_bv, which is implemented by sc_uint
+    //Rotate an ap_private object n places to the right
     INLINE void rrotate(int n) {
         assert( n >= 0 && "Attempting to shift negative index");
         assert( n < _AP_W && "Shift value larger than bit width");
@@ -905,12 +905,12 @@ public:
         clearUnusedBits();
         return *this;
     }
-    
+
     /// @brief Set every bit to 0.
     void clear() {
         memset(pVal, 0, _AP_N * APINT_WORD_SIZE);
     }
-    
+
     /// @brief Toggle every bit to its opposite value.
     ap_private& flip() {
         for (uint32_t i = 0; i < _AP_N; ++i)
@@ -918,8 +918,8 @@ public:
         clearUnusedBits();
         return *this;
     }
-    
-    /// Toggle a given bit to its opposite value whose position is given 
+
+    /// Toggle a given bit to its opposite value whose position is given
     /// as "bitPosition".
     /// @brief Toggles a given bit to its opposite value.
     ap_private& flip(uint32_t bitPosition) {
@@ -929,9 +929,9 @@ public:
         return *this;
     }
 
-    //complements every bit 
+    //complements every bit
     INLINE void b_not() {
-        flip(); 
+        flip();
     }
 
     ap_private getLoBits(uint32_t numBits) const {
@@ -963,7 +963,7 @@ public:
     operator ^ (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& a2) {
         return *this ^ a2.get();
     }
-    
+
 
     ///Arithmetic assign
     //-------------------------------------------------------------
@@ -983,7 +983,7 @@ public:
         clearUnusedBits();                                                       \
         return *this;                                                            \
     }
-    
+
     OP_BIN_LOGIC_ASSIGN_AP(&=);
     OP_BIN_LOGIC_ASSIGN_AP(|=);
     OP_BIN_LOGIC_ASSIGN_AP(^=);
@@ -991,21 +991,21 @@ public:
 
     /// Adds the RHS APint to this ap_private.
     /// @returns this, after addition of RHS.
-    /// @brief Addition assignment operator. 
+    /// @brief Addition assignment operator.
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     INLINE ap_private& operator+=(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) {
         add(pVal, pVal, RHS.pVal, _AP_N, _AP_N, _AP_N1, _AP_S, _AP_S1);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     INLINE ap_private& operator-=(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) {
         sub(pVal, pVal, RHS.pVal, _AP_N, _AP_N, _AP_N1, _AP_S, _AP_S1);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
-    
+
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     ap_private& operator*=(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) {
         // Get some bit facts about LHS and check for zero
@@ -1015,7 +1015,7 @@ public:
             // 0 * X ===> 0
             return *this;
         }
-    
+
         ap_private dupRHS = RHS;
         // Get some bit facts about RHS and check for zero
         uint32_t rhsBits = dupRHS.getActiveBits();
@@ -1025,20 +1025,20 @@ public:
             clear();
             return *this;
         }
-    
+
         // Allocate space for the result
         uint32_t destWords = rhsWords + lhsWords;
         uint64_t *dest = getMemory(destWords);
-    
+
         // Perform the long multiply
         mul(dest, pVal, lhsWords, dupRHS.pVal, rhsWords, destWords);
-    
+
         // Copy result back into *this
         clear();
         uint32_t wordsToCopy = destWords >= _AP_N ? _AP_N : destWords;
-    
+
         memcpy(pVal, dest, wordsToCopy* APINT_WORD_SIZE);
-    
+
         uint64_t ext = (isNegative() ^ RHS.isNegative()) ? ~0ULL : 0ULL;
         for (int i=wordsToCopy; i<_AP_N; i++)
             pVal[i]=ext;
@@ -1086,11 +1086,11 @@ public:
         Result.clearUnusedBits();                                           \
         return Result;                                                      \
     }
-    
+
     OP_BIN_LOGIC_AP(|);
     OP_BIN_LOGIC_AP(&);
     OP_BIN_LOGIC_AP(^);
-    
+
 #undef OP_BIN_LOGIC_AP
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
@@ -1098,12 +1098,12 @@ public:
         //  assert(BitWidth == RHS.BitWidth && "Bit widths must be the same");
         typename RType<_AP_W1,_AP_S1>::plus Result;
         bool carry = add(Result.pVal, this->pVal, RHS.pVal, (RType<_AP_W1,_AP_S1>::plus_w + 63) / 64, _AP_N, _AP_N1, _AP_S, _AP_S1);
-        if ((RType<_AP_W1,_AP_S1>::plus_w + 63) / 64> std::max(_AP_W, _AP_W1) ) 
+        if ((RType<_AP_W1,_AP_S1>::plus_w + 63) / 64> std::max(_AP_W, _AP_W1) )
             Result.pVal[(RType<_AP_W1,_AP_S1>::plus_w + 63)/64 - 1] = carry;
         Result.clearUnusedBits();
         return Result;
     }
-    
+
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     INLINE typename RType<_AP_W1,_AP_S1>::minus operator-(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) const {
         typename  RType<_AP_W1,_AP_S1>::minus Result;
@@ -1117,14 +1117,14 @@ public:
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     typename RType<_AP_W1, _AP_S1>::mult operator*(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) const {
-    
+
         // Get some bit facts about LHS and check for zero
         uint32_t lhsBits = getActiveBits();
         uint32_t lhsWords = !lhsBits ? 0 : whichWord(lhsBits - 1) + 1;
-        if (!lhsWords) 
+        if (!lhsWords)
             // 0 * X ===> 0
             return typename RType<_AP_W1, _AP_S1>::mult();
-    
+
         // Get some bit facts about RHS and check for zero
         uint32_t rhsBits = RHS.getActiveBits();
         uint32_t rhsWords = !rhsBits ? 0 : whichWord(rhsBits - 1) + 1;
@@ -1132,7 +1132,7 @@ public:
             // X * 0 ===> 0
             return typename RType<_AP_W1, _AP_S1>::mult();
         }
-    
+
         //extend size to avoid result loss
         typename RType<_AP_W1, _AP_S1>::mult dupLHS = *this;
         typename RType<_AP_W1, _AP_S1>::mult dupRHS = RHS;
@@ -1140,33 +1140,33 @@ public:
         lhsWords = !lhsBits ? 0 : whichWord(lhsBits - 1) + 1;
         rhsBits = dupRHS.getActiveBits();
         rhsWords = !rhsBits ? 0 : whichWord(rhsBits - 1) + 1;
-    
+
         // Allocate space for the result
         enum { destWords =(RType<_AP_W1, _AP_S1>::mult_w+APINT_BITS_PER_WORD-1)/APINT_BITS_PER_WORD};
         int destw = destWords;
         typename RType<_AP_W1, _AP_S1>::mult Result;
         uint64_t *dest = Result.pVal;
         uint64_t ext = (isNegative() ^ RHS.isNegative()) ? ~0ULL : 0;
-    
+
         // Perform the long multiply
         mul(dest, dupLHS.pVal, lhsWords, dupRHS.pVal, rhsWords, destWords);
-    
+
         for (int i=lhsWords+rhsWords; i<destWords; i++)
             dest[i]=ext;
         Result.clearUnusedBits();
         return Result;
     }
 
-    template<int _AP_W2, bool _AP_S2> 
-    INLINE typename RType<_AP_W2,_AP_S2>::div 
+    template<int _AP_W2, bool _AP_S2>
+    INLINE typename RType<_AP_W2,_AP_S2>::div
     operator / (const ap_private<_AP_W2,_AP_S2>& op) const {
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S> lhs=ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S>(*this);
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S> rhs=ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S>(op);
         return typename RType<_AP_W2,_AP_S2>::div((_AP_S||_AP_S2)?lhs.sdiv(rhs):lhs.udiv(rhs));
     }
 
-    template<int _AP_W2, bool _AP_S2> 
-    INLINE typename RType<_AP_W2,_AP_S2>::mod 
+    template<int _AP_W2, bool _AP_S2>
+    INLINE typename RType<_AP_W2,_AP_S2>::mod
     operator % (const ap_private<_AP_W2,_AP_S2>& op) const {
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S||_AP_S2> lhs=*this;
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S||_AP_S2> rhs= op;
@@ -1182,7 +1182,7 @@ public:
     }
 
     INLINE ap_private
-    operator << (uint32_t sh) const {    
+    operator << (uint32_t sh) const {
         ap_private r(*this);
         bool overflow=(sh>=length());
         if(overflow)
@@ -1190,7 +1190,7 @@ public:
         else
             r = ap_private(r.shl(sh));
         return r;
-    }    
+    }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_private
@@ -1237,9 +1237,9 @@ public:
     {                                                                        \
         *this = operator Sym (op);                                           \
         return *this;                                                        \
-    }                                                                        
-    OP_ASSIGN_AP(>>) 
-    OP_ASSIGN_AP(<<) 
+    }
+    OP_ASSIGN_AP(>>)
+    OP_ASSIGN_AP(<<)
 #undef OP_ASSIGN_AP
     ///Comparisons
     //-----------------------------------------------------------------
@@ -1247,22 +1247,22 @@ public:
         // Get some facts about the number of bits used in the two operands.
         uint32_t n1 = getActiveBits();
         uint32_t n2 = RHS.getActiveBits();
-    
+
         // If the number of bits isn't the same, they aren't equal
-        if (n1 != n2) 
+        if (n1 != n2)
             return false;
-    
+
         // If the number of bits fits in a word, we only need to compare the low word.
         if (n1 <= APINT_BITS_PER_WORD)
             return pVal[0] == RHS.pVal[0];
-    
+
         // Otherwise, compare everything
         for (int i = whichWord(n1 - 1); i >= 0; --i)
-            if (pVal[i] != RHS.pVal[i]) 
+            if (pVal[i] != RHS.pVal[i])
                 return false;
         return true;
     }
-    
+
     template<int _AP_W2, bool _AP_S2>
     INLINE bool operator == (const ap_private<_AP_W2, _AP_S2>& op) const {
         enum { _AP_MAX_W = AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2))};
@@ -1272,7 +1272,7 @@ public:
     }
 
     bool operator==(uint64_t Val) const {
-        uint32_t n = getActiveBits(); 
+        uint32_t n = getActiveBits();
         if (n <= APINT_BITS_PER_WORD)
             return pVal[0] == Val;
         else
@@ -1359,14 +1359,14 @@ public:
     INLINE ap_range_ref<_AP_W,_AP_S>
     operator () (int Hi, int Lo) const {
         assert((Hi < _AP_W) && (Lo < _AP_W)&&"Out of bounds in range()");
-        return ap_range_ref<_AP_W,_AP_S>(const_cast<ap_private<_AP_W, 
+        return ap_range_ref<_AP_W,_AP_S>(const_cast<ap_private<_AP_W,
                 _AP_S>*>(this), Hi, Lo);
     }
 
     INLINE ap_range_ref<_AP_W,_AP_S>
     range (int Hi, int Lo) const {
         assert((Hi < _AP_W) && (Lo < _AP_W)&&"Out of bounds in range()");
-        return ap_range_ref<_AP_W,_AP_S>((const_cast<ap_private<_AP_W, 
+        return ap_range_ref<_AP_W,_AP_S>((const_cast<ap_private<_AP_W,
                     _AP_S>*> (this)), Hi, Lo);
     }
 
@@ -1378,7 +1378,7 @@ public:
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    range (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range (const ap_private<_AP_W2, _AP_S2> &HiIdx,
             const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1388,7 +1388,7 @@ public:
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
             const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1398,7 +1398,7 @@ public:
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    range (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range (const ap_private<_AP_W2, _AP_S2> &HiIdx,
             const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1408,7 +1408,7 @@ public:
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
             const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -1443,7 +1443,7 @@ public:
         assert(index >= 0 && "Attempting to read bit with negative index");
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         return ap_bit_ref<_AP_W,_AP_S>( *this, index );
-    } 
+    }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_bit_ref<_AP_W,_AP_S> bit (const ap_private<_AP_W2,_AP_S2> &index) {
@@ -1457,14 +1457,14 @@ public:
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         ap_bit_ref<_AP_W,_AP_S> br(const_cast<ap_private<_AP_W, _AP_S>*>(this), index);
         return br.to_bool();
-    }    
+    }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE bool bit (const ap_private<_AP_W2,_AP_S2>& index) const {
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         ap_bit_ref<_AP_W,_AP_S> br = bit(index);
         return br.to_bool();
-    }    
+    }
 
     template <int _AP_W2, bool _AP_S2>
     INLINE ap_concat_ref<_AP_W,ap_private<_AP_W, _AP_S>,_AP_W2,ap_private<_AP_W2,_AP_S2> > concat(ap_private<_AP_W2,_AP_S2>& a2) {
@@ -1478,60 +1478,60 @@ public:
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(*this, a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this), a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (const ap_private<_AP_W2, _AP_S2>& a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(*this, const_cast<ap_private<_AP_W2,_AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (const ap_private<_AP_W2, _AP_S2>& a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this), const_cast<ap_private<_AP_W2,_AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (const ap_range_ref<_AP_W2, _AP_S2> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2,
                              ap_range_ref<_AP_W2, _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                              const_cast<ap_range_ref<_AP_W2, _AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (ap_range_ref<_AP_W2, _AP_S2> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2,
                              ap_range_ref<_AP_W2, _AP_S2> >(*this, a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (const ap_bit_ref<_AP_W2, _AP_S2> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1,
                   ap_bit_ref<_AP_W2, _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                   const_cast<ap_bit_ref<_AP_W2, _AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (ap_bit_ref<_AP_W2, _AP_S2> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1,
                   ap_bit_ref<_AP_W2, _AP_S2> >(*this, a2);
     }
 
@@ -1539,7 +1539,7 @@ public:
     INLINE
     ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3,
                              ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                       const_cast<ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& >(a2));
     }
@@ -1548,46 +1548,46 @@ public:
     INLINE
     ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3,
                              ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(*this, a2);
     }
 
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
-                const_cast<af_range_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2, 
+                const_cast<af_range_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2,
                 _AP_O2, _AP_N2>& >(a2));
     }
-    
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this, a2);
     }
-    
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) const {
         return ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
-                const_cast<af_bit_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2, 
+                const_cast<af_bit_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2,
                 _AP_O2, _AP_N2>& >(a2));
     }
- 
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) {
         return ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this, a2);
     }
- 
+
     INLINE ap_private<_AP_W,false> get() const {
         ap_private<_AP_W,false> ret(*this);
         return ret;
@@ -1660,7 +1660,7 @@ public:
             isNegative() && countPopulation() == 1;
     }
 
-    /// This function returns a pointer to the internal storage of the ap_private. 
+    /// This function returns a pointer to the internal storage of the ap_private.
     /// This is useful for writing out the ap_private in binary form without any
     /// conversions.
     INLINE const uint64_t* getRawData() const {
@@ -1675,7 +1675,7 @@ public:
     /// @Assignment Operators
     /// @{
     /// @returns *this after assignment of RHS.
-    /// @brief Copy assignment operator. 
+    /// @brief Copy assignment operator.
     INLINE ap_private& operator=(const ap_private& RHS) {
         if (this != &RHS)
             memcpy(pVal, RHS.pVal, _AP_N * APINT_WORD_SIZE);
@@ -1706,7 +1706,7 @@ public:
             cpSextOrTrunc(RHS);
         else
             cpZextOrTrunc(RHS);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
@@ -1716,7 +1716,7 @@ public:
             cpSextOrTrunc(RHS);
         else
             cpZextOrTrunc(RHS);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
@@ -1730,10 +1730,10 @@ public:
             pVal[0] = RHS.VAL;
             memset(pVal+1, 0, APINT_WORD_SIZE*(_AP_N-1));
         }
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
-  
+
     template<int _AP_W1, bool _AP_S1>
     INLINE ap_private& operator=(const volatile ap_private<_AP_W1, _AP_S1, 1>& RHS) {
         static const uint64_t that_sign_ext_mask = (_AP_W1==APINT_BITS_PER_WORD)?0:~0ULL>>(_AP_W1%APINT_BITS_PER_WORD)<<(_AP_W1%APINT_BITS_PER_WORD);
@@ -1744,7 +1744,7 @@ public:
             pVal[0] = RHS.VAL;
             memset(pVal+1, 0, APINT_WORD_SIZE*(_AP_N-1));
         }
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
@@ -1763,12 +1763,12 @@ public:
     /// @brief Prefix increment operator.
     INLINE ap_private& operator++() {
         add_1(pVal, pVal, _AP_N, 1);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
     /// @returns a new ap_private representing *this decremented by one.
-    /// @brief Postfix decrement operator. 
+    /// @brief Postfix decrement operator.
     INLINE const ap_private operator--(int) {
         ap_private API(*this);
         --(*this);
@@ -1776,16 +1776,16 @@ public:
     }
 
     /// @returns *this decremented by one.
-    /// @brief Prefix decrement operator. 
+    /// @brief Prefix decrement operator.
     INLINE ap_private& operator--() {
         sub_1(pVal, _AP_N, 1);
-        clearUnusedBits(); 
+        clearUnusedBits();
         return *this;
     }
 
-    /// Performs a bitwise complement operation on this ap_private. 
+    /// Performs a bitwise complement operation on this ap_private.
     /// @returns an ap_private that is the bitwise complement of *this
-    /// @brief Unary bitwise complement operator. 
+    /// @brief Unary bitwise complement operator.
     INLINE ap_private operator~() const {
         ap_private Result(*this);
         Result.flip();
@@ -1801,10 +1801,10 @@ public:
 
     /// Performs logical negation operation on this ap_private.
     /// @returns true if *this is zero, false otherwise.
-    /// @brief Logical negation operator. 
+    /// @brief Logical negation operator.
     INLINE bool operator !() const {
         for (uint32_t i = 0; i < _AP_N; ++i)
-            if (pVal[i]) 
+            if (pVal[i])
                 return false;
         return true;
     }
@@ -1827,14 +1827,14 @@ public:
         Result *= RHS;
         return Result;
     }
-    
+
     ap_private Add(const ap_private& RHS) const {
         ap_private Result(0);
         bool carry = add(Result.pVal, this->pVal, RHS.pVal, _AP_N, _AP_N, _AP_N, _AP_S, _AP_S);
         Result.clearUnusedBits();
         return Result;
     }
-    
+
     ap_private Sub(const ap_private& RHS) const {
         ap_private Result(0);
         sub(Result.pVal, this->pVal, RHS.pVal, _AP_N, _AP_N, _AP_N, _AP_S, _AP_S);
@@ -1849,18 +1849,18 @@ public:
         // Handle a degenerate case
         if (shiftAmt == 0)
             return *this;
-    
+
         // Handle single word shifts with built-in ashr
         if (isSingleWord()) {
             if (shiftAmt == BitWidth)
                 return ap_private(/*BitWidth, 0*/); // undefined
             else {
                 uint32_t SignBit = APINT_BITS_PER_WORD - BitWidth;
-                return ap_private(/*BitWidth,*/ 
+                return ap_private(/*BitWidth,*/
                         (((int64_t(VAL) << (SignBit)) >> (SignBit)) >> (shiftAmt)));
             }
         }
-    
+
         // If all the bits were shifted out, the result is, technically, undefined.
         // We return -1 if it was negative, 0 otherwise. We check this early to avoid
         // issues in the algorithm below.
@@ -1870,11 +1870,11 @@ public:
             else
                 return ap_private(0);
         }
-    
+
         // Create some space for the result.
         ap_private Retval(0);
         uint64_t * val = Retval.pVal;
-    
+
         // Compute some values needed by the following shift algorithms
         uint32_t wordShift = shiftAmt % APINT_BITS_PER_WORD; // bits to shift per word
         uint32_t offset = shiftAmt / APINT_BITS_PER_WORD; // word offset for shift
@@ -1882,43 +1882,43 @@ public:
         uint32_t bitsInWord = whichBit(BitWidth); // how many bits in last word?
         if (bitsInWord == 0)
             bitsInWord = APINT_BITS_PER_WORD;
-    
+
         // If we are shifting whole words, just move whole words
         if (wordShift == 0) {
             // Move the words containing significant bits
-            for (uint32_t i = 0; i <= breakWord; ++i) 
+            for (uint32_t i = 0; i <= breakWord; ++i)
                 val[i] = pVal[i+offset]; // move whole word
-    
+
             // Adjust the top significant word for sign bit fill, if negative
             if (isNegative())
                 if (bitsInWord < APINT_BITS_PER_WORD)
                     val[breakWord] |= ~0ULL << (bitsInWord); // set high bits
         } else {
-            // Shift the low order words 
+            // Shift the low order words
             for (uint32_t i = 0; i < breakWord; ++i) {
                 // This combines the shifted corresponding word with the low bits from
                 // the next word (shifted into this word's high bits).
                 val[i] = ((pVal[i+offset]) >> (wordShift));
                 val[i] |=           ((pVal[i+offset+1]) << (APINT_BITS_PER_WORD - wordShift));
             }
-    
+
             // Shift the break word. In this case there are no bits from the next word
             // to include in this word.
             val[breakWord] = (pVal[breakWord+offset]) >> (wordShift);
-    
+
             // Deal with sign extenstion in the break word, and possibly the word before
             // it.
             if (isNegative()) {
                 if (wordShift > bitsInWord) {
                     if (breakWord > 0)
-                        val[breakWord-1] |= 
+                        val[breakWord-1] |=
                             ~0ULL << (APINT_BITS_PER_WORD - (wordShift - bitsInWord));
                     val[breakWord] |= ~0ULL;
-                } else 
+                } else
                     val[breakWord] |= (~0ULL << (bitsInWord - wordShift));
             }
         }
-    
+
         // Remaining words are 0 or -1, just assign them.
         uint64_t fillValue = (isNegative() ? ~0ULL : 0);
         for (uint32_t i = breakWord+1; i < _AP_N; ++i)
@@ -1926,33 +1926,33 @@ public:
         Retval.clearUnusedBits();
         return Retval;
     }
-    
+
     /// Logical right-shift this ap_private by shiftAmt.
     /// @brief Logical right-shift function.
     ap_private lshr(uint32_t shiftAmt) const {
         if (isSingleWord()) {
             if (shiftAmt == BitWidth)
                 return ap_private(0);
-            else 
+            else
                 return ap_private((this->VAL) >> (shiftAmt));
         }
-    
+
         // If all the bits were shifted out, the result is 0. This avoids issues
         // with shifting by the size of the integer type, which produces undefined
         // results. We define these "undefined results" to always be 0.
         if (shiftAmt == BitWidth)
             return ap_private(0);
-    
+
         // If none of the bits are shifted out, the result is *this. This avoids
-        // issues with shifting byt he size of the integer type, which produces 
+        // issues with shifting byt he size of the integer type, which produces
         // undefined results in the code below. This is also an optimization.
         if (shiftAmt == 0)
             return *this;
-    
+
         // Create some space for the result.
         ap_private Retval(0);
         uint64_t * val = Retval.pVal;
-    
+
         // If we are shifting less than a word, compute the shift with a simple carry
         if (shiftAmt < APINT_BITS_PER_WORD) {
             uint64_t carry = 0;
@@ -1963,36 +1963,36 @@ public:
             Retval.clearUnusedBits();
             return Retval;
         }
-    
+
         // Compute some values needed by the remaining shift algorithms
         uint32_t wordShift = shiftAmt % APINT_BITS_PER_WORD;
         uint32_t offset = shiftAmt / APINT_BITS_PER_WORD;
-    
+
         // If we are shifting whole words, just move whole words
         if (wordShift == 0) {
-            for (uint32_t i = 0; i < _AP_N - offset; ++i) 
+            for (uint32_t i = 0; i < _AP_N - offset; ++i)
                 val[i] = pVal[i+offset];
             for (uint32_t i = _AP_N-offset; i < _AP_N; i++)
                 val[i] = 0;
             Retval.clearUnusedBits();
             return Retval;
         }
-    
-        // Shift the low order words 
+
+        // Shift the low order words
         uint32_t breakWord = _AP_N - offset -1;
         for (uint32_t i = 0; i < breakWord; ++i)
             val[i] = ((pVal[i+offset]) >> (wordShift)) |
                 ((pVal[i+offset+1]) << (APINT_BITS_PER_WORD - wordShift));
         // Shift the break word.
         val[breakWord] = (pVal[breakWord+offset]) >> (wordShift);
-    
+
         // Remaining words are 0
         for (uint32_t i = breakWord+1; i < _AP_N; ++i)
             val[i] = 0;
         Retval.clearUnusedBits();
         return Retval;
     }
-    
+
     /// Left-shift this ap_private by shiftAmt.
     /// @brief Left-shift function.
     ap_private shl(uint32_t shiftAmt) const {
@@ -2002,19 +2002,19 @@ public:
                 return ap_private(0); // avoid undefined shift results
             return ap_private((VAL) << (shiftAmt));
         }
-    
+
         // If all the bits were shifted out, the result is 0. This avoids issues
         // with shifting by the size of the integer type, which produces undefined
         // results. We define these "undefined results" to always be 0.
         if (shiftAmt == BitWidth)
             return ap_private(0);
-    
+
         // If none of the bits are shifted out, the result is *this. This avoids a
         // lshr by the words size in the loop below which can produce incorrect
         // results. It also avoids the expensive computation below for a common case.
         if (shiftAmt == 0)
             return *this;
-    
+
         // Create some space for the result.
         ap_private Retval(0);
         uint64_t* val = Retval.pVal;
@@ -2028,21 +2028,21 @@ public:
             Retval.clearUnusedBits();
             return Retval;
         }
-    
+
         // Compute some values needed by the remaining shift algorithms
         uint32_t wordShift = shiftAmt % APINT_BITS_PER_WORD;
         uint32_t offset = shiftAmt / APINT_BITS_PER_WORD;
-    
+
         // If we are shifting whole words, just move whole words
         if (wordShift == 0) {
-            for (uint32_t i = 0; i < offset; i++) 
+            for (uint32_t i = 0; i < offset; i++)
                 val[i] = 0;
             for (uint32_t i = offset; i < _AP_N; i++)
                 val[i] = pVal[i-offset];
             Retval.clearUnusedBits();
             return Retval;
         }
-    
+
         // Copy whole words from this to Result.
         uint32_t i = _AP_N - 1;
         for (; i > offset; --i)
@@ -2054,7 +2054,7 @@ public:
         Retval.clearUnusedBits();
         return Retval;
     }
-    
+
     INLINE ap_private rotl(uint32_t rotateAmt) const {
         if (rotateAmt == 0)
             return *this;
@@ -2065,7 +2065,7 @@ public:
         lo.lshr(BitWidth - rotateAmt);
         return hi | lo;
     }
-    
+
     INLINE ap_private rotr(uint32_t rotateAmt) const {
         if (rotateAmt == 0)
             return *this;
@@ -2083,24 +2083,24 @@ public:
     /// @brief Unsigned division operation.
     ap_private udiv(const ap_private& RHS) const {
         assert(BitWidth == RHS.BitWidth && "Bit widths must be the same");
-    
+
         // First, deal with the easy case
         if (isSingleWord()) {
             assert(RHS.VAL != 0 && "Divide by zero?");
             return ap_private(VAL / RHS.VAL);
         }
-    
+
         // Get some facts about the LHS and RHS number of bits and words
         uint32_t rhsBits = RHS.getActiveBits();
         uint32_t rhsWords = !rhsBits ? 0 : (whichWord(rhsBits - 1) + 1);
         assert(rhsWords && "Divided by zero???");
         uint32_t lhsBits = this->getActiveBits();
         uint32_t lhsWords = !lhsBits ? 0 : (whichWord(lhsBits - 1) + 1);
-    
+
         // Deal with some degenerate cases
-        if (!lhsWords) 
+        if (!lhsWords)
             // 0 / X ===> 0
-            return ap_private(0); 
+            return ap_private(0);
         else if (lhsWords < rhsWords || this->ult(RHS)) {
             // X / Y ===> 0, iff X < Y
             return ap_private(0);
@@ -2111,13 +2111,13 @@ public:
             // All high words are zero, just use native divide
             return ap_private(this->pVal[0] / RHS.pVal[0]);
         }
-    
+
         // We have to compute it the hard way. Invoke the Knuth divide algorithm.
         ap_private Quotient(0); // to hold result.
         divide(*this, lhsWords, RHS, rhsWords, &Quotient, (ap_private*)0);
         return Quotient;
     }
-    
+
     /// Signed divide this ap_private by ap_private RHS.
     /// @brief Signed division function for ap_private.
     INLINE ap_private sdiv(const ap_private& RHS) const {
@@ -2143,16 +2143,16 @@ public:
             assert(RHS.VAL != 0 && "Remainder by zero?");
             return ap_private(VAL % RHS.VAL);
         }
-    
+
         // Get some facts about the LHS
         uint32_t lhsBits = getActiveBits();
         uint32_t lhsWords = !lhsBits ? 0 : (whichWord(lhsBits - 1) + 1);
-    
+
         // Get some facts about the RHS
         uint32_t rhsBits = RHS.getActiveBits();
         uint32_t rhsWords = !rhsBits ? 0 : (whichWord(rhsBits - 1) + 1);
         assert(rhsWords && "Performing remainder operation by zero ???");
-    
+
         // Check the degenerate cases
         if (lhsWords == 0) {
             // 0 % Y ===> 0
@@ -2167,13 +2167,13 @@ public:
             // All high words are zero, just use native remainder
             return ap_private(pVal[0] % RHS.pVal[0]);
         }
-    
+
         // We have to compute it the hard way. Invoke the Knuth divide algorithm.
         ap_private Remainder(0);
         divide(*this, lhsWords, RHS, rhsWords, (ap_private*)(0), &Remainder);
         return Remainder;
     }
-    
+
     ap_private urem(uint64_t RHS) const {
         // Get some facts about the LHS
         uint32_t lhsBits = getActiveBits();
@@ -2196,7 +2196,7 @@ public:
             // All high words are zero, just use native remainder
             return ap_private(pVal[0] % RHS);
         }
-    
+
         // We have to compute it the hard way. Invoke the Knuth divide algorithm.
         ap_private Remainder(0);
         divide(*this, lhsWords, RHS, (ap_private*)(0), &Remainder);
@@ -2243,26 +2243,26 @@ public:
         uint32_t lhsWords = !lhsBits ? 0 : (ap_private::whichWord(lhsBits - 1) + 1);
         uint32_t rhsBits  = RHS.getActiveBits();
         uint32_t rhsWords = !rhsBits ? 0 : (ap_private::whichWord(rhsBits - 1) + 1);
-    
+
         // Check the degenerate cases
-        if (lhsWords == 0) {              
+        if (lhsWords == 0) {
             Quotient = 0;                // 0 / Y ===> 0
             Remainder = 0;               // 0 % Y ===> 0
             return;
-        } 
-    
-        if (lhsWords < rhsWords || LHS.ult(RHS)) { 
+        }
+
+        if (lhsWords < rhsWords || LHS.ult(RHS)) {
             Quotient = 0;               // X / Y ===> 0, iff X < Y
             Remainder = LHS;            // X % Y ===> X, iff X < Y
             return;
-        } 
-    
+        }
+
         if (LHS == RHS) {
             Quotient  = 1;              // X / X ===> 1
             Remainder = 0;              // X % X ===> 0;
             return;
-        } 
-    
+        }
+
         if (lhsWords == 1 && rhsWords == 1) {
             // There is only one word to consider so use the native versions.
             if (LHS.isSingleWord()) {
@@ -2274,7 +2274,7 @@ public:
             }
             return;
         }
-    
+
         // Okay, lets do it the long way
         divide(LHS, lhsWords, RHS, rhsWords, &Quotient, &Remainder);
     }
@@ -2302,7 +2302,7 @@ public:
     /// @brief Equality comparison.
     template<bool _AP_S1>
     INLINE  bool eq(const ap_private<_AP_W, _AP_S1, _AP_N>& RHS) const {
-        return (*this) == RHS; 
+        return (*this) == RHS;
     }
 
     /// Compares this ap_private with RHS for the validity of the inequality
@@ -2323,49 +2323,49 @@ public:
         // Get active bit length of both operands
         uint32_t n1 = getActiveBits();
         uint32_t n2 = RHS.getActiveBits();
-    
+
         // If magnitude of LHS is less than RHS, return true.
         if (n1 < n2)
             return true;
-    
+
         // If magnitude of RHS is greather than LHS, return false.
         if (n2 < n1)
             return false;
-    
+
         // If they bot fit in a word, just compare the low order word
         if (n1 <= APINT_BITS_PER_WORD && n2 <= APINT_BITS_PER_WORD)
             return pVal[0] < RHS.pVal[0];
-    
+
         // Otherwise, compare all words
         uint32_t topWord = whichWord(AESL_std::max(n1,n2)-1);
         for (int i = topWord; i >= 0; --i) {
-            if (pVal[i] > RHS.pVal[i]) 
+            if (pVal[i] > RHS.pVal[i])
                 return false;
-            if (pVal[i] < RHS.pVal[i]) 
+            if (pVal[i] < RHS.pVal[i])
                 return true;
         }
         return false;
     }
-    
+
     INLINE bool ult(uint64_t RHS) const {
         // Get active bit length of both operands
         uint32_t n1 = getActiveBits();
         uint32_t n2 = 64 - CountLeadingZeros_64(RHS); //RHS.getActiveBits();
-    
+
         // If magnitude of LHS is less than RHS, return true.
         if (n1 < n2)
             return true;
-    
+
         // If magnitude of RHS is greather than LHS, return false.
         if (n2 < n1)
             return false;
-    
+
         // If they bot fit in a word, just compare the low order word
         if (n1 <= APINT_BITS_PER_WORD && n2 <= APINT_BITS_PER_WORD)
             return pVal[0] < RHS;
         assert(0);
     }
-    
+
     template<bool _AP_S1>
     INLINE bool slt(const ap_private<_AP_W, _AP_S1, _AP_N>& RHS) const {
         ap_private lhs(*this);
@@ -2382,7 +2382,7 @@ public:
             rhs.flip();
             rhs++;
         }
-    
+
         // Now we have unsigned values to compare so do the comparison if necessary
         // based on the negativeness of the values.
         if (lhsNeg)
@@ -2392,7 +2392,7 @@ public:
                 return true;
         else if (rhsNeg)
             return false;
-        else 
+        else
             return lhs.ult(rhs);
     }
 
@@ -2450,13 +2450,13 @@ public:
         return !slt(RHS);
     }
 
-    template<int _AP_W1, bool _AP_S1, int _AP_N1> 
+    template<int _AP_W1, bool _AP_S1, int _AP_N1>
     void cpTrunc(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that) {
         assert(_AP_W1 > BitWidth && "Invalid ap_private Truncate request");
         assert(_AP_W1 >= MIN_INT_BITS && "Can't truncate to 0 bits");
         memcpy(pVal, that.pVal, _AP_N*APINT_WORD_SIZE);
     }
-    
+
     // Sign extend to a new width.
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     void cpSext(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that) {
@@ -2467,10 +2467,10 @@ public:
             cpZext(that);
             return;
         }
-    
+
         // The sign bit is set. First, get some facts
         enum { wordBits = _AP_W1 % APINT_BITS_PER_WORD};
-    
+
         // Mask the high order word appropriately
         if (_AP_N1 == _AP_N) {
             enum { newWordBits = _AP_W % APINT_BITS_PER_WORD};
@@ -2485,7 +2485,7 @@ public:
                 return;
             }
         }
-    
+
         if (_AP_N1 == 1) {
             assert(0);//    newVal[0] = VAL | mask;
         } else {
@@ -2502,7 +2502,7 @@ public:
         clearUnusedBits();
         return;
     }
-    
+
     //  Zero extend to a new width.
     template <int _AP_W1, bool _AP_S1, int _AP_N1>
     void cpZext(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that) {
@@ -2525,8 +2525,8 @@ public:
         }
         clearUnusedBits();
     }
-    
-    template<int _AP_W1, bool _AP_S1, int _AP_N1> 
+
+    template<int _AP_W1, bool _AP_S1, int _AP_N1>
     void cpZextOrTrunc(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that) {
         if (BitWidth > _AP_W1)
             cpZext(that);
@@ -2538,8 +2538,8 @@ public:
             clearUnusedBits();
         }
     }
-    
-    template<int _AP_W1, bool _AP_S1, int _AP_N1> 
+
+    template<int _AP_W1, bool _AP_S1, int _AP_N1>
     void cpSextOrTrunc(const ap_private<_AP_W1, _AP_S1, _AP_N1>& that) {
         if (BitWidth > _AP_W1)
             cpSext(that);
@@ -2556,8 +2556,8 @@ public:
     /// @{
 
     /// @returns the total number of bits.
-    INLINE uint32_t getBitWidth() const { 
-        return BitWidth; 
+    INLINE uint32_t getBitWidth() const {
+        return BitWidth;
     }
 
     /// Here one word's bitwidth equals to that of uint64_t.
@@ -2615,8 +2615,8 @@ public:
     /// @brief Count the number of leading one bits.
     INLINE uint32_t countLeadingOnes() const ;
 
-    /// countTrailingZeros - This function is an ap_private version of the 
-    /// countTrailingZoers_{32,64} functions in MathExtras.h. It counts 
+    /// countTrailingZeros - This function is an ap_private version of the
+    /// countTrailingZoers_{32,64} functions in MathExtras.h. It counts
     /// the number of zeros from the least significant bit to the first set bit.
     /// @returns BitWidth if the value is zero.
     /// @returns the number of zeros from the least significant bit to the first
@@ -2626,7 +2626,7 @@ public:
 
     /// countPopulation - This function is an ap_private version of the
     /// countPopulation_{32,64} functions in MathExtras.h. It counts the number
-    /// of 1 bits in the ap_private value. 
+    /// of 1 bits in the ap_private value.
     /// @returns 0 if the value is zero.
     /// @returns the number of set bits.
     /// @brief Count the number of bits set.
@@ -2644,7 +2644,7 @@ public:
 
     /// This is used internally to convert an ap_private to a string.
     /// @brief Converts an ap_private to a std::string
-    INLINE std::string toString(uint8_t radix, bool wantSigned) const 
+    INLINE std::string toString(uint8_t radix, bool wantSigned) const
         ;
 
     /// Considers the ap_private to be unsigned and converts it into a string in the
@@ -2764,12 +2764,12 @@ public:
     }
 };
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 INLINE bool operator==(uint64_t V1, const ap_private<_AP_W, _AP_S, _AP_N>& V2) {
     return V2 == V1;
 }
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 INLINE bool operator!=(uint64_t V1, const ap_private<_AP_W, _AP_S, _AP_N>& V2) {
     return V2 != V1;
 }
@@ -2827,7 +2827,7 @@ namespace ap_private_ops {
 
     /// @returns the floor log base 2 of the specified ap_private value.
     template<int _AP_W, bool _AP_S, int _AP_N> INLINE uint32_t logBase2(const ap_private<_AP_W, _AP_S, _AP_N>& APIVal) {
-        return APIVal.logBase2(); 
+        return APIVal.logBase2();
     }
 
     /// GreatestCommonDivisor - This function returns the greatest common
@@ -2937,7 +2937,7 @@ namespace ap_private_ops {
         return LHS - RHS;
     }
 
-    /// Performs bitwise AND operation on ap_private LHS and 
+    /// Performs bitwise AND operation on ap_private LHS and
     /// ap_private RHS.
     /// @brief Bitwise AND function for ap_private.
     template<int _AP_W, bool _AP_S, int _AP_N, bool _AP_S1>
@@ -2946,7 +2946,7 @@ namespace ap_private_ops {
     }
 
     /// Performs bitwise OR operation on ap_private LHS and ap_private RHS.
-    /// @brief Bitwise OR function for ap_private. 
+    /// @brief Bitwise OR function for ap_private.
     template<int _AP_W, bool _AP_S, int _AP_N, bool _AP_S1>
     INLINE ap_private<_AP_W, _AP_S||_AP_S1, _AP_N> Or(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, const ap_private<_AP_W, _AP_S1, _AP_N>& RHS) {
         return LHS | RHS;
@@ -2957,10 +2957,10 @@ namespace ap_private_ops {
     template<int _AP_W, bool _AP_S, int _AP_N, bool _AP_S1>
     INLINE ap_private<_AP_W, _AP_S||_AP_S1, _AP_N> Xor(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, const ap_private<_AP_W, _AP_S1, _AP_N>& RHS) {
         return LHS ^ RHS;
-    } 
+    }
 
     /// Performs a bitwise complement operation on ap_private.
-    /// @brief Bitwise complement function. 
+    /// @brief Bitwise complement function.
     template<int _AP_W, bool _AP_S, int _AP_N, bool _AP_S1> INLINE ap_private<_AP_W, _AP_S, _AP_N> Not(const ap_private<_AP_W, _AP_S, _AP_N>& APIVal) {
         return ~APIVal;
     }
@@ -3024,19 +3024,19 @@ namespace ap_private_ops {
     }
 
     template<int _AP_W, bool _AP_S, int shiftAmt>
-    INLINE ap_private<_AP_W, _AP_S> lshr(const ap_private<_AP_W, _AP_S, 1>& a) { 
+    INLINE ap_private<_AP_W, _AP_S> lshr(const ap_private<_AP_W, _AP_S, 1>& a) {
         static const uint64_t mask = ~0ULL<<_AP_W;
-        return ap_private<_AP_W, _AP_S>((a.VAL&mask) >> (shiftAmt)); 
+        return ap_private<_AP_W, _AP_S>((a.VAL&mask) >> (shiftAmt));
     }
 
     template<int _AP_W, bool _AP_S, int shiftAmt>
-    INLINE ap_private<_AP_W-shiftAmt, _AP_S> shr(const ap_private<_AP_W, _AP_S>& a) { 
-        return ap_private<_AP_W-shiftAmt, _AP_S>((a.VAL) >> (shiftAmt)); 
+    INLINE ap_private<_AP_W-shiftAmt, _AP_S> shr(const ap_private<_AP_W, _AP_S>& a) {
+        return ap_private<_AP_W-shiftAmt, _AP_S>((a.VAL) >> (shiftAmt));
     }
 
     template<int _AP_W, bool _AP_S, int shiftAmt>
     INLINE ap_private<_AP_W+shiftAmt, _AP_S> shl(const ap_private<_AP_W, _AP_S>& a) {
-        return ap_private<_AP_W+shiftAmt, _AP_S>((a.VAL) << (shiftAmt)); 
+        return ap_private<_AP_W+shiftAmt, _AP_S>((a.VAL) << (shiftAmt));
     }
 
     template<int _AP_W, bool _AP_S, int index>
@@ -3066,10 +3066,10 @@ namespace ap_private_ops {
 
     template<int _AP_W, bool _AP_S, int msb_index, int lsb_index>
     INLINE void set(ap_private<_AP_W, _AP_S>& a) {
-        enum { APINT_BITS_PER_WORD=64, 
-            lsb_word = lsb_index /APINT_BITS_PER_WORD, 
-            msb_word = msb_index / APINT_BITS_PER_WORD, 
-            msb = msb_index % APINT_BITS_PER_WORD, 
+        enum { APINT_BITS_PER_WORD=64,
+            lsb_word = lsb_index /APINT_BITS_PER_WORD,
+            msb_word = msb_index / APINT_BITS_PER_WORD,
+            msb = msb_index % APINT_BITS_PER_WORD,
             lsb=lsb_index % APINT_BITS_PER_WORD};
         if (msb_word==lsb_word) {
             const uint64_t mask = ~0ULL >> (lsb) << (APINT_BITS_PER_WORD-msb+lsb-1)>>(APINT_BITS_PER_WORD-msb-1);
@@ -3082,16 +3082,16 @@ namespace ap_private_ops {
                 a.pVal[i]=0;
             }
             a.pVal[msb_word] |= msb_mask;
-        } 
+        }
         a.clearUnusedBits();
     }
 
     template<int _AP_W, bool _AP_S, int msb_index, int lsb_index>
     INLINE void clear(ap_private<_AP_W, _AP_S>& a) {
-        enum { APINT_BITS_PER_WORD=64,  
-            lsb_word = lsb_index /APINT_BITS_PER_WORD, 
-            msb_word = msb_index / APINT_BITS_PER_WORD, 
-            msb = msb_index % APINT_BITS_PER_WORD, 
+        enum { APINT_BITS_PER_WORD=64,
+            lsb_word = lsb_index /APINT_BITS_PER_WORD,
+            msb_word = msb_index / APINT_BITS_PER_WORD,
+            msb = msb_index % APINT_BITS_PER_WORD,
             lsb=lsb_index % APINT_BITS_PER_WORD};
         if (msb_word == lsb_word) {
             const uint64_t mask = ~(~0ULL >> (lsb) << (APINT_BITS_PER_WORD-msb+lsb-1)>>(APINT_BITS_PER_WORD-msb-1));
@@ -3139,21 +3139,21 @@ namespace ap_private_ops {
     }
 
     template<int _AP_W>
-    INLINE bool isNegative(const ap_private<_AP_W, false>& a)  { 
-        return false;                                                        
-    }                                                                        
-
-    template<int _AP_W>
-    INLINE bool isNegative(const ap_private<_AP_W, true, 1>& a) { 
-        static const uint64_t sign_mask = (1ULL << (_AP_W-1));                
-        return ((sign_mask & a.VAL) != 0);                                                
+    INLINE bool isNegative(const ap_private<_AP_W, false>& a)  {
+        return false;
     }
 
     template<int _AP_W>
-    INLINE bool isNegative(const ap_private<_AP_W, true>& a) { 
+    INLINE bool isNegative(const ap_private<_AP_W, true, 1>& a) {
+        static const uint64_t sign_mask = (1ULL << (_AP_W-1));
+        return ((sign_mask & a.VAL) != 0);
+    }
+
+    template<int _AP_W>
+    INLINE bool isNegative(const ap_private<_AP_W, true>& a) {
         enum {APINT_BITS_PER_WORD=64,_AP_N=(_AP_W+APINT_BITS_PER_WORD-1)/APINT_BITS_PER_WORD};
-        static const uint64_t sign_mask = (1ULL << (_AP_W%APINT_BITS_PER_WORD-1));                
-        return sign_mask & a.pVal[_AP_N-1];                                                
+        static const uint64_t sign_mask = (1ULL << (_AP_W%APINT_BITS_PER_WORD-1));
+        return sign_mask & a.pVal[_AP_N-1];
     }
 } // End of ap_private_ops namespace
 
@@ -3177,7 +3177,7 @@ INLINE bool isShiftedMask(uint32_t numBits, const ap_private<_AP_W, _AP_S, _AP_N
     return isMask(numBits, (APIVal - ap_private<_AP_W, _AP_S, _AP_N>(numBits,1)) | APIVal);
 }
 
-/// add_1 - This function adds a single "digit" integer, y, to the multiple 
+/// add_1 - This function adds a single "digit" integer, y, to the multiple
 /// "digit" integer array,  x[]. x[] is modified to reflect the addition and
 /// 1 is returned if there is a carry out, otherwise 0 is returned.
 /// @returns the carry of the addition.
@@ -3195,10 +3195,10 @@ static bool add_1(uint64_t dest[], uint64_t x[], uint32_t len, uint64_t y) {
 }
 
 /// add - This function adds the integer array x to the integer array Y and
-/// places the result in dest. 
+/// places the result in dest.
 /// @returns the carry out from the addition
 /// @brief General addition of 64-bit integer arrays
-static bool add(uint64_t *dest, const uint64_t *x, const uint64_t *y, 
+static bool add(uint64_t *dest, const uint64_t *x, const uint64_t *y,
                 uint32_t destlen, uint32_t xlen, uint32_t ylen, bool xsigned, bool ysigned) {
     bool carry = false;
     uint32_t len = AESL_std::min(xlen, ylen);
@@ -3228,7 +3228,7 @@ static bool add(uint64_t *dest, const uint64_t *x, const uint64_t *y,
 
 /// @returns returns the borrow out.
 /// @brief Generalized subtraction of 64-bit integer arrays.
-static bool sub(uint64_t *dest, const uint64_t *x, const uint64_t *y, 
+static bool sub(uint64_t *dest, const uint64_t *x, const uint64_t *y,
                 uint32_t destlen, uint32_t xlen, uint32_t ylen, bool xsigned, bool ysigned) {
     bool borrow = false;
     uint32_t i;
@@ -3258,10 +3258,10 @@ static bool sub(uint64_t *dest, const uint64_t *x, const uint64_t *y,
 
 /// Subtracts the RHS ap_private from this ap_private
 /// @returns this, after subtraction
-/// @brief Subtraction assignment operator. 
+/// @brief Subtraction assignment operator.
 
 /// Multiplies an integer array, x by a a uint64_t integer and places the result
-/// into dest. 
+/// into dest.
 /// @returns the carry out of the multiplication.
 /// @brief Multiply a multi-digit ap_private by a single digit (64-bit) integer.
 static uint64_t mul_1(uint64_t dest[], const uint64_t x[], uint32_t len, uint64_t y) {
@@ -3283,22 +3283,22 @@ static uint64_t mul_1(uint64_t dest[], const uint64_t x[], uint32_t len, uint64_
         // Determine if the add above introduces carry.
         hasCarry = (dest[i] < carry) ? 1 : 0;
         carry = hx * ly + ((dest[i]) >> 32) + (hasCarry ? two_power_32 : 0);
-        // The upper limit of carry can be (2^32 - 1)(2^32 - 1) + 
+        // The upper limit of carry can be (2^32 - 1)(2^32 - 1) +
         // (2^32 - 1) + 2^32 = 2^64.
         hasCarry = (!carry && hasCarry) ? 1 : (!carry ? 2 : 0);
 
         carry += (lx * hy) & 0xffffffffULL;
         dest[i] = ((carry) << 32) | (dest[i] & 0xffffffffULL);
-        carry = (((!carry && hasCarry != 2) || hasCarry == 1) ? two_power_32 : 0) + 
+        carry = (((!carry && hasCarry != 2) || hasCarry == 1) ? two_power_32 : 0) +
             ((carry) >> 32) + ((lx * hy) >> 32) + hx * hy;
     }
     return carry;
 }
 
-/// Multiplies integer array x by integer array y and stores the result into 
+/// Multiplies integer array x by integer array y and stores the result into
 /// the integer array dest. Note that dest's size must be >= xlen + ylen.
 /// @brief Generalized multiplicate of integer arrays.
-static void mul(uint64_t dest[], const uint64_t x[], uint32_t xlen, const uint64_t y[], 
+static void mul(uint64_t dest[], const uint64_t x[], uint32_t xlen, const uint64_t y[],
                 uint32_t ylen, uint32_t destlen) {
     dest[xlen] = mul_1(dest, x, xlen, y[0]);
     for (uint32_t i = 1; i < ylen; ++i) {
@@ -3320,7 +3320,7 @@ static void mul(uint64_t dest[], const uint64_t x[], uint32_t xlen, const uint64
             resul = ((carry) << 32) | (resul & 0xffffffffULL);
             dest[i+j] += resul;
             carry = (((!carry && hasCarry != 2) || hasCarry == 1) ? (1ULL << 32) : 0)+
-                ((carry) >> 32) + (dest[i+j] < resul ? 1 : 0) + 
+                ((carry) >> 32) + (dest[i+j] < resul ? 1 : 0) +
                 ((lx * hy) >> 32) + hx * hy;
         }
         dest[i+xlen] = carry;
@@ -3363,7 +3363,7 @@ uint32_t ap_private<_AP_W, _AP_S, _AP_N>::getBitsNeeded(const char* str, uint32_
 
 template<int _AP_W, bool _AP_S, int _AP_N>
 uint32_t ap_private<_AP_W, _AP_S, _AP_N>::countLeadingZeros() const {
-    enum { msw_bits = (BitWidth % APINT_BITS_PER_WORD)?(BitWidth % APINT_BITS_PER_WORD):APINT_BITS_PER_WORD, 
+    enum { msw_bits = (BitWidth % APINT_BITS_PER_WORD)?(BitWidth % APINT_BITS_PER_WORD):APINT_BITS_PER_WORD,
         excessBits = APINT_BITS_PER_WORD - msw_bits };
     uint32_t Count = CountLeadingZeros_64(pVal[_AP_N-1]);
     if (Count>=excessBits)
@@ -3427,7 +3427,7 @@ INLINE uint32_t ap_private<_AP_W, _AP_S, _AP_N>::countTrailingZeros() const {
     return AESL_std::min(Count, BitWidth);
 }
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::byteSwap() const {
     assert(BitWidth >= 16 && BitWidth % 16 == 0 && "Cannot byteswap!");
     if (BitWidth == 16)
@@ -3454,7 +3454,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::byteSwap() cons
     }
 }
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 ap_private<_AP_W, _AP_S, _AP_N> ap_private_ops::GreatestCommonDivisor(const ap_private<_AP_W, _AP_S, _AP_N>& API1, const ap_private<_AP_W, _AP_S, _AP_N>& API2) {
     ap_private<_AP_W, _AP_S, _AP_N> __A = API1, __B = API2;
     while (!!__B) {
@@ -3465,7 +3465,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private_ops::GreatestCommonDivisor(const ap_p
     return __A;
 }
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 ap_private<_AP_W, _AP_S, _AP_N> ap_private_ops::RoundDoubleToap_private(double Double, uint32_t width) {
     union {
         double __D;
@@ -3488,7 +3488,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private_ops::RoundDoubleToap_private(double D
 
     // If the exponent doesn't shift all bits out of the mantissa
     if (exp < 52)
-        return isNeg ? -ap_private<_AP_W, _AP_S, _AP_N>(width, (mantissa) >> (52 - exp)) : 
+        return isNeg ? -ap_private<_AP_W, _AP_S, _AP_N>(width, (mantissa) >> (52 - exp)) :
             ap_private<_AP_W, _AP_S, _AP_N>((mantissa) >> (52 - exp));
 
     // If the client didn't provide enough bits for us to shift the mantissa into
@@ -3508,8 +3508,8 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private_ops::RoundDoubleToap_private(double D
 /// |  Sign    Exponent    Fraction    Bias |
 /// |-------------------------------------- |
 /// |  1[63]   11[62-52]   52[51-00]   1023 |
-///  -------------------------------------- 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+///  --------------------------------------
+template<int _AP_W, bool _AP_S, int _AP_N>
 double ap_private<_AP_W, _AP_S, _AP_N>::roundToDouble(bool isSigned) const {
 
     // Handle the simple case where the value is contained in one uint64_t.
@@ -3542,7 +3542,7 @@ double ap_private<_AP_W, _AP_S, _AP_N>::roundToDouble(bool isSigned) const {
     if (exp > 1023) {
         if (!isSigned || !isNeg)
             return std::numeric_limits<double>::infinity();
-        else 
+        else
             return -std::numeric_limits<double>::infinity();
     }
     exp += 1023; // Increment for 1023 bias
@@ -3578,8 +3578,8 @@ double ap_private<_AP_W, _AP_S, _AP_N>::roundToDouble(bool isSigned) const {
 // values using less than 52 bits, the value is converted to double and then
 // the libc sqrt function is called. The result is rounded and then converted
 // back to a uint64_t which is then used to construct the result. Finally,
-// the Babylonian method for computing square roots is used. 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+// the Babylonian method for computing square roots is used.
+template<int _AP_W, bool _AP_S, int _AP_N>
 ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
 
     // Determine the magnitude of the value.
@@ -3591,7 +3591,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
         static const uint8_t results[32] = {
             /*     0 */ 0,
             /*  1- 2 */ 1, 1,
-            /*  3- 6 */ 2, 2, 2, 2, 
+            /*  3- 6 */ 2, 2, 2, 2,
             /*  7-12 */ 3, 3, 3, 3, 3, 3,
             /* 13-20 */ 4, 4, 4, 4, 4, 4, 4, 4,
             /* 21-30 */ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -3607,10 +3607,10 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
     if (magnitude < 52) {
 #ifdef _MSC_VER
         // Amazingly, VC++ doesn't have round().
-        return ap_private<_AP_W, _AP_S, _AP_N>(/*BitWidth,*/ 
+        return ap_private<_AP_W, _AP_S, _AP_N>(/*BitWidth,*/
                 uint64_t(::sqrt(double(isSingleWord()?VAL:pVal[0]))) + 0.5);
 #else
-        return ap_private<_AP_W, _AP_S, _AP_N>(/*BitWidth,*/ 
+        return ap_private<_AP_W, _AP_S, _AP_N>(/*BitWidth,*/
                 uint64_t(::round(::sqrt(double(isSingleWord()?VAL:pVal[0])))));
 #endif
     }
@@ -3619,7 +3619,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
     // is a classical Babylonian method for computing the square root. This code
     // was adapted to APINt from a wikipedia article on such computations.
     // See http://www.wikipedia.org/ and go to the page named
-    // Calculate_an_integer_square_root. 
+    // Calculate_an_integer_square_root.
     uint32_t nbits = BitWidth, i = 4;
     ap_private<_AP_W, _AP_S, _AP_N> testy(16);
     ap_private<_AP_W, _AP_S, _AP_N> x_old(/*BitWidth,*/ 1);
@@ -3627,13 +3627,13 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
     ap_private<_AP_W, _AP_S, _AP_N> two(/*BitWidth,*/ 2);
 
     // Select a good starting value using binary logarithms.
-    for (;; i += 2, testy = testy.shl(2)) 
+    for (;; i += 2, testy = testy.shl(2))
         if (i >= nbits || this->ule(testy)) {
             x_old = x_old.shl(i / 2);
             break;
         }
 
-    // Use the Babylonian method to arrive at the integer square root: 
+    // Use the Babylonian method to arrive at the integer square root:
     for (;;) {
         x_new = (this->udiv(x_old) + x_old).udiv(two);
         if (x_old.ule(x_new))
@@ -3642,9 +3642,9 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
     }
 
     // Make sure we return the closest approximation
-    // NOTE: The rounding calculation below is correct. It will produce an 
+    // NOTE: The rounding calculation below is correct. It will produce an
     // off-by-one discrepancy with results from pari/gp. That discrepancy has been
-    // determined to be a rounding issue with pari/gp as it begins to use a 
+    // determined to be a rounding issue with pari/gp as it begins to use a
     // floating point representation after 192 bits. There are no discrepancies
     // between this algorithm and pari/gp for bit widths < 192 bits.
     ap_private<_AP_W, _AP_S, _AP_N> square(x_old * x_old);
@@ -3667,7 +3667,7 @@ ap_private<_AP_W, _AP_S, _AP_N> ap_private<_AP_W, _AP_S, _AP_N>::sqrt() const {
 /// from "Art of Computer Programming, Volume 2", section 4.3.1, p. 272. The
 /// variables here have the same names as in the algorithm. Comments explain
 /// the algorithm and any deviation from it.
-static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r, 
+static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
                      uint32_t m, uint32_t n) {
     assert(u && "Must provide dividend");
     assert(v && "Must provide divisor");
@@ -3685,10 +3685,10 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
     //DEBUG(cerr << " by");
     //DEBUG(for (int i = n; i >0; i--) cerr << " " << std::setbase(16) << v[i-1]);
     //DEBUG(cerr << '\n');
-    // D1. [Normalize.] Set d = b / (v[n-1] + 1) and multiply all the digits of 
-    // u and v by d. Note that we have taken Knuth's advice here to use a power 
-    // of 2 value for d such that d * v[n-1] >= b/2 (b is the base). A power of 
-    // 2 allows us to shift instead of multiply and it is easy to determine the 
+    // D1. [Normalize.] Set d = b / (v[n-1] + 1) and multiply all the digits of
+    // u and v by d. Note that we have taken Knuth's advice here to use a power
+    // of 2 value for d such that d * v[n-1] >= b/2 (b is the base). A power of
+    // 2 allows us to shift instead of multiply and it is easy to determine the
     // shift amount from the leading zeros.  We are basically normalizing the u
     // and v so that its high bits are shifted to the top of v's range without
     // overflow. Note that this can require an extra word in u so that u must
@@ -3719,14 +3719,14 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
     int j = m;
     do {
         //DEBUG(cerr << "KnuthDiv: quotient digit #" << j << '\n');
-        // D3. [Calculate q'.]. 
+        // D3. [Calculate q'.].
         //     Set qp = (u[j+n]*b + u[j+n-1]) / v[n-1]. (qp=qprime=q')
         //     Set rp = (u[j+n]*b + u[j+n-1]) % v[n-1]. (rp=rprime=r')
         // Now test if qp == b or qp*v[n-2] > b*rp + u[j+n-2]; if so, decrease
         // qp by 1, inrease rp by v[n-1], and repeat this test if rp < b. The test
         // on v[n-2] determines at high speed most of the cases in which the trial
-        // value qp is one too large, and it eliminates all cases where qp is two 
-        // too large. 
+        // value qp is one too large, and it eliminates all cases where qp is two
+        // too large.
         uint64_t dividend = ((uint64_t(u[j+n]) << 32) + u[j+n-1]);
         //DEBUG(cerr << "KnuthDiv: dividend == " << dividend << '\n');
         uint64_t qp = dividend / v[n-1];
@@ -3742,13 +3742,13 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
         // D4. [Multiply and subtract.] Replace (u[j+n]u[j+n-1]...u[j]) with
         // (u[j+n]u[j+n-1]..u[j]) - qp * (v[n-1]...v[1]v[0]). This computation
         // consists of a simple multiplication by a one-place number, combined with
-        // a subtraction. 
+        // a subtraction.
         bool isNeg = false;
         for (uint32_t i = 0; i < n; ++i) {
             uint64_t u_tmp = uint64_t(u[j+i]) | ((uint64_t(u[j+i+1])) << 32);
             uint64_t subtrahend = uint64_t(qp) * uint64_t(v[i]);
             bool borrow = subtrahend > u_tmp;
-            /*DEBUG(cerr << "KnuthDiv: u_tmp == " << u_tmp 
+            /*DEBUG(cerr << "KnuthDiv: u_tmp == " << u_tmp
               << ", subtrahend == " << subtrahend
               << ", borrow = " << borrow << '\n');*/
 
@@ -3762,14 +3762,14 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
                 k++;
             }
             isNeg |= borrow;
-            /*DEBUG(cerr << "KnuthDiv: u[j+i] == " << u[j+i] << ",  u[j+i+1] == " << 
+            /*DEBUG(cerr << "KnuthDiv: u[j+i] == " << u[j+i] << ",  u[j+i+1] == " <<
               u[j+i+1] << '\n');*/
         }
         /*DEBUG(cerr << "KnuthDiv: after subtraction:");
           DEBUG(for (int i = m+n; i >=0; i--) cerr << " " << u[i]);
           DEBUG(cerr << '\n');*/
-        // The digits (u[j+n]...u[j]) should be kept positive; if the result of 
-        // this step is actually negative, (u[j+n]...u[j]) should be left as the 
+        // The digits (u[j+n]...u[j]) should be kept positive; if the result of
+        // this step is actually negative, (u[j+n]...u[j]) should be left as the
         // true value plus b**(n+1), namely as the b's complement of
         // the true value, and a "borrow" to the left should be remembered.
         //
@@ -3784,16 +3784,16 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
           DEBUG(for (int i = m+n; i >=0; i--) cerr << " " << u[i]);
           DEBUG(cerr << '\n');*/
 
-        // D5. [Test remainder.] Set q[j] = qp. If the result of step D4 was 
+        // D5. [Test remainder.] Set q[j] = qp. If the result of step D4 was
         // negative, go to step D6; otherwise go on to step D7.
         q[j] = (uint32_t)qp;
         if (isNeg) {
-            // D6. [Add back]. The probability that this step is necessary is very 
+            // D6. [Add back]. The probability that this step is necessary is very
             // small, on the order of only 2/b. Make sure that test data accounts for
-            // this possibility. Decrease q[j] by 1 
+            // this possibility. Decrease q[j] by 1
             q[j]--;
-            // and add (0v[n-1]...v[1]v[0]) to (u[j+n]u[j+n-1]...u[j+1]u[j]). 
-            // A carry will occur to the left of u[j+n], and it should be ignored 
+            // and add (0v[n-1]...v[1]v[0]) to (u[j+n]u[j+n-1]...u[j+1]u[j]).
+            // A carry will occur to the left of u[j+n], and it should be ignored
             // since it cancels with the borrow that occurred in D4.
             bool carry = false;
             for (uint32_t i = 0; i < n; i++) {
@@ -3841,17 +3841,17 @@ static void KnuthDiv(uint32_t *u, uint32_t *v, uint32_t *q, uint32_t* r,
 }
 
 template<int _AP_W, bool _AP_S, int _AP_N>
-void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords, 
+void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
             const ap_private<_AP_W, _AP_S, _AP_N>& RHS, uint32_t rhsWords,
             ap_private<_AP_W, _AP_S, _AP_N> *Quotient, ap_private<_AP_W, _AP_S, _AP_N> *Remainder) {
     assert(lhsWords >= rhsWords && "Fractional result");
     enum {APINT_BITS_PER_WORD=64};
-    // First, compose the values into an array of 32-bit words instead of 
+    // First, compose the values into an array of 32-bit words instead of
     // 64-bit words. This is a necessity of both the "short division" algorithm
-    // and the the Knuth "classical algorithm" which requires there to be native 
-    // operations for +, -, and * on an m bit value with an m*2 bit result. We 
-    // can't use 64-bit operands here because we don't have native results of 
-    // 128-bits. Furthremore, casting the 64-bit values to 32-bit values won't 
+    // and the the Knuth "classical algorithm" which requires there to be native
+    // operations for +, -, and * on an m bit value with an m*2 bit result. We
+    // can't use 64-bit operands here because we don't have native results of
+    // 128-bits. Furthremore, casting the 64-bit values to 32-bit values won't
     // work on large-endian machines.
     uint64_t mask = ~0ull >> (sizeof(uint32_t)*8);
     uint32_t n = rhsWords * 2;
@@ -3900,9 +3900,9 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
     if (Remainder)
         memset(__R, 0, n * sizeof(uint32_t));
 
-    // Now, adjust m and n for the Knuth division. n is the number of words in 
+    // Now, adjust m and n for the Knuth division. n is the number of words in
     // the divisor. m is the number of words by which the dividend exceeds the
-    // divisor (i.e. m+n is the length of the dividend). These sizes must not 
+    // divisor (i.e. m+n is the length of the dividend). These sizes must not
     // contain any zero words or the Knuth algorithm fails.
     for (unsigned i = n; i > 0 && __V[i-1] == 0; i--) {
         n--;
@@ -3954,10 +3954,10 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else
             Quotient->clear();
 
-        // The quotient is in Q. Reconstitute the quotient into Quotient's low 
+        // The quotient is in Q. Reconstitute the quotient into Quotient's low
         // order words.
         if (lhsWords == 1) {
-            uint64_t tmp = 
+            uint64_t tmp =
                 uint64_t(__Q[0]) | ((uint64_t(__Q[1])) << (APINT_BITS_PER_WORD / 2));
             if (Quotient->isSingleWord())
                 Quotient->VAL = tmp;
@@ -3966,7 +3966,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else {
             assert(!Quotient->isSingleWord() && "Quotient ap_private not large enough");
             for (unsigned i = 0; i < lhsWords; ++i)
-                Quotient->pVal[i] = 
+                Quotient->pVal[i] =
                     uint64_t(__Q[i*2]) | ((uint64_t(__Q[i*2+1])) << (APINT_BITS_PER_WORD / 2));
         }
         Quotient->clearUnusedBits();
@@ -3984,7 +3984,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         // The remainder is in R. Reconstitute the remainder into Remainder's low
         // order words.
         if (rhsWords == 1) {
-            uint64_t tmp = 
+            uint64_t tmp =
                 uint64_t(__R[0]) | ((uint64_t(__R[1])) << (APINT_BITS_PER_WORD / 2));
             if (Remainder->isSingleWord())
                 Remainder->VAL = tmp;
@@ -3993,7 +3993,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else {
             assert(!Remainder->isSingleWord() && "Remainder ap_private not large enough");
             for (unsigned i = 0; i < rhsWords; ++i)
-                Remainder->pVal[i] = 
+                Remainder->pVal[i] =
                     uint64_t(__R[i*2]) | ((uint64_t(__R[i*2+1])) << (APINT_BITS_PER_WORD / 2));
         }
         Remainder->clearUnusedBits();
@@ -4009,7 +4009,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
 }
 
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 void ap_private<_AP_W, _AP_S, _AP_N>::fromString(const char *str, uint32_t slen, uint8_t radix) {
     enum { numbits=_AP_W};
     // Check our assumptions here
@@ -4085,19 +4085,19 @@ void ap_private<_AP_W, _AP_S, _AP_N>::fromString(const char *str, uint32_t slen,
     clearUnusedBits();
 }
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
+template<int _AP_W, bool _AP_S, int _AP_N>
 std::string ap_private<_AP_W, _AP_S, _AP_N>::toString(uint8_t radix, bool wantSigned) const {
     assert((radix == 10 || radix == 8 || radix == 16 || radix == 2) &&
             "Radix should be 2, 8, 10, or 16!");
-    static const char *digits[] = { 
-        "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F" 
+    static const char *digits[] = {
+        "0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"
     };
     std::string result;
     uint32_t bits_used = getActiveBits();
 
     if (radix != 10) {
-        // For the 2, 8 and 16 bit cases, we can just shift instead of divide 
-        // because the number of bits per digit (1,3 and 4 respectively) divides 
+        // For the 2, 8 and 16 bit cases, we can just shift instead of divide
+        // because the number of bits per digit (1,3 and 4 respectively) divides
         // equaly. We just shift until there value is zero.
 
         // First, check for a zero value and just short circuit the logic below.
@@ -4148,7 +4148,7 @@ std::string ap_private<_AP_W, _AP_S, _AP_N>::toString(uint8_t radix, bool wantSi
     else while (tmp.ne(zero)) {
         ap_private<_AP_W, false, _AP_N> APdigit(0);
         ap_private<_AP_W, false, _AP_N> tmp2(0);
-        divide(tmp,  tmp.getNumWords(), divisor, divisor.getNumWords(), &tmp2, 
+        divide(tmp,  tmp.getNumWords(), divisor, divisor.getNumWords(), &tmp2,
                 &APdigit);
         uint32_t digit = APdigit.getZExtValue();
         assert(digit < radix && "divide failed");
@@ -4167,19 +4167,19 @@ std::string ap_private<_AP_W, _AP_S, _AP_N>::toString(uint8_t radix, bool wantSi
 
 /* Some handy functions local to this file.  */
 
-template<int _AP_W, bool _AP_S, int _AP_N> 
-void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords, 
+template<int _AP_W, bool _AP_S, int _AP_N>
+void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
             uint64_t RHS,
             ap_private<_AP_W, _AP_S, _AP_N> *Quotient, ap_private<_AP_W, _AP_S, _AP_N> *Remainder) {
     uint32_t rhsWords=1;
     assert(lhsWords >= rhsWords && "Fractional result");
     enum {APINT_BITS_PER_WORD=64};
-    // First, compose the values into an array of 32-bit words instead of 
+    // First, compose the values into an array of 32-bit words instead of
     // 64-bit words. This is a necessity of both the "short division" algorithm
-    // and the the Knuth "classical algorithm" which requires there to be native 
-    // operations for +, -, and * on an m bit value with an m*2 bit result. We 
-    // can't use 64-bit operands here because we don't have native results of 
-    // 128-bits. Furthremore, casting the 64-bit values to 32-bit values won't 
+    // and the the Knuth "classical algorithm" which requires there to be native
+    // operations for +, -, and * on an m bit value with an m*2 bit result. We
+    // can't use 64-bit operands here because we don't have native results of
+    // 128-bits. Furthremore, casting the 64-bit values to 32-bit values won't
     // work on large-endian machines.
     uint64_t mask = ~0ull >> (sizeof(uint32_t)*8);
     uint32_t n = 2;
@@ -4225,9 +4225,9 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
     if (Remainder)
         memset(__R, 0, n * sizeof(uint32_t));
 
-    // Now, adjust m and n for the Knuth division. n is the number of words in 
+    // Now, adjust m and n for the Knuth division. n is the number of words in
     // the divisor. m is the number of words by which the dividend exceeds the
-    // divisor (i.e. m+n is the length of the dividend). These sizes must not 
+    // divisor (i.e. m+n is the length of the dividend). These sizes must not
     // contain any zero words or the Knuth algorithm fails.
     for (unsigned i = n; i > 0 && __V[i-1] == 0; i--) {
         n--;
@@ -4281,10 +4281,10 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else
             Quotient->clear();
 
-        // The quotient is in Q. Reconstitute the quotient into Quotient's low 
+        // The quotient is in Q. Reconstitute the quotient into Quotient's low
         // order words.
         if (lhsWords == 1) {
-            uint64_t tmp = 
+            uint64_t tmp =
                 uint64_t(__Q[0]) | ((uint64_t(__Q[1])) << (APINT_BITS_PER_WORD / 2));
             if (Quotient->isSingleWord())
                 Quotient->VAL = tmp;
@@ -4293,7 +4293,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else {
             assert(!Quotient->isSingleWord() && "Quotient ap_private not large enough");
             for (unsigned i = 0; i < lhsWords; ++i)
-                Quotient->pVal[i] = 
+                Quotient->pVal[i] =
                     uint64_t(__Q[i*2]) | ((uint64_t(__Q[i*2+1])) << (APINT_BITS_PER_WORD / 2));
         }
         Quotient->clearUnusedBits();
@@ -4311,7 +4311,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         // The remainder is in __R. Reconstitute the remainder into Remainder's low
         // order words.
         if (rhsWords == 1) {
-            uint64_t tmp = 
+            uint64_t tmp =
                 uint64_t(__R[0]) | ((uint64_t(__R[1])) << (APINT_BITS_PER_WORD / 2));
             if (Remainder->isSingleWord())
                 Remainder->VAL = tmp;
@@ -4320,7 +4320,7 @@ void divide(const ap_private<_AP_W, _AP_S, _AP_N>& LHS, uint32_t lhsWords,
         } else {
             assert(!Remainder->isSingleWord() && "Remainder ap_private not large enough");
             for (unsigned i = 0; i < rhsWords; ++i)
-                Remainder->pVal[i] = 
+                Remainder->pVal[i] =
                     uint64_t(__R[i*2]) | ((uint64_t(__R[i*2+1])) << (APINT_BITS_PER_WORD / 2));
         }
         Remainder->clearUnusedBits();
@@ -4346,7 +4346,7 @@ public:
     struct RType {
         enum {
           _AP_N =1,
-            mult_w = _AP_W+_AP_W2, 
+            mult_w = _AP_W+_AP_W2,
             mult_s = _AP_S||_AP_S2, //?? why
             plus_w = AP_MAX(_AP_W+(_AP_S2&&!_AP_S),_AP_W2+(_AP_S&&!_AP_S2))+1, //shouldn't it be AP_MAX(_AP_W,_AP_W2)+!(_AP_S^_AP_S2)+1 ????
             plus_s = _AP_S||_AP_S2,
@@ -4354,7 +4354,7 @@ public:
             minus_s = true,
             div_w = _AP_W+_AP_S2,
             div_s = _AP_S||_AP_S2,
-            mod_w = AP_MIN(_AP_W,_AP_W2+(!_AP_S2&&_AP_S)), 
+            mod_w = AP_MIN(_AP_W,_AP_W2+(!_AP_S2&&_AP_S)),
             mod_s = _AP_S,
             logic_w = AP_MAX(_AP_W+(_AP_S2&&!_AP_S),_AP_W2+(_AP_S&&!_AP_S2)),
             logic_s = _AP_S||_AP_S2
@@ -4379,20 +4379,20 @@ public:
     uint64_t VAL;    ///< Used to store the <= 64 bits integer value.
     const uint64_t *const pVal;
 
-    INLINE uint32_t getBitWidth() const { 
-        return BitWidth; 
+    INLINE uint32_t getBitWidth() const {
+        return BitWidth;
     }
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     ap_private<_AP_W, _AP_S, 1>& operator=(const ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) {
-        VAL = RHS.pVal[0]; 
+        VAL = RHS.pVal[0];
         clearUnusedBits();
         return *this;
     }
 
     template<int _AP_W1, bool _AP_S1, int _AP_N1>
     ap_private<_AP_W, _AP_S, 1>& operator=(const volatile ap_private<_AP_W1, _AP_S1, _AP_N1>& RHS) {
-        VAL = RHS.pVal[0]; 
+        VAL = RHS.pVal[0];
         clearUnusedBits();
         return *this;
     }
@@ -4445,7 +4445,7 @@ public:
 
     INLINE bool isSingleWord() const { return true; }
 
-    INLINE void fromString(const char *strStart, uint32_t slen, 
+    INLINE void fromString(const char *strStart, uint32_t slen,
                            uint8_t radix, int offset=0)  {
         // Check our assumptions here
         assert((radix == 10 || radix == 8 || radix == 16 || radix == 2) &&
@@ -4574,23 +4574,23 @@ template<int _AP_W1>
         const char *strp = str.c_str();
         uint32_t offset = 0;
         uint32_t base = 0;
-        bool neg = false;        
+        bool neg = false;
         uint32_t radix = 10;
         ap_parse_sign(strp, base, neg);
-        ap_parse_prefix(strp + base, offset, radix);  
+        ap_parse_prefix(strp + base, offset, radix);
 
         if ((radix != 10 && neg) ||
                 (strLen - base - offset <= 0) ||
                 InvalidDigit(strp, strLen, base + offset, radix))  {
             fprintf(stderr, "invalid character string %s !\n", val);
             assert(0);
-        } 
+        }
 
         ap_private<_AP_W, _AP_S> ap_private_val(str.c_str(), strLen, radix, base, offset);
-        if (neg) 
+        if (neg)
             ap_private_val = -ap_private_val;
         operator =  (ap_private_val);
-    }  
+    }
 
     ap_private(const char* val, signed char rd): pVal(&VAL) {
         std::string str(val);
@@ -4599,35 +4599,35 @@ template<int _AP_W1>
         uint32_t offset = 0;
         uint32_t base = 0;
         uint32_t radix = rd;
-        bool neg = false;  
+        bool neg = false;
         ap_parse_sign(strp, base, neg);
-        ap_parse_prefix(strp + base, offset, radix);  
+        ap_parse_prefix(strp + base, offset, radix);
 
         if ((radix != 10 && neg) ||
                 (strLen - base - offset <= 0) ||
                 InvalidDigit(strp, strLen, base + offset, radix))  {
             fprintf(stderr, "invalid character string %s !\n", val);
             assert(0);
-        }   
+        }
 
         uint32_t bitsNeeded = ap_private<_AP_W, _AP_S>::getBitsNeeded(strp, strLen, radix);
         ap_private<_AP_W, _AP_S> ap_private_val(strp , strLen, radix, base, offset);
         //ap_private<_AP_W, _AP_S> ap_private_val(bitsNeeded, strp , strLen, radix, base, offset);
         if (strp[0] == '-')
-            ap_private_val = -ap_private_val;  
+            ap_private_val = -ap_private_val;
         operator =  (ap_private_val);
-    }  
+    }
 
-    INLINE bool isNegative() const { 
+    INLINE bool isNegative() const {
         static const uint64_t sign_mask = 1ULL << (_AP_W-1);
         return _AP_S && (sign_mask & VAL);
     }
 
-    INLINE bool isPositive() const { 
+    INLINE bool isPositive() const {
         return !isNegative();
     }
 
-    INLINE bool isStrictlyPositive() const { 
+    INLINE bool isStrictlyPositive() const {
         return !isNegative() && VAL!=0;
     }
 
@@ -4636,8 +4636,8 @@ template<int _AP_W1>
     }
 
     template<int _AP_W1, bool _AP_S1>
-    INLINE bool operator==(const ap_private<_AP_W1, _AP_S1, 1>& RHS) const { 
-        return (VAL == RHS.VAL); 
+    INLINE bool operator==(const ap_private<_AP_W1, _AP_S1, 1>& RHS) const {
+        return (VAL == RHS.VAL);
     }
 
     INLINE  bool operator==(const ap_private<_AP_W, _AP_S>& RHS) const { return VAL == RHS.VAL; }
@@ -4647,17 +4647,17 @@ template<int _AP_W1>
     INLINE  bool operator!=(const ap_private<_AP_W, _AP_S>& RHS) const { return VAL != RHS.VAL; }
     INLINE  bool operator!=(const ap_private<_AP_W, !_AP_S>& RHS) const { return getVal() != RHS.getVal(); }
     const ap_private operator++() { ++VAL; clearUnusedBits(); return *this; }
-    const ap_private operator--(int) { 
-           ap_private orig(*this); 
+    const ap_private operator--(int) {
+           ap_private orig(*this);
            --VAL; clearUnusedBits();
            return orig;
     }
     const ap_private operator--() { --VAL; clearUnusedBits(); return *this;}
     INLINE bool operator !() const { return !VAL;}
 
-    const ap_private operator++(int) { 
+    const ap_private operator++(int) {
         ap_private orig(*this);
-        VAL++; clearUnusedBits(); 
+        VAL++; clearUnusedBits();
         return orig;
     }
 
@@ -4678,7 +4678,7 @@ template<int _AP_W1>
     }
     INLINE ap_private& clear(uint32_t bitPosition) { VAL &= ~(1ULL<<(bitPosition)); clearUnusedBits(); return *this;}
 
-    INLINE ap_private ashr(uint32_t shiftAmt) const {   
+    INLINE ap_private ashr(uint32_t shiftAmt) const {
         enum {excess_bits = APINT_BITS_PER_WORD - BitWidth};
         if (_AP_S)
             return ap_private((shiftAmt == BitWidth) ? 0 : ((int64_t)VAL) >> (shiftAmt));
@@ -4686,11 +4686,11 @@ template<int _AP_W1>
             return ap_private((shiftAmt == BitWidth) ? 0 : (VAL) >> (shiftAmt));
     }
 
-    INLINE  ap_private lshr(uint32_t shiftAmt) const  { 
-        return ap_private((shiftAmt == BitWidth) ? ap_private(0) : ap_private((VAL&mask) >> (shiftAmt))); 
+    INLINE  ap_private lshr(uint32_t shiftAmt) const  {
+        return ap_private((shiftAmt == BitWidth) ? ap_private(0) : ap_private((VAL&mask) >> (shiftAmt)));
     }
 
-    INLINE  ap_private shl(uint32_t shiftAmt) const  { 
+    INLINE  ap_private shl(uint32_t shiftAmt) const  {
         if (shiftAmt > BitWidth) {
             if (!isNegative())
                 return ap_private(0);
@@ -4698,14 +4698,14 @@ template<int _AP_W1>
         }
         if (shiftAmt == BitWidth) return ap_private(0);
         else return ap_private((VAL) << (shiftAmt));
-        //return ap_private((shiftAmt == BitWidth) ? ap_private(0ULL) : ap_private(VAL << shiftAmt)); 
+        //return ap_private((shiftAmt == BitWidth) ? ap_private(0ULL) : ap_private(VAL << shiftAmt));
     }
 
-    INLINE int64_t getSExtValue() const {  
+    INLINE int64_t getSExtValue() const {
         return VAL;
     }
 
-    INLINE uint64_t getZExtValue() const { 
+    INLINE uint64_t getZExtValue() const {
         return VAL & mask;
     }
 
@@ -4724,16 +4724,16 @@ template<int _AP_W1>
         *this=ref.get();
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
-         ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
-    INLINE ap_private(const af_range_ref<_AP_W2, _AP_I2, _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
+         ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
+    INLINE ap_private(const af_range_ref<_AP_W2, _AP_I2, _AP_S2,
                        _AP_Q2, _AP_O2, _AP_N2> &val) : pVal(&VAL) {
         *this = ((val.operator ap_private<_AP_W2, false> ()));
     }
 
-    template<int _AP_W2, int _AP_I2, bool _AP_S2, 
-         ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2> 
-    INLINE ap_private(const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, 
+    template<int _AP_W2, int _AP_I2, bool _AP_S2,
+         ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
+    INLINE ap_private(const af_bit_ref<_AP_W2, _AP_I2, _AP_S2,
                        _AP_Q2, _AP_O2, _AP_N2> &val) : pVal(&VAL) {
         *this = (uint64_t)(bool)val;
     }
@@ -4758,30 +4758,30 @@ template<int _AP_W1>
     INLINE unsigned to_uint() const {
         return (unsigned) getVal();
     }
-    
+
     INLINE long to_long() const {
         return (long) getVal();
     }
-    
+
     INLINE unsigned long to_ulong() const {
         return (unsigned long) getVal();
     }
-    
+
     INLINE ap_slong to_int64() const {
         return (ap_slong) getVal();
     }
-    
+
     INLINE ap_ulong to_uint64() const {
         return (ap_ulong) getVal();
     }
-    
+
     INLINE double to_double() const {
-        if (isNegative()) 
+        if (isNegative())
             return roundToDouble(true);
         else
             return roundToDouble(false);
     }
-    
+
     INLINE bool isMinValue() const { return VAL == 0;}
     template<int _AP_W1, bool _AP_S1> INLINE ap_private& operator&=(const ap_private<_AP_W1, _AP_S1>& RHS) {
         VAL = VAL&RHS.pVal[0];
@@ -4863,9 +4863,9 @@ template<int _AP_W1>
     }
 #if 1
     template <int _AP_W1, bool _AP_S1>
-    INLINE typename RType<_AP_W1, _AP_S1>::mult operator*(const ap_private<_AP_W1, _AP_S1>& RHS) const {  
+    INLINE typename RType<_AP_W1, _AP_S1>::mult operator*(const ap_private<_AP_W1, _AP_S1>& RHS) const {
         if (RType<_AP_W1, _AP_S1>::mult_w <= 64) {
-            typename RType<_AP_W1, _AP_S1>::mult Result(VAL * RHS.VAL); 
+            typename RType<_AP_W1, _AP_S1>::mult Result(VAL * RHS.VAL);
             return Result;
         } else {
             typename RType<_AP_W1, _AP_S1>::mult Result = typename RType<_AP_W1, _AP_S1>::mult(*this);
@@ -4909,18 +4909,18 @@ template<int _AP_W1>
 
 #if 1
 
-    template<int _AP_W1, bool _AP_S1> INLINE 
-    typename RType<_AP_W1,_AP_S1>::plus  operator+(const ap_private<_AP_W1, _AP_S1>& RHS) const {  
-        if (RType<_AP_W1,_AP_S1>::plus_w <=64) 
+    template<int _AP_W1, bool _AP_S1> INLINE
+    typename RType<_AP_W1,_AP_S1>::plus  operator+(const ap_private<_AP_W1, _AP_S1>& RHS) const {
+        if (RType<_AP_W1,_AP_S1>::plus_w <=64)
             return typename RType<_AP_W1,_AP_S1>::plus(RType<_AP_W1,_AP_S1>::plus_s ? int64_t(VAL+RHS.VAL):uint64_t(VAL+RHS.VAL));
         typename RType<_AP_W1,_AP_S1>::plus Result=RHS;
         Result += VAL;
         return Result;
     }
 
-    template<int _AP_W1, bool _AP_S1> INLINE 
-    typename RType<_AP_W1,_AP_S1>::minus  operator-(const ap_private<_AP_W1, _AP_S1>& RHS) const {  
-        if (RType<_AP_W1,_AP_S1>::minus_w <=64) 
+    template<int _AP_W1, bool _AP_S1> INLINE
+    typename RType<_AP_W1,_AP_S1>::minus  operator-(const ap_private<_AP_W1, _AP_S1>& RHS) const {
+        if (RType<_AP_W1,_AP_S1>::minus_w <=64)
             return typename RType<_AP_W1,_AP_S1>::minus(int64_t(VAL-RHS.VAL));
         typename RType<_AP_W1,_AP_S1>::minus Result=*this;
         Result -= RHS;
@@ -4940,7 +4940,7 @@ template<int _AP_W1>
         int excessBits = (APINT_BITS_PER_WORD - remainder) % APINT_BITS_PER_WORD;
         //enum { remainder = BitWidth % APINT_BITS_PER_WORD, excessBits = APINT_BITS_PER_WORD - remainder};
         uint32_t Count = CountLeadingZeros_64(VAL);
-        if (Count) 
+        if (Count)
             Count-=excessBits;
         return AESL_std::min(Count, (uint32_t)_AP_W);
     }
@@ -4951,7 +4951,7 @@ template<int _AP_W1>
         ret = (ret)>>(BitWidth - numBits);
         return ret;
     }
-  
+
     /// LoBits - This function returns the low "numBits" bits of this ap_private.
     ap_private<_AP_W, _AP_S, 1> getLoBits(uint32_t numBits) const {
         ap_private<_AP_W, _AP_S, 1> ret((VAL) << (BitWidth - numBits));
@@ -4997,11 +4997,11 @@ template<int _AP_W1>
 
     template<bool _AP_S1>
     INLINE ap_private<_AP_W, _AP_S||_AP_S1> udiv(const ap_private<_AP_W, _AP_S1>& RHS) const {
-        return ap_private<_AP_W, _AP_S||_AP_S1>(VAL / RHS.VAL);    
+        return ap_private<_AP_W, _AP_S||_AP_S1>(VAL / RHS.VAL);
     }
 
     INLINE  ap_private udiv(uint64_t RHS) const {
-        return ap_private(VAL / RHS);    
+        return ap_private(VAL / RHS);
     }
 
     /// Signed divide this ap_private by ap_private RHS.
@@ -5073,14 +5073,14 @@ template<int _AP_W1>
         return this->urem(RHS);
     }
 
-    INLINE static void udivrem(const ap_private &LHS, const ap_private &RHS, 
+    INLINE static void udivrem(const ap_private &LHS, const ap_private &RHS,
                                ap_private &Quotient, ap_private &Remainder){
         assert(RHS!=0 && "Divide by 0");
         Quotient = LHS.VAl/RHS.VAl;
         Remainder = LHS.VAL % RHS.VAL;
     }
 
-    INLINE static void udivrem(const ap_private &LHS, uint64_t RHS, 
+    INLINE static void udivrem(const ap_private &LHS, uint64_t RHS,
                                ap_private &Quotient, ap_private &Remainder){
         assert(RHS!=0 && "Divide by 0");
         Quotient = LHS.VAl/RHS;
@@ -5122,7 +5122,7 @@ template<int _AP_W1>
     }
 
     template <int _AP_W1, bool _AP_S1> INLINE bool eq(const ap_private<_AP_W1, _AP_S1>& RHS) const {
-        return (*this) == RHS; 
+        return (*this) == RHS;
     }
 
     template <int _AP_W1, bool _AP_S1> INLINE bool ne(const ap_private<_AP_W1, _AP_S1>& RHS) const {
@@ -5237,38 +5237,38 @@ template<int _AP_W1>
                 set(_AP_W - 1 - i);
             else
                 clear(_AP_W - 1 - i);
-        } 
+        }
         clearUnusedBits();
         return *this;
     }
 
     /*Return true if the value of ap_private instance is zero*/
     INLINE bool iszero () const {
-        return isMinValue(); 
-    }     
-  
-    /* x < 0 */   
+        return isMinValue();
+    }
+
+    /* x < 0 */
     INLINE bool sign () const {
         if (isNegative())
             return true;
-        return false; 
+        return false;
     }
 
     /* x[i] = !x[i] */
     INLINE void invert (int i) {
         assert( i >= 0 && "Attempting to read bit with negative index");
         assert( i < _AP_W && "Attempting to read bit beyond MSB");
-        flip(i); 
+        flip(i);
     }
-  
-    /* x[i] */ 
+
+    /* x[i] */
     INLINE bool test (int i) const {
         assert( i >= 0 && "Attempting to read bit with negative index");
         assert( i < _AP_W && "Attempting to read bit beyond MSB");
         return operator[](i);
     }
-   
-    //This is used for sc_lv and sc_bv, which is implemented by sc_uint 
+
+    //This is used for sc_lv and sc_bv, which is implemented by sc_uint
     //Rotate an ap_private object n places to the left
     INLINE void lrotate(int n) {
         assert( n >= 0 && "Attempting to shift negative index");
@@ -5276,15 +5276,15 @@ template<int _AP_W1>
         operator =  (shl(n) | lshr(_AP_W - n));
     }
 
-    //This is used for sc_lv and sc_bv, which is implemented by sc_uint 
-    //Rotate an ap_private object n places to the right 
+    //This is used for sc_lv and sc_bv, which is implemented by sc_uint
+    //Rotate an ap_private object n places to the right
     INLINE void rrotate(int n) {
         assert( n >= 0 && "Attempting to shift negative index");
         assert( n < _AP_W && "Shift value larger than bit width");
         operator = (lshr(n) | shl(_AP_W - n));
     }
- 
-    //Set the ith bit into v 
+
+    //Set the ith bit into v
     INLINE void set (int i, bool v) {
         assert( i >= 0 && "Attempting to write bit with negative index");
         assert( i < _AP_W && "Attempting to write bit beyond MSB");
@@ -5305,9 +5305,9 @@ template<int _AP_W1>
         return operator [](i);
     }
 
-    //complements every bit 
+    //complements every bit
     INLINE void b_not() {
-        flip(); 
+        flip();
     }
 
     //Binary Arithmetic
@@ -5328,24 +5328,24 @@ template<int _AP_W1>
     //OP_BIN_AP(^,logic, Xor)
 
 #undef OP_BIN_AP
-    template<int _AP_W2, bool _AP_S2> 
-    INLINE typename RType<_AP_W2,_AP_S2>::div 
+    template<int _AP_W2, bool _AP_S2>
+    INLINE typename RType<_AP_W2,_AP_S2>::div
     operator / (const ap_private<_AP_W2,_AP_S2>&op) const {
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S> lhs=ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S>(*this);
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S> rhs=ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2)+(_AP_S||_AP_S2), _AP_S>(op);
         return typename RType<_AP_W2,_AP_S2>::div((_AP_S||_AP_S2)?lhs.sdiv(rhs):lhs.udiv(rhs));
     }
-    
-  
-    template<int _AP_W2, bool _AP_S2> 
-    INLINE typename RType<_AP_W2,_AP_S2>::mod 
+
+
+    template<int _AP_W2, bool _AP_S2>
+    INLINE typename RType<_AP_W2,_AP_S2>::mod
     operator % (const ap_private<_AP_W2,_AP_S2>&op) const {
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S||_AP_S2> lhs=*this;
         ap_private<AP_MAX(_AP_W+(_AP_S||_AP_S2),_AP_W2+(_AP_S||_AP_S2)), _AP_S||_AP_S2> rhs=op;
         typename RType<_AP_W2,_AP_S2>::mod res = typename RType<_AP_W2,_AP_S2>::mod (_AP_S?lhs.srem(rhs):lhs.urem(rhs));
         return res;
     }
-    
+
 
 #define OP_ASSIGN_AP_2(Sym) \
     template<int _AP_W2, bool _AP_S2> \
@@ -5354,33 +5354,33 @@ template<int _AP_W1>
         *this=operator Sym (op); \
         return *this; \
     } \
-        
+
     OP_ASSIGN_AP_2(/)
     OP_ASSIGN_AP_2(%)
-#undef OP_ASSIGN_AP_2    
+#undef OP_ASSIGN_AP_2
 
     ///Bitwise assign: and, or, xor
     //-------------------------------------------------------------
     //    OP_ASSIGN_AP(&)
     //    OP_ASSIGN_AP(^)
     //    OP_ASSIGN_AP(|)
-#undef OP_ASSIGN_AP    
+#undef OP_ASSIGN_AP
 #if 1
-    
+
     template<int _AP_W2, bool _AP_S2>
-    INLINE ap_private<_AP_W, _AP_S> 
+    INLINE ap_private<_AP_W, _AP_S>
     operator << (const ap_private<_AP_W2, _AP_S2>& op2) const {
         uint32_t sh=op2.to_uint();
         return *this << sh;
     }
 
-    INLINE ap_private<_AP_W, _AP_S> 
-    operator << (uint32_t sh) const {    
+    INLINE ap_private<_AP_W, _AP_S>
+    operator << (uint32_t sh) const {
         return shl(sh);
     }
-    
-#endif    
-    
+
+#endif
+
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_private<_AP_W, _AP_S>
     operator >> (const ap_private<_AP_W2, _AP_S2>& op2) const {
@@ -5415,8 +5415,8 @@ template<int _AP_W1>
     {                                                                        \
         *this=operator Sym (op.getVal());                                        \
         return *this;                                                        \
-    }                                                                        
-    OP_ASSIGN_AP_3_SINGLE(>>) 
+    }
+    OP_ASSIGN_AP_3_SINGLE(>>)
 #undef OP_ASSIGN_AP_3_SINGLE
 
     ///Comparisons
@@ -5503,14 +5503,14 @@ template<int _AP_W1>
     INLINE ap_range_ref<_AP_W,_AP_S>
     operator () (int Hi, int Lo) const {
         assert((Hi < _AP_W) && (Lo < _AP_W)&&"Out of bounds in range()");
-        return ap_range_ref<_AP_W,_AP_S>(const_cast<ap_private<_AP_W, 
+        return ap_range_ref<_AP_W,_AP_S>(const_cast<ap_private<_AP_W,
                 _AP_S>*>(this), Hi, Lo);
     }
 
     INLINE ap_range_ref<_AP_W,_AP_S>
     range (int Hi, int Lo) const {
         assert((Hi < _AP_W) && (Lo < _AP_W)&&"Out of bounds in range()");
-        return ap_range_ref<_AP_W,_AP_S>((const_cast<ap_private<_AP_W, 
+        return ap_range_ref<_AP_W,_AP_S>((const_cast<ap_private<_AP_W,
                     _AP_S>*> (this)), Hi, Lo);
     }
 
@@ -5522,7 +5522,7 @@ template<int _AP_W1>
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    range (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range (const ap_private<_AP_W2, _AP_S2> &HiIdx,
            const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -5532,7 +5532,7 @@ template<int _AP_W1>
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
                  const ap_private<_AP_W3, _AP_S3> &LoIdx) {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -5542,7 +5542,7 @@ template<int _AP_W1>
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    range (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    range (const ap_private<_AP_W2, _AP_S2> &HiIdx,
            const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -5552,7 +5552,7 @@ template<int _AP_W1>
 
     template<int _AP_W2, bool _AP_S2, int _AP_W3, bool _AP_S3>
     INLINE ap_range_ref<_AP_W,_AP_S>
-    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx, 
+    operator () (const ap_private<_AP_W2, _AP_S2> &HiIdx,
                  const ap_private<_AP_W3, _AP_S3> &LoIdx) const {
         int Hi = HiIdx.to_int();
         int Lo = LoIdx.to_int();
@@ -5584,7 +5584,7 @@ template<int _AP_W1>
         assert(index >= 0 && "Attempting to read bit with negative index");
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         return ap_bit_ref<_AP_W,_AP_S>( *this, index );
-    } 
+    }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE ap_bit_ref<_AP_W,_AP_S> bit (const ap_private<_AP_W2,_AP_S2> &index) {
@@ -5598,14 +5598,14 @@ template<int _AP_W1>
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         ap_bit_ref<_AP_W,_AP_S> br(const_cast<ap_private<_AP_W, _AP_S>*>(this), index);
         return br.to_bool();
-    }    
+    }
 
     template<int _AP_W2, bool _AP_S2>
     INLINE bool bit (const ap_private<_AP_W2,_AP_S2>& index) const {
         assert(index < _AP_W && "Attempting to read bit beyond MSB");
         ap_bit_ref<_AP_W,_AP_S> br = bit(index);
         return br.to_bool();
-    }    
+    }
 
     template <int _AP_W2, bool _AP_S2>
     INLINE ap_concat_ref<_AP_W,ap_private<_AP_W, _AP_S>,_AP_W2,ap_private<_AP_W2,_AP_S2> > concat(const ap_private<_AP_W2,_AP_S2>& a2) const {
@@ -5619,67 +5619,67 @@ template<int _AP_W1>
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (const ap_private<_AP_W2, _AP_S2>& a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this), const_cast<ap_private<_AP_W2,_AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (const ap_private<_AP_W2, _AP_S2>& a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(*this, const_cast<ap_private<_AP_W2,_AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this), a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2, _AP_S2> >
     operator, (ap_private<_AP_W2, _AP_S2>& a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, ap_private<_AP_W2,
                  _AP_S2> >(*this, a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (const ap_range_ref<_AP_W2, _AP_S2> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2,
                              ap_range_ref<_AP_W2, _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                              const_cast<ap_range_ref<_AP_W2, _AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, ap_range_ref<_AP_W2, _AP_S2> >
     operator, (ap_range_ref<_AP_W2, _AP_S2> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2,
                              ap_range_ref<_AP_W2, _AP_S2> >(*this, a2);
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (const ap_bit_ref<_AP_W2, _AP_S2> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1,
                   ap_bit_ref<_AP_W2, _AP_S2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                   const_cast<ap_bit_ref<_AP_W2, _AP_S2>& >(a2));
     }
 
     template <int _AP_W2, bool _AP_S2>
-    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> > 
+    INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, ap_bit_ref<_AP_W2, _AP_S2> >
     operator, (ap_bit_ref<_AP_W2, _AP_S2> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, 1,
                   ap_bit_ref<_AP_W2, _AP_S2> >(*this, a2);
     }
 
     template <int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
     INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &a2) const {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3,
                              ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
                       const_cast<ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& >(a2));
     }
@@ -5687,41 +5687,41 @@ template<int _AP_W1>
     template <int _AP_W2, typename _AP_T2, int _AP_W3, typename _AP_T3>
     INLINE ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >
     operator, (ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> &a2) {
-        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3, 
+        return ap_concat_ref<_AP_W, ap_private<_AP_W, _AP_S>, _AP_W2+_AP_W3,
                              ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3> >(*this, a2);
     }
 
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) const {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
-                const_cast<af_range_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2, 
+                const_cast<af_range_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2,
                 _AP_O2, _AP_N2>& >(a2));
     }
-    
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (af_range_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) {
         return ap_concat_ref<_AP_W, ap_private, _AP_W2, af_range_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this, a2);
     }
-    
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (const af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) const {
         return ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(const_cast<ap_private<_AP_W,_AP_S>& >(*this),
-                const_cast<af_bit_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2, 
+                const_cast<af_bit_ref<_AP_W2,_AP_I2, _AP_S2, _AP_Q2,
                 _AP_O2, _AP_N2>& >(a2));
     }
- 
+
     template <int _AP_W2, int _AP_I2, bool _AP_S2, ap_q_mode _AP_Q2, ap_o_mode _AP_O2, int _AP_N2>
     INLINE ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >
-    operator, (af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2, 
+    operator, (af_bit_ref<_AP_W2, _AP_I2, _AP_S2, _AP_Q2,
                _AP_O2, _AP_N2> &a2) {
         return ap_concat_ref<_AP_W, ap_private, 1, af_bit_ref<_AP_W2,
                 _AP_I2, _AP_S2, _AP_Q2, _AP_O2, _AP_N2> >(*this, a2);
@@ -5744,7 +5744,7 @@ template<int _AP_W1>
     operator ^ (const ap_concat_ref<_AP_W2, _AP_T2, _AP_W3, _AP_T3>& a2) {
         return *this ^ a2.get();
     }
-    
+
 
     //Reduce operation
     //-----------------------------------------------------------
@@ -5778,17 +5778,17 @@ template<int _AP_W1>
         return toString(radix, radix==10?_AP_S:sign);
     }
 };
-template<int _AP_W, bool _AP_S> 
+template<int _AP_W, bool _AP_S>
 std::string ap_private<_AP_W, _AP_S, 1>::toString(uint8_t radix, bool wantSigned) const {
     assert((radix == 10 || radix == 8 || radix == 16 || radix == 2) &&
             "Radix should be 2, 8, 10, or 16!");
-    static const char *digits[] = { 
-        "0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f" 
+    static const char *digits[] = {
+        "0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"
     };
     std::string result;
     if (radix != 10) {
-        // For the 2, 8 and 16 bit cases, we can just shift instead of divide 
-        // because the number of bits per digit (1,3 and 4 respectively) divides 
+        // For the 2, 8 and 16 bit cases, we can just shift instead of divide
+        // because the number of bits per digit (1,3 and 4 respectively) divides
         // equaly. We just shift until there value is zero.
 
         // First, check for a zero value and just short circuit the logic below.
@@ -5846,4 +5846,4 @@ std::string ap_private<_AP_W, _AP_S, 1>::toString(uint8_t radix, bool wantSigned
 
 }
 
-#endif // AP_PRIVATE_H
+#endif /* #ifndef LLVM_SUPPORT_MATHEXTRAS_H */
