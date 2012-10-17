@@ -59,7 +59,7 @@ print OUTPUT <<EOF;
 /*============================================================================*/
 EOF
 for my $dataset (@datasets) {
-    printf OUTPUT "#define DO_TEST_%-30s 1\n", clean_macro_name($dataset);
+    printf OUTPUT "#define DO_TEST_%-30s 0\n", clean_macro_name($dataset);
 }
 print OUTPUT <<EOF;
 /*----------------------------------------------------------------------------*/
@@ -76,7 +76,7 @@ print OUTPUT <<EOF;
 EOF
 for my $dataset_file (@dataset_files) {
     my $dataset_name = get_dataset_name($dataset_file);
-    
+
     print OUTPUT <<EOF;
 #if DO_TEST_${\(clean_macro_name($dataset_name))}
     #include "${\(basename($dataset_file))}.h"
@@ -105,13 +105,13 @@ EOF
 
 # Error message if data set not found
 print OUTPUT <<EOF;
-    PRINTF_STDERR("Data set not found: " << dataset);
-    PRINTF_STDERR("Available datasets are:");
+    PRINTF_STDERR("Data set not found: " << dataset << std::endl);
+    PRINTF_STDERR("Available datasets are:" << std::endl);
 EOF
 for my $dataset (@datasets) {
     print OUTPUT <<EOF;
 #if DO_TEST_DATASET_${\(clean_macro_name($dataset))}
-    PRINTF_STDERR("\\t" << $dataset);
+    PRINTF_STDERR("    " << "$dataset" << std::endl);
 #endif /* #if DO_TEST_${\(clean_macro_name($dataset))} */
 EOF
 }

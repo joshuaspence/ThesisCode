@@ -136,7 +136,13 @@ int save_vardump(
     write_variable_to_file(&block_size, sizeof(size_t), 1, fp);
 
     /* outliers */
-    write_variable_to_file(&outliers, sizeof(unsigned int), N, fp);
+    long unsigned int outliers_lu[N]; /* outliers was originally stored in the data (.dat) files as a size_t */
+    do {
+        unsigned int i;
+        for (i = 0; i < N; i++)
+            outliers_lu[i] = outliers[i];
+    } while (0);
+    write_variable_to_file(&outliers_lu, sizeof(long unsigned int), N, fp);
 
     /* outlier_scores */
     write_variable_to_file(&outlier_scores, sizeof(double), N, fp);
@@ -185,7 +191,19 @@ int read_vardump_from_file(
     read_variable_from_file(&block_size, sizeof(size_t), 1, fp);
 
     /* outliers */
-    malloc_read_variable_from_file((void **) &outliers, sizeof(unsigned int), N, fp);
+    long unsigned int * outliers_lu; /* outliers was originally stored in the data (.dat) files as a size_t */
+    malloc_read_variable_from_file((void **) &outliers_lu, sizeof(long unsigned int), N, fp);
+    outliers = (unsigned int *) malloc(N * sizeof(long unsigned int));
+    if (outliers == NULL) {
+        PRINTF_STDERR("Failed to allocate " << N * sizeof(long unsigned int) << " bytes." << std::endl);
+        return MALLOC_FAILED;
+    }
+    do {
+        unsigned int i;
+        for (i = 0; i < N; i++)
+            outliers[i] = outliers_lu[i];
+    } while (0);
+    free(outliers_lu);
 
     /* outlier_scores */
     malloc_read_variable_from_file((void **) &outlier_scores, sizeof(double), N, fp);
@@ -230,26 +248,7 @@ int read_vardump_from_array(
     read_variable_from_array(&vector_dims, sizeof(size_t), 1, array);
 
     /* data */
-    double * raw_data = NULL;
     malloc_read_variable_from_array((void **) &data, sizeof(double), num_vectors * vector_dims, array);
-    data = (double *) malloc(num_vectors * vector_dims * sizeof(double));
-    if (data == NULL) {
-        PRINTF_STDERR("Failed to allocate " << (num_vectors * vector_dims * sizeof(double)) << " bytes for " << "data" << "." << std::endl);
-        do {
-            free(raw_data);
-        } while (0);
-        return MALLOC_FAILED;
-    }
-    do {
-        unsigned int i;
-        for (i = 0; i < num_vectors; i++) {
-            unsigned int j;
-            for (j = 0; j < vector_dims; j++) {
-                data[i * num_vectors + j] = raw_data[i * num_vectors + j];
-            }
-        }
-        free(raw_data);
-    } while (0);
 
     /* k */
     read_variable_from_array(&k, sizeof(size_t), 1, array);
@@ -261,7 +260,19 @@ int read_vardump_from_array(
     read_variable_from_array(&block_size, sizeof(size_t), 1, array);
 
     /* outliers */
-    malloc_read_variable_from_array((void **) &outliers, sizeof(unsigned int), N, array);
+    long unsigned int * outliers_lu; /* outliers was originally stored in the data (.dat) files as a size_t */
+    malloc_read_variable_from_array((void **) &outliers_lu, sizeof(long unsigned int), N, array);
+    outliers = (unsigned int *) malloc(N * sizeof(long unsigned int));
+    if (outliers == NULL) {
+        PRINTF_STDERR("Failed to allocate " << N * sizeof(long unsigned int) << " bytes." << std::endl);
+        return MALLOC_FAILED;
+    }
+    do {
+        unsigned int i;
+        for (i = 0; i < N; i++)
+            outliers[i] = outliers_lu[i];
+    } while (0);
+    free(outliers_lu);
 
     /* outlier_scores */
     malloc_read_variable_from_array((void **) &outlier_scores, sizeof(double), N, array);

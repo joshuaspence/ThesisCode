@@ -30,8 +30,8 @@ static bool do_test(
     bool failed = false;
 
     /* Create the output arrays. */
-    unsigned int  outliers      [N];
-    double        outlier_scores[N];
+    unsigned int outliers      [N];
+    double       outlier_scores[N];
     memset(outliers,       0, N * sizeof(unsigned int));
     memset(outlier_scores, 0, N * sizeof(double));
 
