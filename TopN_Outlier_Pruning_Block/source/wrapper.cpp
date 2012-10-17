@@ -4,7 +4,8 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros */
 
-#include "test.h" /* for test, TEST_TYPE_DISABLED, TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
+#include "test.h" /* for test_from_file, TEST_TYPE_DISABLED, TEST_TYPE_EMBEDDED, TEST_TYPE_FILE */
+#include "utility.h" /* for PRINTF_STDERR */
 #include <string> /* for std::endl, std::string */
 /*----------------------------------------------------------------------------*/
 

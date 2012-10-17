@@ -5,15 +5,16 @@
 /* Checks                                                                     */
 /*============================================================================*/
 #ifndef __MEX__
-    #error "This file should only be included in MEX builds"
+    #error This file should only be included in MEX builds
 #endif /* #ifndef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Includes                                                                   */
 /*============================================================================*/
-#include "utility.h" /* for EMPTY_STATEMENT, size_t, UNUSED */
+#include "utility.h" /* for EMPTY_STATEMENT, UNUSED */
 #include <mex.h> /* for mxCreateDoubleMatrix, mxDestroyArray, mxGetData, mxGetM, mxGetN, mxGetNumberOfDimensions, mxGetNumberOfElements, mxIsComplex, mxIsDouble, mxIsSparse */
+#include <stddef.h> /* for size_t */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
@@ -48,50 +49,44 @@
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
-/* Types                                                                      */
-/*============================================================================*/
-typedef double m_dbl_t;
-/*----------------------------------------------------------------------------*/
-
-/*============================================================================*/
 /* Macros for arrays                                                          */
 /*============================================================================*/
 /* Retrieve a matrix of doubles from a specified location. */
-#define RETRIEVE_REAL_DOUBLE_ARRAY(_array_, _location_) \
-    const size_t UNUSED ROWS(_array_) = mxGetM(_location_); \
-    const size_t UNUSED COLS(_array_) = mxGetN(_location_); \
-    mxArray * const UNUSED ARRAY(_array_) = (mxArray *) _location_; \
-    m_dbl_t * const _array_ = (m_dbl_t *) mxGetData(ARRAY(_array_)); \
+#define RETRIEVE_REAL_DOUBLE_ARRAY(array, location) \
+    const size_t UNUSED ROWS(array) = mxGetM(location); \
+    const size_t UNUSED COLS(array) = mxGetN(location); \
+    mxArray * const UNUSED ARRAY(array) = (mxArray *) location; \
+    double * const array = (double *) mxGetData(ARRAY(array)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with an array. */
-#define FREE_ARRAY(_array_) \
-    mxDestroyArray(ARRAY(_array_)); \
+#define FREE_ARRAY(array) \
+    mxDestroyArray(ARRAY(array)); \
     EMPTY_STATEMENT()
 
 /* To access an array element. Uses one-based row/column indexing. */
-#define ARRAY_ELEMENT(_array_, _row_, _column_) \
-    _array_[(_row_) + (ROWS(_array_) * (_column_))]
+#define ARRAY_ELEMENT(array, row, col) \
+    array[(row) + (ROWS(array) * (col))]
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Macros for vectors                                                         */
 /*============================================================================*/
 /* Create a vector of doubles. */
-#define CREATE_REAL_DOUBLE_VECTOR(_vector_, _elements_) \
-    const size_t ELEMENTS(_vector_) = _elements_; \
-    mxArray * const UNUSED VECTOR(_vector_) = mxCreateDoubleMatrix(1, ELEMENTS(_vector_), mxREAL); \
-    m_dbl_t * const _vector_ = (m_dbl_t *) mxGetData(VECTOR(_vector_)); \
+#define CREATE_REAL_DOUBLE_VECTOR(vector, elements) \
+    const size_t ELEMENTS(vector) = elements; \
+    mxArray * const UNUSED VECTOR(vector) = mxCreateDoubleMatrix(1, ELEMENTS(vector), mxREAL); \
+    double * const vector = (double *) mxGetData(VECTOR(vector)); \
     EMPTY_STATEMENT()
 
 /* Free the memory associated with a vector. */
-#define FREE_VECTOR(_vector_) \
-    mxDestroyArray(VECTOR(_vector)); \
+#define FREE_VECTOR(vector) \
+    mxDestroyArray(VECTOR(vector)); \
     EMPTY_STATEMENT()
 
 /* To access a vector element. Uses one-based element indexing. */
-#define VECTOR_ELEMENT(_vector_, _element_) \
-    _vector_[(_element_)]
+#define VECTOR_ELEMENT(vector, element) \
+    vector[(element)]
 /*----------------------------------------------------------------------------*/
 
 #endif /* #ifndef MATLAB_H_ */

@@ -5,6 +5,7 @@
 /* Includes                                                                   */
 /*============================================================================*/
 #include "utility.h" /* for __BEGIN_DECLS, __END_DECLS */
+#include <stddef.h> /* for size_t */
 #include <string> /* for std::string */
 /*----------------------------------------------------------------------------*/
 

@@ -4,21 +4,23 @@
 #include "checks.h" /* check for invalid preprocessor macro combinations */
 #include "arch.h" /* set architecture specific macros. for PRINTF_STDERR */
 
-#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, m_dbl_t, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, size_t, VECTOR, VECTOR_ELEMENT */
-#include "top_n_outlier_pruning_block.h" /* for top_n_outlier_pruning_block */
-#include "utility.h" /* for dbl_t, index_t, NULL_INDEX, uint_t */
+#include "matlab.h" /* for ARRAY_ELEMENT, COLS, CREATE_REAL_DOUBLE_VECTOR, IS_REAL_2D_FULL_DOUBLE, IS_REAL_SCALAR, RETRIEVE_REAL_DOUBLE_ARRAY, ROWS, VECTOR, VECTOR_ELEMENT */
+#include "sw_functions.h" /* for top_n_outlier_pruning_block_sw */
+#include "utility.h" /* for NULL_INDEX */
 #include "vardump.h" /* save_vardump */
 
 #include <mex.h> /* for mxGetScalar */
+#include <stddef.h> /* for size_t */
 #include <stdlib.h> /* for free, malloc */
 #include <string> /* for std::endl */
+#include <string.h> /* for memset */
 /*----------------------------------------------------------------------------*/
 
 /*============================================================================*/
 /* Checks                                                                     */
 /*============================================================================*/
 #ifndef __MEX__
-    #error "This file should only be included in MEX builds."
+    #error This file should only be used in MEX builds
 #endif /* #ifndef __MEX__ */
 /*----------------------------------------------------------------------------*/
 
@@ -65,7 +67,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         PRINTF_STDERR("One or two outputs required." << std::endl);
         return;
     }
-    
+
     /*
      * Make sure the first input argument is a real 2D full (non-sparse) double
      * array.
@@ -75,7 +77,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         return;
     }
     RETRIEVE_REAL_DOUBLE_ARRAY(data, DATA_IN);
-    
+
     /* Make sure the second input argument is an integer. */
     if (!IS_REAL_SCALAR(K_IN)) {
         PRINTF_STDERR("Input 'k' must be a scalar." << std::endl);
@@ -87,7 +89,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         return;
     }
     const size_t k = (size_t) k_dbl;
-    
+
     /* Make sure the third input argument is an integer. */
     if (!IS_REAL_SCALAR(N_IN)) {
         PRINTF_STDERR("Input 'N' must be a scalar." << std::endl);
@@ -99,7 +101,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         return;
     }
     const size_t N = (size_t) N_dbl;
-    
+
     /* Make sure the fourth input argument is an integer. */
     if (!IS_REAL_SCALAR(BLOCKSIZE_IN)) {
         PRINTF_STDERR("Input 'block_size' must be a scalar." << std::endl);
@@ -111,7 +113,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         return;
     }
     const size_t block_size = (size_t) block_size_dbl;
-    
+
     /* Additional error checking. */
     if (ROWS(data) < N) {
         PRINTF_STDERR("Input 'N' must be less than or equal to the number of vectors in the 'data' array." << std::endl);
@@ -121,60 +123,63 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
         PRINTF_STDERR("Input 'k' must be less than or equal to the number of vectors in the 'data' array." << std::endl);
         return;
     }
-    
+
     /*
-     * Convert the input to proper format for the "top_n_outlier_pruning_block" 
+     * Convert the input to proper format for the "top_n_outlier_pruning_block"
      * function.
      */
     const size_t num_vectors = ROWS(data);
     const size_t vector_dims = COLS(data);
-    dbl_t * const data_in = (dbl_t *) malloc(num_vectors * vector_dims * sizeof(dbl_t));
+    double * const data_in = (double *) malloc(num_vectors * vector_dims * sizeof(double));
     if (data_in == NULL) {
         PRINTF_STDERR("Unable to allocate memory for data array." << std::endl);
         return;
     }
-    
-    uint_t vector;
+
+    unsigned int vector;
     for (vector = 0; vector < num_vectors; vector++) {
-        uint_t dim;
+        unsigned int dim;
         for (dim = 0; dim < vector_dims; dim++) {
-            data_in[vector * vector_dims + dim] = (dbl_t) ARRAY_ELEMENT(data, vector, dim);
+            data_in[vector * vector_dims + dim] = (double) ARRAY_ELEMENT(data, vector, dim);
         }
     }
-    
+
     /* Create the output arrays. */
-    index_t  outliers_out      [N];
-    dbl_t    outlier_scores_out[N];
-    MEMSET_1D(outliers_out,       NULL_INDEX, N, sizeof(index_t));
-    MEMSET_1D(outlier_scores_out,          0, N, sizeof(dbl_t));
-    
+    unsigned int outliers_out      [N];
+    double       outlier_scores_out[N];
+    memset(outliers_out,       NULL_INDEX, N * sizeof(unsigned int));
+    memset(outlier_scores_out,          0, N * sizeof(double));
+
     /* Call the function. */
-    const uint_t num_pruned = top_n_outlier_pruning_block(num_vectors, vector_dims, data_in, k, N, block_size, outliers_out, outlier_scores_out);
-    
+    const UNUSED unsigned int num_pruned = top_n_outlier_pruning_block_sw(
+            num_vectors, vector_dims, data_in, k, N, block_size, outliers_out,
+            outlier_scores_out);
+
     /* Save input and output parameters. */
-    save_vardump("vars.dat", num_vectors, vector_dims, data_in, k, N, block_size, outliers_out, outlier_scores_out);
-    
+    save_vardump("vars.dat", num_vectors, vector_dims, data_in, k, N,
+            block_size, outliers_out, outlier_scores_out);
+
     /* Free dynamic memory. */
     if (data_in != NULL)
         free(data_in);
-    
+
     /* Convert the output to MATLAB format. */
     if (nlhs >= 1) {
         CREATE_REAL_DOUBLE_VECTOR(outliers, N);
         OUTLIERS_OUT = VECTOR(outliers);
-        
-        uint_t i;
+
+        unsigned int i;
         for (i = 0; i < ELEMENTS(outliers); i++)
-            VECTOR_ELEMENT(outliers, i) = (m_dbl_t) outliers_out[i];
+            VECTOR_ELEMENT(outliers, i) = outliers_out[i];
     }
     if (nlhs >= 2) {
         CREATE_REAL_DOUBLE_VECTOR(outlier_scores, N);
         OUTLIERSCORES_OUT = VECTOR(outlier_scores);
-        
-        uint_t i;
+
+        unsigned int i;
         for (i = 0; i < ELEMENTS(outlier_scores); i++)
-            VECTOR_ELEMENT(outlier_scores, i) = (m_dbl_t) outlier_scores_out[i];
+            VECTOR_ELEMENT(outlier_scores, i) = outlier_scores_out[i];
     }
-    
+
     PRINTF_STDOUT("Number of pruned vectors = " << num_pruned << std::endl);
 }
