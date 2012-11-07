@@ -12,6 +12,7 @@ random.txt
 TopN_Outlier_Pruning_Block.mat
 TopN_Outlier_Pruning_Block.txt
 animation.gif
+animation.*.gif
 
 # C outputs
 vars.dat
