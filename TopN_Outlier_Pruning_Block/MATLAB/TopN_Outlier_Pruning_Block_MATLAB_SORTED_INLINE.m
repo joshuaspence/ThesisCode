@@ -22,6 +22,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
     outliers_size  = 0;             % the number of initialised elements in the outliers array
     cutoff = 0;                     %
     count = 0;                      % the number of vectors processed in a block
+    global anim;
 
     while (data_size - count > 0) % load a block of examples from D
         actual_block_size = min(block_size, data_size-count);
@@ -34,20 +35,32 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
         found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
 
+        anim = animation_block(anim, block);
+        
         for vector1_index = 1 : data_size % for each d in D
+            % Add data to animation
+            if exist('anim','var')
+                anim = animation_outerVector(anim, vector1_index);
+            end
+            
             for block_index = 1 : actual_block_size % for each b in B
                 vector2_index = block(block_index);
-
+                
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     % d = euclidean_dist_squared(data(vector1_index,:), data(vector2_index,:));
                     % Inline {
                         V = data(vector1_index,:) - data(vector2_index,:);
                         dist_squared = V * V';
-
+                        
                         % Output argument setup
                         d = dist_squared;
                     % }
-
+                    
+                    % Add data to animation
+                    if exist('anim','var')
+                        anim = animation_distanceCalculation(anim, vector1_index, vector2_index);
+                    end
+                    
                     % Keep track of the k nearest neighbours to each vector
                     % in the block.
                     % [neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
@@ -58,10 +71,10 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
                         curr_size   = found(block_index);
                         new_index   = vector1_index;
                         new_value   = d;
-
+                        
                         index = 0;
                         removed_value = -1;
-
+                        
                         if curr_size < size(value_array,2)
                             for i = size(value_array,2)-curr_size : 1 : size(value_array,2)
                                 if new_value > value_array(i) || i == size(value_array,2)-curr_size
@@ -92,7 +105,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
                                 end
                             end
                         end
-
+                        
                         if index ~= 0
                             index_array(index) = new_index;
                             value_array(index) = new_value;
@@ -101,27 +114,32 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
                                 curr_size = curr_size + 1;
                             end
                         end
-
+                        
                         % Output argument setup
                         neighbours(block_index,:)      = index_array;
                         neighbours_dist(block_index,:) = value_array;
                         found(block_index)             = curr_size;
                         maxd                           = removed_value;
                     % }
-
+                    
                     % Update the score.
                     if maxd ~= -1
                         score(block_index) = (score(block_index)*k - maxd + d)/k;
                     end
-
+                    
                     if found(block_index) == k && score(block_index) < cutoff
                         block(block_index) = 0;
                         score(block_index) = 0;
+                        
+                        % Add data to animation
+                        if exist('anim','var')
+                            anim = animation_prune(anim, vector2_index);
+                        end
                     end
                 end
             end
         end
-
+        
         % Keep track of the best outliers so far.
         % [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
         % Inline {
@@ -131,10 +149,10 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
             outliers_size  = outliers_size;
             current_block  = block(1:actual_block_size);
             scores         = score;
-
+            
             [scores, index] = sort(scores, 'descend');
             current_block = current_block(index);
-
+            
             % Merge the two arrays.
             % [outliers, outlier_scores, outliers_size] = merge(outliers, outlier_scores, outliers_size, current_block, scores, size(current_block,2), size(outliers,2));
             % Inline {
@@ -145,11 +163,11 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
                 index_array2 = current_block;
                 value_array2 = scores;
                 array2_size  = size(current_block,2);
-
+                
                 index_array = zeros(1,N);
                 value_array = zeros(1,N);
                 array_size  = 0;
-
+                
                 iter  = 1;
                 iter1 = 1;
                 iter2 = 1;
@@ -180,19 +198,24 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED_I
                     iter       = iter+1;
                     array_size = array_size+1;
                 end
-
+                
                 % Output argument setup
                 outliers       = index_array;
                 outlier_scores = value_array;
                 outliers_size  = array_size;
             % }
-
+            
             % Output argument setup
             outliers       = outliers;
             outlier_scores = outlier_scores;
             outliers_size  = outliers_size;
         % }
-
+        
+        % Add data to animation
+        if exist('anim','var')
+            anim = animation_outliers(anim, outliers);
+        end
+        
         % Update the cutoff.
         cutoff = outlier_scores(size(outlier_scores,2));
     end

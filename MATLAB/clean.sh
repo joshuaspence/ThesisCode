@@ -6,7 +6,7 @@
 
 clean_matlab() {
     echo "Cleaning..."
-    rm --force --verbose graph.{mat,txt} output.{csv,png} random.{mat,txt} TopN_Outlier_Pruning_Block.{mat,txt} vars.dat
+    rm --force --verbose graph.{mat,txt} output.{csv,png} random.{mat,txt} TopN_Outlier_Pruning_Block.{mat,txt} vars.dat animation.gif
 }
 
 clean_profiling() {
@@ -50,21 +50,21 @@ for opt in $@; do
         matlab)
             clean_matlab
             ;;
-            
+
         profiling)
             clean_profiling
             ;;
-        
+
         testing)
             clean_testing
             ;;
-        
+
         all)
             clean_matlab
             clean_profiling
             clean_testing
             ;;
-        
+
        *)
 	        # terminate while loop
 	        break

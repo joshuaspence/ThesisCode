@@ -26,41 +26,41 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
         actual_block_size = min(block_size, data_size-count);
         block             = (count+1 : count+actual_block_size);
         count             = count + actual_block_size;
-
+        
         neighbours      = zeros(actual_block_size, k);  % /- keep these in sorted
         neighbours_dist = zeros(actual_block_size, k);  % \- (ascending) order
-
+        
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
         found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
         
         anim = animation_block(anim, block);
-
+        
         for vector1_index = 1 : data_size % for each d in D
             % Add data to animation
-            %if exist('anim','var')
-            %    anim = animation_outerVector(anim, vector1_index);
-            %end
+            if exist('anim','var')
+                anim = animation_outerVector(anim, vector1_index);
+            end
             
             for block_index = 1 : actual_block_size % for each b in B
                 vector2_index = block(block_index);
-
+                
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     d = euclidean_dist_squared(data(vector1_index,:), data(vector2_index,:));
                     
                     % Add data to animation
-                    %if exist('anim','var')
-                    %    anim = animation_distanceCalculation(anim, vector1_index, vector2_index);
-                    %end
-
+                    if exist('anim','var')
+                        anim = animation_distanceCalculation(anim, vector1_index, vector2_index);
+                    end
+                    
                     % Keep track of the k nearest neighbours to each vector
                     % in the block.
                     [neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), maxd] = sorted_insert(neighbours(block_index,:), neighbours_dist(block_index,:), found(block_index), vector1_index, d);
-
+                    
                     % Update the score.
                     if maxd ~= -1
                         score(block_index) = (score(block_index)*k - maxd + d)/k;
                     end
-
+                    
                     if found(block_index) == k && score(block_index) < cutoff
                         block(block_index) = 0;
                         score(block_index) = 0;
@@ -73,7 +73,7 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
                 end
             end
         end
-
+        
         % Keep track of the best outliers so far.
         [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
         
