@@ -6,9 +6,10 @@ function anim = animation_newFrame(anim)
     
     fprintf('Plotted animation frame %d\n', anim.frame_counter);
     
-    if anim.frame_counter >= 1500
+    % Flush every 20 frames
+    if anim.frame_counter >= 20
         % Save the animation
-        anim.filecounter = 0;
+        anim.filecounter = anim.filecounter + 1;
         anim = animation_save(anim);
         
         % Clear and start again.

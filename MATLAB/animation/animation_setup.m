@@ -4,14 +4,11 @@ function anim = animation_setup(adj_matrix, data, filename)
     anim.filename = filename;
     anim.filecounter = -1;
 
-    anim.delay_time = 0;
-    anim.loop_count = inf;
-
     % Create the first frame
     anim.figure = figure('NumberTitle', 'off');
     hold on;
     axis equal;
-    animation_plotData(anim);
+    anim = animation_plotData(anim);
     hold off;
 
     % Get figure size.
@@ -33,3 +30,10 @@ function anim = animation_setup(adj_matrix, data, filename)
     anim.block = [];
     anim.outliers = [];
     anim.last_outer_vector = 0;
+    anim.outer_vector_plot = plot([],[]);
+    anim.outer_vector_counter = 0;
+    
+    % Configuration
+    anim.outer_vector_modulo = 1; % round(size(anim.data,1) / 10);
+    anim.delay_time = 0;
+    anim.loop_count = 0;
