@@ -20,7 +20,8 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
     outliers_size  = 0;             % the number of initialised elements in the outliers array
     cutoff = 0;                     %
     count = 0;                      % the number of vectors processed in a block
-
+    global anim;
+    
     while (data_size - count > 0) % load a block of examples from D
         actual_block_size = min(block_size, data_size-count);
         block             = (count+1 : count+actual_block_size);
@@ -31,13 +32,25 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
 
         score           = zeros(1, actual_block_size); % the outlier score for each vector in the current block
         found           = zeros(1, actual_block_size); % the number of neighbours found for each vector in the current block
+        
+        anim = animation_block(anim, block);
 
         for vector1_index = 1 : data_size % for each d in D
+            % Add data to animation
+            %if exist('anim','var')
+            %    anim = animation_outerVector(anim, vector1_index);
+            %end
+            
             for block_index = 1 : actual_block_size % for each b in B
                 vector2_index = block(block_index);
 
                 if vector1_index ~= vector2_index && vector2_index ~= 0
                     d = euclidean_dist_squared(data(vector1_index,:), data(vector2_index,:));
+                    
+                    % Add data to animation
+                    %if exist('anim','var')
+                    %    anim = animation_distanceCalculation(anim, vector1_index, vector2_index);
+                    %end
 
                     % Keep track of the k nearest neighbours to each vector
                     % in the block.
@@ -51,6 +64,11 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
                     if found(block_index) == k && score(block_index) < cutoff
                         block(block_index) = 0;
                         score(block_index) = 0;
+                        
+                        % Add data to animation
+                        if exist('anim','var')
+                            anim = animation_prune(anim, vector2_index);
+                        end
                     end
                 end
             end
@@ -58,6 +76,11 @@ function [outliers, outlier_scores] = TopN_Outlier_Pruning_Block_MATLAB_SORTED(d
 
         % Keep track of the best outliers so far.
         [outliers, outlier_scores, outliers_size] = best_outliers(outliers, outlier_scores, outliers_size, block(1:actual_block_size), score);
+        
+        % Add data to animation
+        if exist('anim','var')
+            anim = animation_outliers(anim, outliers);
+        end
 
         % Update the cutoff.
         cutoff = outlier_scores(size(outlier_scores,2));
@@ -251,6 +274,7 @@ function [index_array, value_array, array_size] = merge(index_array1, value_arra
 % Calculate the Euclidean distance between two vectors.
 function dist = euclidean_dist(X, Y)
     dist = norm(X - Y);
+    
 %--------------------------------------------------------------------------
 
 % Calculate the squared Euclidean distance between two vectors.

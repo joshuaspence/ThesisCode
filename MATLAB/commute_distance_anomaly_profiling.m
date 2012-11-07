@@ -97,6 +97,10 @@ fprintf('Writing the graph to file %s\n', graph_output);
 save(graph_output, 'G');
 %save(strcat(g_base_dir, filesep, 'graph.txt'), 'G', '-ASCII');
 
+% Setup animation
+global anim;
+anim = animation_setup(G, Y(sampled_vertices,:), 'animation');
+
 disp 'Calculating distance based CTD-ST ...';
 tCDOFa = tic;
 [O3a, OF3a] = TopN_Outlier_Pruning_Block_CTD_ST(G, kRP, scale, k2, N, block_size);
@@ -111,6 +115,9 @@ OF = OF3a;
 csv_output = strcat(g_base_dir, filesep, 'output.csv');
 fprintf('Writing the result to file %s\n', csv_output);
 csvwrite(csv_output, [O' OF']);
+
+fprintf('Saving animation\n');
+animation_save(anim);
 
 'Done'
 
